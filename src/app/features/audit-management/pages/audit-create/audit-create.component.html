@@ -1,0 +1,195 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Create Audit</h4>
+    <p>Initiate a new tax audit investigation.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Taxpayer -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Taxpayer Information</h6>
+        <span class="section-sub">TIN and taxpayer identification</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">TIN Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Taxpayer Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Enter taxpayer name" [(ngModel)]="form.taxpayerName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Return / Reference No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-file-earmark-text input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. VAT-2024-00001" [(ngModel)]="form.returnNo" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assessment Year</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
+            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Audit Details -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-shield-fill-check"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Audit Details</h6>
+        <span class="section-sub">Type, priority and schedule</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Audit Type</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.auditType">
+            <option value="">Select Type</option>
+            <option *ngFor="let t of auditTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Priority</label>
+        <div class="input-wrap">
+          <i class="bi bi-speedometer2 input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.priority">
+            <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Scheduled Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input"
+            [(ngModel)]="form.scheduledDate" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Assignment -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-person-gear"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Assignment</h6>
+        <span class="section-sub">Assign auditor and supervisor</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Assigned To</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.assignedTo">
+            <option value="">Select Auditor</option>
+            <option *ngFor="let a of auditors" [value]="a">{{ a }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Supervised By</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-check input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.supervisedBy">
+            <option value="">Select Supervisor</option>
+            <option *ngFor="let s of supervisors" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Remarks -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-chat-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Remarks</h6>
+        <span class="section-sub">Optional notes or observations</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label">Remarks / Notes</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Enter any additional remarks..."
+            [(ngModel)]="form.remarks" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading">
+        <i class="bi bi-shield-fill-check"></i> Create Audit
+      </span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Creating...
+      </span>
+    </button>
+  </div>
+
+</div>

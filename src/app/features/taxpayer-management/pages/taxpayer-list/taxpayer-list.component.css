@@ -1,0 +1,71 @@
+.search-field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-field-row .search-field {
+  flex: 1;
+}
+
+.tin-code {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a3f8f;
+  background: #e8eef9;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-family: monospace;
+}
+
+
+.td-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.action-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.td-avatar {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #1a3f8f, #2a5fd6);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f4ff;
+  color: #1a3f8f;
+  border: 1px solid #d0daf5;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-export:hover {
+  background: #dde6ff;
+  border-color: #1a3f8f;
+}
+
+@media (max-width: 480px) {
+  .btn-export span { display: none; }
+  .btn-export { padding: 9px 12px; }
+}

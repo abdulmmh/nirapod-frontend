@@ -1,0 +1,186 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Taxpayer List</h4>
+    <p>Manage all registered taxpayers from here.</p>
+  </div>
+
+  <!-- Only roles that can create -->
+  
+  <a  *canDo="'create'"
+    routerLink="/taxpayers/create"
+    class="btn-add-primary desktop-add-btn"
+  >
+    <i class="bi bi-plus-lg"></i> Add Taxpayer
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by name, TIN, email, phone..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+
+      <!-- Export — only commissioner, auditor, admin -->
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i>
+        <span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>TIN</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tp of filteredTaxpayers; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><span class="tin-code">{{ tp.tin }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ tp.fullName.charAt(0) }}</div>
+              <span>{{ tp.fullName }}</span>
+            </div>
+          </td>
+          <td>{{ tp.email }}</td>
+          <td>{{ tp.phone }}</td>
+          <td>{{ tp.taxpayerType }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(tp.status)">
+              {{ tp.status }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+
+              <!-- View — all roles -->
+              <button class="btn-view" (click)="viewTaxpayers(tp.id)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+
+              <!-- Edit — create/edit roles only -->
+              <button *canDo="'edit'" class="btn-edit" (click)="editTaxpayers(tp.id)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+
+              <!-- Delete — admin & commissioner only -->
+              <button
+                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+                class="btn-delete"
+                (click)="delete(tp.id)"
+              >
+                <i class="bi bi-trash-fill"></i> Delete
+              </button>
+
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredTaxpayers.length === 0">
+          <td colspan="8">
+            <div class="empty-state">
+              <i class="bi bi-people"></i>
+              <p>No taxpayers found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding: 12px;">
+    <div class="mobile-card" *ngFor="let tp of filteredTaxpayers">
+
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ tp.fullName.charAt(0) }}</div>
+          <div>
+            <div class="mobile-name">{{ tp.fullName }}</div>
+            <div class="mobile-sub">{{ tp.tin }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(tp.status)">
+          {{ tp.status }}
+        </span>
+      </div>
+
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>Email</label>
+          <span>{{ tp.email }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Phone</label>
+          <span>{{ tp.phone }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Type</label>
+          <span>{{ tp.taxpayerType }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Registered</label>
+          <span>{{ tp.registrationDate }}</span>
+        </div>
+      </div>
+
+      <div class="mobile-card-actions">
+
+        <!-- View — all roles -->
+        <button class="btn-view">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+
+        <!-- Edit — create/edit roles only -->
+        <button *canDo="'edit'" class="btn-edit">
+          <i class="bi bi-pencil-fill"></i> Edit
+        </button>
+
+        <!-- Delete — admin & commissioner only -->
+        <button
+          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+          class="btn-delete"
+          (click)="delete(tp.id)"
+        >
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="filteredTaxpayers.length === 0">
+      <i class="bi bi-people"></i>
+      <p>No taxpayers found.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB — only roles that can create -->
+<button
+  *canDo="'create'"
+  class="fab-btn"
+  routerLink="/taxpayers/create"
+  title="Add Taxpayer"
+>
+  <i class="bi bi-plus-lg"></i>
+</button>

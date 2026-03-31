@@ -1,0 +1,239 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Edit Audit</h4>
+    <p>Update audit details and status.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to View
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+  <p>Loading audit data...</p>
+</div>
+
+<div class="form-card" *ngIf="!isLoading">
+
+  <div class="audit-banner">
+    <i class="bi bi-pencil-square"></i>
+    Editing: <strong>{{ form.auditNo }}</strong>
+  </div>
+
+  <!-- Section 1: Taxpayer -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Taxpayer Information</h6>
+        <span class="section-sub">TIN and taxpayer details</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">TIN Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.tinNumber" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Taxpayer Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.taxpayerName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Return No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-file-earmark-text input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.returnNo" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assessment Year</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
+            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Audit Details -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-shield-fill-check"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Audit Details</h6>
+        <span class="section-sub">Type, priority, dates and status</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Audit Type</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.auditType">
+            <option *ngFor="let t of auditTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Priority</label>
+        <div class="input-wrap">
+          <i class="bi bi-speedometer2 input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.priority">
+            <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Scheduled Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.scheduledDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.startDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Completion Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar2-check input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.completionDate" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Assignment -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-person-gear"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Assignment</h6>
+        <span class="section-sub">Auditor and supervisor details</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Assigned To</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.assignedTo">
+            <option *ngFor="let a of auditors" [value]="a">{{ a }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Supervised By</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-check input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.supervisedBy">
+            <option *ngFor="let s of supervisors" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Findings -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-file-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Findings & Financial</h6>
+        <span class="section-sub">Audit findings and tax demand</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Tax Demand (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-cash-stack input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.taxDemand" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Penalty Recommended (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-exclamation-triangle input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.penaltyRecommended" />
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Audit Findings</label>
+        <div class="input-wrap">
+          <i class="bi bi-file-text input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            [(ngModel)]="form.auditFindings" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Remarks</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            [(ngModel)]="form.remarks" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isSaving || !isFormValid()">
+      <span *ngIf="!isSaving">
+        <i class="bi bi-check-lg"></i> Update Audit
+      </span>
+      <span *ngIf="isSaving">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Updating...
+      </span>
+    </button>
+  </div>
+
+</div>

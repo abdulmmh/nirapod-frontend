@@ -1,0 +1,266 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Edit Payment</h4>
+    <p>Update payment transaction details.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to View
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+  <p>Loading payment data...</p>
+</div>
+
+<div class="form-card" *ngIf="!isLoading">
+
+  <!-- TXN ID Banner -->
+  <div class="txn-banner">
+    <i class="bi bi-pencil-square"></i>
+    Editing Transaction: <strong>{{ form.transactionId }}</strong>
+  </div>
+
+  <!-- Section 1: Taxpayer Info -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Taxpayer Information</h6>
+        <span class="section-sub">TIN and taxpayer identification</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label class="form-label required">TIN Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input"
+            [(ngModel)]="form.tinNumber" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Taxpayer Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input"
+            [(ngModel)]="form.taxpayerName" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Payment Type</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <select class="form-input form-select"
+            [(ngModel)]="form.paymentType">
+            <option *ngFor="let t of paymentTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select"
+            [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Return / Ref No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-file-earmark-text input-icon"></i>
+          <input type="text" class="form-input"
+            [(ngModel)]="form.returnNo" />
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Payment Details -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-credit-card-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Payment Details</h6>
+        <span class="section-sub">Amount, method and transaction info</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label class="form-label required">Amount (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input"
+            [(ngModel)]="form.amount" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Payment Method</label>
+        <div class="input-wrap">
+          <i class="bi bi-wallet2 input-icon"></i>
+          <select class="form-input form-select"
+            [(ngModel)]="form.paymentMethod">
+            <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Reference No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-hash input-icon"></i>
+          <input type="text" class="form-input"
+            [(ngModel)]="form.referenceNo" />
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="showChequeField">
+        <label class="form-label">Cheque No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-journal-text input-icon"></i>
+          <input type="text" class="form-input"
+            [(ngModel)]="form.chequeNo" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Payment Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input"
+            [(ngModel)]="form.paymentDate" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Value Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <input type="date" class="form-input"
+            [(ngModel)]="form.valueDate" />
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Bank Details -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-bank2"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Bank Details</h6>
+        <span class="section-sub">Bank, branch and account information</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label class="form-label required">Bank Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-bank input-icon"></i>
+          <select class="form-input form-select"
+            [(ngModel)]="form.bankName">
+            <option *ngFor="let b of banks" [value]="b">{{ b }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Branch</label>
+        <div class="input-wrap">
+          <i class="bi bi-geo-alt-fill input-icon"></i>
+          <input type="text" class="form-input"
+            [(ngModel)]="form.bankBranch" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Account No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-credit-card input-icon"></i>
+          <input type="text" class="form-input"
+            [(ngModel)]="form.accountNo" />
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Remarks -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-chat-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Remarks</h6>
+        <span class="section-sub">Optional notes</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label">Remarks / Notes</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            [(ngModel)]="form.remarks"
+            rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isSaving || !isFormValid()">
+      <span *ngIf="!isSaving">
+        <i class="bi bi-check-lg"></i> Update Payment
+      </span>
+      <span *ngIf="isSaving">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Updating...
+      </span>
+    </button>
+  </div>
+
+</div>

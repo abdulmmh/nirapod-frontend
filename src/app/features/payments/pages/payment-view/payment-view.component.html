@@ -1,0 +1,170 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Payment Details</h4>
+    <p>Full transaction information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && payment">
+
+  <!-- Transaction Header Card -->
+  <div class="txn-header-card">
+    <div class="txn-header-left">
+      <div class="txn-icon">
+        <i class="bi bi-credit-card-fill"></i>
+      </div>
+      <div>
+        <div class="txn-id">{{ payment.transactionId }}</div>
+        <div class="txn-meta">
+          <span class="type-badge" [ngClass]="getTypeClass(payment.paymentType)">
+            {{ payment.paymentType }}
+          </span>
+          <span class="txn-date">
+            <i class="bi bi-calendar3"></i> {{ payment.paymentDate }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="txn-header-right">
+      <div class="txn-amount">{{ formatCurrency(payment.amount) }}</div>
+      <span class="status-badge" [ngClass]="getStatusClass(payment.status)">
+        {{ payment.status }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <!-- Taxpayer Info -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Taxpayer Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">TIN Number</span>
+          <span class="detail-value"><span class="code-badge">{{ payment.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Taxpayer Name</span>
+          <span class="detail-value fw-bold">{{ payment.taxpayerName }}</span>
+        </div>
+        <div class="detail-row" *ngIf="payment.returnNo">
+          <span class="detail-label">Return / Ref No.</span>
+          <span class="detail-value"><span class="code-badge">{{ payment.returnNo }}</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Info -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-credit-card-fill"></i>
+        <span>Payment Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Payment Type</span>
+          <span class="detail-value">
+            <span class="type-badge" [ngClass]="getTypeClass(payment.paymentType)">
+              {{ payment.paymentType }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Payment Method</span>
+          <span class="detail-value">{{ payment.paymentMethod }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Amount</span>
+          <span class="detail-value amount-large">{{ formatCurrency(payment.amount) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Payment Date</span>
+          <span class="detail-value">{{ payment.paymentDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Value Date</span>
+          <span class="detail-value">{{ payment.valueDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Reference No.</span>
+          <span class="detail-value"><span class="code-badge">{{ payment.referenceNo }}</span></span>
+        </div>
+        <div class="detail-row" *ngIf="payment.chequeNo">
+          <span class="detail-label">Cheque No.</span>
+          <span class="detail-value">{{ payment.chequeNo }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bank Info -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-bank2"></i>
+        <span>Bank Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Bank Name</span>
+          <span class="detail-value fw-bold">{{ payment.bankName }}</span>
+        </div>
+        <div class="detail-row" *ngIf="payment.bankBranch">
+          <span class="detail-label">Branch</span>
+          <span class="detail-value">{{ payment.bankBranch }}</span>
+        </div>
+        <div class="detail-row" *ngIf="payment.accountNo">
+          <span class="detail-label">Account No.</span>
+          <span class="detail-value"><span class="code-badge">{{ payment.accountNo }}</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Processing Info -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-gear"></i>
+        <span>Processing Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(payment.status)">
+              {{ payment.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Processed By</span>
+          <span class="detail-value">{{ payment.processedBy }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Created At</span>
+          <span class="detail-value">{{ payment.createdAt }}</span>
+        </div>
+        <div class="detail-row" *ngIf="payment.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value">{{ payment.remarks }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

@@ -1,0 +1,240 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Issue Penalty</h4>
+    <p>Issue a new penalty or fine to a taxpayer.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Taxpayer -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Taxpayer Information</h6>
+        <span class="section-sub">TIN and taxpayer identification</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">TIN Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Taxpayer Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Enter taxpayer name" [(ngModel)]="form.taxpayerName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Return / Reference No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-file-earmark-text input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. VAT-2024-00001" [(ngModel)]="form.returnNo" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assessment Year</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
+            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Penalty Details -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon red">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Penalty Details</h6>
+        <span class="section-sub">Type, severity and amount (interest auto-calculated at 15%)</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Penalty Type</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.penaltyType">
+            <option value="">Select Type</option>
+            <option *ngFor="let t of penaltyTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Severity</label>
+        <div class="input-wrap">
+          <i class="bi bi-speedometer2 input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.severity">
+            <option *ngFor="let s of severities" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Penalty Amount (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input"
+            placeholder="0" [(ngModel)]="form.penaltyAmount"
+            (ngModelChange)="onPenaltyChange()" />
+        </div>
+        <span class="field-hint" *ngIf="form.penaltyAmount > 0">
+          ≈ {{ fmt(form.penaltyAmount) }}
+        </span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Interest Amount (15%)</label>
+        <div class="input-wrap">
+          <i class="bi bi-percent input-icon"></i>
+          <input type="number" class="form-input calc-field"
+            [value]="form.interestAmount" readonly />
+        </div>
+      </div>
+    </div>
+
+    <!-- Penalty Summary -->
+    <div class="penalty-summary">
+      <div class="ps-row">
+        <span class="ps-label">Penalty Amount</span>
+        <span class="ps-value penalty">{{ fmt(form.penaltyAmount) }}</span>
+      </div>
+      <div class="ps-row">
+        <span class="ps-label">Interest (15%)</span>
+        <span class="ps-value interest">+ {{ fmt(form.interestAmount) }}</span>
+      </div>
+      <div class="ps-divider"></div>
+      <div class="ps-row total-row">
+        <span class="ps-label total">Total Amount Due</span>
+        <span class="ps-value total">{{ fmt(totalAmount) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Issuance -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-calendar-event-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Issuance Details</h6>
+        <span class="section-sub">Issue date, due date and issuing officer</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Issue Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input"
+            [(ngModel)]="form.issueDate"
+            (ngModelChange)="setDefaultDueDate()" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Due Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-x input-icon"></i>
+          <input type="date" class="form-input"
+            [(ngModel)]="form.dueDate" />
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label required">Issued By</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-badge input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.issuedBy">
+            <option value="">Select Officer</option>
+            <option *ngFor="let o of officers" [value]="o">{{ o }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Description & Remarks -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-chat-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Description & Remarks</h6>
+        <span class="section-sub">Penalty reason and additional notes</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label">Description</label>
+        <div class="input-wrap">
+          <i class="bi bi-file-text input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Describe the reason for this penalty..."
+            [(ngModel)]="form.description" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Remarks / Notes</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Additional remarks..."
+            [(ngModel)]="form.remarks" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading">
+        <i class="bi bi-exclamation-triangle-fill"></i> Issue Penalty
+      </span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Issuing...
+      </span>
+    </button>
+  </div>
+
+</div>

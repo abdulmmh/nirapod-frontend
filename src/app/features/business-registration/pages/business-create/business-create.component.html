@@ -1,0 +1,254 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Register Business</h4>
+    <p>Register a new business entity.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Business Identity -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-building-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Business Identity</h6>
+        <span class="section-sub">Basic business identification details</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label required">Business Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-building input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Enter business name" [(ngModel)]="form.businessName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">TIN Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Owner Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Enter owner name" [(ngModel)]="form.ownerName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Business Type</label>
+        <div class="input-wrap">
+          <i class="bi bi-diagram-3-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.businessType">
+            <option value="">Select Type</option>
+            <option *ngFor="let t of businessTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Business Category</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.businessCategory">
+            <option value="">Select Category</option>
+            <option *ngFor="let c of businessCategories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: License & Registration -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-file-earmark-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">License & Registration</h6>
+        <span class="section-sub">Trade license, BIN and dates</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Trade License No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-journal-text input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. TL-44821" [(ngModel)]="form.tradeLicenseNo" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">BIN No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-hash input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. BIN-2024-001" [(ngModel)]="form.binNo" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Incorporation Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.incorporationDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Registration Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.registrationDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expiry Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-x input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.expiryDate" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Contact & Location -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-geo-alt-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Contact & Location</h6>
+        <span class="section-sub">Contact details and business address</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <div class="input-wrap">
+          <i class="bi bi-envelope-fill input-icon"></i>
+          <input type="email" class="form-input"
+            placeholder="business@example.com" [(ngModel)]="form.email" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Phone</label>
+        <div class="input-wrap">
+          <i class="bi bi-telephone-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="01xxx-xxxxxx" [(ngModel)]="form.phone" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Division</label>
+        <div class="input-wrap">
+          <i class="bi bi-map-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.division"
+            (ngModelChange)="onDivisionChange()">
+            <option value="">Select Division</option>
+            <option *ngFor="let d of divisions" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">District</label>
+        <div class="input-wrap">
+          <i class="bi bi-geo-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.district"
+            [disabled]="!form.division">
+            <option value="">Select District</option>
+            <option *ngFor="let d of availableDistricts" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Full Address</label>
+        <div class="input-wrap">
+          <i class="bi bi-geo-alt-fill input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Enter full business address..."
+            [(ngModel)]="form.address" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Financial -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-cash-stack"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Financial & Workforce</h6>
+        <span class="section-sub">Turnover and employee information</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Annual Turnover (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input"
+            placeholder="0" [(ngModel)]="form.annualTurnover" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Number of Employees</label>
+        <div class="input-wrap">
+          <i class="bi bi-people-fill input-icon"></i>
+          <input type="number" class="form-input"
+            placeholder="0" [(ngModel)]="form.numberOfEmployees" />
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Remarks</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Optional remarks..."
+            [(ngModel)]="form.remarks" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading"><i class="bi bi-building-fill"></i> Register Business</span>
+      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Registering...</span>
+    </button>
+  </div>
+
+</div>

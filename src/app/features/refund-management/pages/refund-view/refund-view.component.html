@@ -1,0 +1,189 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Refund Details</h4>
+    <p>Full refund claim information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && refund">
+
+  <!-- Refund Header Card -->
+  <div class="refund-header-card">
+    <div class="refund-header-left">
+      <div class="refund-icon"><i class="bi bi-cash-stack"></i></div>
+      <div>
+        <div class="refund-no">{{ refund.refundNo }}</div>
+        <div class="refund-meta">
+          <span class="type-badge" [ngClass]="getTypeClass(refund.refundType)">
+            {{ refund.refundType }}
+          </span>
+          <span class="refund-date">
+            <i class="bi bi-calendar3"></i> {{ refund.claimDate }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="refund-header-right">
+      <div class="refund-label">Claim Amount</div>
+      <div class="refund-amount">{{ formatCurrency(refund.claimAmount) }}</div>
+      <span class="status-badge" [ngClass]="getStatusClass(refund.status)">
+        {{ refund.status }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Amount Summary Row -->
+  <div class="amount-summary-row">
+    <div class="amount-summary-card">
+      <div class="as-icon claim"><i class="bi bi-file-earmark-text"></i></div>
+      <div class="as-body">
+        <span class="as-label">Claimed</span>
+        <span class="as-value">{{ formatCurrency(refund.claimAmount) }}</span>
+      </div>
+    </div>
+    <div class="amount-summary-card">
+      <div class="as-icon approved"><i class="bi bi-check-circle-fill"></i></div>
+      <div class="as-body">
+        <span class="as-label">Approved</span>
+        <span class="as-value approved">
+          {{ refund.approvedAmount > 0 ? formatCurrency(refund.approvedAmount) : '—' }}
+        </span>
+      </div>
+    </div>
+    <div class="amount-summary-card">
+      <div class="as-icon paid"><i class="bi bi-cash-coin"></i></div>
+      <div class="as-body">
+        <span class="as-label">Paid</span>
+        <span class="as-value paid">
+          {{ refund.paidAmount > 0 ? formatCurrency(refund.paidAmount) : '—' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Taxpayer Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">TIN Number</span>
+          <span class="detail-value"><span class="code-badge">{{ refund.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Taxpayer Name</span>
+          <span class="detail-value fw-bold">{{ refund.taxpayerName }}</span>
+        </div>
+        <div class="detail-row" *ngIf="refund.returnNo">
+          <span class="detail-label">Return No.</span>
+          <span class="detail-value"><span class="code-badge">{{ refund.returnNo }}</span></span>
+        </div>
+        <div class="detail-row" *ngIf="refund.paymentRef">
+          <span class="detail-label">Payment Ref.</span>
+          <span class="detail-value"><span class="code-badge">{{ refund.paymentRef }}</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-cash-stack"></i>
+        <span>Refund Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Refund Type</span>
+          <span class="detail-value">
+            <span class="type-badge" [ngClass]="getTypeClass(refund.refundType)">
+              {{ refund.refundType }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Refund Method</span>
+          <span class="detail-value">{{ refund.refundMethod }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Claim Date</span>
+          <span class="detail-value">{{ refund.claimDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="refund.approvalDate">
+          <span class="detail-label">Approval Date</span>
+          <span class="detail-value">{{ refund.approvalDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="refund.paymentDate">
+          <span class="detail-label">Payment Date</span>
+          <span class="detail-value">{{ refund.paymentDate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card" *ngIf="refund.bankName">
+      <div class="detail-card-header">
+        <i class="bi bi-bank2"></i>
+        <span>Bank Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Bank Name</span>
+          <span class="detail-value fw-bold">{{ refund.bankName }}</span>
+        </div>
+        <div class="detail-row" *ngIf="refund.bankBranch">
+          <span class="detail-label">Branch</span>
+          <span class="detail-value">{{ refund.bankBranch }}</span>
+        </div>
+        <div class="detail-row" *ngIf="refund.accountNo">
+          <span class="detail-label">Account No.</span>
+          <span class="detail-value"><span class="code-badge">{{ refund.accountNo }}</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-gear"></i>
+        <span>Processing Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(refund.status)">
+              {{ refund.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Processed By</span>
+          <span class="detail-value">{{ refund.processedBy }}</span>
+        </div>
+        <div class="detail-row" *ngIf="refund.approvedBy">
+          <span class="detail-label">Approved By</span>
+          <span class="detail-value">{{ refund.approvedBy }}</span>
+        </div>
+        <div class="detail-row" *ngIf="refund.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value">{{ refund.remarks }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

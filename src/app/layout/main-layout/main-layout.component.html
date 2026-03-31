@@ -1,0 +1,32 @@
+<div class="app-layout" [class.sidebar-collapsed]="isSidebarCollapsed">
+
+  <!-- Mobile Overlay -->
+  <div
+    class="sidebar-overlay"
+    [class.active]="isMobileDrawerOpen"
+    (click)="closeDrawer()"
+  ></div>
+
+  <!-- Sidebar -->
+  <div
+    class="sidebar-wrapper"
+    [class.collapsed]="isSidebarCollapsed"
+    [class.mobile-open]="isMobileDrawerOpen"
+  >
+    <app-sidebar
+      [isCollapsed]="isSidebarCollapsed"
+      (closeSidebar)="closeDrawer()"
+    ></app-sidebar>
+  </div>
+
+  <!-- Main Area -->
+  <div class="main-area">
+    <app-topbar (menuToggle)="toggleSidebar()"></app-topbar>
+    <app-breadcrumbs></app-breadcrumbs>
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+    <app-footer></app-footer>
+  </div>
+
+</div>

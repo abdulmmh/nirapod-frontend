@@ -1,0 +1,179 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Business Registration</h4>
+    <p>Manage all registered businesses and trade licenses.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/businesses/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Register Business
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text"
+          placeholder="Search by name, reg no, TIN, owner, type, district..."
+          [(ngModel)]="searchTerm" />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i><span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading businesses...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Reg No</th>
+          <th>Business</th>
+          <th>Type</th>
+          <th>Category</th>
+          <th>TIN</th>
+          <th>Trade License</th>
+          <th>District</th>
+          <th>Employees</th>
+          <th>Turnover</th>
+          <th>Expiry</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of filteredBusinesses; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td><span class="reg-code">{{ b.businessRegNo }}</span></td>
+
+          <td>
+            <div class="td-name">
+              <div class="td-avatar biz-avatar">
+                <i [class]="getCategoryIcon(b.businessCategory)"></i>
+              </div>
+              <div>
+                <span class="td-title">{{ b.businessName }}</span>
+                <span class="td-sub">{{ b.ownerName }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="type-badge" [ngClass]="getTypeClass(b.businessType)">
+              {{ b.businessType }}
+            </span>
+          </td>
+
+          <td>
+            <span class="category-pill">
+              <i [class]="getCategoryIcon(b.businessCategory)"></i>
+              {{ b.businessCategory }}
+            </span>
+          </td>
+
+          <td><span class="code-sm">{{ b.tinNumber }}</span></td>
+
+          <td><span class="code-sm">{{ b.tradeLicenseNo }}</span></td>
+
+          <td>{{ b.district }}</td>
+
+          <td class="num-cell">{{ b.numberOfEmployees }}</td>
+
+          <td class="num-cell">{{ formatCurrency(b.annualTurnover) }}</td>
+
+          <td>
+            <span [class]="isExpired(b.expiryDate) ? 'expiry-red' : 'expiry-normal'">
+              {{ b.expiryDate }}
+            </span>
+          </td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(b.status)">
+              {{ b.status }}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view"   (click)="view(b.id)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit" (click)="edit(b.id)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+                class="btn-delete" (click)="delete(b.id)">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredBusinesses.length === 0">
+          <td colspan="13">
+            <div class="empty-state">
+              <i class="bi bi-building"></i>
+              <p>No businesses found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let b of filteredBusinesses">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar biz-avatar">
+            <i [class]="getCategoryIcon(b.businessCategory)"></i>
+          </div>
+          <div>
+            <div class="mobile-name">{{ b.businessName }}</div>
+            <div class="mobile-sub">{{ b.businessRegNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(b.status)">
+          {{ b.status }}
+        </span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Owner</label><span>{{ b.ownerName }}</span></div>
+        <div class="mobile-field"><label>TIN</label><span>{{ b.tinNumber }}</span></div>
+        <div class="mobile-field"><label>Type</label>
+          <span class="type-badge" [ngClass]="getTypeClass(b.businessType)">{{ b.businessType }}</span>
+        </div>
+        <div class="mobile-field"><label>Category</label><span>{{ b.businessCategory }}</span></div>
+        <div class="mobile-field"><label>District</label><span>{{ b.district }}</span></div>
+        <div class="mobile-field"><label>Turnover</label><span>{{ formatCurrency(b.annualTurnover) }}</span></div>
+        <div class="mobile-field"><label>Employees</label><span>{{ b.numberOfEmployees }}</span></div>
+        <div class="mobile-field"><label>Expiry</label>
+          <span [class]="isExpired(b.expiryDate) ? 'expiry-red' : ''">{{ b.expiryDate }}</span>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="view(b.id)"><i class="bi bi-eye-fill"></i> View</button>
+        <button *canDo="'edit'" class="btn-edit" (click)="edit(b.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(b.id)"><i class="bi bi-trash-fill"></i></button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filteredBusinesses.length === 0">
+      <i class="bi bi-building"></i><p>No businesses found.</p>
+    </div>
+  </div>
+
+</div>
+
+<button *canDo="'create'" class="fab-btn" routerLink="/businesses/create">
+  <i class="bi bi-plus-lg"></i>
+</button>

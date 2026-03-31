@@ -1,0 +1,102 @@
+export const API_BASE_URL = 'http://localhost:8080/api';
+
+export const API_ENDPOINTS = {
+
+  // Dashboard
+  DASHBOARD: {
+    STATS:           `${API_BASE_URL}/dashboard/stats`,
+    RECENT_TAXPAYERS:`${API_BASE_URL}/dashboard/recent-taxpayers`,
+    RECENT_PAYMENTS: `${API_BASE_URL}/dashboard/recent-payments`,
+    VAT_CHART:       `${API_BASE_URL}/dashboard/vat-chart`,
+    PAYMENT_CHART:   `${API_BASE_URL}/dashboard/payment-chart`,
+  },
+
+  // Taxpayer
+  TAXPAYERS: {
+    LIST:   `${API_BASE_URL}/taxpayers`,
+    CREATE: `${API_BASE_URL}/taxpayers`,
+    UPDATE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
+  },
+
+  // Business
+  BUSINESSES: {
+    LIST:   `${API_BASE_URL}/businesses`,
+    CREATE: `${API_BASE_URL}/businesses`,
+    UPDATE: (id: number) => `${API_BASE_URL}/businesses/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/businesses/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/businesses/${id}`,
+  },
+
+  // VAT Returns
+  VAT_RETURNS: {
+    LIST:   `${API_BASE_URL}/vat-returns`,
+    CREATE: `${API_BASE_URL}/vat-returns`,
+    UPDATE: (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
+  },
+
+  // Payments
+  PAYMENTS: {
+    LIST:   `${API_BASE_URL}/payments`,
+    CREATE: `${API_BASE_URL}/payments`,
+    GET:    (id: number) => `${API_BASE_URL}/payments/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/payments/${id}`,
+  },
+
+  // Notices & Notifications
+  NOTICES: {
+    LIST:   `${API_BASE_URL}/notices`,
+    CREATE: `${API_BASE_URL}/notices`,
+    GET:    (id: number) => `${API_BASE_URL}/notices/${id}`,
+    UPDATE: (id: number) => `${API_BASE_URL}/notices/${id}`,
+  },
+
+  // Penalties & Fines
+  PENALTIES: {
+    LIST:   `${API_BASE_URL}/penalties`,
+    CREATE: `${API_BASE_URL}/penalties`,
+    GET:    (id: number) => `${API_BASE_URL}/penalties/${id}`,
+    UPDATE: (id: number) => `${API_BASE_URL}/penalties/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/penalties/${id}`,
+  },
+
+  // Documents
+  DOCUMENTS: {
+    LIST:   `${API_BASE_URL}/documents`,
+    CREATE: `${API_BASE_URL}/documents`,
+    GET:    (id: number) => `${API_BASE_URL}/documents/${id}`,
+    UPDATE: (id: number) => `${API_BASE_URL}/documents/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/documents/${id}`,
+  },
+
+  // Audits
+  AUDITS: {
+    LIST:   `${API_BASE_URL}/audits`,
+    CREATE: `${API_BASE_URL}/audits`,
+    GET:    (id: number) => `${API_BASE_URL}/audits/${id}`,
+  },
+
+  // Users
+  USERS: {
+    LIST:   `${API_BASE_URL}/users`,
+    CREATE: `${API_BASE_URL}/users`,
+    UPDATE: (id: number) => `${API_BASE_URL}/users/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/users/${id}`,
+  },
+
+  // Reports
+  REPORTS: {
+    VAT_SUMMARY:     `${API_BASE_URL}/reports/vat-summary`,
+    PAYMENT_SUMMARY: `${API_BASE_URL}/reports/payment-summary`,
+    TAXPAYER_STATS:  `${API_BASE_URL}/reports/taxpayer-stats`,
+  },
+
+  // Auth
+  AUTH: {
+    LOGIN:   `${API_BASE_URL}/auth/login`,
+    LOGOUT:  `${API_BASE_URL}/auth/logout`,
+    PROFILE: `${API_BASE_URL}/auth/profile`,
+  }
+};

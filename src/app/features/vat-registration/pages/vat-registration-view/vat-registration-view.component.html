@@ -1,0 +1,195 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>VAT Registration Details</h4>
+    <p>Full VAT registration information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-success"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && vat">
+
+  <!-- Header Card -->
+  <div class="vat-header-card">
+    <div class="vat-header-left">
+      <div class="vat-icon"><i class="bi bi-receipt-cutoff"></i></div>
+      <div>
+        <div class="vat-bin">{{ vat.binNo }}</div>
+        <div class="vat-name">{{ vat.businessName }}</div>
+        <div class="vat-meta">
+          <span class="cat-badge" [ngClass]="getCategoryClass(vat.vatCategory)">
+            {{ vat.vatCategory }}
+          </span>
+          <span class="zone-pill">{{ vat.vatZone }}</span>
+          <span class="circle-pill">{{ vat.vatCircle }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(vat.status)">
+            {{ vat.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="vat-header-right">
+      <div class="vat-stat">
+        <span class="vs-label">Annual Turnover</span>
+        <span class="vs-value">{{ formatCurrency(vat.annualTurnover) }}</span>
+      </div>
+      <div class="vat-stat">
+        <span class="vs-label">Effective Date</span>
+        <span class="vs-value">{{ vat.effectiveDate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <!-- Business Info -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-building-fill"></i>
+        <span>Business Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">BIN No.</span>
+          <span class="detail-value"><span class="code-badge green">{{ vat.binNo }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">TIN No.</span>
+          <span class="detail-value"><span class="code-badge">{{ vat.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Business Name</span>
+          <span class="detail-value fw-bold">{{ vat.businessName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Owner Name</span>
+          <span class="detail-value">{{ vat.ownerName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Business Type</span>
+          <span class="detail-value">{{ vat.businessType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Category</span>
+          <span class="detail-value">{{ vat.businessCategory }}</span>
+        </div>
+        <div class="detail-row" *ngIf="vat.tradeLicenseNo">
+          <span class="detail-label">Trade License</span>
+          <span class="detail-value"><span class="code-badge">{{ vat.tradeLicenseNo }}</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VAT Details -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-receipt-cutoff"></i>
+        <span>VAT Registration Details</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">VAT Category</span>
+          <span class="detail-value">
+            <span class="cat-badge" [ngClass]="getCategoryClass(vat.vatCategory)">
+              {{ vat.vatCategory }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">VAT Zone</span>
+          <span class="detail-value"><span class="zone-pill">{{ vat.vatZone }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">VAT Circle</span>
+          <span class="detail-value"><span class="circle-pill">{{ vat.vatCircle }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Registration Date</span>
+          <span class="detail-value">{{ vat.registrationDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Effective Date</span>
+          <span class="detail-value">{{ vat.effectiveDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Expiry Date</span>
+          <span class="detail-value"
+            [class]="isExpired(vat.expiryDate) ? 'expiry-red' : ''">
+            {{ vat.expiryDate || '—' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Annual Turnover</span>
+          <span class="detail-value fw-bold turnover">
+            {{ formatCurrency(vat.annualTurnover) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-geo-alt-fill"></i>
+        <span>Contact & Location</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row" *ngIf="vat.email">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">{{ vat.email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Phone</span>
+          <span class="detail-value">{{ vat.phone }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Division</span>
+          <span class="detail-value">{{ vat.division }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">District</span>
+          <span class="detail-value">{{ vat.district }}</span>
+        </div>
+        <div class="detail-row" *ngIf="vat.address">
+          <span class="detail-label">Address</span>
+          <span class="detail-value address-val">{{ vat.address }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-shield-fill-check"></i>
+        <span>Status & Remarks</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(vat.status)">
+              {{ vat.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row" *ngIf="vat.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value">{{ vat.remarks }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

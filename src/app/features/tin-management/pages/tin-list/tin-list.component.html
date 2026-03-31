@@ -1,0 +1,161 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>TIN Management</h4>
+    <p>Manage all Taxpayer Identification Numbers.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/tin/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Issue TIN
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text"
+          placeholder="Search by TIN, name, category, zone, district..."
+          [(ngModel)]="searchTerm" />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i><span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading TIN records...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>TIN Number</th>
+          <th>Taxpayer</th>
+          <th>Category</th>
+          <th>NID / Passport</th>
+          <th>Tax Zone</th>
+          <th>Tax Circle</th>
+          <th>District</th>
+          <th>Issued Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of filteredTins; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td><span class="tin-code">{{ t.tinNumber }}</span></td>
+
+          <td>
+            <div class="td-name">
+              <div class="td-avatar tin-avatar">
+                <i [class]="getCategoryIcon(t.tinCategory)"></i>
+              </div>
+              <div>
+                <span class="td-title">{{ t.taxpayerName }}</span>
+                <span class="td-sub">{{ t.email }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="cat-badge" [ngClass]="getCategoryClass(t.tinCategory)">
+              <i [class]="getCategoryIcon(t.tinCategory)"></i>
+              {{ t.tinCategory }}
+            </span>
+          </td>
+
+          <td>
+            <span class="code-sm" *ngIf="t.nationalId">{{ t.nationalId }}</span>
+            <span class="code-sm" *ngIf="!t.nationalId && t.passportNo">{{ t.passportNo }}</span>
+            <span class="text-muted" *ngIf="!t.nationalId && !t.passportNo">—</span>
+          </td>
+
+          <td><span class="zone-badge">{{ t.taxZone }}</span></td>
+          <td><span class="circle-badge">{{ t.taxCircle }}</span></td>
+          <td>{{ t.district }}</td>
+          <td>{{ t.issuedDate }}</td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(t.status)">
+              {{ t.status }}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="view(t.id)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit" (click)="edit(t.id)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+                class="btn-delete" (click)="delete(t.id)">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredTins.length === 0">
+          <td colspan="11">
+            <div class="empty-state">
+              <i class="bi bi-upc-scan"></i>
+              <p>No TIN records found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let t of filteredTins">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar tin-avatar">
+            <i [class]="getCategoryIcon(t.tinCategory)"></i>
+          </div>
+          <div>
+            <div class="mobile-name">{{ t.taxpayerName }}</div>
+            <div class="mobile-sub">{{ t.tinNumber }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Category</label>
+          <span class="cat-badge" [ngClass]="getCategoryClass(t.tinCategory)">{{ t.tinCategory }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="t.nationalId"><label>NID</label><span>{{ t.nationalId }}</span></div>
+        <div class="mobile-field"><label>Tax Zone</label><span>{{ t.taxZone }}</span></div>
+        <div class="mobile-field"><label>Tax Circle</label><span>{{ t.taxCircle }}</span></div>
+        <div class="mobile-field"><label>District</label><span>{{ t.district }}</span></div>
+        <div class="mobile-field"><label>Phone</label><span>{{ t.phone }}</span></div>
+        <div class="mobile-field"><label>Issued</label><span>{{ t.issuedDate }}</span></div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="view(t.id)"><i class="bi bi-eye-fill"></i> View</button>
+        <button *canDo="'edit'" class="btn-edit" (click)="edit(t.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(t.id)"><i class="bi bi-trash-fill"></i></button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filteredTins.length === 0">
+      <i class="bi bi-upc-scan"></i><p>No TIN records found.</p>
+    </div>
+  </div>
+
+</div>
+
+<button *canDo="'create'" class="fab-btn" routerLink="/tin/create">
+  <i class="bi bi-plus-lg"></i>
+</button>

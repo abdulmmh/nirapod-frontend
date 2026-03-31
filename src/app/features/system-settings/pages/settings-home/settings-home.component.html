@@ -1,0 +1,63 @@
+<div class="page-header">
+  <div>
+    <h2>System Settings</h2>
+    <p>Manage application configuration and preferences.</p>
+  </div>
+</div>
+
+<div class="settings-grid">
+  <div class="settings-card">
+    <h3>System Information</h3>
+
+    <div class="info-row">
+      <span>System Name</span>
+      <strong>National VAT & Tax Management System</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Version</span>
+      <strong>1.0.0</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Environment</span>
+      <strong>Development</strong>
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <h3>Notification Settings</h3>
+
+    <label class="setting-item">
+      <span>Email Notifications</span>
+      <input type="checkbox" [(ngModel)]="settings.emailNotifications" />
+    </label>
+
+    <label class="setting-item">
+      <span>SMS Notifications</span>
+      <input type="checkbox" [(ngModel)]="settings.smsNotifications" />
+    </label>
+  </div>
+
+  <div class="settings-card">
+    <h3>Security Settings</h3>
+
+    <label class="setting-item">
+      <span>Enable Two Factor Authentication</span>
+      <input type="checkbox" [(ngModel)]="settings.twoFactorAuth" />
+    </label>
+  </div>
+
+  <div class="settings-card">
+    <h3>Maintenance</h3>
+
+    <label class="setting-item">
+      <span>Maintenance Mode</span>
+      <input type="checkbox" [(ngModel)]="settings.maintenanceMode" />
+    </label>
+  </div>
+</div>
+
+<div class="action-section">
+  <button class="primary-btn" (click)="saveSettings()">Save Settings</button>
+</div>

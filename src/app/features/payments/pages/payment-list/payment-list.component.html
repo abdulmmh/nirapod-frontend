@@ -1,0 +1,215 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Payment Management</h4>
+    <p>Track and manage all tax payments and transactions.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/payments/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Record Payment
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by TXN ID, taxpayer, TIN, type, reference..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i>
+        <span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading payments...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Transaction ID</th>
+          <th>Taxpayer</th>
+          <th>Type</th>
+          <th>Method</th>
+          <th>Amount</th>
+          <th>Bank</th>
+          <th>Reference No</th>
+          <th>Payment Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of filteredPayments; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td><span class="txn-code">{{ p.transactionId }}</span></td>
+
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ p.taxpayerName.charAt(0) }}</div>
+              <div>
+                <span class="td-title">{{ p.taxpayerName }}</span>
+                <span class="td-sub">{{ p.tinNumber }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="type-badge" [ngClass]="getTypeClass(p.paymentType)">
+              {{ p.paymentType }}
+            </span>
+          </td>
+
+          <td>
+            <span class="method-badge">
+              <i class="bi bi-bank"></i> {{ p.paymentMethod }}
+            </span>
+          </td>
+
+          <td class="amount-cell">{{ formatCurrency(p.amount) }}</td>
+
+          <td>{{ p.bankName }}</td>
+
+          <td><span class="ref-code">{{ p.referenceNo }}</span></td>
+
+          <td>{{ p.paymentDate }}</td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(p.status)">
+              {{ p.status }}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="viewPayment(p.id)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit"
+                (click)="editPayment(p.id)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <button
+                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+                class="btn-delete"
+                (click)="delete(p.id)"
+              >
+                <i class="bi bi-trash-fill"></i> Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredPayments.length === 0">
+          <td colspan="11">
+            <div class="empty-state">
+              <i class="bi bi-credit-card"></i>
+              <p>No payments found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding: 12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let p of filteredPayments">
+
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ p.taxpayerName.charAt(0) }}</div>
+          <div>
+            <div class="mobile-name">{{ p.taxpayerName }}</div>
+            <div class="mobile-sub">{{ p.transactionId }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(p.status)">
+          {{ p.status }}
+        </span>
+      </div>
+
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>TIN</label>
+          <span>{{ p.tinNumber }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Type</label>
+          <span class="type-badge" [ngClass]="getTypeClass(p.paymentType)">
+            {{ p.paymentType }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Amount</label>
+          <span class="amount-cell">{{ formatCurrency(p.amount) }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Method</label>
+          <span>{{ p.paymentMethod }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Bank</label>
+          <span>{{ p.bankName }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Reference</label>
+          <span>{{ p.referenceNo }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Date</label>
+          <span>{{ p.paymentDate }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="p.remarks">
+          <label>Remarks</label>
+          <span>{{ p.remarks }}</span>
+        </div>
+      </div>
+
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="viewPayment(p.id)">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+        <button *canDo="'edit'" class="btn-edit"
+          (click)="editPayment(p.id)">
+          <i class="bi bi-pencil-fill"></i> Edit
+        </button>
+        <button
+          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+          class="btn-delete"
+          (click)="delete(p.id)"
+        >
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+      </div>
+
+    </div>
+
+    <div class="empty-state" *ngIf="filteredPayments.length === 0">
+      <i class="bi bi-credit-card"></i>
+      <p>No payments found.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button *canDo="'create'" class="fab-btn"
+  routerLink="/payments/create" title="Record Payment">
+  <i class="bi bi-plus-lg"></i>
+</button>

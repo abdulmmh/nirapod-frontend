@@ -1,0 +1,172 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Audit Details</h4>
+    <p>Full audit investigation information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && audit">
+
+  <!-- Audit Header Card -->
+  <div class="audit-header-card">
+    <div class="audit-header-left">
+      <div class="audit-icon">
+        <i class="bi bi-shield-fill-check"></i>
+      </div>
+      <div>
+        <div class="audit-no">{{ audit.auditNo }}</div>
+        <div class="audit-meta">
+          <span class="type-label">{{ audit.auditType }}</span>
+          <span class="pri-badge" [ngClass]="getPriorityClass(audit.priority)">
+            {{ audit.priority }}
+          </span>
+          <span class="audit-date">
+            <i class="bi bi-calendar3"></i> {{ audit.scheduledDate }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="audit-header-right">
+      <span class="status-badge" [ngClass]="getStatusClass(audit.status)">
+        {{ audit.status }}
+      </span>
+      <div class="audit-year">{{ audit.assessmentYear }}</div>
+    </div>
+  </div>
+
+  <!-- Financial Summary -->
+  <div class="fin-summary-row" *ngIf="audit.taxDemand > 0 || audit.penaltyRecommended > 0">
+    <div class="fin-card">
+      <div class="fin-icon demand"><i class="bi bi-cash-stack"></i></div>
+      <div class="fin-body">
+        <span class="fin-label">Tax Demand</span>
+        <span class="fin-value demand">{{ fmt(audit.taxDemand) }}</span>
+      </div>
+    </div>
+    <div class="fin-card">
+      <div class="fin-icon penalty"><i class="bi bi-exclamation-triangle-fill"></i></div>
+      <div class="fin-body">
+        <span class="fin-label">Penalty Recommended</span>
+        <span class="fin-value penalty">{{ fmt(audit.penaltyRecommended) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Taxpayer Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">TIN Number</span>
+          <span class="detail-value"><span class="code-badge">{{ audit.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Taxpayer Name</span>
+          <span class="detail-value fw-bold">{{ audit.taxpayerName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Assessment Year</span>
+          <span class="detail-value">{{ audit.assessmentYear }}</span>
+        </div>
+        <div class="detail-row" *ngIf="audit.returnNo">
+          <span class="detail-label">Return No.</span>
+          <span class="detail-value"><span class="code-badge">{{ audit.returnNo }}</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-shield-fill-check"></i>
+        <span>Audit Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Audit Type</span>
+          <span class="detail-value fw-bold">{{ audit.auditType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Priority</span>
+          <span class="detail-value">
+            <span class="pri-badge" [ngClass]="getPriorityClass(audit.priority)">
+              {{ audit.priority }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Scheduled Date</span>
+          <span class="detail-value">{{ audit.scheduledDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="audit.startDate">
+          <span class="detail-label">Start Date</span>
+          <span class="detail-value">{{ audit.startDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="audit.completionDate">
+          <span class="detail-label">Completion Date</span>
+          <span class="detail-value">{{ audit.completionDate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-gear"></i>
+        <span>Assignment</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Assigned To</span>
+          <span class="detail-value fw-bold">{{ audit.assignedTo }}</span>
+        </div>
+        <div class="detail-row" *ngIf="audit.supervisedBy">
+          <span class="detail-label">Supervised By</span>
+          <span class="detail-value">{{ audit.supervisedBy }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(audit.status)">
+              {{ audit.status }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card" *ngIf="audit.auditFindings || audit.remarks">
+      <div class="detail-card-header">
+        <i class="bi bi-file-text-fill"></i>
+        <span>Findings & Remarks</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row" *ngIf="audit.auditFindings">
+          <span class="detail-label">Findings</span>
+          <span class="detail-value findings">{{ audit.auditFindings }}</span>
+        </div>
+        <div class="detail-row" *ngIf="audit.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value findings">{{ audit.remarks }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

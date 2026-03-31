@@ -1,0 +1,123 @@
+<div class="topbar" [class.search-active]="isSearchOpen">
+
+  <!-- Left -->
+  <div class="topbar-left" [class.hidden-on-mobile-search]="isSearchOpen">
+    <button class="hamburger-btn" (click)="menuToggle.emit()" title="Toggle Sidebar">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <div class="topbar-title">
+      <span class="title-main">National VAT & Tax Management System</span>
+      <span class="title-date">{{ currentDate }}</span>
+    </div>
+  </div>
+
+  <!-- Center: Desktop Search -->
+  <div class="search-box desktop-search">
+    <i class="bi bi-search search-icon"></i>
+    <input
+      type="text"
+      placeholder="Search taxpayer, TIN, BIN..."
+      class="search-input"
+    />
+  </div>
+
+  <!-- Mobile Search Expanded -->
+  <div class="mobile-search-bar" *ngIf="isSearchOpen">
+    <i class="bi bi-search"></i>
+    <input
+      #mobileSearchInput
+      type="text"
+      placeholder="Search taxpayer, TIN, BIN..."
+      class="mobile-search-input"
+    />
+    <button type="button" class="close-search-btn" (click)="closeSearch()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- Right -->
+  <div class="topbar-right" [class.hidden]="isSearchOpen">
+
+    <!-- Mobile Search Toggle -->
+    <button class="icon-btn mobile-search-toggle" (click)="openSearch()">
+      <i class="bi bi-search"></i>
+    </button>
+
+    <!-- Notifications -->
+    <div class="topbar-action" (click)="toggleNotifDropdown()">
+      <button class="icon-btn" [class.active]="isNotifDropdownOpen">
+        <i class="bi bi-bell-fill"></i>
+        <span class="badge-dot" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+
+      <div class="dropdown-panel notif-panel" *ngIf="isNotifDropdownOpen">
+        <div class="dropdown-header">
+          <span>Notifications</span>
+          <span class="badge-count">{{ unreadCount }} New</span>
+        </div>
+
+        <div class="notif-list">
+          <div
+            class="notif-item"
+            *ngFor="let notif of notifications"
+            [class.unread]="notif.unread"
+          >
+            <div class="notif-icon-wrap">
+              <i [class]="notif.icon"></i>
+            </div>
+            <div class="notif-body">
+              <p class="notif-text">{{ notif.text }}</p>
+              <span class="notif-time">{{ notif.time }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dropdown-footer">
+          <a href="#">View all notifications</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-divider"></div>
+
+    <!-- User -->
+    <div class="topbar-action" (click)="toggleUserDropdown()">
+      <button class="user-btn" [class.active]="isUserDropdownOpen">
+        <div class="user-avatar">{{ userInitial }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ currentUser?.fullName }}</span>
+          <span class="user-role">{{ currentUser?.role | titlecase }}</span>
+        </div>
+        <i class="bi bi-chevron-down user-chevron" [class.rotated]="isUserDropdownOpen"></i>
+      </button>
+
+      <div class="dropdown-panel user-panel" *ngIf="isUserDropdownOpen">
+        <div class="dropdown-header user-header">
+          <div class="user-avatar lg">{{ userInitial }}</div>
+          <div>
+            <div class="fw-bold">{{ currentUser?.fullName }}</div>
+            <small class="text-muted">{{ currentUser?.email }}</small>
+          </div>
+        </div>
+
+        <div class="dropdown-menu-list">
+          <a class="dropdown-menu-item" routerLink="/profile">
+            <i class="bi bi-person-circle"></i> My Profile
+          </a>
+          <a class="dropdown-menu-item" routerLink="/settings">
+            <i class="bi bi-gear-fill"></i> Settings
+          </a>
+          <a class="dropdown-menu-item" routerLink="/activity-logs">
+            <i class="bi bi-clock-history"></i> Activity Log
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-menu-item logout" (click)="logout()">
+            <i class="bi bi-box-arrow-right"></i> Sign Out
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

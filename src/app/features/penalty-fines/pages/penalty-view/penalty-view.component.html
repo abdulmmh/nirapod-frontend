@@ -1,0 +1,197 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Penalty Details</h4>
+    <p>Full penalty and fine information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-danger"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && penalty">
+
+  <!-- Penalty Header Card -->
+  <div class="penalty-header-card">
+    <div class="penalty-header-left">
+      <div class="penalty-icon">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <div>
+        <div class="penalty-no">{{ penalty.penaltyNo }}</div>
+        <div class="penalty-meta">
+          <span class="sev-badge" [ngClass]="getSeverityClass(penalty.severity)">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{ penalty.severity }}
+          </span>
+          <span class="penalty-type-label">{{ penalty.penaltyType }}</span>
+          <span class="penalty-date">
+            <i class="bi bi-calendar3"></i> {{ penalty.issueDate }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="penalty-header-right">
+      <div class="penalty-label">Total Due</div>
+      <div class="penalty-total">{{ fmt(penalty.totalAmount) }}</div>
+      <span class="status-badge" [ngClass]="getStatusClass(penalty.status)">
+        {{ penalty.status }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Amount Summary -->
+  <div class="amount-summary-row">
+    <div class="amount-card">
+      <div class="ac-icon penalty"><i class="bi bi-exclamation-triangle-fill"></i></div>
+      <div class="ac-body">
+        <span class="ac-label">Penalty</span>
+        <span class="ac-value penalty">{{ fmt(penalty.penaltyAmount) }}</span>
+      </div>
+    </div>
+    <div class="amount-card">
+      <div class="ac-icon interest"><i class="bi bi-percent"></i></div>
+      <div class="ac-body">
+        <span class="ac-label">Interest (15%)</span>
+        <span class="ac-value interest">{{ fmt(penalty.interestAmount) }}</span>
+      </div>
+    </div>
+    <div class="amount-card">
+      <div class="ac-icon total"><i class="bi bi-calculator-fill"></i></div>
+      <div class="ac-body">
+        <span class="ac-label">Total Due</span>
+        <span class="ac-value total">{{ fmt(penalty.totalAmount) }}</span>
+      </div>
+    </div>
+    <div class="amount-card">
+      <div class="ac-icon paid"><i class="bi bi-cash-coin"></i></div>
+      <div class="ac-body">
+        <span class="ac-label">Paid</span>
+        <span class="ac-value paid">
+          {{ penalty.paidAmount > 0 ? fmt(penalty.paidAmount) : '—' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Taxpayer Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">TIN Number</span>
+          <span class="detail-value"><span class="code-badge">{{ penalty.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Taxpayer Name</span>
+          <span class="detail-value fw-bold">{{ penalty.taxpayerName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Assessment Year</span>
+          <span class="detail-value">{{ penalty.assessmentYear }}</span>
+        </div>
+        <div class="detail-row" *ngIf="penalty.returnNo">
+          <span class="detail-label">Return No.</span>
+          <span class="detail-value"><span class="code-badge">{{ penalty.returnNo }}</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>Penalty Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Penalty Type</span>
+          <span class="detail-value fw-bold">{{ penalty.penaltyType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Severity</span>
+          <span class="detail-value">
+            <span class="sev-badge" [ngClass]="getSeverityClass(penalty.severity)">
+              {{ penalty.severity }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Issue Date</span>
+          <span class="detail-value">{{ penalty.issueDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Due Date</span>
+          <span class="detail-value"
+            [class]="penalty.status === 'Overdue' ? 'due-overdue' : ''">
+            {{ penalty.dueDate }}
+          </span>
+        </div>
+        <div class="detail-row" *ngIf="penalty.paymentDate">
+          <span class="detail-label">Payment Date</span>
+          <span class="detail-value">{{ penalty.paymentDate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-gear"></i>
+        <span>Processing Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(penalty.status)">
+              {{ penalty.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Issued By</span>
+          <span class="detail-value">{{ penalty.issuedBy }}</span>
+        </div>
+        <div class="detail-row" *ngIf="penalty.approvedBy">
+          <span class="detail-label">Approved By</span>
+          <span class="detail-value">{{ penalty.approvedBy }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card" *ngIf="penalty.description || penalty.remarks">
+      <div class="detail-card-header">
+        <i class="bi bi-chat-text-fill"></i>
+        <span>Description & Remarks</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row" *ngIf="penalty.description">
+          <span class="detail-label">Description</span>
+          <span class="detail-value" style="text-align:left; max-width:300px; word-break:break-word; white-space:normal;">
+            {{ penalty.description }}
+          </span>
+        </div>
+        <div class="detail-row" *ngIf="penalty.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value" style="text-align:left; max-width:300px; word-break:break-word; white-space:normal;">
+            {{ penalty.remarks }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

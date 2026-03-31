@@ -1,0 +1,180 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Business Details</h4>
+    <p>Full business registration information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && business">
+
+  <!-- Business Header Card -->
+  <div class="biz-header-card">
+    <div class="biz-header-left">
+      <div class="biz-icon">
+        <i [class]="getCategoryIcon(business.businessCategory)"></i>
+      </div>
+      <div>
+        <div class="biz-reg-no">{{ business.businessRegNo }}</div>
+        <div class="biz-name">{{ business.businessName }}</div>
+        <div class="biz-meta">
+          <span class="biz-type-pill">{{ business.businessType }}</span>
+          <span class="biz-cat-pill">{{ business.businessCategory }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(business.status)">
+            {{ business.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="biz-header-right">
+      <div class="biz-stat">
+        <span class="bs-label">Annual Turnover</span>
+        <span class="bs-value">{{ formatCurrency(business.annualTurnover) }}</span>
+      </div>
+      <div class="biz-stat">
+        <span class="bs-label">Employees</span>
+        <span class="bs-value">{{ business.numberOfEmployees }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-building-fill"></i>
+        <span>Business Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Business Name</span>
+          <span class="detail-value fw-bold">{{ business.businessName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Owner Name</span>
+          <span class="detail-value">{{ business.ownerName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">TIN Number</span>
+          <span class="detail-value"><span class="code-badge">{{ business.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Business Type</span>
+          <span class="detail-value">{{ business.businessType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Category</span>
+          <span class="detail-value">{{ business.businessCategory }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-file-earmark-text-fill"></i>
+        <span>License & Registration</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Reg No.</span>
+          <span class="detail-value"><span class="code-badge purple">{{ business.businessRegNo }}</span></span>
+        </div>
+        <div class="detail-row" *ngIf="business.tradeLicenseNo">
+          <span class="detail-label">Trade License</span>
+          <span class="detail-value"><span class="code-badge">{{ business.tradeLicenseNo }}</span></span>
+        </div>
+        <div class="detail-row" *ngIf="business.binNo">
+          <span class="detail-label">BIN No.</span>
+          <span class="detail-value"><span class="code-badge">{{ business.binNo }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Incorporation</span>
+          <span class="detail-value">{{ business.incorporationDate || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Registration</span>
+          <span class="detail-value">{{ business.registrationDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Expiry</span>
+          <span class="detail-value"
+            [class]="isExpired(business.expiryDate) ? 'expiry-red' : ''">
+            {{ business.expiryDate || '—' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-geo-alt-fill"></i>
+        <span>Contact & Location</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row" *ngIf="business.email">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">{{ business.email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Phone</span>
+          <span class="detail-value">{{ business.phone }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Division</span>
+          <span class="detail-value">{{ business.division }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">District</span>
+          <span class="detail-value">{{ business.district }}</span>
+        </div>
+        <div class="detail-row" *ngIf="business.address">
+          <span class="detail-label">Address</span>
+          <span class="detail-value address-val">{{ business.address }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-cash-stack"></i>
+        <span>Financial & Workforce</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Annual Turnover</span>
+          <span class="detail-value fw-bold turnover">{{ formatCurrency(business.annualTurnover) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Employees</span>
+          <span class="detail-value fw-bold">{{ business.numberOfEmployees }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(business.status)">
+              {{ business.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row" *ngIf="business.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value">{{ business.remarks }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

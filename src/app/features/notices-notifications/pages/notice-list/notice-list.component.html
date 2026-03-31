@@ -1,0 +1,156 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>
+      Notices & Notifications
+      <span class="unread-badge" *ngIf="unreadCount > 0">
+        {{ unreadCount }} Unread
+      </span>
+    </h4>
+    <p>Manage all notices, alerts and notifications.</p>
+  </div>
+  
+  <a  *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER', 'TAX_OFFICER']"
+    routerLink="/notices/create"
+    class="btn-add-primary desktop-add-btn"
+  >
+    <i class="bi bi-plus-lg"></i> Send Notice
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Filter Tabs -->
+  <div class="filter-tabs">
+    <button
+      *ngFor="let f of filters"
+      class="filter-tab"
+      [class.active]="activeFilter === f"
+      (click)="activeFilter = f"
+    >
+      {{ f }}
+      <span class="tab-count" *ngIf="f === 'Unread' && unreadCount > 0">
+        {{ unreadCount }}
+      </span>
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by notice no, subject, taxpayer, type..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+      <button
+        *canDo="'export'"
+        class="btn-export"
+      >
+        <i class="bi bi-download"></i>
+        <span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading notices...</span>
+  </div>
+
+  <!-- Notice Cards — Desktop & Mobile same design -->
+  <div class="notice-list" *ngIf="!isLoading">
+
+    <div
+      class="notice-card"
+      *ngFor="let n of filteredNotices"
+      [class.unread]="n.status === 'Unread'"
+      (click)="viewNotice(n.id)"
+    >
+      <!-- Left Icon -->
+      <div class="notice-icon" [ngClass]="getTypeColor(n.noticeType)">
+        <i [class]="getTypeIcon(n.noticeType)"></i>
+      </div>
+
+      <!-- Content -->
+      <div class="notice-content">
+        <div class="notice-header-row">
+          <div class="notice-title-group">
+            <span class="notice-no">{{ n.noticeNo }}</span>
+            <span class="notice-subject"
+              [class.fw-bold]="n.status === 'Unread'">
+              {{ n.subject }}
+            </span>
+          </div>
+          <div class="notice-badges">
+            <span class="pri-badge" [ngClass]="getPriorityClass(n.priority)">
+              {{ n.priority }}
+            </span>
+            <span class="status-badge" [ngClass]="getStatusClass(n.status)">
+              {{ n.status }}
+            </span>
+          </div>
+        </div>
+
+        <p class="notice-body">{{ n.body }}</p>
+
+        <div class="notice-footer-row">
+          <div class="notice-meta">
+            <span class="meta-item">
+              <i class="bi bi-person-fill"></i> {{ n.issuedBy }}
+            </span>
+            <span class="meta-item">
+              <i class="bi bi-calendar3"></i> {{ n.issuedDate }}
+            </span>
+            <span class="meta-item" *ngIf="n.dueDate">
+              <i class="bi bi-calendar-x"></i> Due: {{ n.dueDate }}
+            </span>
+            <span class="meta-item" *ngIf="n.attachmentName">
+              <i class="bi bi-paperclip"></i> {{ n.attachmentName }}
+            </span>
+            <span class="meta-item target">
+              <i class="bi bi-people-fill"></i> {{ n.targetType }}
+            </span>
+          </div>
+
+          <div class="notice-actions" (click)="$event.stopPropagation()">
+            <button class="btn-view-sm" (click)="viewNotice(n.id)">
+              <i class="bi bi-eye-fill"></i> View
+            </button>
+            <button
+              *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+              class="btn-delete-sm"
+              (click)="delete(n.id)"
+            >
+              <i class="bi bi-trash-fill"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unread Dot -->
+      <div class="unread-dot" *ngIf="n.status === 'Unread'"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredNotices.length === 0">
+      <i class="bi bi-bell-slash"></i>
+      <p>No notices found.</p>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button
+  *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER', 'TAX_OFFICER']"
+  class="fab-btn"
+  routerLink="/notices/create"
+  title="Send Notice"
+>
+  <i class="bi bi-plus-lg"></i>
+</button>

@@ -1,0 +1,68 @@
+<div class="page-header">
+  <div>
+    <h2>User Management</h2>
+    <p>Manage system users, roles, and account status.</p>
+  </div>
+
+  <button class="primary-btn">
+    + Add User
+  </button>
+</div>
+
+<div class="card-box">
+  <input
+    class="input-field"
+    type="text"
+    placeholder="Search by name, email, role, department..."
+    [(ngModel)]="searchText"
+  />
+</div>
+
+<div class="card-box table-wrapper">
+  <table class="custom-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Role</th>
+        <th>Department</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let item of filteredUsers">
+        <td>{{ item.id }}</td>
+        <td>{{ item.fullName }}</td>
+        <td>{{ item.email }}</td>
+        <td>{{ item.phone }}</td>
+        <td>{{ item.role }}</td>
+        <td>{{ item.department }}</td>
+        <td>
+          <span
+            class="status-badge"
+            [ngClass]="{
+              'status-active': item.status === 'Active',
+              'status-inactive': item.status === 'Inactive',
+              'status-pending': item.status === 'Pending'
+            }"
+          >
+            {{ item.status }}
+          </span>
+        </td>
+        <td>
+          <button class="action-btn view-btn">View</button>
+          <button class="action-btn edit-btn">Edit</button>
+          <button class="action-btn delete-btn">Delete</button>
+        </td>
+      </tr>
+
+      <tr *ngIf="filteredUsers.length === 0">
+        <td colspan="8" class="no-data">No user found.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

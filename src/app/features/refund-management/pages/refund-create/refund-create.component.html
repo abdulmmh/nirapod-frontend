@@ -1,0 +1,223 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>New Refund Claim</h4>
+    <p>Submit a new tax refund claim for a taxpayer.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Taxpayer Info -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Taxpayer Information</h6>
+        <span class="section-sub">TIN and taxpayer identification</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">TIN Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Taxpayer Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Enter taxpayer name" [(ngModel)]="form.taxpayerName" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Return / Reference No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-file-earmark-text input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. VAT-2024-00001" [(ngModel)]="form.returnNo" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Payment Reference</label>
+        <div class="input-wrap">
+          <i class="bi bi-hash input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. TXN-2024-44821" [(ngModel)]="form.paymentRef" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Refund Details -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-cash-stack"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Refund Details</h6>
+        <span class="section-sub">Type, amount and claim information</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Refund Type</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.refundType">
+            <option value="">Select Type</option>
+            <option *ngFor="let t of refundTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Refund Method</label>
+        <div class="input-wrap">
+          <i class="bi bi-wallet2 input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.refundMethod">
+            <option value="">Select Method</option>
+            <option *ngFor="let m of refundMethods" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Claim Amount (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input"
+            placeholder="0" [(ngModel)]="form.claimAmount" />
+        </div>
+        <span class="field-hint" *ngIf="form.claimAmount > 0">
+          ≈ {{ formatCurrency(form.claimAmount) }}
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Claim Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.claimDate" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Bank Details (conditional) -->
+  <div class="form-section" *ngIf="showBankFields">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-bank2"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Bank Details</h6>
+        <span class="section-sub">Refund payment bank information</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Bank Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-bank input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.bankName">
+            <option value="">Select Bank</option>
+            <option *ngFor="let b of banks" [value]="b">{{ b }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Branch</label>
+        <div class="input-wrap">
+          <i class="bi bi-geo-alt-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Enter branch name" [(ngModel)]="form.bankBranch" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Account No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-credit-card input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Enter account number" [(ngModel)]="form.accountNo" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider" *ngIf="showBankFields"></div>
+
+  <!-- Section 4: Remarks -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-chat-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Remarks</h6>
+        <span class="section-sub">Optional notes or supporting information</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label">Remarks / Notes</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Enter any additional remarks..."
+            [(ngModel)]="form.remarks" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading">
+        <i class="bi bi-check-lg"></i> Submit Refund Claim
+      </span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Submitting...
+      </span>
+    </button>
+  </div>
+
+</div>

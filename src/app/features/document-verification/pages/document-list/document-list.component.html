@@ -1,0 +1,229 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Document Verification</h4>
+    <p>Manage and verify all taxpayer submitted documents.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/documents/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Add Document
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by doc no, TIN, taxpayer, type, title..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i>
+        <span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading documents...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Doc No</th>
+          <th>Taxpayer</th>
+          <th>Document</th>
+          <th>Category</th>
+          <th>Reference No</th>
+          <th>Issue Date</th>
+          <th>Expiry Date</th>
+          <th>Submitted</th>
+          <th>File Size</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of filteredDocuments; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td><span class="doc-code">{{ d.documentNo }}</span></td>
+
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ d.taxpayerName.charAt(0) }}</div>
+              <div>
+                <span class="td-title">{{ d.taxpayerName }}</span>
+                <span class="td-sub">{{ d.tinNumber }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <div class="doc-type-cell">
+              <div class="doc-type-icon">
+                <i [class]="getTypeIcon(d.documentType)"></i>
+              </div>
+              <div>
+                <span class="doc-title">{{ d.documentTitle }}</span>
+                <span class="type-badge" [ngClass]="getTypeClass(d.documentType)">
+                  {{ d.documentType }}
+                </span>
+              </div>
+            </div>
+          </td>
+
+          <td><span class="category-badge">{{ d.documentCategory }}</span></td>
+
+          <td><span class="ref-code">{{ d.referenceNo }}</span></td>
+
+          <td>{{ d.issueDate }}</td>
+
+          <td>
+            <span [class]="isExpired(d.expiryDate) ? 'expiry-expired' : 'expiry-normal'">
+              {{ d.expiryDate || '—' }}
+            </span>
+          </td>
+
+          <td>{{ d.submissionDate }}</td>
+
+          <td><span class="file-size">{{ d.fileSize }}</span></td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(d.status)">
+              {{ d.status }}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="viewDocument(d.id)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit"
+                (click)="editDocument(d.id)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <button
+                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+                class="btn-delete"
+                (click)="delete(d.id)"
+              >
+                <i class="bi bi-trash-fill"></i> Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredDocuments.length === 0">
+          <td colspan="12">
+            <div class="empty-state">
+              <i class="bi bi-file-earmark-text"></i>
+              <p>No documents found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding: 12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let d of filteredDocuments">
+
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar doc-avatar">
+            <i [class]="getTypeIcon(d.documentType)"></i>
+          </div>
+          <div>
+            <div class="mobile-name">{{ d.documentTitle }}</div>
+            <div class="mobile-sub">{{ d.documentNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(d.status)">
+          {{ d.status }}
+        </span>
+      </div>
+
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>Taxpayer</label>
+          <span>{{ d.taxpayerName }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>TIN</label>
+          <span>{{ d.tinNumber }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Type</label>
+          <span class="type-badge" [ngClass]="getTypeClass(d.documentType)">
+            {{ d.documentType }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Reference</label>
+          <span>{{ d.referenceNo }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Submitted</label>
+          <span>{{ d.submissionDate }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="d.expiryDate">
+          <label>Expiry</label>
+          <span [class]="isExpired(d.expiryDate) ? 'expiry-expired' : ''">
+            {{ d.expiryDate }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>File Size</label>
+          <span>{{ d.fileSize }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="d.remarks">
+          <label>Remarks</label>
+          <span>{{ d.remarks }}</span>
+        </div>
+      </div>
+
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="viewDocument(d.id)">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+        <button *canDo="'edit'" class="btn-edit" (click)="editDocument(d.id)">
+          <i class="bi bi-pencil-fill"></i> Edit
+        </button>
+        <button
+          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+          class="btn-delete"
+          (click)="delete(d.id)"
+        >
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+      </div>
+
+    </div>
+
+    <div class="empty-state" *ngIf="filteredDocuments.length === 0">
+      <i class="bi bi-file-earmark-text"></i>
+      <p>No documents found.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button *canDo="'create'" class="fab-btn"
+  routerLink="/documents/create" title="Add Document">
+  <i class="bi bi-plus-lg"></i>
+</button>

@@ -1,0 +1,170 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>VAT Registration</h4>
+    <p>Manage all VAT registered businesses.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/vat-registration/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Register VAT
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text"
+          placeholder="Search by BIN, business name, TIN, owner, category..."
+          [(ngModel)]="searchTerm" />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i><span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-success"></div>
+    <span>Loading VAT registrations...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>BIN No</th>
+          <th>Business</th>
+          <th>VAT Category</th>
+          <th>TIN</th>
+          <th>VAT Zone</th>
+          <th>VAT Circle</th>
+          <th>Turnover</th>
+          <th>Effective</th>
+          <th>Expiry</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td><span class="bin-code">{{ v.binNo }}</span></td>
+
+          <td>
+            <div class="td-name">
+              <div class="td-avatar vat-avatar">
+                <i class="bi bi-receipt-cutoff"></i>
+              </div>
+              <div>
+                <span class="td-title">{{ v.businessName }}</span>
+                <span class="td-sub">{{ v.ownerName }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="cat-badge" [ngClass]="getCategoryClass(v.vatCategory)">
+              {{ v.vatCategory }}
+            </span>
+          </td>
+
+          <td><span class="code-sm">{{ v.tinNumber }}</span></td>
+
+          <td><span class="zone-badge">{{ v.vatZone }}</span></td>
+          <td><span class="circle-badge">{{ v.vatCircle }}</span></td>
+
+          <td class="amt-cell">{{ formatCurrency(v.annualTurnover) }}</td>
+
+          <td>{{ v.effectiveDate }}</td>
+
+          <td>
+            <span [class]="isExpired(v.expiryDate) ? 'expiry-red' : 'expiry-normal'">
+              {{ v.expiryDate || '—' }}
+            </span>
+          </td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(v.status)">
+              {{ v.status }}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="view(v.id)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit" (click)="edit(v.id)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+                class="btn-delete" (click)="delete(v.id)">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="12">
+            <div class="empty-state">
+              <i class="bi bi-receipt-cutoff"></i>
+              <p>No VAT registrations found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let v of filtered">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar vat-avatar">
+            <i class="bi bi-receipt-cutoff"></i>
+          </div>
+          <div>
+            <div class="mobile-name">{{ v.businessName }}</div>
+            <div class="mobile-sub">{{ v.binNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(v.status)">
+          {{ v.status }}
+        </span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>TIN</label><span>{{ v.tinNumber }}</span></div>
+        <div class="mobile-field"><label>Category</label>
+          <span class="cat-badge" [ngClass]="getCategoryClass(v.vatCategory)">{{ v.vatCategory }}</span>
+        </div>
+        <div class="mobile-field"><label>VAT Zone</label><span>{{ v.vatZone }}</span></div>
+        <div class="mobile-field"><label>VAT Circle</label><span>{{ v.vatCircle }}</span></div>
+        <div class="mobile-field"><label>Turnover</label><span>{{ formatCurrency(v.annualTurnover) }}</span></div>
+        <div class="mobile-field"><label>District</label><span>{{ v.district }}</span></div>
+        <div class="mobile-field"><label>Expiry</label>
+          <span [class]="isExpired(v.expiryDate) ? 'expiry-red' : ''">{{ v.expiryDate || '—' }}</span>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="view(v.id)"><i class="bi bi-eye-fill"></i> View</button>
+        <button *canDo="'edit'" class="btn-edit" (click)="edit(v.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(v.id)"><i class="bi bi-trash-fill"></i></button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-receipt-cutoff"></i><p>No VAT registrations found.</p>
+    </div>
+  </div>
+
+</div>
+
+<button *canDo="'create'" class="fab-btn" routerLink="/vat-registration/create">
+  <i class="bi bi-plus-lg"></i>
+</button>

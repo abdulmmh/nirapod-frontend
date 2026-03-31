@@ -1,0 +1,42 @@
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-left">
+
+    <div class="page-title-row">
+      <div class="page-icon">
+        <i class="bi bi-grid-fill"></i>
+      </div>
+      <h5 class="page-title">{{ pageTitle }}</h5>
+    </div>
+
+    <div class="breadcrumb-pills">
+      <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
+
+        <a
+          *ngIf="!last"
+          [routerLink]="crumb.url"
+          class="crumb-pill"
+        >
+          <i class="bi bi-house-fill" *ngIf="crumb.label === 'Home'"></i>
+          <span>{{ crumb.label }}</span>
+        </a>
+
+        <span *ngIf="!last" class="crumb-separator">
+          <i class="bi bi-chevron-right"></i>
+        </span>
+
+        <span *ngIf="last" class="crumb-pill active">
+          {{ crumb.label }}
+        </span>
+
+      </ng-container>
+    </div>
+
+  </div>
+
+  <div class="breadcrumb-right">
+    <span class="fiscal-badge">
+      <i class="bi bi-calendar3"></i>
+      FY 2025–2026
+    </span>
+  </div>
+</div>

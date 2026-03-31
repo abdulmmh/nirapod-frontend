@@ -1,0 +1,223 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Income Tax Returns</h4>
+    <p>Manage all income tax return submissions here.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/income-tax/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Submit IT Return
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by return no, TIN, taxpayer, year..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i>
+        <span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading IT returns...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Return No</th>
+          <th>Taxpayer</th>
+          <th>Assessment Year</th>
+          <th>Income Year</th>
+          <th>Total Income</th>
+          <th>Net Tax Payable</th>
+          <th>Tax Paid</th>
+          <th>Submission Date</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredReturns; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td><span class="return-code">{{ r.returnNo }}</span></td>
+
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ r.taxpayerName.charAt(0) }}</div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName }}</span>
+                <span class="td-sub">{{ r.tinNumber }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td><span class="year-badge">{{ r.assessmentYear }}</span></td>
+          <td><span class="year-badge secondary">{{ r.incomeYear }}</span></td>
+
+          <td class="amount-cell">{{ formatCurrency(r.totalIncome) }}</td>
+
+          <td class="amount-cell tax-amount">
+            {{ formatCurrency(r.netTaxPayable) }}
+          </td>
+
+          <td class="amount-cell paid-amount">
+            {{ formatCurrency(r.taxPaid) }}
+          </td>
+
+          <td>{{ r.submissionDate }}</td>
+
+          <td>
+            <span class="pay-badge"
+              [ngClass]="getPaymentStatusClass(r.paymentStatus)">
+              {{ r.paymentStatus }}
+            </span>
+          </td>
+
+          <td>
+            <span class="status-badge"
+              [ngClass]="getReturnStatusClass(r.returnStatus)">
+              {{ r.returnStatus }}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <button
+                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+                class="btn-delete"
+                (click)="delete(r.id)"
+              >
+                <i class="bi bi-trash-fill"></i> Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredReturns.length === 0">
+          <td colspan="12">
+            <div class="empty-state">
+              <i class="bi bi-receipt-cutoff"></i>
+              <p>No income tax returns found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding: 12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filteredReturns">
+
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ r.taxpayerName.charAt(0) }}</div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName }}</div>
+            <div class="mobile-sub">{{ r.returnNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge"
+          [ngClass]="getReturnStatusClass(r.returnStatus)">
+          {{ r.returnStatus }}
+        </span>
+      </div>
+
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>TIN</label>
+          <span>{{ r.tinNumber }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Assessment Year</label>
+          <span>{{ r.assessmentYear }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Income Year</label>
+          <span>{{ r.incomeYear }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Total Income</label>
+          <span>{{ formatCurrency(r.totalIncome) }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Net Tax Payable</label>
+          <span class="tax-amount">{{ formatCurrency(r.netTaxPayable) }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Tax Paid</label>
+          <span class="paid-amount">{{ formatCurrency(r.taxPaid) }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Payment</label>
+          <span class="pay-badge"
+            [ngClass]="getPaymentStatusClass(r.paymentStatus)">
+            {{ r.paymentStatus }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Submitted</label>
+          <span>{{ r.submissionDate }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="r.remarks">
+          <label>Remarks</label>
+          <span>{{ r.remarks }}</span>
+        </div>
+      </div>
+
+      <div class="mobile-card-actions">
+        <button class="btn-view">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+        <button *canDo="'edit'" class="btn-edit">
+          <i class="bi bi-pencil-fill"></i> Edit
+        </button>
+        <button
+          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+          class="btn-delete"
+          (click)="delete(r.id)"
+        >
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+      </div>
+
+    </div>
+
+    <div class="empty-state" *ngIf="filteredReturns.length === 0">
+      <i class="bi bi-receipt-cutoff"></i>
+      <p>No income tax returns found.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button *canDo="'create'" class="fab-btn"
+  routerLink="/income-tax/create" title="Submit IT Return">
+  <i class="bi bi-plus-lg"></i>
+</button>

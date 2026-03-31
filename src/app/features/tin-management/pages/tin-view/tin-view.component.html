@@ -1,0 +1,161 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>TIN Details</h4>
+    <p>Full TIN record information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && tin">
+
+  <!-- TIN Header Card -->
+  <div class="tin-header-card">
+    <div class="tin-header-left">
+      <div class="tin-icon">
+        <i [class]="getCategoryIcon(tin.tinCategory)"></i>
+      </div>
+      <div>
+        <div class="tin-number">{{ tin.tinNumber }}</div>
+        <div class="tin-name">{{ tin.taxpayerName }}</div>
+        <div class="tin-meta">
+          <span class="tin-cat-pill">{{ tin.tinCategory }}</span>
+          <span class="tin-zone-pill">{{ tin.taxZone }}</span>
+          <span class="tin-circle-pill">{{ tin.taxCircle }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(tin.status)">
+            {{ tin.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="tin-header-right">
+      <div class="tin-stat">
+        <span class="ts-label">Issued Date</span>
+        <span class="ts-value">{{ tin.issuedDate }}</span>
+      </div>
+      <div class="tin-stat">
+        <span class="ts-label">Last Updated</span>
+        <span class="ts-value">{{ tin.lastUpdated }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Taxpayer Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">TIN Number</span>
+          <span class="detail-value"><span class="code-badge cyan">{{ tin.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Full Name</span>
+          <span class="detail-value fw-bold">{{ tin.taxpayerName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Category</span>
+          <span class="detail-value">{{ tin.tinCategory }}</span>
+        </div>
+        <div class="detail-row" *ngIf="tin.nationalId">
+          <span class="detail-label">National ID</span>
+          <span class="detail-value"><span class="code-badge">{{ tin.nationalId }}</span></span>
+        </div>
+        <div class="detail-row" *ngIf="tin.passportNo">
+          <span class="detail-label">Passport No.</span>
+          <span class="detail-value"><span class="code-badge">{{ tin.passportNo }}</span></span>
+        </div>
+        <div class="detail-row" *ngIf="tin.dateOfBirth">
+          <span class="detail-label">Date of Birth</span>
+          <span class="detail-value">{{ tin.dateOfBirth }}</span>
+        </div>
+        <div class="detail-row" *ngIf="tin.incorporationDate">
+          <span class="detail-label">Incorporation Date</span>
+          <span class="detail-value">{{ tin.incorporationDate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-shield-fill-check"></i>
+        <span>Tax Authority</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Tax Zone</span>
+          <span class="detail-value"><span class="zone-badge">{{ tin.taxZone }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tax Circle</span>
+          <span class="detail-value"><span class="circle-badge">{{ tin.taxCircle }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(tin.status)">
+              {{ tin.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Issued Date</span>
+          <span class="detail-value">{{ tin.issuedDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Last Updated</span>
+          <span class="detail-value">{{ tin.lastUpdated }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-geo-alt-fill"></i>
+        <span>Contact & Location</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row" *ngIf="tin.email">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">{{ tin.email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Phone</span>
+          <span class="detail-value">{{ tin.phone }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Division</span>
+          <span class="detail-value">{{ tin.division }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">District</span>
+          <span class="detail-value">{{ tin.district }}</span>
+        </div>
+        <div class="detail-row" *ngIf="tin.address">
+          <span class="detail-label">Address</span>
+          <span class="detail-value address-val">{{ tin.address }}</span>
+        </div>
+        <div class="detail-row" *ngIf="tin.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value">{{ tin.remarks }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

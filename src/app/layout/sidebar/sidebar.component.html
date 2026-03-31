@@ -1,0 +1,117 @@
+<div class="sidebar" [class.collapsed]="isCollapsed">
+
+  <!-- Brand -->
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <i class="bi bi-bank2"></i>
+    </div>
+    <div class="brand-text" *ngIf="!isCollapsed">
+      <span class="brand-title">VAT & TAX</span>
+      <span class="brand-subtitle">Management System</span>
+    </div>
+  </div>
+
+  <!-- Nav Label -->
+  <div class="nav-label" *ngIf="!isCollapsed">MAIN NAVIGATION</div>
+
+  <!-- Menu -->
+  <ul class="menu">
+    <li *ngFor="let item of visibleMenuItems" class="menu-li">
+
+      <!-- ── Single Item (no children) ── -->
+      
+      <a
+        *ngIf="!item.children || item.children.length === 0"
+        class="menu-item"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        (click)="closeFlyout(); closeSidebar.emit()"
+      >
+        <i [class]="item.icon + ' menu-icon'"></i>
+        <span *ngIf="!isCollapsed" class="menu-label">{{ item.label }}</span>
+        <span *ngIf="isCollapsed" class="icon-tooltip">{{ item.label }}</span>
+      </a>
+
+      <!-- ── Parent Item (has children) ── -->
+      <ng-container *ngIf="item.children && item.children.length > 0">
+
+        <!-- EXPANDED MODE: normal dropdown -->
+        <div
+          *ngIf="!isCollapsed"
+          class="menu-item parent-item"
+          [class.open]="openMenu === item.label"
+          (click)="toggleMenu(item.label)"
+        >
+          <i [class]="item.icon + ' menu-icon'"></i>
+          <span class="menu-label">{{ item.label }}</span>
+          <i
+            class="bi bi-chevron-down chevron"
+            [class.rotated]="openMenu === item.label"
+          ></i>
+        </div>
+
+        <!-- Submenu (expanded mode only) -->
+        <ul
+          *ngIf="!isCollapsed"
+          class="submenu"
+          [class.expanded]="openMenu === item.label"
+        >
+          <li *ngFor="let child of item.children">
+            
+            <a  class="submenu-item"
+              [routerLink]="child.route"
+              routerLinkActive="sub-active"
+              (click)="closeSidebar.emit()"
+            >
+              <i [class]="child.icon + ' sub-icon'"></i>
+              <span>{{ child.label }}</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- COLLAPSED MODE: icon only, click to toggle flyout -->
+        <div
+          *ngIf="isCollapsed"
+          class="menu-item collapsed-parent"
+          [class.flyout-open]="activeflyout === item.label"
+          (click)="toggleFlyout(item.label, $event)"
+        >
+          <i [class]="item.icon + ' menu-icon'"></i>
+          <span class="icon-tooltip">{{ item.label }}</span>
+        </div>
+
+        <!-- Inline flyout (collapsed mode only) — appears below icon -->
+        <div
+          *ngIf="isCollapsed && activeflyout === item.label"
+          class="inline-flyout"
+        >
+          
+          <a  class="inline-flyout-item"
+            *ngFor="let child of item.children"
+            [routerLink]="child.route"
+            routerLinkActive="inline-flyout-active"
+            [attr.data-label]="child.label"
+            (click)="closeFlyout(); closeSidebar.emit()"
+          >
+            <i [class]="child.icon"></i>
+            <span>{{ child.label }}</span>
+          </a>
+        </div>
+
+      </ng-container>
+
+    </li>
+  </ul>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <div class="footer-info">
+      <i class="bi bi-shield-lock-fill"></i>
+      <span *ngIf="!isCollapsed">Secure Government Portal</span>
+    </div>
+    <div class="footer-version" *ngIf="!isCollapsed">
+      v2.0.0 &bull; FY 2025–26
+    </div>
+  </div>
+
+</div>

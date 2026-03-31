@@ -1,0 +1,152 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Document Details</h4>
+    <p>Full document verification information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-success"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && document">
+
+  <!-- Document Header Card -->
+  <div class="doc-header-card">
+    <div class="doc-header-left">
+      <div class="doc-icon">
+        <i [class]="getTypeIcon(document.documentType)"></i>
+      </div>
+      <div>
+        <div class="doc-no">{{ document.documentNo }}</div>
+        <div class="doc-title-text">{{ document.documentTitle }}</div>
+        <div class="doc-meta">
+          <span class="doc-type-label">{{ document.documentType }}</span>
+          <span class="doc-category">
+            <i class="bi bi-folder-fill"></i> {{ document.documentCategory }}
+          </span>
+          <span class="doc-size">
+            <i class="bi bi-file-earmark"></i> {{ document.fileSize }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="doc-header-right">
+      <span class="status-badge" [ngClass]="getStatusClass(document.status)">
+        {{ document.status }}
+      </span>
+      <div class="doc-submitted">
+        Submitted: {{ document.submissionDate }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Taxpayer Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">TIN Number</span>
+          <span class="detail-value"><span class="code-badge">{{ document.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Taxpayer Name</span>
+          <span class="detail-value fw-bold">{{ document.taxpayerName }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-file-earmark-text-fill"></i>
+        <span>Document Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Document Type</span>
+          <span class="detail-value fw-bold">{{ document.documentType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Category</span>
+          <span class="detail-value">{{ document.documentCategory }}</span>
+        </div>
+        <div class="detail-row" *ngIf="document.referenceNo">
+          <span class="detail-label">Reference No.</span>
+          <span class="detail-value"><span class="code-badge">{{ document.referenceNo }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">File Size</span>
+          <span class="detail-value">{{ document.fileSize }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-calendar-range-fill"></i>
+        <span>Validity Period</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Issue Date</span>
+          <span class="detail-value">{{ document.issueDate || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Expiry Date</span>
+          <span class="detail-value"
+            [class]="isExpired(document.expiryDate) ? 'expiry-expired' : ''">
+            {{ document.expiryDate || '—' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Submission Date</span>
+          <span class="detail-value">{{ document.submissionDate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-patch-check-fill"></i>
+        <span>Verification Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(document.status)">
+              {{ document.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row" *ngIf="document.verificationDate">
+          <span class="detail-label">Verified On</span>
+          <span class="detail-value">{{ document.verificationDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="document.verifiedBy">
+          <span class="detail-label">Verified By</span>
+          <span class="detail-value fw-bold">{{ document.verifiedBy }}</span>
+        </div>
+        <div class="detail-row" *ngIf="document.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value">{{ document.remarks }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

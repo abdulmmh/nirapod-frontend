@@ -1,0 +1,239 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Issue TIN</h4>
+    <p>Issue a new Taxpayer Identification Number.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Taxpayer Info -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Taxpayer Information</h6>
+        <span class="section-sub">Name, category and identification</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label required">Taxpayer Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Enter full name or company name"
+            [(ngModel)]="form.taxpayerName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">TIN Category</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.tinCategory">
+            <option value="">Select Category</option>
+            <option *ngFor="let c of tinCategories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Issue Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.issuedDate" />
+        </div>
+      </div>
+
+      <!-- Individual fields -->
+      <ng-container *ngIf="isIndividual">
+        <div class="form-group">
+          <label class="form-label">National ID</label>
+          <div class="input-wrap">
+            <i class="bi bi-card-text input-icon"></i>
+            <input type="text" class="form-input"
+              placeholder="Enter 13 digit NID" [(ngModel)]="form.nationalId" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Passport No.</label>
+          <div class="input-wrap">
+            <i class="bi bi-passport input-icon"></i>
+            <input type="text" class="form-input"
+              placeholder="Optional" [(ngModel)]="form.passportNo" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar3 input-icon"></i>
+            <input type="date" class="form-input" [(ngModel)]="form.dateOfBirth" />
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Company fields -->
+      <div class="form-group" *ngIf="isCompany">
+        <label class="form-label">Incorporation Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.incorporationDate" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Tax Authority -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-shield-fill-check"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Tax Authority Assignment</h6>
+        <span class="section-sub">Assign tax zone and circle</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Tax Zone</label>
+        <div class="input-wrap">
+          <i class="bi bi-grid-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.taxZone">
+            <option value="">Select Zone</option>
+            <option *ngFor="let z of taxZones" [value]="z">{{ z }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Tax Circle</label>
+        <div class="input-wrap">
+          <i class="bi bi-circle-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.taxCircle">
+            <option value="">Select Circle</option>
+            <option *ngFor="let c of taxCircles" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Contact & Location -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-geo-alt-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Contact & Location</h6>
+        <span class="section-sub">Contact and address details</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <div class="input-wrap">
+          <i class="bi bi-envelope-fill input-icon"></i>
+          <input type="email" class="form-input"
+            placeholder="Enter email" [(ngModel)]="form.email" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Phone</label>
+        <div class="input-wrap">
+          <i class="bi bi-telephone-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="01xxx-xxxxxx" [(ngModel)]="form.phone" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Division</label>
+        <div class="input-wrap">
+          <i class="bi bi-map-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.division"
+            (ngModelChange)="onDivisionChange()">
+            <option value="">Select Division</option>
+            <option *ngFor="let d of divisions" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">District</label>
+        <div class="input-wrap">
+          <i class="bi bi-geo-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.district"
+            [disabled]="!form.division">
+            <option value="">Select District</option>
+            <option *ngFor="let d of availableDistricts" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Address</label>
+        <div class="input-wrap">
+          <i class="bi bi-geo-alt-fill input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Enter full address..."
+            [(ngModel)]="form.address" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Remarks -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-chat-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Remarks</h6>
+        <span class="section-sub">Optional notes</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label">Remarks</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Optional remarks..."
+            [(ngModel)]="form.remarks" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading"><i class="bi bi-upc-scan"></i> Issue TIN</span>
+      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Issuing...</span>
+    </button>
+  </div>
+
+</div>

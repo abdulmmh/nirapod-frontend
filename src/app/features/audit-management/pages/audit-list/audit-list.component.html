@@ -1,0 +1,214 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Audit Management</h4>
+    <p>Manage all tax audits and investigations.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/audits/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Create Audit
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by audit no, TIN, taxpayer, type, assigned to..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i>
+        <span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading audits...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Audit No</th>
+          <th>Taxpayer</th>
+          <th>Type</th>
+          <th>Priority</th>
+          <th>Year</th>
+          <th>Scheduled</th>
+          <th>Assigned To</th>
+          <th>Tax Demand</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of filteredAudits; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td><span class="audit-code">{{ a.auditNo }}</span></td>
+
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ a.taxpayerName.charAt(0) }}</div>
+              <div>
+                <span class="td-title">{{ a.taxpayerName }}</span>
+                <span class="td-sub">{{ a.tinNumber }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="type-badge" [ngClass]="getTypeClass(a.auditType)">
+              {{ a.auditType }}
+            </span>
+          </td>
+
+          <td>
+            <span class="pri-badge" [ngClass]="getPriorityClass(a.priority)">
+              {{ a.priority }}
+            </span>
+          </td>
+
+          <td>{{ a.assessmentYear }}</td>
+          <td>{{ a.scheduledDate }}</td>
+          <td>{{ a.assignedTo }}</td>
+
+          <td class="amount-cell">{{ formatCurrency(a.taxDemand) }}</td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(a.status)">
+              {{ a.status }}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="viewAudit(a.id)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit"
+                (click)="editAudit(a.id)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <button
+                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+                class="btn-delete"
+                (click)="delete(a.id)"
+              >
+                <i class="bi bi-trash-fill"></i> Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredAudits.length === 0">
+          <td colspan="11">
+            <div class="empty-state">
+              <i class="bi bi-shield-check"></i>
+              <p>No audits found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding: 12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let a of filteredAudits">
+
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ a.taxpayerName.charAt(0) }}</div>
+          <div>
+            <div class="mobile-name">{{ a.taxpayerName }}</div>
+            <div class="mobile-sub">{{ a.auditNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(a.status)">
+          {{ a.status }}
+        </span>
+      </div>
+
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>TIN</label>
+          <span>{{ a.tinNumber }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Type</label>
+          <span class="type-badge" [ngClass]="getTypeClass(a.auditType)">
+            {{ a.auditType }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Priority</label>
+          <span class="pri-badge" [ngClass]="getPriorityClass(a.priority)">
+            {{ a.priority }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Year</label>
+          <span>{{ a.assessmentYear }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Scheduled</label>
+          <span>{{ a.scheduledDate }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Assigned To</label>
+          <span>{{ a.assignedTo }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Tax Demand</label>
+          <span class="amount-cell">{{ formatCurrency(a.taxDemand) }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="a.remarks">
+          <label>Remarks</label>
+          <span>{{ a.remarks }}</span>
+        </div>
+      </div>
+
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="viewAudit(a.id)">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+        <button *canDo="'edit'" class="btn-edit" (click)="editAudit(a.id)">
+          <i class="bi bi-pencil-fill"></i> Edit
+        </button>
+        <button
+          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+          class="btn-delete"
+          (click)="delete(a.id)"
+        >
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+      </div>
+
+    </div>
+
+    <div class="empty-state" *ngIf="filteredAudits.length === 0">
+      <i class="bi bi-shield-check"></i>
+      <p>No audits found.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button *canDo="'create'" class="fab-btn"
+  routerLink="/audits/create" title="Create Audit">
+  <i class="bi bi-plus-lg"></i>
+</button>

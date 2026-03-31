@@ -1,0 +1,260 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Add Taxpayer</h4>
+    <p>Create a new taxpayer registration profile.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<!-- Success -->
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+
+<!-- Error -->
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Personal Identity -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Personal Identity</h6>
+        <span class="section-sub">Basic taxpayer identification information</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label class="form-label required">TIN Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="e.g. TIN-2024-001"
+            [(ngModel)]="form.tin"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Full Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="Enter taxpayer full name"
+            [(ngModel)]="form.fullName"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">National ID (NID)</label>
+        <div class="input-wrap">
+          <i class="bi bi-card-text input-icon"></i>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="Enter NID number"
+            [(ngModel)]="form.nationalId"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Date of Birth</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input
+            type="date"
+            class="form-input"
+            [(ngModel)]="form.dateOfBirth"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Taxpayer Type</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.taxpayerType">
+            <option value="">Select Type</option>
+            <option value="Individual">Individual</option>
+            <option value="Business">Business</option>
+            <option value="Company">Company</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Registration Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <input
+            type="date"
+            class="form-input"
+            [(ngModel)]="form.registrationDate"
+          />
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Contact Information -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-telephone-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Contact Information</h6>
+        <span class="section-sub">Email, phone and address details</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label class="form-label required">Email Address</label>
+        <div class="input-wrap">
+          <i class="bi bi-envelope-fill input-icon"></i>
+          <input
+            type="email"
+            class="form-input"
+            placeholder="Enter email address"
+            [(ngModel)]="form.email"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Phone Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-phone-fill input-icon"></i>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="e.g. 01711-234567"
+            [(ngModel)]="form.phone"
+          />
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label">Address</label>
+        <div class="input-wrap">
+          <i class="bi bi-geo-alt-fill input-icon textarea-icon"></i>
+          <textarea
+            class="form-input form-textarea"
+            placeholder="Enter full address"
+            [(ngModel)]="form.address"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Account Status -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-shield-fill-check"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Account Status</h6>
+        <span class="section-sub">Set the taxpayer account status</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Pending">Pending</option>
+            <option value="Suspended">Suspended</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Status Preview -->
+      <div class="form-group">
+        <label class="form-label">Status Preview</label>
+        <div class="status-preview">
+          <span class="status-badge" [ngClass]="{
+            'status-active':    form.status === 'Active',
+            'status-inactive':  form.status === 'Inactive',
+            'status-pending':   form.status === 'Pending',
+            'status-suspended': form.status === 'Suspended'
+          }">
+            {{ form.status }}
+          </span>
+          <span class="status-hint">
+            <ng-container *ngIf="form.status === 'Active'">
+              Taxpayer can file returns and make payments.
+            </ng-container>
+            <ng-container *ngIf="form.status === 'Inactive'">
+              Taxpayer account is currently inactive.
+            </ng-container>
+            <ng-container *ngIf="form.status === 'Pending'">
+              Taxpayer is awaiting verification.
+            </ng-container>
+            <ng-container *ngIf="form.status === 'Suspended'">
+              Taxpayer account has been suspended.
+            </ng-container>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button
+      class="btn-submit"
+      (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()"
+    >
+      <span *ngIf="!isLoading">
+        <i class="bi bi-check-lg"></i> Register Taxpayer
+      </span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Saving...
+      </span>
+    </button>
+  </div>
+
+</div>

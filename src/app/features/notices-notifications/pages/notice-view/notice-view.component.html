@@ -1,0 +1,131 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Notice Details</h4>
+    <p>Full notice information.</p>
+  </div>
+  <button class="btn-back" (click)="onBack()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && notice">
+
+  <!-- Notice Header Card -->
+  <div class="notice-view-card">
+
+    <!-- Top Row -->
+    <div class="nvc-top">
+      <div class="nvc-icon-wrap">
+        <div class="nvc-icon">
+          <i [class]="getTypeIcon(notice.noticeType)"></i>
+        </div>
+        <div>
+          <div class="nvc-no">{{ notice.noticeNo }}</div>
+          <div class="nvc-type">{{ notice.noticeType }}</div>
+        </div>
+      </div>
+      <div class="nvc-badges">
+        <span class="pri-badge" [ngClass]="getPriorityClass(notice.priority)">
+          <i class="bi bi-flag-fill"></i> {{ notice.priority }}
+        </span>
+        <span class="status-badge" [ngClass]="getStatusClass(notice.status)">
+          {{ notice.status }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Subject -->
+    <h3 class="nvc-subject">{{ notice.subject }}</h3>
+
+    <!-- Meta Info -->
+    <div class="nvc-meta">
+      <span class="nvc-meta-item">
+        <i class="bi bi-person-fill"></i> {{ notice.issuedBy }}
+      </span>
+      <span class="nvc-meta-item">
+        <i class="bi bi-calendar3"></i> {{ notice.issuedDate }}
+      </span>
+      <span class="nvc-meta-item" *ngIf="notice.dueDate">
+        <i class="bi bi-calendar-x text-danger"></i>
+        Due: {{ notice.dueDate }}
+      </span>
+      <span class="nvc-meta-item" *ngIf="notice.tinNumber">
+        <i class="bi bi-person-badge-fill"></i>
+        {{ notice.taxpayerName }} ({{ notice.tinNumber }})
+      </span>
+      <span class="nvc-meta-item">
+        <i class="bi bi-people-fill"></i> {{ notice.targetType }}
+      </span>
+    </div>
+
+  </div>
+
+  <!-- Message Body -->
+  <div class="notice-body-card">
+    <div class="body-header">
+      <i class="bi bi-envelope-open-fill"></i>
+      <span>Message</span>
+    </div>
+    <div class="body-content">
+      {{ notice.body }}
+    </div>
+
+    <!-- Attachment -->
+    <div class="attachment-row" *ngIf="notice.attachmentName">
+      <div class="attachment-item">
+        <i class="bi bi-paperclip"></i>
+        <span>{{ notice.attachmentName }}</span>
+        <button class="btn-download">
+          <i class="bi bi-download"></i> Download
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Response Section -->
+  <div class="response-card" *ngIf="notice.responseNote">
+    <div class="response-header">
+      <i class="bi bi-reply-fill"></i>
+      <span>Response</span>
+      <span class="response-date">{{ notice.responseDate }}</span>
+    </div>
+    <div class="response-body">{{ notice.responseNote }}</div>
+  </div>
+
+  <!-- Reply Box -->
+  <div class="reply-section" *ngIf="notice.status !== 'Responded'">
+    <button
+      class="btn-reply"
+      *ngIf="!showResponse"
+      (click)="showResponse = true"
+    >
+      <i class="bi bi-reply-fill"></i> Reply to Notice
+    </button>
+
+    <div class="reply-box" *ngIf="showResponse">
+      <div class="reply-box-header">
+        <i class="bi bi-reply-fill"></i>
+        <span>Your Response</span>
+      </div>
+      <textarea
+        class="reply-textarea"
+        placeholder="Enter your response here..."
+        [(ngModel)]="responseNote"
+        rows="4"
+      ></textarea>
+      <div class="reply-actions">
+        <button class="btn-cancel-reply" (click)="showResponse = false">
+          Cancel
+        </button>
+        <button class="btn-send-reply" (click)="submitResponse()">
+          <i class="bi bi-send-fill"></i> Send Response
+        </button>
+      </div>
+    </div>
+  </div>
+
+</ng-container>

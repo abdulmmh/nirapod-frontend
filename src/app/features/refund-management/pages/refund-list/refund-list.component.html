@@ -1,0 +1,220 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Refund Management</h4>
+    <p>Manage all tax refund claims and processing.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/refunds/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> New Refund
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by refund no, TIN, taxpayer, type..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i>
+        <span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading refunds...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Refund No</th>
+          <th>Taxpayer</th>
+          <th>Type</th>
+          <th>Claim Amount</th>
+          <th>Approved Amount</th>
+          <th>Paid Amount</th>
+          <th>Claim Date</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRefunds; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td><span class="refund-code">{{ r.refundNo }}</span></td>
+
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ r.taxpayerName.charAt(0) }}</div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName }}</span>
+                <span class="td-sub">{{ r.tinNumber }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="type-badge" [ngClass]="getTypeClass(r.refundType)">
+              {{ r.refundType }}
+            </span>
+          </td>
+
+          <td class="amount-cell claim-amount">
+            {{ formatCurrency(r.claimAmount) }}
+          </td>
+
+          <td class="amount-cell approved-amount">
+            {{ r.approvedAmount > 0 ? formatCurrency(r.approvedAmount) : '—' }}
+          </td>
+
+          <td class="amount-cell paid-amount">
+            {{ r.paidAmount > 0 ? formatCurrency(r.paidAmount) : '—' }}
+          </td>
+
+          <td>{{ r.claimDate }}</td>
+
+          <td>
+            <span class="method-badge">{{ r.refundMethod }}</span>
+          </td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ r.status }}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="viewRefund(r.id)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit"
+                (click)="editRefund(r.id)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <button
+                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+                class="btn-delete"
+                (click)="delete(r.id)"
+              >
+                <i class="bi bi-trash-fill"></i> Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredRefunds.length === 0">
+          <td colspan="11">
+            <div class="empty-state">
+              <i class="bi bi-cash-stack"></i>
+              <p>No refunds found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding: 12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filteredRefunds">
+
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ r.taxpayerName.charAt(0) }}</div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName }}</div>
+            <div class="mobile-sub">{{ r.refundNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+          {{ r.status }}
+        </span>
+      </div>
+
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>TIN</label>
+          <span>{{ r.tinNumber }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Type</label>
+          <span class="type-badge" [ngClass]="getTypeClass(r.refundType)">
+            {{ r.refundType }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Claim Amount</label>
+          <span class="claim-amount">{{ formatCurrency(r.claimAmount) }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Approved</label>
+          <span class="approved-amount">
+            {{ r.approvedAmount > 0 ? formatCurrency(r.approvedAmount) : '—' }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Method</label>
+          <span>{{ r.refundMethod }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Claim Date</label>
+          <span>{{ r.claimDate }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="r.approvalDate">
+          <label>Approval Date</label>
+          <span>{{ r.approvalDate }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="r.remarks">
+          <label>Remarks</label>
+          <span>{{ r.remarks }}</span>
+        </div>
+      </div>
+
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="viewRefund(r.id)">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+        <button *canDo="'edit'" class="btn-edit" (click)="editRefund(r.id)">
+          <i class="bi bi-pencil-fill"></i> Edit
+        </button>
+        <button
+          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
+          class="btn-delete"
+          (click)="delete(r.id)"
+        >
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+      </div>
+
+    </div>
+
+    <div class="empty-state" *ngIf="filteredRefunds.length === 0">
+      <i class="bi bi-cash-stack"></i>
+      <p>No refunds found.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button *canDo="'create'" class="fab-btn"
+  routerLink="/refunds/create" title="New Refund">
+  <i class="bi bi-plus-lg"></i>
+</button>

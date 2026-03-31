@@ -1,0 +1,35 @@
+<div class="page-header">
+  <div>
+    <h2>Reports & Analytics</h2>
+    <p>View key reports, statistics, and operational summaries.</p>
+  </div>
+</div>
+
+<div class="reports-grid">
+  <div class="report-card" *ngFor="let card of reportCards">
+    <h3>{{ card.title }}</h3>
+    <h1>{{ card.value }}</h1>
+    <p>{{ card.description }}</p>
+  </div>
+</div>
+
+<div class="report-sections">
+  <div class="section-card">
+    <h3>Available Reports</h3>
+
+    <div class="report-actions">
+      <button class="primary-btn">Generate Tax Report</button>
+      <button class="primary-btn">Generate VAT Report</button>
+      <button class="primary-btn">Generate Audit Report</button>
+      <button class="primary-btn">Generate Payment Report</button>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Recent Reports</h3>
+
+    <ul class="recent-report-list">
+      <li *ngFor="let report of recentReports">{{ report }}</li>
+    </ul>
+  </div>
+</div>

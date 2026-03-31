@@ -1,0 +1,134 @@
+<div class="login-page">
+
+  <!-- Left Panel -->
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="login-logo">
+        <i class="bi bi-bank2"></i>
+      </div>
+      <h1 class="login-sys-title">National VAT & Tax<br>Management System</h1>
+      <p class="login-sys-sub">Government of Bangladesh — NBR Portal</p>
+    </div>
+
+    <div class="login-features">
+      <div class="feature-item">
+        <i class="bi bi-shield-lock-fill"></i>
+        <span>Secure & Encrypted Access</span>
+      </div>
+      <div class="feature-item">
+        <i class="bi bi-people-fill"></i>
+        <span>Role-Based Access Control</span>
+      </div>
+      <div class="feature-item">
+        <i class="bi bi-graph-up-arrow"></i>
+        <span>Real-Time Tax Analytics</span>
+      </div>
+      <div class="feature-item">
+        <i class="bi bi-file-earmark-check-fill"></i>
+        <span>Digital VAT & Tax Filing</span>
+      </div>
+    </div>
+<!-- 
+    <div class="login-footer-text">
+      © {{ year }} National Board of Revenue &bull; Bangladesh
+    </div> -->
+  </div>
+
+  <!-- Right Panel -->
+  <div class="login-right">
+    <div class="login-card">
+
+      <!-- Header -->
+      <div class="login-card-header">
+        <div class="login-card-icon">
+          <i class="bi bi-person-lock"></i>
+        </div>
+        <h2 class="login-title">Sign In</h2>
+        <p class="login-subtitle">Enter your credentials to access the portal</p>
+      </div>
+
+      <!-- Error -->
+      <div class="login-error" *ngIf="errorMsg">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        {{ errorMsg }}
+      </div>
+
+      <!-- Form -->
+      <div class="login-form">
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrap">
+            <i class="bi bi-envelope-fill input-icon"></i>
+            <input
+              type="email"
+              class="form-input"
+              placeholder="Enter your email"
+              [(ngModel)]="email"
+              (keyup.enter)="login()"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrap">
+            <i class="bi bi-lock-fill input-icon"></i>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              class="form-input"
+              placeholder="Enter your password"
+              [(ngModel)]="password"
+              (keyup.enter)="login()"
+            />
+            <button
+              class="toggle-pass"
+              (click)="showPassword = !showPassword"
+              type="button"
+            >
+              <i [class]="showPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'"></i>
+            </button>
+          </div>
+        </div>
+
+        <button
+          class="btn-login"
+          (click)="login()"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="!isLoading">
+            <i class="bi bi-box-arrow-in-right"></i> Sign In
+          </span>
+          <span *ngIf="isLoading">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Authenticating...
+          </span>
+        </button>
+
+      </div>
+
+      <!-- Demo Accounts -->
+      <div class="demo-section">
+        <div class="demo-label">
+          <span>Quick Demo Login</span>
+        </div>
+        <div class="demo-grid">
+          <button
+            class="demo-btn"
+            *ngFor="let acc of demoAccounts"
+            (click)="fillDemo(acc.email)"
+          >
+            <i class="bi bi-person-circle"></i>
+            {{ acc.label }}
+          </button>
+        </div>
+        <p class="demo-hint">
+          <i class="bi bi-info-circle"></i>
+          Click any role above then press Sign In (password: demo1234)
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
