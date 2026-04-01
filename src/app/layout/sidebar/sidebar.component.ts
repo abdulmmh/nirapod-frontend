@@ -202,12 +202,64 @@ export class SidebarComponent implements OnInit {
       route: '/notices',
       roles: []
     },
+    // ── ADMINISTRATION ──
+    { label: 'ADMINISTRATION', isGroupHeader: true },
 
-    // { label: 'Reports & Analytics',     route: '/reports',         icon: 'bi bi-bar-chart-fill',         children: [] },
-    // { label: 'User Management',         route: '/users',           icon: 'bi bi-person-gear',            children: [] },
-    // { label: 'Roles & Permissions',     route: '/roles',           icon: 'bi bi-lock-fill',              children: [] },
-    // { label: 'Activity Logs',           route: '/activity-logs',   icon: 'bi bi-clock-history',          children: [] },
-    // { label: 'System Settings',         route: '/settings',        icon: 'bi bi-gear-fill',              children: [] },
+    {
+      label: 'Reports & Analytics',
+      icon: 'bi bi-bar-chart-fill',
+      route: null,
+      roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.AUDITOR],
+      children: [
+        { label: 'Dashboard Reports', route: '/reports',              icon: 'bi bi-pie-chart-fill' },
+        { label: 'Tax Collection',    route: '/reports/tax',          icon: 'bi bi-cash-stack' },
+        { label: 'Audit Reports',     route: '/reports/audit',        icon: 'bi bi-shield-fill-check' },
+        { label: 'Export Reports',    route: '/reports/export',       icon: 'bi bi-download' }
+      ]
+    },
+    {
+      label: 'User Management',
+      icon: 'bi bi-person-gear',
+      route: null,
+      roles: [Role.SUPER_ADMIN],
+      children: [
+        { label: 'All Users',    route: '/users',        icon: 'bi bi-list-ul' },
+        { label: 'Add User',     route: '/users/create', icon: 'bi bi-plus-circle' }
+      ]
+    },
+    {
+      label: 'Roles & Permissions',
+      icon: 'bi bi-lock-fill',
+      route: '/roles',
+      roles: [Role.SUPER_ADMIN],
+      children: [
+        { label: 'All Roles',   route: '/roles',        icon: 'bi bi-list-ul' },
+        { label: 'Add Role',    route: '/roles/create', icon: 'bi bi-plus-circle' }
+      ]
+    },
+    {
+      label: 'Activity Logs',
+      icon: 'bi bi-clock-history',
+      route: '/activity-logs',
+      roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER],
+      children: [
+        { label: 'All Logs',    route: '/activity-logs',         icon: 'bi bi-list-ul' },
+        { label: 'Login Logs',  route: '/activity-logs/login',   icon: 'bi bi-box-arrow-in-right' },
+        { label: 'Audit Trail', route: '/activity-logs/audit',   icon: 'bi bi-shield-fill-check' }
+      ]
+    },
+    {
+      label: 'System Settings',
+      icon: 'bi bi-gear-fill',
+      route: null,
+      roles: [Role.SUPER_ADMIN],
+      children: [
+        { label: 'General Settings', route: '/settings',              icon: 'bi bi-sliders' },
+        { label: 'Email Config',     route: '/settings/email',        icon: 'bi bi-envelope-fill' },
+        { label: 'Backup & Restore', route: '/settings/backup',       icon: 'bi bi-cloud-arrow-up-fill' },
+        { label: 'System Info',      route: '/settings/info',         icon: 'bi bi-info-circle-fill' }
+      ]
+    }
   ];
 
   constructor(
