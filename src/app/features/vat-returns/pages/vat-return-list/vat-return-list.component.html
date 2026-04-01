@@ -1,35 +1,30 @@
 <div class="page-header">
   <div class="page-header-left">
     <h4>VAT Returns</h4>
-    <p>Manage all VAT return submissions here.</p>
+    <p>Manage all VAT return submissions.</p>
   </div>
   <a *canDo="'create'" routerLink="/vat-returns/create"
      class="btn-add-primary desktop-add-btn">
-    <i class="bi bi-plus-lg"></i> Submit Return
+    <i class="bi bi-plus-lg"></i> File Return
   </a>
 </div>
 
 <div class="page-wrapper">
 
-  <!-- Search -->
   <div class="list-search-bar">
     <div class="search-field-row">
       <div class="search-field">
         <i class="bi bi-search"></i>
-        <input
-          type="text"
-          placeholder="Search by return no, taxpayer, TIN, BIN, period..."
-          [(ngModel)]="searchTerm"
-        />
+        <input type="text"
+          placeholder="Search by return no, BIN, business, TIN, period..."
+          [(ngModel)]="searchTerm" />
       </div>
       <button *canDo="'export'" class="btn-export">
-        <i class="bi bi-download"></i>
-        <span>Export</span>
+        <i class="bi bi-download"></i><span>Export</span>
       </button>
     </div>
   </div>
 
-  <!-- Loading -->
   <div class="loading-row" *ngIf="isLoading">
     <div class="spinner-border spinner-border-sm text-primary"></div>
     <span>Loading VAT returns...</span>
@@ -42,66 +37,77 @@
         <tr>
           <th>#</th>
           <th>Return No</th>
-          <th>Taxpayer</th>
-          <th>BIN</th>
-          <th>Tax Period</th>
-          <th>Total Sales</th>
-          <th>VAT Payable</th>
-          <th>Submission Date</th>
-          <th>Payment</th>
+          <th>Business</th>
+          <th>Period</th>
+          <th>Total Supplies</th>
+          <th>Output Tax</th>
+          <th>Input Tax</th>
+          <th>Net Payable</th>
+          <th>Tax Paid</th>
+          <th>Due Date</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let v of filteredReturns; let i = index">
+        <tr *ngFor="let r of filtered; let i = index">
           <td>{{ i + 1 }}</td>
-          <td><span class="return-code">{{ v.returnNo }}</span></td>
+
+          <td><span class="return-code">{{ r.returnNo }}</span></td>
+
           <td>
             <div class="td-name">
-              <div class="td-avatar">{{ v.taxpayerName.charAt(0) }}</div>
+              <div class="td-avatar vr-avatar">
+                <i class="bi bi-arrow-repeat"></i>
+              </div>
               <div>
-                <span class="td-title">{{ v.taxpayerName }}</span>
-                <span class="td-sub">{{ v.tinNumber }}</span>
+                <span class="td-title">{{ r.businessName }}</span>
+                <span class="td-sub">{{ r.binNo }}</span>
               </div>
             </div>
           </td>
-          <td><span class="bin-code">{{ v.binNumber }}</span></td>
-          <td>{{ v.taxPeriod }}</td>
-          <td class="amount-cell">{{ formatCurrency(v.totalSales) }}</td>
-          <td class="amount-cell vat-amount">{{ formatCurrency(v.netVatPayable) }}</td>
-          <td>{{ v.submissionDate }}</td>
+
           <td>
-            <span class="pay-badge" [ngClass]="getPaymentStatusClass(v.paymentStatus)">
-              {{ v.paymentStatus }}
+            <div class="period-cell">
+              <span class="period-badge">{{ r.returnPeriod }}</span>
+              <span class="period-text">{{ r.periodMonth }} {{ r.periodYear }}</span>
+            </div>
+          </td>
+
+          <td class="amt-cell">{{ formatCurrency(r.totalSupplies) }}</td>
+          <td class="amt-cell output">{{ formatCurrency(r.outputTax) }}</td>
+          <td class="amt-cell input">{{ formatCurrency(r.inputTax) }}</td>
+          <td class="amt-cell net">{{ formatCurrency(r.netTaxPayable) }}</td>
+          <td class="amt-cell paid">
+            {{ r.taxPaid > 0 ? formatCurrency(r.taxPaid) : '—' }}
+          </td>
+
+          <td>{{ r.dueDate }}</td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ r.status }}
             </span>
           </td>
-          <td>
-            <span class="status-badge" [ngClass]="getReturnStatusClass(v.returnStatus)">
-              {{ v.returnStatus }}
-            </span>
-          </td>
+
           <td>
             <div class="action-btns">
-              <button class="btn-view">
+              <button class="btn-view" (click)="view(r.id)">
                 <i class="bi bi-eye-fill"></i> View
               </button>
-              <button *canDo="'edit'" class="btn-edit">
+              <button *canDo="'edit'" class="btn-edit" (click)="edit(r.id)">
                 <i class="bi bi-pencil-fill"></i> Edit
               </button>
-              <button
-                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
-                class="btn-delete"
-                (click)="delete(v.id)"
-              >
-                <i class="bi bi-trash-fill"></i> Delete
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+                class="btn-delete" (click)="delete(r.id)">
+                <i class="bi bi-trash-fill"></i>
               </button>
             </div>
           </td>
         </tr>
 
-        <tr *ngIf="filteredReturns.length === 0">
-          <td colspan="11">
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="12">
             <div class="empty-state">
               <i class="bi bi-arrow-repeat"></i>
               <p>No VAT returns found.</p>
@@ -113,87 +119,42 @@
   </div>
 
   <!-- Mobile Cards -->
-  <div class="mobile-cards" style="padding: 12px;" *ngIf="!isLoading">
-    <div class="mobile-card" *ngFor="let v of filteredReturns">
-
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filtered">
       <div class="mobile-card-header">
         <div class="mobile-card-title">
-          <div class="mobile-avatar">{{ v.taxpayerName.charAt(0) }}</div>
+          <div class="mobile-avatar vr-avatar">
+            <i class="bi bi-arrow-repeat"></i>
+          </div>
           <div>
-            <div class="mobile-name">{{ v.taxpayerName }}</div>
-            <div class="mobile-sub">{{ v.returnNo }}</div>
+            <div class="mobile-name">{{ r.businessName }}</div>
+            <div class="mobile-sub">{{ r.returnNo }}</div>
           </div>
         </div>
-        <span class="status-badge" [ngClass]="getReturnStatusClass(v.returnStatus)">
-          {{ v.returnStatus }}
-        </span>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
       </div>
-
       <div class="mobile-card-body">
-        <div class="mobile-field">
-          <label>TIN</label>
-          <span>{{ v.tinNumber }}</span>
-        </div>
-        <div class="mobile-field">
-          <label>BIN</label>
-          <span>{{ v.binNumber }}</span>
-        </div>
-        <div class="mobile-field">
-          <label>Tax Period</label>
-          <span>{{ v.taxPeriod }}</span>
-        </div>
-        <div class="mobile-field">
-          <label>Total Sales</label>
-          <span>{{ formatCurrency(v.totalSales) }}</span>
-        </div>
-        <div class="mobile-field">
-          <label>VAT Payable</label>
-          <span class="vat-amount">{{ formatCurrency(v.netVatPayable) }}</span>
-        </div>
-        <div class="mobile-field">
-          <label>Payment</label>
-          <span class="pay-badge" [ngClass]="getPaymentStatusClass(v.paymentStatus)">
-            {{ v.paymentStatus }}
-          </span>
-        </div>
-        <div class="mobile-field">
-          <label>Submitted</label>
-          <span>{{ v.submissionDate }}</span>
-        </div>
-        <div class="mobile-field" *ngIf="v.remarks">
-          <label>Remarks</label>
-          <span>{{ v.remarks }}</span>
-        </div>
+        <div class="mobile-field"><label>BIN</label><span>{{ r.binNo }}</span></div>
+        <div class="mobile-field"><label>Period</label><span>{{ r.periodMonth }} {{ r.periodYear }}</span></div>
+        <div class="mobile-field"><label>Total Supplies</label><span>{{ formatCurrency(r.totalSupplies) }}</span></div>
+        <div class="mobile-field"><label>Output Tax</label><span class="output">{{ formatCurrency(r.outputTax) }}</span></div>
+        <div class="mobile-field"><label>Input Tax</label><span class="input">{{ formatCurrency(r.inputTax) }}</span></div>
+        <div class="mobile-field"><label>Net Payable</label><span class="net">{{ formatCurrency(r.netTaxPayable) }}</span></div>
+        <div class="mobile-field"><label>Due Date</label><span>{{ r.dueDate }}</span></div>
       </div>
-
       <div class="mobile-card-actions">
-        <button class="btn-view">
-          <i class="bi bi-eye-fill"></i> View
-        </button>
-        <button *canDo="'edit'" class="btn-edit">
-          <i class="bi bi-pencil-fill"></i> Edit
-        </button>
-        <button
-          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
-          class="btn-delete"
-          (click)="delete(v.id)"
-        >
-          <i class="bi bi-trash-fill"></i> Delete
-        </button>
+        <button class="btn-view" (click)="view(r.id)"><i class="bi bi-eye-fill"></i> View</button>
+        <button *canDo="'edit'" class="btn-edit" (click)="edit(r.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(r.id)"><i class="bi bi-trash-fill"></i></button>
       </div>
-
     </div>
-
-    <div class="empty-state" *ngIf="filteredReturns.length === 0">
-      <i class="bi bi-arrow-repeat"></i>
-      <p>No VAT returns found.</p>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-arrow-repeat"></i><p>No VAT returns found.</p>
     </div>
   </div>
 
 </div>
 
-<!-- FAB -->
-<button *canDo="'create'" class="fab-btn"
-  routerLink="/vat-returns/create" title="Submit VAT Return">
+<button *canDo="'create'" class="fab-btn" routerLink="/vat-returns/create">
   <i class="bi bi-plus-lg"></i>
 </button>

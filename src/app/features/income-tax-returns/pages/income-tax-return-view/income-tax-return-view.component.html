@@ -1,0 +1,233 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Income Tax Return Details</h4>
+    <p>Full ITR submission information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border" style="color:#7c3aed"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && itr">
+
+  <!-- Header Card -->
+  <div class="itr-header-card">
+    <div class="itr-header-left">
+      <div class="itr-icon"><i class="bi bi-receipt-cutoff"></i></div>
+      <div>
+        <div class="itr-no">{{ itr.returnNo }}</div>
+        <div class="itr-name">{{ itr.taxpayerName }}</div>
+        <div class="itr-meta">
+          <span class="cat-badge" [ngClass]="getCategoryClass(itr.itrCategory)">
+            {{ itr.itrCategory }}
+          </span>
+          <span class="year-pill">{{ itr.assessmentYear }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(itr.status)">
+            {{ itr.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="itr-header-right">
+      <div class="itr-stat">
+        <span class="its-label">Net Tax Payable</span>
+        <span class="its-value">{{ fmt(itr.netTaxPayable) }}</span>
+      </div>
+      <div class="itr-stat" *ngIf="itr.refundable > 0">
+        <span class="its-label">Refundable</span>
+        <span class="its-value refund">{{ fmt(itr.refundable) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tax Summary Cards -->
+  <div class="tax-summary-row">
+    <div class="ts-card">
+      <div class="tsc-icon gross-in"><i class="bi bi-cash-stack"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Gross Income</span>
+        <span class="tsc-value">{{ fmt(itr.grossIncome) }}</span>
+      </div>
+    </div>
+    <div class="ts-card">
+      <div class="tsc-icon taxable"><i class="bi bi-calculator-fill"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Taxable Income</span>
+        <span class="tsc-value taxable">{{ fmt(itr.taxableIncome) }}</span>
+      </div>
+    </div>
+    <div class="ts-card">
+      <div class="tsc-icon gross-tax"><i class="bi bi-percent"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Gross Tax ({{ itr.taxRate }}%)</span>
+        <span class="tsc-value gross-tax">{{ fmt(itr.grossTax) }}</span>
+      </div>
+    </div>
+    <div class="ts-card highlight">
+      <div class="tsc-icon net"><i class="bi bi-arrow-right-circle-fill"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Net Payable</span>
+        <span class="tsc-value net">{{ fmt(itr.netTaxPayable) }}</span>
+      </div>
+    </div>
+    <div class="ts-card" *ngIf="itr.refundable > 0">
+      <div class="tsc-icon refund"><i class="bi bi-arrow-return-left"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Refundable</span>
+        <span class="tsc-value refund">{{ fmt(itr.refundable) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Taxpayer & Period</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Return No.</span>
+          <span class="detail-value"><span class="code-badge">{{ itr.returnNo }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">TIN No.</span>
+          <span class="detail-value"><span class="code-badge">{{ itr.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Taxpayer</span>
+          <span class="detail-value fw-bold">{{ itr.taxpayerName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Category</span>
+          <span class="detail-value">
+            <span class="cat-badge" [ngClass]="getCategoryClass(itr.itrCategory)">{{ itr.itrCategory }}</span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Assessment Year</span>
+          <span class="detail-value fw-bold">{{ itr.assessmentYear }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Income Year</span>
+          <span class="detail-value">{{ itr.incomeYear }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-calendar-check-fill"></i>
+        <span>Submission Details</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Return Period</span>
+          <span class="detail-value">{{ itr.returnPeriod }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Due Date</span>
+          <span class="detail-value">{{ itr.dueDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="itr.submissionDate">
+          <span class="detail-label">Submitted On</span>
+          <span class="detail-value">{{ itr.submissionDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="itr.submittedBy">
+          <span class="detail-label">Submitted By</span>
+          <span class="detail-value">{{ itr.submittedBy }}</span>
+        </div>
+        <div class="detail-row" *ngIf="itr.verifiedBy">
+          <span class="detail-label">Verified By</span>
+          <span class="detail-value">{{ itr.verifiedBy }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(itr.status)">{{ itr.status }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full width income breakdown -->
+    <div class="detail-card full-card">
+      <div class="detail-card-header">
+        <i class="bi bi-table"></i>
+        <span>Income & Tax Breakdown</span>
+      </div>
+      <div class="breakdown-grid">
+        <div class="breakdown-col">
+          <div class="bc-title">Income</div>
+          <div class="detail-row">
+            <span class="detail-label">Gross Income</span>
+            <span class="detail-value">{{ fmt(itr.grossIncome) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Less: Exempt</span>
+            <span class="detail-value exempt">{{ fmt(itr.exemptIncome) }}</span>
+          </div>
+          <div class="detail-row highlight-row">
+            <span class="detail-label fw-bold">Taxable Income</span>
+            <span class="detail-value fw-bold">{{ fmt(itr.taxableIncome) }}</span>
+          </div>
+        </div>
+        <div class="breakdown-col">
+          <div class="bc-title">Tax</div>
+          <div class="detail-row">
+            <span class="detail-label">Tax Rate</span>
+            <span class="detail-value">{{ itr.taxRate }}%</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Gross Tax</span>
+            <span class="detail-value tax-val">{{ fmt(itr.grossTax) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Less: Rebate</span>
+            <span class="detail-value exempt">{{ fmt(itr.taxRebate) }}</span>
+          </div>
+          <div class="detail-row highlight-row">
+            <span class="detail-label fw-bold">Net Payable</span>
+            <span class="detail-value fw-bold net-val">{{ fmt(itr.netTaxPayable) }}</span>
+          </div>
+        </div>
+        <div class="breakdown-col">
+          <div class="bc-title">Payment</div>
+          <div class="detail-row">
+            <span class="detail-label">Advance Tax</span>
+            <span class="detail-value paid-val">{{ fmt(itr.advanceTaxPaid) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Withholding Tax</span>
+            <span class="detail-value paid-val">{{ fmt(itr.withholdingTax) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Tax Paid</span>
+            <span class="detail-value paid-val">{{ fmt(itr.taxPaid) }}</span>
+          </div>
+          <div class="detail-row highlight-row" *ngIf="itr.refundable > 0">
+            <span class="detail-label fw-bold">Refundable</span>
+            <span class="detail-value fw-bold refund-val">{{ fmt(itr.refundable) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="detail-row" *ngIf="itr.remarks" style="padding:10px 18px;">
+        <span class="detail-label">Remarks</span>
+        <span class="detail-value">{{ itr.remarks }}</span>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

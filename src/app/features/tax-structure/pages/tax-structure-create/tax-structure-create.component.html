@@ -1,1 +1,158 @@
-<p>tax-structure-create works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Add Tax Structure</h4>
+    <p>Define a new tax type, rate and applicability.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Tax Identity -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-sliders"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Tax Identity</h6>
+        <span class="section-sub">Tax name, type and rate</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label required">Tax Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. Standard VAT, AIT on Salary"
+            [(ngModel)]="form.taxName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Tax Type</label>
+        <div class="input-wrap">
+          <i class="bi bi-grid-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.taxType">
+            <option value="">Select Type</option>
+            <option *ngFor="let t of taxTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Rate (%)</label>
+        <div class="input-wrap rate-wrap">
+          <i class="bi bi-percent input-icon"></i>
+          <input type="number" class="form-input"
+            placeholder="0" min="0" max="100" step="0.5"
+            [(ngModel)]="form.rate" />
+          <span class="rate-suffix">%</span>
+        </div>
+        <!-- Rate Preview -->
+        <div class="rate-preview" *ngIf="form.rate > 0">
+          <span class="rp-label">Preview:</span>
+          <span class="rp-value">For ৳1,00,000 → Tax = ৳{{ (100000 * form.rate / 100) | number:'1.0-0' }}</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Applicable To</label>
+        <div class="input-wrap">
+          <i class="bi bi-people-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.applicableTo">
+            <option *ngFor="let a of applicables" [value]="a">{{ a }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Validity -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-calendar-range-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Validity Period & Status</h6>
+        <span class="section-sub">Effective and expiry dates</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Effective Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.effectiveDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expiry Date <span class="optional">(optional)</span></label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-x input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.expiryDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Description -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-chat-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Description</h6>
+        <span class="section-sub">Additional details about this tax</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label">Description</label>
+        <div class="input-wrap">
+          <i class="bi bi-text-paragraph input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Describe this tax structure..."
+            [(ngModel)]="form.description" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading"><i class="bi bi-check-lg"></i> Create Tax Structure</span>
+      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
+    </button>
+  </div>
+
+</div>

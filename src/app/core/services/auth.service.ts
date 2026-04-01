@@ -106,6 +106,13 @@ export class AuthService {
     return perms.includes('*') || perms.includes(module);
   }
 
+  // auth.service.ts e add koro
+  hasRole(role: Role): boolean {
+    const user = this.currentUserSubject.getValue();
+    if (!user) return false;
+    return user.role === role || user.role === Role.SUPER_ADMIN;
+  }
+
   canDo(action: string): boolean {
     const actions = ROLE_ACTIONS[this.userRole];
     return actions.includes(action);

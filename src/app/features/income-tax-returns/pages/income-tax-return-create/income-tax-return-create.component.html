@@ -1,0 +1,313 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>File Income Tax Return</h4>
+    <p>Submit a new income tax return.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Taxpayer -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Taxpayer Information</h6>
+        <span class="section-sub">TIN, name and category</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">TIN Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Taxpayer Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Full name or company" [(ngModel)]="form.taxpayerName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Category</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.itrCategory">
+            <option *ngFor="let c of itrCategories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Return Period</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.returnPeriod">
+            <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Assessment Year</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
+            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Income Year</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.incomeYear">
+            <option *ngFor="let y of incomeYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Submission Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.submissionDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-x input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.dueDate" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Income -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-cash-stack"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Income Details</h6>
+        <span class="section-sub">Gross income, exemptions and taxable income</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Gross Income (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.grossIncome" (ngModelChange)="autoCalcTax()" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Exempt Income (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-shield-check input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.exemptIncome" (ngModelChange)="autoCalcTax()" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tax Rate (%)</label>
+        <div class="input-wrap">
+          <i class="bi bi-percent input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.taxRate"
+            (ngModelChange)="autoCalcTax()">
+            <option *ngFor="let r of availableTaxRates" [value]="r">{{ r }}%</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gross Tax (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-calculator input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.grossTax" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tax Rebate (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-arrow-down-circle input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.taxRebate" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Income & Tax Preview -->
+    <div class="income-summary">
+      <div class="is-row">
+        <span class="is-label">Gross Income</span>
+        <span class="is-value">৳{{ form.grossIncome.toLocaleString() }}</span>
+      </div>
+      <div class="is-row">
+        <span class="is-label">Less: Exempt</span>
+        <span class="is-value exempt">— ৳{{ form.exemptIncome.toLocaleString() }}</span>
+      </div>
+      <div class="is-divider"></div>
+      <div class="is-row highlight-row">
+        <span class="is-label bold">Taxable Income</span>
+        <span class="is-value bold">৳{{ taxableIncome.toLocaleString() }}</span>
+      </div>
+      <div class="is-row">
+        <span class="is-label">Gross Tax ({{ form.taxRate }}%)</span>
+        <span class="is-value tax">৳{{ form.grossTax.toLocaleString() }}</span>
+      </div>
+      <div class="is-row">
+        <span class="is-label">Less: Rebate</span>
+        <span class="is-value rebate">— ৳{{ form.taxRebate.toLocaleString() }}</span>
+      </div>
+      <div class="is-divider"></div>
+      <div class="is-row total-row">
+        <span class="is-label bold">Net Tax Payable</span>
+        <span class="is-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Tax Payment -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-cash-coin"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Tax Payment Details</h6>
+        <span class="section-sub">Advance tax, withholding tax and payment</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Advance Tax Paid (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.advanceTaxPaid" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Withholding Tax (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-arrow-left-circle input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.withholdingTax" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tax Paid at Filing (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-cash-coin input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.taxPaid" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Summary -->
+    <div class="payment-summary">
+      <div class="ps-row">
+        <span class="ps-label">Net Tax Payable</span>
+        <span class="ps-value">৳{{ netTaxPayable.toLocaleString() }}</span>
+      </div>
+      <div class="ps-row">
+        <span class="ps-label">Advance Tax</span>
+        <span class="ps-value credit">— ৳{{ form.advanceTaxPaid.toLocaleString() }}</span>
+      </div>
+      <div class="ps-row">
+        <span class="ps-label">Withholding Tax</span>
+        <span class="ps-value credit">— ৳{{ form.withholdingTax.toLocaleString() }}</span>
+      </div>
+      <div class="ps-row">
+        <span class="ps-label">Tax Paid</span>
+        <span class="ps-value credit">— ৳{{ form.taxPaid.toLocaleString() }}</span>
+      </div>
+      <div class="ps-divider"></div>
+      <div class="ps-row total-row" *ngIf="balanceDue > 0">
+        <span class="ps-label bold">Balance Due</span>
+        <span class="ps-value due">৳{{ balanceDue.toLocaleString() }}</span>
+      </div>
+      <div class="ps-row total-row refund" *ngIf="refundable > 0">
+        <span class="ps-label bold">Refundable Amount</span>
+        <span class="ps-value refund-val">৳{{ refundable.toLocaleString() }}</span>
+      </div>
+      <div class="ps-row total-row" *ngIf="balanceDue === 0 && refundable === 0">
+        <span class="ps-label bold">Balance</span>
+        <span class="ps-value settled">৳0 — Settled</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Submission -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Submission Details</h6>
+        <span class="section-sub">Who is filing and additional notes</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Submitted By</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.submittedBy">
+            <option value="">Select</option>
+            <option *ngFor="let s of submitters" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Remarks</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Optional remarks..." [(ngModel)]="form.remarks" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> File Return</span>
+      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Filing...</span>
+    </button>
+  </div>
+
+</div>

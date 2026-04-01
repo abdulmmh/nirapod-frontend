@@ -1,1 +1,244 @@
-<p>vat-return-edit works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Edit VAT Return</h4>
+    <p>Update VAT return details.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to View
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<div class="form-card" *ngIf="!isLoading">
+
+  <div class="edit-banner">
+    <i class="bi bi-pencil-square"></i>
+    Editing: <strong>{{ form.returnNo }}</strong>
+    <span class="banner-sub">{{ form.businessName }}</span>
+  </div>
+
+  <!-- Section 1: Business -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-building-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Business Information</h6>
+        <span class="section-sub">BIN, TIN and business details</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">BIN No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-hash input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.binNo" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">TIN Number</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.tinNumber" />
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label required">Business Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-building input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.businessName" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Period -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-calendar-range-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Period & Status</h6>
+        <span class="section-sub">Filing period and current status</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Return Period</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.returnPeriod">
+            <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Period</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-month input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.periodMonth">
+            <option *ngFor="let m of periodOptions" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Year</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.periodYear">
+            <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Submission Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.submissionDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-x input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.dueDate" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Tax -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-table"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Tax Figures</h6>
+        <span class="section-sub">Supplies and VAT amounts</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Taxable Supplies (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.taxableSupplies" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Exempt Supplies (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.exemptSupplies" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zero Rated Supplies (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.zeroRatedSupplies" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Output Tax (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-arrow-up-circle input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.outputTax" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Input Tax Credit (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-arrow-down-circle input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.inputTax" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tax Paid (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-cash-coin input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.taxPaid" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Net Tax Display -->
+    <div class="net-tax-display">
+      <span class="ntd-label">Net Tax Payable</span>
+      <span class="ntd-value">৳{{ netTaxPayable.toLocaleString() }}</span>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Remarks -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-chat-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Submission & Remarks</h6>
+        <span class="section-sub">Submitted by and notes</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Submitted By</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.submittedBy">
+            <option *ngFor="let s of submitters" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Remarks</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            [(ngModel)]="form.remarks" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isSaving || !isFormValid()">
+      <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update Return</span>
+      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+    </button>
+  </div>
+
+</div>

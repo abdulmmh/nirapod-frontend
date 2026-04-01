@@ -73,10 +73,10 @@ const routes: Routes = [
 
       //Income-TAX-returns
       {
-        path: 'income-tax',
+        path: 'income-tax-returns',
         loadChildren: () =>
-          import('./features/income-tax-returns/income-tax/income-tax.module')
-            .then(m => m.IncomeTaxModule)
+          import('./features/income-tax-returns/income-tax-returns/income-tax-returns.module')
+            .then(m => m.IncomeTaxReturnsModule)
       },
 
 

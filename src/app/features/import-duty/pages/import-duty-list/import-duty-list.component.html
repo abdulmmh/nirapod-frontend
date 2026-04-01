@@ -1,1 +1,138 @@
-<p>import-duty-list works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Import Duty</h4>
+    <p>Manage all import duty assessments and clearances.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/import-duty/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> New Import
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by ref, taxpayer, product, country, port..."
+          [(ngModel)]="searchTerm" />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i><span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading import records...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Duty Ref</th>
+          <th>Taxpayer / Business</th>
+          <th>Goods</th>
+          <th>Origin</th>
+          <th>CIF Value</th>
+          <th>Duty Rate</th>
+          <th>Duty Amount</th>
+          <th>Total Payable</th>
+          <th>Port</th>
+          <th>Import Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><span class="duty-ref">{{ r.dutyRef }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar imp-avatar"><i class="bi bi-truck-front-fill"></i></div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName }}</span>
+                <span class="td-sub">{{ r.businessName }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div>
+              <span class="goods-name">{{ r.productName }}</span>
+              <span class="hs-badge">{{ r.hsCode }}</span>
+            </div>
+          </td>
+          <td><span class="country-badge">🌐 {{ r.originCountry }}</span></td>
+          <td class="amt-cell">{{ formatCurrency(r.cifValue) }}</td>
+          <td><span class="rate-pill">{{ r.dutyRate }}%</span></td>
+          <td class="amt-cell duty">{{ formatCurrency(r.dutyAmount) }}</td>
+          <td class="amt-cell total">{{ formatCurrency(r.totalPayable) }}</td>
+          <td><span class="port-badge">{{ r.portOfEntry }}</span></td>
+          <td>{{ r.importDate }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+                class="btn-delete" (click)="delete(r.id)">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="13">
+            <div class="empty-state"><i class="bi bi-truck-front"></i><p>No import records found.</p></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filtered">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar imp-avatar"><i class="bi bi-truck-front-fill"></i></div>
+          <div>
+            <div class="mobile-name">{{ r.businessName }}</div>
+            <div class="mobile-sub">{{ r.dutyRef }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Product</label><span>{{ r.productName }}</span></div>
+        <div class="mobile-field"><label>HS Code</label><span>{{ r.hsCode }}</span></div>
+        <div class="mobile-field"><label>Origin</label><span>{{ r.originCountry }}</span></div>
+        <div class="mobile-field"><label>CIF Value</label><span>{{ formatCurrency(r.cifValue) }}</span></div>
+        <div class="mobile-field"><label>Duty Rate</label><span>{{ r.dutyRate }}%</span></div>
+        <div class="mobile-field"><label>Duty Amount</label><span class="duty">{{ formatCurrency(r.dutyAmount) }}</span></div>
+        <div class="mobile-field"><label>Total Payable</label><span class="total">{{ formatCurrency(r.totalPayable) }}</span></div>
+        <div class="mobile-field"><label>Port</label><span>{{ r.portOfEntry }}</span></div>
+        <div class="mobile-field"><label>Import Date</label><span>{{ r.importDate }}</span></div>
+      </div>
+      <div class="mobile-card-actions">
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(r.id)">
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-truck-front"></i><p>No import records found.</p>
+    </div>
+  </div>
+
+</div>
+
+<button *canDo="'create'" class="fab-btn" routerLink="/import-duty/create">
+  <i class="bi bi-plus-lg"></i>
+</button>

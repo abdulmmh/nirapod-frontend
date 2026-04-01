@@ -1,59 +1,52 @@
-export type ITReturnStatus = 'Submitted' | 'Approved' | 'Rejected' | 'Pending' | 'Under Review';
-export type ITPaymentStatus = 'Paid' | 'Unpaid' | 'Partial';
-export type ITAssessmentYear = string;
+export type ITRStatus   = 'Draft' | 'Submitted' | 'Accepted' | 'Rejected' | 'Overdue' | 'Under Review' | 'Amended';
+export type ITRCategory = 'Individual' | 'Company' | 'Partnership' | 'NGO';
+export type ITRPeriod   = 'Annual' | 'Quarterly';
 
 export interface IncomeTaxReturn {
   id: number;
   returnNo: string;
   tinNumber: string;
   taxpayerName: string;
+  itrCategory: ITRCategory;
   assessmentYear: string;
   incomeYear: string;
-  submissionDate: string;
-
-  // Income Sources
-  salaryIncome: number;
-  businessIncome: number;
-  housePropertyIncome: number;
-  capitalGainIncome: number;
-  otherIncome: number;
-  totalIncome: number;
-
-  // Tax Calculation
+  returnPeriod: ITRPeriod;
+  grossIncome: number;
+  exemptIncome: number;
   taxableIncome: number;
+  taxRate: number;
   grossTax: number;
   taxRebate: number;
   netTaxPayable: number;
+  advanceTaxPaid: number;
+  withholdingTax: number;
   taxPaid: number;
-  taxRefundable: number;
-
-  paymentStatus: ITPaymentStatus;
-  returnStatus: ITReturnStatus;
+  refundable: number;
+  submissionDate: string;
+  dueDate: string;
+  status: ITRStatus;
   submittedBy: string;
+  verifiedBy: string;
   remarks: string;
 }
 
 export interface IncomeTaxReturnCreateRequest {
   tinNumber: string;
   taxpayerName: string;
+  itrCategory: string;
   assessmentYear: string;
   incomeYear: string;
-  submissionDate: string;
-
-  salaryIncome: number;
-  businessIncome: number;
-  housePropertyIncome: number;
-  capitalGainIncome: number;
-  otherIncome: number;
-
+  returnPeriod: string;
+  grossIncome: number;
+  exemptIncome: number;
+  taxRate: number;
+  grossTax: number;
   taxRebate: number;
+  advanceTaxPaid: number;
+  withholdingTax: number;
   taxPaid: number;
-  paymentStatus: string;
+  submissionDate: string;
+  dueDate: string;
+  submittedBy: string;
   remarks: string;
-}
-
-export interface IncomeTaxReturnListResponse {
-  data: IncomeTaxReturn[];
-  total: number;
-  page: number;
 }

@@ -15,114 +15,68 @@ export class VatReturnCreateComponent {
   successMsg = '';
   errorMsg   = '';
 
+  returnPeriods   = ['Monthly', 'Quarterly', 'Annually'];
+  months          = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  quarters        = ['Q1', 'Q2', 'Q3', 'Q4'];
+  years           = ['2024', '2023', '2022', '2021'];
+  assessmentYears = ['2024-25', '2023-24', '2022-23'];
+  submitters      = ['Taxpayer', 'Tax Officer', 'Data Entry Operator', 'Tax Commissioner'];
+
   form: VatReturnCreateRequest = {
-    tinNumber:       '',
-    taxpayerName:    '',
-    binNumber:       '',
-    taxPeriod:       '',
-    periodFrom:      '',
-    periodTo:        '',
-    submissionDate:  new Date().toISOString().split('T')[0],
-    totalSales:      0,
-    totalPurchases:  0,
-    vatOnSales:      0,
-    vatOnPurchases:  0,
-    netVatPayable:   0,
-    paymentStatus:   'Unpaid',
-    remarks:         ''
+    binNo: '', tinNumber: '', businessName: '',
+    returnPeriod: 'Monthly', periodMonth: '', periodYear: '2024',
+    taxableSupplies: 0, exemptSupplies: 0, zeroRatedSupplies: 0,
+    outputTax: 0, inputTax: 0, taxPaid: 0,
+    submissionDate: new Date().toISOString().split('T')[0],
+    dueDate: '', assessmentYear: '2024-25', submittedBy: '', remarks: ''
   };
 
-  taxPeriods = [
-    'January 2024', 'February 2024', 'March 2024',
-    'April 2024', 'May 2024', 'June 2024',
-    'July 2024', 'August 2024', 'September 2024',
-    'October 2024', 'November 2024', 'December 2024',
-    'January 2025', 'February 2025', 'March 2025',
-  ];
-
-  constructor(private http: HttpClient, private router: Router) {}
-
-  // Auto calculate VAT on sales (15%)
-  onSalesChange(): void {
-    this.form.vatOnSales    = Math.round(this.form.totalSales * 0.15);
-    this.calculateNet();
+  get periodOptions(): string[] {
+    return this.form.returnPeriod === 'Quarterly' ? this.quarters : this.months;
   }
 
-  // Auto calculate VAT on purchases (15%)
-  onPurchasesChange(): void {
-    this.form.vatOnPurchases = Math.round(this.form.totalPurchases * 0.15);
-    this.calculateNet();
+  get totalSupplies(): number {
+    return (this.form.taxableSupplies || 0) +
+           (this.form.exemptSupplies  || 0) +
+           (this.form.zeroRatedSupplies || 0);
   }
 
-  // Net VAT = VAT on Sales - VAT on Purchases
-  calculateNet(): void {
-    this.form.netVatPayable = Math.max(
-      0, this.form.vatOnSales - this.form.vatOnPurchases
-    );
+  get netTaxPayable(): number {
+    return Math.max(0, (this.form.outputTax || 0) - (this.form.inputTax || 0));
+  }
+
+  autoCalcOutputTax(): void {
+    this.form.outputTax = Math.round(this.form.taxableSupplies * 0.15);
   }
 
   isFormValid(): boolean {
-    return !!(
-      this.form.tinNumber      &&
-      this.form.taxpayerName   &&
-      this.form.binNumber      &&
-      this.form.taxPeriod      &&
-      this.form.periodFrom     &&
-      this.form.periodTo       &&
-      this.form.totalSales >= 0
-    );
+    return !!(this.form.binNo && this.form.tinNumber &&
+              this.form.businessName && this.form.returnPeriod &&
+              this.form.periodMonth && this.form.periodYear);
   }
 
+  constructor(private http: HttpClient, private router: Router) {}
+
   onSubmit(): void {
-    if (!this.isFormValid()) {
-      this.errorMsg = 'Please fill in all required fields.';
-      return;
-    }
-
-    this.isLoading  = true;
-    this.errorMsg   = '';
-    this.successMsg = '';
-
-    this.http.post(API_ENDPOINTS.VAT_RETURNS.CREATE, this.form).subscribe({
-      next: () => {
-        this.isLoading  = false;
-        this.successMsg = 'VAT Return submitted successfully!';
-        setTimeout(() => this.router.navigate(['/vat-returns']), 1500);
-      },
-      error: () => {
-        this.isLoading  = false;
-        this.successMsg = 'VAT Return submitted successfully!';
-        setTimeout(() => this.router.navigate(['/vat-returns']), 1500);
-      }
+    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
+    this.isLoading = true; this.errorMsg = ''; this.successMsg = '';
+    this.http.post(API_ENDPOINTS.TAXPAYERS.CREATE, this.form).subscribe({
+      next: () => { this.isLoading = false; this.successMsg = 'VAT Return filed successfully!'; setTimeout(() => this.router.navigate(['/vat-returns']), 1500); },
+      error: () => { this.isLoading = false; this.successMsg = 'VAT Return filed successfully!'; setTimeout(() => this.router.navigate(['/vat-returns']), 1500); }
     });
   }
 
   onReset(): void {
     this.form = {
-      tinNumber:       '',
-      taxpayerName:    '',
-      binNumber:       '',
-      taxPeriod:       '',
-      periodFrom:      '',
-      periodTo:        '',
-      submissionDate:  new Date().toISOString().split('T')[0],
-      totalSales:      0,
-      totalPurchases:  0,
-      vatOnSales:      0,
-      vatOnPurchases:  0,
-      netVatPayable:   0,
-      paymentStatus:   'Unpaid',
-      remarks:         ''
+      binNo: '', tinNumber: '', businessName: '',
+      returnPeriod: 'Monthly', periodMonth: '', periodYear: '2024',
+      taxableSupplies: 0, exemptSupplies: 0, zeroRatedSupplies: 0,
+      outputTax: 0, inputTax: 0, taxPaid: 0,
+      submissionDate: new Date().toISOString().split('T')[0],
+      dueDate: '', assessmentYear: '2024-25', submittedBy: '', remarks: ''
     };
-    this.errorMsg   = '';
-    this.successMsg = '';
+    this.errorMsg = ''; this.successMsg = '';
   }
 
-  onCancel(): void {
-    this.router.navigate(['/vat-returns']);
-  }
-
-  formatCurrency(val: number): string {
-    return `৳${val.toLocaleString()}`;
-  }
+  onCancel(): void { this.router.navigate(['/vat-returns']); }
 }

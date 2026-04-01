@@ -1,1 +1,138 @@
-<p>taxable-product-list works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Taxable Products</h4>
+    <p>Manage all taxable products with HS codes and tax rates.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/taxable-products/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Add Product
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by name, HS code, category, tax type..."
+          [(ngModel)]="searchTerm" />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i><span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading products...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Code</th>
+          <th>Product</th>
+          <th>HS Code</th>
+          <th>Category</th>
+          <th>Tax Type</th>
+          <th>Tax Rate</th>
+          <th>Unit</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><span class="prod-code">{{ p.productCode }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar prod-avatar">
+                <i [class]="getCategoryIcon(p.category)"></i>
+              </div>
+              <div>
+                <span class="td-title">{{ p.productName }}</span>
+                <span class="td-sub">{{ p.description | slice:0:35 }}...</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="hs-code">{{ p.hsCode }}</span></td>
+          <td>
+            <span class="cat-pill">
+              <i [class]="getCategoryIcon(p.category)"></i>
+              {{ p.category }}
+            </span>
+          </td>
+          <td><span class="tax-type-badge">{{ p.taxType }}</span></td>
+          <td>
+            <span class="rate-chip" [class.zero-rate]="p.taxRate === 0">
+              {{ p.taxRate === 0 ? 'Zero' : p.taxRate + '%' }}
+            </span>
+          </td>
+          <td><span class="unit-badge">{{ p.unit }}</span></td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ p.status }}</span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+                class="btn-delete" (click)="delete(p.id)">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="10">
+            <div class="empty-state"><i class="bi bi-box-seam"></i><p>No products found.</p></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let p of filtered">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar prod-avatar"><i [class]="getCategoryIcon(p.category)"></i></div>
+          <div>
+            <div class="mobile-name">{{ p.productName }}</div>
+            <div class="mobile-sub">{{ p.hsCode }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ p.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Category</label><span>{{ p.category }}</span></div>
+        <div class="mobile-field"><label>Tax Type</label><span>{{ p.taxType }}</span></div>
+        <div class="mobile-field"><label>Tax Rate</label>
+          <span class="rate-chip" [class.zero-rate]="p.taxRate === 0">
+            {{ p.taxRate === 0 ? 'Zero Rated' : p.taxRate + '%' }}
+          </span>
+        </div>
+        <div class="mobile-field"><label>Unit</label><span>{{ p.unit }}</span></div>
+      </div>
+      <div class="mobile-card-actions">
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+          class="btn-delete" (click)="delete(p.id)">
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-box-seam"></i><p>No products found.</p>
+    </div>
+  </div>
+
+</div>
+
+<button *canDo="'create'" class="fab-btn" routerLink="/taxable-products/create">
+  <i class="bi bi-plus-lg"></i>
+</button>

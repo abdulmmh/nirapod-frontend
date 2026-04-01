@@ -1,43 +1,47 @@
+export type VatReturnStatus = 'Draft' | 'Submitted' | 'Accepted' | 'Rejected' | 'Overdue' | 'Amended';
+export type VatReturnPeriod = 'Monthly' | 'Quarterly' | 'Annually';
+
 export interface VatReturn {
   id: number;
   returnNo: string;
+  binNo: string;
   tinNumber: string;
-  taxpayerName: string;
-  binNumber: string;
-  taxPeriod: string;
-  periodFrom: string;
-  periodTo: string;
+  businessName: string;
+  returnPeriod: VatReturnPeriod;
+  periodMonth: string;
+  periodYear: string;
+  taxableSupplies: number;
+  exemptSupplies: number;
+  zeroRatedSupplies: number;
+  totalSupplies: number;
+  outputTax: number;
+  inputTax: number;
+  netTaxPayable: number;
+  taxPaid: number;
   submissionDate: string;
-  totalSales: number;
-  totalPurchases: number;
-  vatOnSales: number;
-  vatOnPurchases: number;
-  netVatPayable: number;
-  paymentStatus: 'Paid' | 'Unpaid' | 'Partial';
-  returnStatus: 'Submitted' | 'Approved' | 'Rejected' | 'Pending' | 'Under Review';
+  dueDate: string;
+  assessmentYear: string;
+  status: VatReturnStatus;
   submittedBy: string;
   remarks: string;
 }
 
 export interface VatReturnCreateRequest {
+  binNo: string;
   tinNumber: string;
-  taxpayerName: string;
-  binNumber: string;
-  taxPeriod: string;
-  periodFrom: string;
-  periodTo: string;
+  businessName: string;
+  returnPeriod: string;
+  periodMonth: string;
+  periodYear: string;
+  taxableSupplies: number;
+  exemptSupplies: number;
+  zeroRatedSupplies: number;
+  outputTax: number;
+  inputTax: number;
+  taxPaid: number;
   submissionDate: string;
-  totalSales: number;
-  totalPurchases: number;
-  vatOnSales: number;
-  vatOnPurchases: number;
-  netVatPayable: number;
-  paymentStatus: string;
+  dueDate: string;
+  assessmentYear: string;
+  submittedBy: string;
   remarks: string;
-}
-
-export interface VatReturnListResponse {
-  data: VatReturn[];
-  total: number;
-  page: number;
 }

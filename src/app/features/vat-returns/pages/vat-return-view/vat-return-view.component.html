@@ -1,1 +1,185 @@
-<p>vat-return-view works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>VAT Return Details</h4>
+    <p>Full VAT return submission information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && vr">
+
+  <!-- Header Card -->
+  <div class="vr-header-card">
+    <div class="vr-header-left">
+      <div class="vr-icon"><i class="bi bi-arrow-repeat"></i></div>
+      <div>
+        <div class="vr-no">{{ vr.returnNo }}</div>
+        <div class="vr-name">{{ vr.businessName }}</div>
+        <div class="vr-meta">
+          <span class="period-pill">{{ vr.returnPeriod }}</span>
+          <span class="period-text">{{ vr.periodMonth }} {{ vr.periodYear }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(vr.status)">{{ vr.status }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="vr-header-right">
+      <div class="vr-stat">
+        <span class="vrs-label">Net Tax Payable</span>
+        <span class="vrs-value">{{ fmt(vr.netTaxPayable) }}</span>
+      </div>
+      <div class="vr-stat">
+        <span class="vrs-label">Due Date</span>
+        <span class="vrs-value sm">{{ vr.dueDate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tax Summary Cards -->
+  <div class="tax-summary-row">
+    <div class="ts-card">
+      <div class="tsc-icon supplies"><i class="bi bi-graph-up"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Total Supplies</span>
+        <span class="tsc-value">{{ fmt(vr.totalSupplies) }}</span>
+      </div>
+    </div>
+    <div class="ts-card">
+      <div class="tsc-icon output"><i class="bi bi-arrow-up-circle-fill"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Output Tax</span>
+        <span class="tsc-value output">{{ fmt(vr.outputTax) }}</span>
+      </div>
+    </div>
+    <div class="ts-card">
+      <div class="tsc-icon input"><i class="bi bi-arrow-down-circle-fill"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Input Tax Credit</span>
+        <span class="tsc-value input">{{ fmt(vr.inputTax) }}</span>
+      </div>
+    </div>
+    <div class="ts-card highlight">
+      <div class="tsc-icon net"><i class="bi bi-calculator-fill"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Net Payable</span>
+        <span class="tsc-value net">{{ fmt(vr.netTaxPayable) }}</span>
+      </div>
+    </div>
+    <div class="ts-card">
+      <div class="tsc-icon paid"><i class="bi bi-cash-coin"></i></div>
+      <div class="tsc-body">
+        <span class="tsc-label">Tax Paid</span>
+        <span class="tsc-value paid">{{ vr.taxPaid > 0 ? fmt(vr.taxPaid) : '—' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-building-fill"></i>
+        <span>Business Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Return No.</span>
+          <span class="detail-value"><span class="code-badge">{{ vr.returnNo }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">BIN No.</span>
+          <span class="detail-value"><span class="code-badge">{{ vr.binNo }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">TIN No.</span>
+          <span class="detail-value"><span class="code-badge">{{ vr.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Business Name</span>
+          <span class="detail-value fw-bold">{{ vr.businessName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Assessment Year</span>
+          <span class="detail-value">{{ vr.assessmentYear }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-calendar-range-fill"></i>
+        <span>Period & Submission</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Return Period</span>
+          <span class="detail-value">{{ vr.returnPeriod }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Period</span>
+          <span class="detail-value fw-bold">{{ vr.periodMonth }} {{ vr.periodYear }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Due Date</span>
+          <span class="detail-value">{{ vr.dueDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="vr.submissionDate">
+          <span class="detail-label">Submitted On</span>
+          <span class="detail-value">{{ vr.submissionDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="vr.submittedBy">
+          <span class="detail-label">Submitted By</span>
+          <span class="detail-value">{{ vr.submittedBy }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(vr.status)">{{ vr.status }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card full-card">
+      <div class="detail-card-header">
+        <i class="bi bi-table"></i>
+        <span>Supply Breakdown</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Taxable Supplies</span>
+          <span class="detail-value">{{ fmt(vr.taxableSupplies) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Exempt Supplies</span>
+          <span class="detail-value">{{ fmt(vr.exemptSupplies) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Zero Rated Supplies</span>
+          <span class="detail-value">{{ fmt(vr.zeroRatedSupplies) }}</span>
+        </div>
+        <div class="detail-row total-supply-row">
+          <span class="detail-label fw-bold">Total Supplies</span>
+          <span class="detail-value fw-bold">{{ fmt(vr.totalSupplies) }}</span>
+        </div>
+        <div class="detail-row" *ngIf="vr.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value">{{ vr.remarks }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

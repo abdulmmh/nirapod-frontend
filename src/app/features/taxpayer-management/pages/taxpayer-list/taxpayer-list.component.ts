@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
+import { TaxpayerService } from 'src/app/core/services/taxpayer.service';
 
 @Component({
   selector: 'app-taxpayer-list',
@@ -17,17 +18,18 @@ export class TaxpayerListComponent implements OnInit {
 
   private fallback: Taxpayer[] = [
     { id: 1, tin: 'TIN-1001', fullName: 'Abdul Karim',        email: 'abdul.karim@example.com',   phone: '01711111111', taxpayerType: 'Individual', nationalId: '1234567890123', dateOfBirth: '1985-03-15', address: 'Mirpur, Dhaka', status: 'Active',    registrationDate: '2024-01-10' },
-    { id: 2, tin: 'TIN-1002', fullName: 'Nusrat Jahan',       email: 'nusrat.jahan@example.com',  phone: '01822222222', taxpayerType: 'Business',   nationalId: '9876543210123', dateOfBirth: '1990-07-22', address: 'Gulshan, Dhaka', status: 'Inactive',  registrationDate: '2024-01-15' },
-    { id: 3, tin: 'TIN-1003', fullName: 'Rahim Traders Ltd.', email: 'rahim.traders@example.com', phone: '01933333333', taxpayerType: 'Company',    nationalId: '1122334455667', dateOfBirth: '', address: 'Motijheel, Dhaka', status: 'Pending',   registrationDate: '2024-02-01' },
-    { id: 4, tin: 'TIN-1004', fullName: 'Sadia Islam',        email: 'sadia.islam@example.com',   phone: '01644444444', taxpayerType: 'Individual', nationalId: '5556667778889', dateOfBirth: '1995-12-10', address: 'Dhanmondi, Dhaka', status: 'Active',    registrationDate: '2024-02-20' },
-    { id: 5, tin: 'TIN-1005', fullName: 'Chittagong Exports', email: 'ctg@exports.com',            phone: '01555555555', taxpayerType: 'Company',    nationalId: '9998887776665', dateOfBirth: '', address: 'Chittagong, Bangladesh', status: 'Active',    registrationDate: '2024-03-05' }
+  //   { id: 2, tin: 'TIN-1002', fullName: 'Nusrat Jahan',       email: 'nusrat.jahan@example.com',  phone: '01822222222', taxpayerType: 'Business',   nationalId: '9876543210123', dateOfBirth: '1990-07-22', address: 'Gulshan, Dhaka', status: 'Inactive',  registrationDate: '2024-01-15' },
+  //   { id: 3, tin: 'TIN-1003', fullName: 'Rahim Traders Ltd.', email: 'rahim.traders@example.com', phone: '01933333333', taxpayerType: 'Company',    nationalId: '1122334455667', dateOfBirth: '', address: 'Motijheel, Dhaka', status: 'Pending',   registrationDate: '2024-02-01' },
+  //   { id: 4, tin: 'TIN-1004', fullName: 'Sadia Islam',        email: 'sadia.islam@example.com',   phone: '01644444444', taxpayerType: 'Individual', nationalId: '5556667778889', dateOfBirth: '1995-12-10', address: 'Dhanmondi, Dhaka', status: 'Active',    registrationDate: '2024-02-20' },
+  //   { id: 5, tin: 'TIN-1005', fullName: 'Chittagong Exports', email: 'ctg@exports.com',            phone: '01555555555', taxpayerType: 'Company',    nationalId: '9998887776665', dateOfBirth: '', address: 'Chittagong, Bangladesh', status: 'Active',    registrationDate: '2024-03-05' }
+  // 
   ];
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private taxpayerService: TaxpayerService) {}
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST).subscribe({
+    this.taxpayerService.getAllTaxpayers().subscribe({
       next: data => { this.taxpayers = data;           this.isLoading = false; },
       error: ()   => { this.taxpayers = this.fallback; this.isLoading = false; }
     });

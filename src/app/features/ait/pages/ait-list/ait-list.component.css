@@ -1,0 +1,55 @@
+/* ── Stats Row ── */
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.stat-card { background:#fff; border-radius:12px; padding:16px; display:flex; align-items:center; gap:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.stat-card.total-ait { border:2px solid #7c3aed; }
+.sc-icon { width:40px; height:40px; background:#f3eeff; color:#7c3aed; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.sc-icon.deposited { background:#e6f7f3; color:#1faa8b; }
+.sc-icon.pending   { background:#fef3e2; color:#f59e0b; }
+.sc-icon.ait       { background:#f3eeff; color:#7c3aed; }
+.sc-label { display:block; font-size:11px; color:#888; font-weight:500; }
+.sc-value { display:block; font-size:20px; font-weight:800; color:#1a2340; margin-top:2px; }
+.sc-value.ait { color:#7c3aed; }
+
+/* ── AIT Specific ── */
+.ait-ref { font-size:12px; font-weight:700; color:#7c3aed; background:#f3eeff; padding:3px 8px; border-radius:5px; font-family:monospace; }
+.td-name { display:flex; align-items:center; gap:10px; }
+.td-avatar.ait-avatar { width:32px; height:32px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.mobile-avatar.ait-avatar { background:linear-gradient(135deg,#7c3aed,#a855f7); font-size:16px; }
+.td-title { display:block; font-size:13px; font-weight:600; color:#1a2340; }
+.td-sub   { display:block; font-size:11px; color:#999; }
+
+/* Source Badges */
+.src-badge { font-size:11px; font-weight:600; padding:3px 9px; border-radius:5px; white-space:nowrap; }
+.src-salary     { background:#e8eef9; color:#1a3f8f; }
+.src-import     { background:#fff0f0; color:#e74c3c; }
+.src-contract   { background:#fef3e2; color:#f59e0b; }
+.src-interest   { background:#e0f2f9; color:#0891b2; }
+.src-dividend   { background:#e6f7f3; color:#1faa8b; }
+.src-commission { background:#f3eeff; color:#7c3aed; }
+.src-export     { background:#f0fff8; color:#059669; }
+
+.amt-cell { font-weight:700; white-space:nowrap; }
+.ait-amount { color:#7c3aed; font-weight:800; }
+.rate-chip { font-size:12px; font-weight:800; background:#f3eeff; color:#7c3aed; padding:3px 9px; border-radius:6px; }
+.fy-badge  { font-size:11px; font-weight:700; background:#e8eef9; color:#1a3f8f; padding:3px 8px; border-radius:5px; }
+.status-credited { background:#e0f2f9; color:#0891b2; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; display:inline-block; }
+.status-draft    { background:#f0f4f8; color:#888; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; display:inline-block; }
+
+.action-btns { display:flex; gap:5px; }
+
+.table-responsive { overflow-x:auto; scrollbar-width:thin; }
+.data-table { width:100%; min-width:1400px; border-collapse:collapse; font-size:13px; }
+.data-table thead tr { background:#f8fafc; position:sticky; top:0; z-index:1; }
+.data-table th { padding:11px 14px; text-align:left; font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px; border-bottom:2px solid #eef2f8; white-space:nowrap; }
+.data-table td { padding:11px 14px; border-bottom:1px solid #f5f7fb; color:#444; vertical-align:middle; white-space:nowrap; }
+.data-table tbody tr:hover { background:#faf8ff; }
+.data-table tbody tr:last-child td { border-bottom:none; }
+
+.search-field-row { display:flex; align-items:center; gap:12px; }
+.search-field-row .search-field { flex:1; }
+.btn-export { display:inline-flex; align-items:center; gap:6px; background:#f3eeff; color:#7c3aed; border:1px solid #e0d5f5; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; transition:background 0.2s; flex-shrink:0; }
+.btn-export:hover { background:#e0d5f5; }
+.loading-row { display:flex; align-items:center; gap:10px; padding:24px 20px; color:#888; font-size:13px; }
+
+@media (max-width:768px) { .stats-row { grid-template-columns:1fr 1fr; } }
+@media (max-width:480px) { .stats-row { grid-template-columns:1fr; } .btn-export span { display:none; } .btn-export { padding:9px 12px; } }

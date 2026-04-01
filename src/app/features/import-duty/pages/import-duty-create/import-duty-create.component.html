@@ -1,1 +1,240 @@
-<p>import-duty-create works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>New Import Record</h4>
+    <p>Create a new import duty assessment.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Importer -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Importer Information</h6>
+        <span class="section-sub">Select taxpayer and business</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Taxpayer</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.tinNumber"
+            (ngModelChange)="onTaxpayerChange()">
+            <option value="">Select Taxpayer</option>
+            <option *ngFor="let tp of taxpayers" [value]="tp.tin">
+              {{ tp.name }} — {{ tp.tin }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Business <span class="auto-label">Auto</span></label>
+        <div class="input-wrap">
+          <i class="bi bi-building input-icon"></i>
+          <input type="text" class="form-input auto-field"
+            [value]="form.businessName || 'Auto from taxpayer'" readonly />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Product -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-box-seam-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Goods Information</h6>
+        <span class="section-sub">Select product — duty rate auto-fills</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Taxable Product</label>
+        <div class="input-wrap">
+          <i class="bi bi-box-seam input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.productId"
+            (ngModelChange)="onProductChange()">
+            <option [value]="0">Select Product</option>
+            <option *ngFor="let p of products" [value]="p.id">
+              {{ p.name }} ({{ p.hsCode }})
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">HS Code <span class="auto-label">Auto</span></label>
+        <div class="input-wrap">
+          <i class="bi bi-upc input-icon"></i>
+          <input type="text" class="form-input auto-field"
+            [value]="selectedProduct?.hsCode || 'Auto from product'" readonly />
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Goods Description</label>
+        <div class="input-wrap">
+          <i class="bi bi-file-text input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Describe the goods being imported..."
+            [(ngModel)]="form.goodsDescription" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Origin Country</label>
+        <div class="input-wrap">
+          <i class="bi bi-globe input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.originCountry">
+            <option value="">Select Country</option>
+            <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Valuation -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon red">
+        <i class="bi bi-calculator-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Duty Calculation</h6>
+        <span class="section-sub">CIF value — duty auto-calculated</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">CIF Value (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.cifValue" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duty Rate (%) <span class="auto-label">Auto</span></label>
+        <div class="input-wrap">
+          <i class="bi bi-percent input-icon"></i>
+          <input type="number" class="form-input auto-field"
+            [value]="form.dutyRate" readonly />
+        </div>
+      </div>
+    </div>
+
+    <!-- Calculation Summary -->
+    <div class="calc-summary" *ngIf="form.cifValue > 0">
+      <div class="cs-row">
+        <span class="cs-label">CIF Value</span>
+        <span class="cs-value">৳{{ form.cifValue.toLocaleString() }}</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Import Duty ({{ form.dutyRate }}%)</span>
+        <span class="cs-value duty">৳{{ dutyAmount.toLocaleString() }}</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">VAT on Import (15%)</span>
+        <span class="cs-value vat">৳{{ vatOnImport.toLocaleString() }}</span>
+      </div>
+      <div class="cs-divider"></div>
+      <div class="cs-row total-row">
+        <span class="cs-label bold">Total Payable</span>
+        <span class="cs-value total">৳{{ totalPayable.toLocaleString() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Port & Shipping -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple">
+        <i class="bi bi-geo-alt-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Port & Shipping Details</h6>
+        <span class="section-sub">Entry port, bill of lading and dates</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Port of Entry</label>
+        <div class="input-wrap">
+          <i class="bi bi-geo-alt-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.portOfEntry">
+            <option value="">Select Port</option>
+            <option *ngFor="let p of ports" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bill of Lading / AWB</label>
+        <div class="input-wrap">
+          <i class="bi bi-file-earmark-text input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. BL-2024-44821" [(ngModel)]="form.billOfLading" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Import Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.importDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Remarks</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Optional remarks..." [(ngModel)]="form.remarks" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading"><i class="bi bi-truck-front-fill"></i> Create Import Record</span>
+      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
+    </button>
+  </div>
+
+</div>

@@ -1,247 +1,253 @@
 <div class="page-header">
   <div class="page-header-left">
-    <h4>Submit VAT Return</h4>
-    <p>File a new VAT return for a registered taxpayer.</p>
+    <h4>File VAT Return</h4>
+    <p>Submit a new VAT return for a business.</p>
   </div>
   <button class="btn-back" (click)="onCancel()">
     <i class="bi bi-arrow-left"></i> Back to List
   </button>
 </div>
 
-<!-- Success -->
 <div class="alert-success" *ngIf="successMsg">
   <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
 </div>
-
-<!-- Error -->
 <div class="alert-error" *ngIf="errorMsg">
   <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
 </div>
 
 <div class="form-card">
 
-  <!-- Section 1: Taxpayer Info -->
+  <!-- Section 1: Business -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon">
-        <i class="bi bi-person-badge-fill"></i>
+        <i class="bi bi-building-fill"></i>
       </div>
       <div>
-        <h6 class="section-title">Taxpayer Information</h6>
-        <span class="section-sub">TIN, BIN and taxpayer details</span>
+        <h6 class="section-title">Business Information</h6>
+        <span class="section-sub">BIN, TIN and business details</span>
       </div>
     </div>
-
     <div class="form-grid">
-
+      <div class="form-group">
+        <label class="form-label required">BIN No.</label>
+        <div class="input-wrap">
+          <i class="bi bi-hash input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. BIN-2024-001001" [(ngModel)]="form.binNo" />
+        </div>
+      </div>
       <div class="form-group">
         <label class="form-label required">TIN Number</label>
         <div class="input-wrap">
           <i class="bi bi-upc-scan input-icon"></i>
           <input type="text" class="form-input"
-            placeholder="e.g. TIN-1001"
-            [(ngModel)]="form.tinNumber" />
+            placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label required">Taxpayer Name</label>
-        <div class="input-wrap">
-          <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Enter taxpayer name"
-            [(ngModel)]="form.taxpayerName" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label required">BIN Number</label>
+      <div class="form-group full-width">
+        <label class="form-label required">Business Name</label>
         <div class="input-wrap">
           <i class="bi bi-building input-icon"></i>
           <input type="text" class="form-input"
-            placeholder="e.g. BIN-2024-001"
-            [(ngModel)]="form.binNumber" />
+            placeholder="Enter business name" [(ngModel)]="form.businessName" />
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Submission Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.submissionDate" />
-        </div>
-      </div>
-
     </div>
   </div>
 
   <div class="section-divider"></div>
 
-  <!-- Section 2: Tax Period -->
+  <!-- Section 2: Return Period -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon teal">
         <i class="bi bi-calendar-range-fill"></i>
       </div>
       <div>
-        <h6 class="section-title">Tax Period</h6>
-        <span class="section-sub">Select the VAT return period</span>
+        <h6 class="section-title">Return Period</h6>
+        <span class="section-sub">Filing period and assessment year</span>
       </div>
     </div>
-
     <div class="form-grid">
-
       <div class="form-group">
-        <label class="form-label required">Tax Period</label>
+        <label class="form-label required">Return Period</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.taxPeriod">
-            <option value="">Select Period</option>
-            <option *ngFor="let p of taxPeriods" [value]="p">{{ p }}</option>
+          <select class="form-input form-select" [(ngModel)]="form.returnPeriod">
+            <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
           </select>
         </div>
       </div>
-
       <div class="form-group">
-        <label class="form-label required">Period From</label>
+        <label class="form-label required">Period</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-month input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.periodMonth">
+            <option value="">Select Period</option>
+            <option *ngFor="let m of periodOptions" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Year</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.periodYear">
+            <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assessment Year</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.periodFrom" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label required">Period To</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-x input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.periodTo" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Payment Status</label>
-        <div class="input-wrap">
-          <i class="bi bi-credit-card input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.paymentStatus">
-            <option value="Unpaid">Unpaid</option>
-            <option value="Paid">Paid</option>
-            <option value="Partial">Partial</option>
+          <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
+            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
           </select>
         </div>
       </div>
-
+      <div class="form-group">
+        <label class="form-label">Submission Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.submissionDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-x input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.dueDate" />
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="section-divider"></div>
 
-  <!-- Section 3: VAT Calculation -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon orange">
-        <i class="bi bi-calculator-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">VAT Calculation</h6>
-        <span class="section-sub">Sales, purchases and VAT figures (auto-calculated at 15%)</span>
-      </div>
-    </div>
-
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label class="form-label required">Total Sales (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-graph-up input-icon"></i>
-          <input type="number" class="form-input"
-            placeholder="0"
-            [(ngModel)]="form.totalSales"
-            (ngModelChange)="onSalesChange()" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">VAT on Sales (15%)</label>
-        <div class="input-wrap">
-          <i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input calc-field"
-            [(ngModel)]="form.vatOnSales" readonly />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Total Purchases (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-graph-down input-icon"></i>
-          <input type="number" class="form-input"
-            placeholder="0"
-            [(ngModel)]="form.totalPurchases"
-            (ngModelChange)="onPurchasesChange()" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">VAT on Purchases (15%)</label>
-        <div class="input-wrap">
-          <i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input calc-field"
-            [(ngModel)]="form.vatOnPurchases" readonly />
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Net VAT Summary -->
-    <div class="vat-summary">
-      <div class="vat-summary-row">
-        <span class="vat-label">VAT on Sales</span>
-        <span class="vat-value">{{ formatCurrency(form.vatOnSales) }}</span>
-      </div>
-      <div class="vat-summary-row">
-        <span class="vat-label">VAT on Purchases</span>
-        <span class="vat-value deduct">- {{ formatCurrency(form.vatOnPurchases) }}</span>
-      </div>
-      <div class="vat-summary-divider"></div>
-      <div class="vat-summary-row net-row">
-        <span class="vat-label net-label">Net VAT Payable</span>
-        <span class="vat-value net-value">{{ formatCurrency(form.netVatPayable) }}</span>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 4: Remarks -->
+  <!-- Section 3: Supplies -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon purple">
-        <i class="bi bi-chat-text-fill"></i>
+        <i class="bi bi-table"></i>
       </div>
       <div>
-        <h6 class="section-title">Remarks</h6>
-        <span class="section-sub">Optional notes or observations</span>
+        <h6 class="section-title">Supplies & Tax Calculation</h6>
+        <span class="section-sub">Supply values and VAT computation</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Taxable Supplies (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.taxableSupplies"
+            (ngModelChange)="autoCalcOutputTax()" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Exempt Supplies (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.exemptSupplies" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zero Rated Supplies (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.zeroRatedSupplies" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Output VAT @ 15% (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-percent input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.outputTax" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Input VAT Credit (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-arrow-down-circle input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.inputTax" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tax Paid (৳)</label>
+        <div class="input-wrap">
+          <i class="bi bi-cash-coin input-icon"></i>
+          <input type="number" class="form-input" placeholder="0"
+            [(ngModel)]="form.taxPaid" />
+        </div>
       </div>
     </div>
 
+    <!-- Tax Summary -->
+    <div class="tax-summary">
+      <div class="ts-row">
+        <span class="ts-label">Total Supplies</span>
+        <span class="ts-value">৳{{ totalSupplies.toLocaleString() }}</span>
+      </div>
+      <div class="ts-row">
+        <span class="ts-label">Output Tax</span>
+        <span class="ts-value output">৳{{ form.outputTax.toLocaleString() }}</span>
+      </div>
+      <div class="ts-row">
+        <span class="ts-label">Input Tax Credit</span>
+        <span class="ts-value input">— ৳{{ form.inputTax.toLocaleString() }}</span>
+      </div>
+      <div class="ts-divider"></div>
+      <div class="ts-row total-row">
+        <span class="ts-label total">Net Tax Payable</span>
+        <span class="ts-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Submission -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-person-badge-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Submission Details</h6>
+        <span class="section-sub">Who is filing this return</span>
+      </div>
+    </div>
     <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Submitted By</label>
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.submittedBy">
+            <option value="">Select</option>
+            <option *ngFor="let s of submitters" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
       <div class="form-group full-width">
-        <label class="form-label">Remarks / Notes</label>
+        <label class="form-label">Remarks</label>
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
           <textarea class="form-input form-textarea"
-            placeholder="Enter any additional remarks..."
-            [(ngModel)]="form.remarks"
-            rows="3"></textarea>
+            placeholder="Optional remarks..."
+            [(ngModel)]="form.remarks" rows="2"></textarea>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Form Actions -->
+  <!-- Actions -->
   <div class="form-actions">
     <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
       <i class="bi bi-x-lg"></i> Cancel
@@ -251,13 +257,8 @@
     </button>
     <button class="btn-submit" (click)="onSubmit()"
       [disabled]="isLoading || !isFormValid()">
-      <span *ngIf="!isLoading">
-        <i class="bi bi-send-fill"></i> Submit VAT Return
-      </span>
-      <span *ngIf="isLoading">
-        <span class="spinner-border spinner-border-sm me-2"></span>
-        Submitting...
-      </span>
+      <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> File Return</span>
+      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Filing...</span>
     </button>
   </div>
 

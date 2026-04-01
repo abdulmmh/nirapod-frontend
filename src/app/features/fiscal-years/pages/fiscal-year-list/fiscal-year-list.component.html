@@ -1,1 +1,99 @@
-<p>fiscal-year-list works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Fiscal Years</h4>
+    <p>Manage fiscal years and tax deadline configurations.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/fiscal-years/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Add Fiscal Year
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading fiscal years...</span>
+  </div>
+
+  <!-- Fiscal Year Cards -->
+  <div class="fy-grid" *ngIf="!isLoading">
+
+    <div class="fy-card"
+      *ngFor="let y of years"
+      [class.current]="y.isCurrentYear"
+      [class.upcoming]="y.status === 'Upcoming'"
+      [class.closed]="y.status === 'Closed'">
+
+      <!-- Current Year Badge -->
+      <div class="current-badge" *ngIf="y.isCurrentYear">
+        <i class="bi bi-star-fill"></i> Current Year
+      </div>
+      <div class="upcoming-badge" *ngIf="y.status === 'Upcoming'">
+        <i class="bi bi-clock-fill"></i> Upcoming
+      </div>
+
+      <!-- Year Name -->
+      <div class="fy-year-name">{{ y.yearName }}</div>
+
+      <!-- Dates -->
+      <div class="fy-dates">
+        <div class="fy-date-item">
+          <i class="bi bi-calendar-check"></i>
+          <div>
+            <span class="fyd-label">Start</span>
+            <span class="fyd-value">{{ y.startDate }}</span>
+          </div>
+        </div>
+        <div class="fy-date-arrow"><i class="bi bi-arrow-right"></i></div>
+        <div class="fy-date-item">
+          <i class="bi bi-calendar-x"></i>
+          <div>
+            <span class="fyd-label">End</span>
+            <span class="fyd-value">{{ y.endDate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tax Deadlines -->
+      <div class="fy-deadlines">
+        <div class="fy-deadline-item">
+          <div class="fdl-icon vat"><i class="bi bi-receipt-cutoff"></i></div>
+          <div>
+            <span class="fdl-label">VAT Due Day</span>
+            <span class="fdl-value">{{ y.vatDueDay }}th of each month</span>
+          </div>
+        </div>
+        <div class="fy-deadline-item">
+          <div class="fdl-icon it"><i class="bi bi-calendar-event-fill"></i></div>
+          <div>
+            <span class="fdl-label">Income Tax Due</span>
+            <span class="fdl-value">{{ y.incomeTaxDueDate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status & Actions -->
+      <div class="fy-footer">
+        <span class="status-badge" [ngClass]="getStatusClass(y.status)">{{ y.status }}</span>
+        <div class="fy-actions">
+          <button
+            *ngIf="!y.isCurrentYear && y.status !== 'Closed'"
+            class="btn-set-current"
+            (click)="setCurrent(y.id)">
+            <i class="bi bi-check-circle-fill"></i> Set as Current
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Add New Card -->
+    <div class="fy-add-card" routerLink="/fiscal-years/create">
+      <i class="bi bi-plus-circle-fill"></i>
+      <span>Add Fiscal Year</span>
+    </div>
+
+  </div>
+
+</div>

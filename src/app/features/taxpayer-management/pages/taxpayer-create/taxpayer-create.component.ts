@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { TaxpayerCreateRequest } from '../../../../models/taxpayer.model';
+import { TaxpayerService } from 'src/app/core/services/taxpayer.service';
 
 @Component({
   selector: 'app-taxpayer-create',
@@ -28,7 +29,7 @@ export class TaxpayerCreateComponent {
     nationalId:       ''
   };
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private taxpayerService: TaxpayerService) {}
 
   isFormValid(): boolean {
     return !!(
@@ -51,17 +52,26 @@ export class TaxpayerCreateComponent {
     this.errorMsg   = '';
     this.successMsg = '';
 
-    this.http.post(API_ENDPOINTS.TAXPAYERS.CREATE, this.form).subscribe({
-      next: () => {
-        this.isLoading  = false;
-        this.successMsg = 'Taxpayer registered successfully!';
-        setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+    // this.http.post(API_ENDPOINTS.TAXPAYERS.CREATE, this.form).subscribe({
+    //   next: () => {
+    //     this.isLoading  = false;
+    //     this.successMsg = 'Taxpayer registered successfully!';
+    //     setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+    //   },
+    //   error: () => {
+    //     // Mock success when API unavailable
+    //     this.isLoading  = false;
+    //     this.successMsg = 'Taxpayer registered successfully!';
+    //     setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+    //   }
+    // });
+    this.taxpayerService.createTaxpayer(this.form).subscribe({
+      next: (res) => {
+        console.log('Created successfully', res);
+        this.router.navigate(['/taxpayer-management']);
       },
-      error: () => {
-        // Mock success when API unavailable
-        this.isLoading  = false;
-        this.successMsg = 'Taxpayer registered successfully!';
-        setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+      error: (err) => {
+        console.error('Create failed', err);
       }
     });
   }

@@ -1,1 +1,167 @@
-<p>ait-list works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>AIT — Advance Income Tax</h4>
+    <p>Manage all advance income tax deductions at source.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/ait/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> New AIT
+  </a>
+</div>
+
+<!-- Stats Row -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="sc-icon"><i class="bi bi-collection-fill"></i></div>
+    <div class="sc-body">
+      <span class="sc-label">Total Records</span>
+      <span class="sc-value">{{ records.length }}</span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="sc-icon deposited"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="sc-body">
+      <span class="sc-label">Deposited</span>
+      <span class="sc-value">{{ countByStatus('Deposited') }}</span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="sc-icon pending"><i class="bi bi-hourglass-split"></i></div>
+    <div class="sc-body">
+      <span class="sc-label">Pending</span>
+      <span class="sc-value">{{ countByStatus('Deducted') }}</span>
+    </div>
+  </div>
+  <div class="stat-card total-ait">
+    <div class="sc-icon ait"><i class="bi bi-cash-coin"></i></div>
+    <div class="sc-body">
+      <span class="sc-label">Total AIT Collected</span>
+      <span class="sc-value ait">{{ formatCurrency(totalAIT) }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by ref, TIN, taxpayer, source, deducted by..."
+          [(ngModel)]="searchTerm" />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i><span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading AIT records...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>AIT Ref</th>
+          <th>Taxpayer</th>
+          <th>Source Type</th>
+          <th>Gross Amount</th>
+          <th>AIT Rate</th>
+          <th>AIT Amount</th>
+          <th>Deducted By</th>
+          <th>Deduction Date</th>
+          <th>Fiscal Year</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><span class="ait-ref">{{ r.aitRef }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar ait-avatar"><i class="bi bi-percent"></i></div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName }}</span>
+                <span class="td-sub">{{ r.tinNumber }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="src-badge" [ngClass]="getSourceClass(r.sourceType)">
+              {{ r.sourceType }}
+            </span>
+          </td>
+          <td class="amt-cell">{{ formatCurrency(r.grossAmount) }}</td>
+          <td><span class="rate-chip">{{ r.aitRate }}%</span></td>
+          <td class="amt-cell ait-amount">{{ formatCurrency(r.aitAmount) }}</td>
+          <td>{{ r.deductedBy }}</td>
+          <td>{{ r.deductionDate }}</td>
+          <td><span class="fy-badge">{{ r.fiscalYear }}</span></td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+                class="btn-delete" (click)="delete(r.id)">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="12">
+            <div class="empty-state"><i class="bi bi-percent"></i><p>No AIT records found.</p></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filtered">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar ait-avatar"><i class="bi bi-percent"></i></div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName }}</div>
+            <div class="mobile-sub">{{ r.aitRef }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>TIN</label><span>{{ r.tinNumber }}</span></div>
+        <div class="mobile-field"><label>Source</label>
+          <span class="src-badge" [ngClass]="getSourceClass(r.sourceType)">{{ r.sourceType }}</span>
+        </div>
+        <div class="mobile-field"><label>Gross Amount</label><span>{{ formatCurrency(r.grossAmount) }}</span></div>
+        <div class="mobile-field"><label>AIT Rate</label><span>{{ r.aitRate }}%</span></div>
+        <div class="mobile-field"><label>AIT Amount</label><span class="ait-amount">{{ formatCurrency(r.aitAmount) }}</span></div>
+        <div class="mobile-field"><label>Deducted By</label><span>{{ r.deductedBy }}</span></div>
+        <div class="mobile-field"><label>Date</label><span>{{ r.deductionDate }}</span></div>
+      </div>
+      <div class="mobile-card-actions">
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(r.id)">
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-percent"></i><p>No AIT records found.</p>
+    </div>
+  </div>
+
+</div>
+
+<button *canDo="'create'" class="fab-btn" routerLink="/ait/create">
+  <i class="bi bi-plus-lg"></i>
+</button>

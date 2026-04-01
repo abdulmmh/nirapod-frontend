@@ -1,1 +1,134 @@
-<p>tax-structure-list works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Tax Structure</h4>
+    <p>Manage all tax types, rates and applicability rules.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/tax-structure/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Add Tax Structure
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by code, name, type..."
+          [(ngModel)]="searchTerm" />
+      </div>
+      <button *canDo="'export'" class="btn-export">
+        <i class="bi bi-download"></i><span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading tax structures...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tax Code</th>
+          <th>Tax Name</th>
+          <th>Tax Type</th>
+          <th>Rate (%)</th>
+          <th>Applicable To</th>
+          <th>Effective Date</th>
+          <th>Expiry Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><span class="tax-code">{{ t.taxCode }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar tax-avatar">
+                <i class="bi bi-percent"></i>
+              </div>
+              <div>
+                <span class="td-title">{{ t.taxName }}</span>
+                <span class="td-sub">{{ t.description | slice:0:40 }}...</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="type-badge" [ngClass]="getTypeClass(t.taxType)">{{ t.taxType }}</span></td>
+          <td><span class="rate-badge">{{ t.rate }}%</span></td>
+          <td><span class="applicable-badge">{{ t.applicableTo }}</span></td>
+          <td>{{ t.effectiveDate }}</td>
+          <td>
+            <span [class]="isExpired(t.expiryDate) ? 'expiry-red' : 'expiry-normal'">
+              {{ t.expiryDate || '—' }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+                class="btn-delete" (click)="delete(t.id)">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="10">
+            <div class="empty-state"><i class="bi bi-sliders"></i><p>No tax structures found.</p></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let t of filtered">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar tax-avatar"><i class="bi bi-percent"></i></div>
+          <div>
+            <div class="mobile-name">{{ t.taxName }}</div>
+            <div class="mobile-sub">{{ t.taxCode }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Type</label>
+          <span class="type-badge" [ngClass]="getTypeClass(t.taxType)">{{ t.taxType }}</span>
+        </div>
+        <div class="mobile-field"><label>Rate</label><span class="rate-badge">{{ t.rate }}%</span></div>
+        <div class="mobile-field"><label>Applicable To</label><span>{{ t.applicableTo }}</span></div>
+        <div class="mobile-field"><label>Effective</label><span>{{ t.effectiveDate }}</span></div>
+        <div class="mobile-field" *ngIf="t.expiryDate"><label>Expiry</label>
+          <span [class]="isExpired(t.expiryDate) ? 'expiry-red' : ''">{{ t.expiryDate }}</span>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+          class="btn-delete" (click)="delete(t.id)">
+          <i class="bi bi-trash-fill"></i> Delete
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-sliders"></i><p>No tax structures found.</p>
+    </div>
+  </div>
+
+</div>
+
+<button *canDo="'create'" class="fab-btn" routerLink="/tax-structure/create">
+  <i class="bi bi-plus-lg"></i>
+</button>

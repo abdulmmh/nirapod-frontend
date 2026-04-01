@@ -1,117 +1,125 @@
 <div class="sidebar" [class.collapsed]="isCollapsed">
 
-  <!-- Brand -->
-  <div class="sidebar-brand">
-    <div class="brand-icon">
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <div class="logo-icon">
       <i class="bi bi-bank2"></i>
     </div>
-    <div class="brand-text" *ngIf="!isCollapsed">
-      <span class="brand-title">VAT & TAX</span>
-      <span class="brand-subtitle">Management System</span>
+
+    <div class="logo-text" *ngIf="!isCollapsed">
+      <span class="logo-title">VAT & TAX</span>
+      <span class="logo-sub">Management System</span>
     </div>
   </div>
 
-  <!-- Nav Label -->
-  <div class="nav-label" *ngIf="!isCollapsed">MAIN NAVIGATION</div>
+  <!-- Scrollable Nav -->
+  <div class="sidebar-scroll">
+    <nav class="sidebar-nav">
+      <ng-container *ngFor="let item of visibleMenuItems">
 
-  <!-- Menu -->
-  <ul class="menu">
-    <li *ngFor="let item of visibleMenuItems" class="menu-li">
-
-      <!-- ── Single Item (no children) ── -->
-      
-      <a
-        *ngIf="!item.children || item.children.length === 0"
-        class="menu-item"
-        [routerLink]="item.route"
-        routerLinkActive="active"
-        (click)="closeFlyout(); closeSidebar.emit()"
-      >
-        <i [class]="item.icon + ' menu-icon'"></i>
-        <span *ngIf="!isCollapsed" class="menu-label">{{ item.label }}</span>
-        <span *ngIf="isCollapsed" class="icon-tooltip">{{ item.label }}</span>
-      </a>
-
-      <!-- ── Parent Item (has children) ── -->
-      <ng-container *ngIf="item.children && item.children.length > 0">
-
-        <!-- EXPANDED MODE: normal dropdown -->
-        <div
-          *ngIf="!isCollapsed"
-          class="menu-item parent-item"
-          [class.open]="openMenu === item.label"
-          (click)="toggleMenu(item.label)"
-        >
-          <i [class]="item.icon + ' menu-icon'"></i>
-          <span class="menu-label">{{ item.label }}</span>
-          <i
-            class="bi bi-chevron-down chevron"
-            [class.rotated]="openMenu === item.label"
-          ></i>
+        <!-- GROUP HEADER -->
+        <div class="nav-group-header" *ngIf="item.isGroupHeader && !isCollapsed">
+          {{ item.label }}
         </div>
 
-        <!-- Submenu (expanded mode only) -->
-        <ul
-          *ngIf="!isCollapsed"
-          class="submenu"
-          [class.expanded]="openMenu === item.label"
+        <div class="nav-group-divider" *ngIf="item.isGroupHeader && isCollapsed"></div>
+
+        <!-- DIRECT LINK (expanded mode) -->
+        <a
+          *ngIf="!item.isGroupHeader && !item.children && !isCollapsed"
+          class="nav-item"
+          [class.active]="isActive(item.route)"
+          (click)="navigate(item.route!)"
         >
-          <li *ngFor="let child of item.children">
-            
-            <a  class="submenu-item"
-              [routerLink]="child.route"
-              routerLinkActive="sub-active"
-              (click)="closeSidebar.emit()"
+          <i [class]="item.icon + ' nav-icon'"></i>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+
+        <!-- PARENT WITH CHILDREN (expanded mode) -->
+        <div
+          *ngIf="!item.isGroupHeader && item.children && !isCollapsed"
+          class="nav-parent-wrap"
+        >
+          <div
+            class="nav-item nav-parent"
+            [class.active-parent]="isParentActive(item)"
+            [class.expanded]="isExpanded(item.label)"
+            (click)="toggleExpand(item.label)"
+          >
+            <i [class]="item.icon + ' nav-icon'"></i>
+            <span class="nav-label">{{ item.label }}</span>
+            <i
+              class="bi bi-chevron-down nav-arrow"
+              [class.rotated]="isExpanded(item.label)"
+            ></i>
+          </div>
+
+          <div class="nav-children" [class.open]="isExpanded(item.label)">
+            <a
+              *ngFor="let child of item.children"
+              class="nav-child"
+              [class.active]="isActive(child.route)"
+              (click)="navigate(child.route!, $event)"
             >
-              <i [class]="child.icon + ' sub-icon'"></i>
+              <i *ngIf="child.icon" [class]="child.icon + ' child-icon'"></i>
               <span>{{ child.label }}</span>
             </a>
-          </li>
-        </ul>
-
-        <!-- COLLAPSED MODE: icon only, click to toggle flyout -->
-        <div
-          *ngIf="isCollapsed"
-          class="menu-item collapsed-parent"
-          [class.flyout-open]="activeflyout === item.label"
-          (click)="toggleFlyout(item.label, $event)"
-        >
-          <i [class]="item.icon + ' menu-icon'"></i>
-          <span class="icon-tooltip">{{ item.label }}</span>
+          </div>
         </div>
 
-        <!-- Inline flyout (collapsed mode only) — appears below icon -->
+        <!-- DIRECT LINK (collapsed mode) -->
         <div
-          *ngIf="isCollapsed && activeflyout === item.label"
-          class="inline-flyout"
+          *ngIf="!item.isGroupHeader && (!item.children || item.children.length === 0) && isCollapsed"
+          class="nav-flyout-wrap"
         >
-          
-          <a  class="inline-flyout-item"
-            *ngFor="let child of item.children"
-            [routerLink]="child.route"
-            routerLinkActive="inline-flyout-active"
-            [attr.data-label]="child.label"
-            (click)="closeFlyout(); closeSidebar.emit()"
+          <div
+            class="nav-item collapsed-item"
+            [class.active]="isActive(item.route)"
+            (click)="navigate(item.route!)"
+            [title]="item.label"
           >
-            <i [class]="child.icon"></i>
-            <span>{{ child.label }}</span>
-          </a>
+            <i [class]="item.icon + ' nav-icon'"></i>
+          </div>
+        </div>
+
+        <!-- PARENT WITH CHILDREN (collapsed mode) -->
+        <div
+          *ngIf="!item.isGroupHeader && item.children && item.children.length > 0 && isCollapsed"
+          class="collapsed-parent-block"
+        >
+          <div
+            class="nav-item collapsed-item"
+            [class.active-parent]="isParentActive(item)"
+            [title]="item.label"
+            (click)="toggleExpand(item.label)"
+          >
+            <i [class]="item.icon + ' nav-icon'"></i>
+          </div>
+
+          <div class="collapsed-children" [class.open]="isExpanded(item.label)">
+            <a
+              *ngFor="let child of item.children"
+              class="collapsed-child-item"
+              [class.active]="isActive(child.route)"
+              (click)="navigate(child.route!, $event)"
+              [title]="child.label"
+            >
+              <i *ngIf="child.icon" [class]="child.icon + ' collapsed-child-icon'"></i>
+            </a>
+          </div>
         </div>
 
       </ng-container>
-
-    </li>
-  </ul>
+    </nav>
+  </div>
 
   <!-- Footer -->
-  <div class="sidebar-footer">
-    <div class="footer-info">
+  <div class="sidebar-footer" *ngIf="!isCollapsed">
+    <div class="sf-secure">
       <i class="bi bi-shield-lock-fill"></i>
-      <span *ngIf="!isCollapsed">Secure Government Portal</span>
+      <span>Secure Government Portal</span>
     </div>
-    <div class="footer-version" *ngIf="!isCollapsed">
-      v2.0.0 &bull; FY 2025–26
-    </div>
+    <div class="sf-version">v2.0.0 • FY 2025–26</div>
   </div>
 
 </div>

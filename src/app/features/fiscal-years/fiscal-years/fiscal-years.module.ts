@@ -1,13 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
+import { SharedModule } from 'src/app/shared/shared.module';
 import { FiscalYearsRoutingModule } from './fiscal-years-routing.module';
-
+import { FiscalYearListComponent }   from '../pages/fiscal-year-list/fiscal-year-list.component';
+import { FiscalYearCreateComponent } from '../pages/fiscal-year-create/fiscal-year-create.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    FiscalYearListComponent, 
+    FiscalYearCreateComponent
+  ],
   imports: [
-    CommonModule,
+    CommonModule, 
+    FormsModule, 
+    SharedModule, 
     FiscalYearsRoutingModule
   ]
 })

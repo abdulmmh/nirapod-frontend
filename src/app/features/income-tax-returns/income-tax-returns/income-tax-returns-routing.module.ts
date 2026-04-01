@@ -3,32 +3,33 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from 'src/app/core/guards/auth.guard';
 import { Role } from 'src/app/core/constants/roles.constants';
 
-import { IncomeTaxListComponent } from '../pages/income-tax-list/income-tax-list.component';
-import { IncomeTaxCreateComponent } from '../pages/income-tax-create/income-tax-create.component';
-import { IncomeTaxViewComponent } from '../pages/income-tax-view/income-tax-view.component';
+import { IncomeTaxReturnViewComponent } from '../pages/income-tax-return-view/income-tax-return-view.component';
+import { IncomeTaxReturnEditComponent } from '../pages/income-tax-return-edit/income-tax-return-edit.component';
+import { IncomeTaxReturnListComponent } from '../pages/income-tax-return-list/income-tax-return-list.component';
+import { IncomeTaxReturnCreateComponent } from '../pages/income-tax-return-create/income-tax-return-create.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: IncomeTaxListComponent,
+    component: IncomeTaxReturnListComponent,
     canActivate: [AuthGuard],
     data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR] }
   },
   {
     path: 'create',
-    component: IncomeTaxCreateComponent,
+    component: IncomeTaxReturnCreateComponent,
     canActivate: [AuthGuard],
     data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
   },
   {
     path: 'view/:id',
-    component: IncomeTaxViewComponent,
+    component: IncomeTaxReturnViewComponent,
     canActivate: [AuthGuard],
     data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] }
   },
   {
     path: 'edit/:id',
-    component: IncomeTaxCreateComponent,
+    component: IncomeTaxReturnEditComponent,
     canActivate: [AuthGuard],
     data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
   },
@@ -38,4 +39,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class IncomeTaxRoutingModule { }
+export class IncomeTaxReturnsRoutingModule { }

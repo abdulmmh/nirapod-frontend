@@ -1,15 +1,98 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AitCreateRequest } from '../../../../models/ait.model';
 
 @Component({
   selector: 'app-ait-create',
   templateUrl: './ait-create.component.html',
   styleUrls: ['./ait-create.component.css']
 })
-export class AitCreateComponent implements OnInit {
+export class AitCreateComponent {
 
-  constructor() { }
+  isLoading  = false;
+  successMsg = '';
+  errorMsg   = '';
 
-  ngOnInit(): void {
+  sourceTypes   = ['Salary', 'Import', 'Contract', 'Interest', 'Dividend', 'Commission', 'Export'];
+  fiscalYears   = ['2024-25', '2023-24', '2022-23'];
+  statuses      = ['Draft', 'Deducted'];
+
+  taxpayers = [
+    { tin: 'TIN-1001', name: 'Abdul Karim' },
+    { tin: 'TIN-1002', name: 'Karim Uddin' },
+    { tin: 'TIN-1003', name: 'Dr. Nasrin Islam' },
+    { tin: 'TIN-1004', name: 'Faruk Hossain' },
+    { tin: 'TIN-1006', name: 'Imran Ahmed' },
+  ];
+
+  // AIT tax structures
+  aitStructures = [
+    { id: 3, name: 'AIT on Salary/Interest/Commission (10%)', sources: ['Salary', 'Interest', 'Commission', 'Dividend'], rate: 10 },
+    { id: 4, name: 'AIT on Import (5%)', sources: ['Import'], rate: 5 },
+    { id: 8, name: 'AIT on Contract (7%)', sources: ['Contract'], rate: 7 },
+  ];
+
+  availableStructures: any[] = [];
+
+  form: AitCreateRequest = {
+    tinNumber: '', 
+    taxpayerName: '',
+    sourceType: '', 
+    taxStructureId: 0,
+    grossAmount: 0, 
+    aitRate: 0,
+    deductionDate: new Date().toISOString().split('T')[0],
+    fiscalYear: '2025-26', 
+    deductedBy: '',
+    status: 'Draft',
+    remarks: ''
+  };
+
+  onTaxpayerChange(): void {
+    const tp = this.taxpayers.find(t => t.tin === this.form.tinNumber);
+    if (tp) this.form.taxpayerName = tp.name;
   }
 
+  onSourceChange(): void {
+    this.availableStructures = this.aitStructures.filter(s =>
+      s.sources.includes(this.form.sourceType)
+    );
+    this.form.taxStructureId = 0;
+    this.form.aitRate = 0;
+  }
+
+  onStructureChange(): void {
+    const s = this.aitStructures.find(s => s.id === Number(this.form.taxStructureId));
+    if (s) this.form.aitRate = s.rate;
+  }
+
+  get aitAmount(): number {
+    return Math.round(this.form.grossAmount * this.form.aitRate / 100);
+  }
+
+  isFormValid(): boolean {
+    return !!(this.form.tinNumber && this.form.sourceType &&
+              this.form.grossAmount > 0 && this.form.deductedBy &&
+              this.form.deductionDate);
+  }
+
+  constructor(private router: Router) {}
+
+  onSubmit(): void {
+    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
+    this.isLoading = true; this.errorMsg = ''; this.successMsg = '';
+    setTimeout(() => {
+      this.isLoading = false;
+      this.successMsg = 'AIT record created successfully!';
+      setTimeout(() => this.router.navigate(['/ait']), 1500);
+    }, 800);
+  }
+
+  onReset(): void {
+    this.form = { tinNumber: '', taxpayerName: '', sourceType: '', taxStructureId: 0, grossAmount: 0, aitRate: 0, deductionDate: new Date().toISOString().split('T')[0], fiscalYear: '2025-26', deductedBy: '', status: 'Draft', remarks: '' };
+    this.availableStructures = [];
+    this.errorMsg = ''; this.successMsg = '';
+  }
+
+  onCancel(): void { this.router.navigate(['/ait']); }
 }
