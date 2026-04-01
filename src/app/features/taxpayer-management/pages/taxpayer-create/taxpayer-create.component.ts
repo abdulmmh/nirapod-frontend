@@ -68,7 +68,7 @@ export class TaxpayerCreateComponent {
     this.taxpayerService.createTaxpayer(this.form).subscribe({
       next: (res) => {
         console.log('Created successfully', res);
-        this.router.navigate(['/taxpayer-management']);
+        this.router.navigate(['/taxpayers']);
       },
       error: (err) => {
         console.error('Create failed', err);
