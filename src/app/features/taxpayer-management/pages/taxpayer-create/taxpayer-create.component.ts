@@ -25,7 +25,7 @@ export class TaxpayerCreateComponent {
     status:           'Active',
     registrationDate: new Date().toISOString().split('T')[0],
     address:          'Rampura, Dhaka',
-    dateOfBirth:      '2026-04-22',
+    dateOfBirth:      '2000-04-22',
     nationalId:       '958-123456-7890'
   };
 
@@ -97,7 +97,7 @@ export class TaxpayerCreateComponent {
       status:           'Active',
       registrationDate: new Date().toISOString().split('T')[0],
       address:          'Rampura, Dhaka',
-      dateOfBirth:      '2026-04-22',
+      dateOfBirth:      '2000-04-22',
       nationalId:       '958-123456-7890'
     };
     this.errorMsg   = '';

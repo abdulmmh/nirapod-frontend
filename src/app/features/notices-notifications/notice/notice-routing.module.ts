@@ -8,9 +8,6 @@ import { NoticeListComponent } from '../pages/notice-list/notice-list.component'
 import { NoticeViewComponent } from '../pages/notice-view/notice-view.component';
 
 
-
-
-
 const routes: Routes = [
   {
     path: '',
