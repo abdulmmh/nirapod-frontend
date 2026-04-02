@@ -74,6 +74,7 @@ export class TaxpayerCreateComponent {
       error: (err) => {
         alert('Failed to register taxpayer. Please try again.');
         console.error('Create failed', err);
+        this.router.navigate(['/taxpayers/create']);
       }
     });
   }
