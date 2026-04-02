@@ -25,7 +25,7 @@ export class TaxpayerCreateComponent {
     status:           'Active',
     registrationDate: new Date().toISOString().split('T')[0],
     address:          'Rampura, Dhaka',
-    dateOfBirth:      '12/05/1985',
+    dateOfBirth:      '2026-04-22',
     nationalId:       '958-123456-7890'
   };
 
@@ -65,16 +65,24 @@ export class TaxpayerCreateComponent {
     //     setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
     //   }
     // });
+    
     this.taxpayerService.createTaxpayer(this.form).subscribe({
       next: (res) => {
-        alert('Taxpayer registered successfully!');
         console.log('Created successfully', res);
+        alert('Taxpayer created successfully');
         this.router.navigate(['/taxpayers']);
       },
       error: (err) => {
-        alert('Failed to register taxpayer. Please try again.');
         console.error('Create failed', err);
-        this.router.navigate(['/taxpayers/create']);
+        this.isLoading = false;
+
+        if (err.status === 400) {
+          alert('Invalid input. Please check the form.');
+        } else if (err.status === 409) {
+          alert('TIN or Email already exists.');
+        } else {
+          alert('Create failed. Please try again.');
+        }
       }
     });
   }
@@ -89,7 +97,7 @@ export class TaxpayerCreateComponent {
       status:           'Active',
       registrationDate: new Date().toISOString().split('T')[0],
       address:          'Rampura, Dhaka',
-      dateOfBirth:      '12/05/1985',
+      dateOfBirth:      '2026-04-22',
       nationalId:       '958-123456-7890'
     };
     this.errorMsg   = '';
