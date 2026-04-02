@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+// import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { TaxpayerCreateRequest } from '../../../../models/taxpayer.model';
 import { TaxpayerService } from 'src/app/core/services/taxpayer.service';
 
@@ -17,16 +17,16 @@ export class TaxpayerCreateComponent {
   errorMsg   = '';
 
   form: TaxpayerCreateRequest = {
-    tin:              '',
-    fullName:         '',
-    email:            '',
-    phone:            '',
-    taxpayerType:     '',
+    tin:              'TIN-2026-1001',
+    fullName:         'Abdul Karim',
+    email:            'abdulkarim@example.com',
+    phone:            '01912345678',
+    taxpayerType:     'Individual',
     status:           'Active',
     registrationDate: new Date().toISOString().split('T')[0],
-    address:          '',
-    dateOfBirth:      '',
-    nationalId:       ''
+    address:          'Rampura, Dhaka',
+    dateOfBirth:      '12/05/1985',
+    nationalId:       '958-123456-7890'
   };
 
   constructor(private http: HttpClient, private router: Router, private taxpayerService: TaxpayerService) {}
@@ -67,10 +67,12 @@ export class TaxpayerCreateComponent {
     // });
     this.taxpayerService.createTaxpayer(this.form).subscribe({
       next: (res) => {
+        alert('Taxpayer registered successfully!');
         console.log('Created successfully', res);
         this.router.navigate(['/taxpayers']);
       },
       error: (err) => {
+        alert('Failed to register taxpayer. Please try again.');
         console.error('Create failed', err);
       }
     });
@@ -78,16 +80,16 @@ export class TaxpayerCreateComponent {
 
   onReset(): void {
     this.form = {
-      tin:              '',
-      fullName:         '',
-      email:            '',
-      phone:            '',
-      taxpayerType:     '',
+      tin:              'TIN-2026-1001',
+      fullName:         'Abdul Karim',
+      email:            'abdulkarim@example.com',
+      phone:            '01912345678',
+      taxpayerType:     'Individual',
       status:           'Active',
       registrationDate: new Date().toISOString().split('T')[0],
-      address:          '',
-      dateOfBirth:      '',
-      nationalId:       ''
+      address:          'Rampura, Dhaka',
+      dateOfBirth:      '12/05/1985',
+      nationalId:       '958-123456-7890'
     };
     this.errorMsg   = '';
     this.successMsg = '';
