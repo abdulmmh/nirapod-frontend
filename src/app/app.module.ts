@@ -27,9 +27,7 @@ import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-hom
 
 // Other Features
 import { ReportsHomeComponent } from './features/reports-analytics/pages/reports-home/reports-home.component';
-import { UserListComponent } from './features/user-management/pages/user-list/user-list.component';
 import { SettingsHomeComponent } from './features/system-settings/pages/settings-home/settings-home.component';
-import { ActivityLogListComponent } from './features/activity-logs/pages/activity-log-list/activity-log-list.component';
 
 @NgModule({
   declarations: [
@@ -50,9 +48,15 @@ import { ActivityLogListComponent } from './features/activity-logs/pages/activit
 
     // Other Features
     ReportsHomeComponent,
-    UserListComponent,
     SettingsHomeComponent,
-    ActivityLogListComponent,
+
+
+
+
+
+
+  
+
 
 
   ],

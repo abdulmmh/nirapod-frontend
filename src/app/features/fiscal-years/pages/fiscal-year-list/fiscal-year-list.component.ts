@@ -36,4 +36,6 @@ export class FiscalYearListComponent implements OnInit {
       status: y.id === id ? 'Active' : y.status === 'Active' ? 'Closed' : y.status
     }));
   }
+
+ edit(id: number): void { this.router.navigate(['/fiscal-years/edit', id]); }
 }

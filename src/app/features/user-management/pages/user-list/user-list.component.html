@@ -1,68 +1,115 @@
 <div class="page-header">
-  <div>
-    <h2>User Management</h2>
-    <p>Manage system users, roles, and account status.</p>
+  <div class="page-header-left">
+    <h4>User Management</h4>
+    <p>Manage all system users and their access levels.</p>
+  </div>
+  <a *hasRole="['SUPER_ADMIN']" routerLink="/users/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Add User
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by name, username, email, role..."
+          [(ngModel)]="searchTerm" />
+      </div>
+    </div>
   </div>
 
-  <button class="primary-btn">
-    + Add User
-  </button>
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading users...</span>
+  </div>
+
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Department</th>
+          <th>Last Login</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar user-avatar" [ngClass]="getRoleClass(u.role)">
+                {{ u.fullName.charAt(0) }}
+              </div>
+              <div>
+                <span class="td-title">{{ u.fullName }}</span>
+                <span class="td-sub">{{ u.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="username-badge">@{{ u.username }}</span></td>
+          <td><span class="role-badge" [ngClass]="getRoleClass(u.role)">{{ getRoleLabel(u.role) }}</span></td>
+          <td>{{ u.department }}</td>
+          <td><span class="last-login">{{ u.lastLogin }}</span></td>
+          <td><span class="status-badge" [ngClass]="getStatusClass(u.status)">{{ u.status }}</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="view(u.id)"><i class="bi bi-eye-fill"></i> View</button>
+              <button *hasRole="['SUPER_ADMIN']" class="btn-edit" (click)="edit(u.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
+              <button *hasRole="['SUPER_ADMIN']" class="btn-delete" (click)="delete(u.id)"><i class="bi bi-trash-fill"></i></button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="8">
+            <div class="empty-state"><i class="bi bi-people"></i><p>No users found.</p></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let u of filtered">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar user-avatar" [ngClass]="getRoleClass(u.role)">{{ u.fullName.charAt(0) }}</div>
+          <div>
+            <div class="mobile-name">{{ u.fullName }}</div>
+            <div class="mobile-sub">@{{ u.username }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(u.status)">{{ u.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Email</label><span>{{ u.email }}</span></div>
+        <div class="mobile-field"><label>Role</label>
+          <span class="role-badge" [ngClass]="getRoleClass(u.role)">{{ getRoleLabel(u.role) }}</span>
+        </div>
+        <div class="mobile-field"><label>Department</label><span>{{ u.department }}</span></div>
+        <div class="mobile-field"><label>Last Login</label><span>{{ u.lastLogin }}</span></div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="view(u.id)"><i class="bi bi-eye-fill"></i> View</button>
+        <button *hasRole="['SUPER_ADMIN']" class="btn-edit" (click)="edit(u.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
+        <button *hasRole="['SUPER_ADMIN']" class="btn-delete" (click)="delete(u.id)"><i class="bi bi-trash-fill"></i></button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-people"></i><p>No users found.</p>
+    </div>
+  </div>
+
 </div>
 
-<div class="card-box">
-  <input
-    class="input-field"
-    type="text"
-    placeholder="Search by name, email, role, department..."
-    [(ngModel)]="searchText"
-  />
-</div>
-
-<div class="card-box table-wrapper">
-  <table class="custom-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Full Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Role</th>
-        <th>Department</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr *ngFor="let item of filteredUsers">
-        <td>{{ item.id }}</td>
-        <td>{{ item.fullName }}</td>
-        <td>{{ item.email }}</td>
-        <td>{{ item.phone }}</td>
-        <td>{{ item.role }}</td>
-        <td>{{ item.department }}</td>
-        <td>
-          <span
-            class="status-badge"
-            [ngClass]="{
-              'status-active': item.status === 'Active',
-              'status-inactive': item.status === 'Inactive',
-              'status-pending': item.status === 'Pending'
-            }"
-          >
-            {{ item.status }}
-          </span>
-        </td>
-        <td>
-          <button class="action-btn view-btn">View</button>
-          <button class="action-btn edit-btn">Edit</button>
-          <button class="action-btn delete-btn">Delete</button>
-        </td>
-      </tr>
-
-      <tr *ngIf="filteredUsers.length === 0">
-        <td colspan="8" class="no-data">No user found.</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<button *hasRole="['SUPER_ADMIN']" class="fab-btn" routerLink="/users/create">
+  <i class="bi bi-plus-lg"></i>
+</button>

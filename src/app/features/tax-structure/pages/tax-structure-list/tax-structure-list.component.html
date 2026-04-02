@@ -75,6 +75,12 @@
           </td>
           <td>
             <div class="action-btns">
+              <button class="btn-view" (click)="view(t.id)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit" (click)="edit(t.id)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
               <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
                 class="btn-delete" (click)="delete(t.id)">
                 <i class="bi bi-trash-fill"></i>

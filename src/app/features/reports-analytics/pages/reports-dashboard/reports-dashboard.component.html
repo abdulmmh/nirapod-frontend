@@ -1,0 +1,48 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Reports & Analytics</h4>
+    <p>Generate and download tax collection reports.</p>
+  </div>
+  <div class="header-filters">
+    <select class="filter-select" [(ngModel)]="selectedYear">
+      <option *ngFor="let y of years" [value]="y">FY {{ y }}</option>
+    </select>
+  </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="summary-stats">
+  <div class="ss-card" *ngFor="let s of summaryStats">
+    <div class="ssc-icon" [ngClass]="'ssc-' + s.color">
+      <i [class]="s.icon"></i>
+    </div>
+    <div class="ssc-body">
+      <span class="ssc-label">{{ s.label }}</span>
+      <span class="ssc-value">{{ s.value }}</span>
+      <span class="ssc-change positive">{{ s.change }} vs last year</span>
+    </div>
+  </div>
+</div>
+
+<!-- Report Cards -->
+<div class="reports-section-title">Available Reports</div>
+<div class="report-cards-grid">
+  <div class="report-card" *ngFor="let r of reportCards">
+    <div class="rc-header">
+      <div class="rc-icon" [ngClass]="'rc-' + r.color">
+        <i [class]="r.icon"></i>
+      </div>
+      <div class="rc-count">{{ r.count }}</div>
+    </div>
+    <div class="rc-title">{{ r.title }}</div>
+    <div class="rc-desc">{{ r.desc }}</div>
+    <div class="rc-actions">
+      <button class="btn-view-report">
+        <i class="bi bi-eye-fill"></i> View
+      </button>
+      <button class="btn-download-report" (click)="downloadReport(r.title)">
+        <i class="bi bi-download"></i> Download
+      </button>
+    </div>
+  </div>
+</div>

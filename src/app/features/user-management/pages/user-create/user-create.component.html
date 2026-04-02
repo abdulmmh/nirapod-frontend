@@ -1,0 +1,113 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Add New User</h4>
+    <p>Create a new system user with role and access.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()"><i class="bi bi-arrow-left"></i> Back to List</button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
+<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
+
+<div class="form-card">
+
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon"><i class="bi bi-person-fill"></i></div>
+      <div><h6 class="section-title">Personal Information</h6><span class="section-sub">Basic user details</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label required">Full Name</label>
+        <div class="input-wrap"><i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input" placeholder="Enter full name" [(ngModel)]="form.fullName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Username</label>
+        <div class="input-wrap"><i class="bi bi-at input-icon"></i>
+          <input type="text" class="form-input" placeholder="e.g. tax_off_01" [(ngModel)]="form.username" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Email Address</label>
+        <div class="input-wrap"><i class="bi bi-envelope-fill input-icon"></i>
+          <input type="email" class="form-input" placeholder="user@nbr.gov.bd" [(ngModel)]="form.email" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple"><i class="bi bi-shield-fill-check"></i></div>
+      <div><h6 class="section-title">Role & Access</h6><span class="section-sub">User role, department and status</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Role</label>
+        <div class="input-wrap"><i class="bi bi-lock-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.role">
+            <option value="">Select Role</option>
+            <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Department</label>
+        <div class="input-wrap"><i class="bi bi-building input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.department">
+            <option value="">Select Department</option>
+            <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal"><i class="bi bi-key-fill"></i></div>
+      <div><h6 class="section-title">Password</h6><span class="section-sub">Set initial password</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Password</label>
+        <div class="input-wrap"><i class="bi bi-lock input-icon"></i>
+          <input type="password" class="form-input" placeholder="Min 8 characters" [(ngModel)]="form.password" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Confirm Password</label>
+        <div class="input-wrap"><i class="bi bi-lock-fill input-icon"></i>
+          <input type="password" class="form-input"
+            [class.error-input]="passwordMismatch"
+            placeholder="Re-enter password" [(ngModel)]="form.confirmPassword" />
+        </div>
+        <span class="password-error" *ngIf="passwordMismatch">Passwords do not match</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading"><i class="bi bi-x-lg"></i> Cancel</button>
+    <button class="btn-reset"  (click)="onReset()"  [disabled]="isLoading"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading"><i class="bi bi-person-plus-fill"></i> Create User</span>
+      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
+    </button>
+  </div>
+
+</div>

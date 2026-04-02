@@ -61,4 +61,6 @@ export class TaxableProductListComponent implements OnInit {
     if (!confirm('Delete this product?')) return;
     this.products = this.products.filter(p => p.id !== id);
   }
+  view(id: number): void { this.router.navigate(['/taxable-products/view', id]); }
+  edit(id: number): void { this.router.navigate(['/taxable-products/edit', id]); }
 }

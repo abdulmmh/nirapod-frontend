@@ -1,0 +1,80 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>AIT Record Details</h4>
+    <p>Full advance income tax deduction information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()"><i class="bi bi-arrow-left"></i> Back</button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()"><i class="bi bi-pencil-fill"></i> Edit</button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border" style="color:#7c3aed"></div></div>
+
+<ng-container *ngIf="!isLoading && record" 
+>
+
+  <!-- Header -->
+  <div class="ait-header-card">
+    <div class="ahc-left">
+      <div class="ahc-icon"><i class="bi bi-percent"></i></div>
+      <div>
+        <div class="ahc-ref">{{ record.aitRef }}</div>
+        <div class="ahc-name">{{ record.taxpayerName }}</div>
+        <div class="ahc-meta">
+          <span class="src-badge" [ngClass]="getSourceClass(record.sourceType)">{{ record.sourceType }}</span>
+          <span class="fy-pill">{{ record.fiscalYear }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(record.status)">{{ record.status }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="ahc-right">
+      <div class="ahc-ait-amount">{{ fmt(record.aitAmount) }}</div>
+      <div class="ahc-ait-label">AIT Amount</div>
+      <div class="ahc-rate">{{ record.aitRate }}% Rate</div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="ait-summary-row">
+    <div class="as-card">
+      <div class="asc-icon gross"><i class="bi bi-cash-stack"></i></div>
+      <div><span class="asc-label">Gross Amount</span><span class="asc-value">{{ fmt(record.grossAmount) }}</span></div>
+    </div>
+    <div class="as-card">
+      <div class="asc-icon rate"><i class="bi bi-percent"></i></div>
+      <div><span class="asc-label">AIT Rate</span><span class="asc-value rate">{{ record.aitRate }}%</span></div>
+    </div>
+    <div class="as-card highlight">
+      <div class="asc-icon ait"><i class="bi bi-calculator-fill"></i></div>
+      <div><span class="asc-label">AIT Amount</span><span class="asc-value ait">{{ fmt(record.aitAmount) }}</span></div>
+    </div>
+  </div>
+
+  <!-- Details -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header"><i class="bi bi-person-badge-fill"></i><span>Taxpayer Information</span></div>
+      <div class="detail-body">
+        <div class="detail-row"><span class="detail-label">TIN Number</span><span class="detail-value"><span class="code-badge">{{ record.tinNumber }}</span></span></div>
+        <div class="detail-row"><span class="detail-label">Taxpayer Name</span><span class="detail-value fw-bold">{{ record.taxpayerName }}</span></div>
+        <div class="detail-row"><span class="detail-label">Source Type</span><span class="detail-value"><span class="src-badge" [ngClass]="getSourceClass(record.sourceType)">{{ record.sourceType }}</span></span></div>
+        <div class="detail-row"><span class="detail-label">Fiscal Year</span><span class="detail-value fw-bold">{{ record.fiscalYear }}</span></div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header"><i class="bi bi-calendar-event-fill"></i><span>Deduction Details</span></div>
+      <div class="detail-body">
+        <div class="detail-row"><span class="detail-label">Deducted By</span><span class="detail-value fw-bold">{{ record.deductedBy }}</span></div>
+        <div class="detail-row"><span class="detail-label">Deduction Date</span><span class="detail-value">{{ record.deductionDate }}</span></div>
+        <div class="detail-row"><span class="detail-label">Deposit Date</span><span class="detail-value">{{ record.depositDate || '—' }}</span></div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge" [ngClass]="getStatusClass(record.status)">{{ record.status }}</span></span></div>
+        <div class="detail-row" *ngIf="record.remarks"><span class="detail-label">Remarks</span><span class="detail-value">{{ record.remarks }}</span></div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

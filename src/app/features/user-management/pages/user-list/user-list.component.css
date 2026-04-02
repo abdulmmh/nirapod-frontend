@@ -1,18 +1,40 @@
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 15px;
-}
+.td-name { display:flex; align-items:center; gap:10px; }
+.td-avatar.user-avatar { width:34px; height:34px; border-radius:9px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; }
+.mobile-avatar.user-avatar { font-size:16px; width:38px; height:38px; border-radius:10px; }
 
-.page-header h2 {
-  margin: 0 0 6px;
-  font-size: 24px;
-  color: #1f2937;
-}
+/* Role Avatar Colors */
+.role-super        { background:linear-gradient(135deg,#1a0066,#4a0099); }
+.role-commissioner { background:linear-gradient(135deg,#1a3f8f,#2a5fd6); }
+.role-officer      { background:linear-gradient(135deg,#1faa8b,#17c69a); }
+.role-auditor      { background:linear-gradient(135deg,#f59e0b,#f97316); }
+.role-data         { background:linear-gradient(135deg,#0891b2,#06b6d4); }
+.role-taxpayer     { background:linear-gradient(135deg,#6b7280,#9ca3af); }
 
-.page-header p {
-  margin: 0;
-  color: #6b7280;
-}
+.td-title { display:block; font-size:13px; font-weight:600; color:#1a2340; }
+.td-sub   { display:block; font-size:11px; color:#999; }
+
+.username-badge { font-size:12px; font-weight:600; color:#1a3f8f; background:#e8eef9; padding:3px 8px; border-radius:5px; font-family:monospace; }
+
+/* Role Badges */
+.role-badge { font-size:11px; font-weight:700; padding:3px 9px; border-radius:5px; white-space:nowrap; color:#fff; }
+.role-badge.role-super        { background:#4a0099; }
+.role-badge.role-commissioner { background:#1a3f8f; }
+.role-badge.role-officer      { background:#1faa8b; }
+.role-badge.role-auditor      { background:#f59e0b; }
+.role-badge.role-data         { background:#0891b2; }
+.role-badge.role-taxpayer     { background:#6b7280; }
+
+.last-login { font-size:12px; color:#666; }
+
+.action-btns { display:flex; gap:5px; }
+
+.table-responsive { overflow-x:auto; scrollbar-width:thin; }
+.data-table { width:100%; min-width:1000px; border-collapse:collapse; font-size:13px; }
+.data-table thead tr { background:#f8fafc; position:sticky; top:0; z-index:1; }
+.data-table th { padding:11px 14px; text-align:left; font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px; border-bottom:2px solid #eef2f8; white-space:nowrap; }
+.data-table td { padding:11px 14px; border-bottom:1px solid #f5f7fb; color:#444; vertical-align:middle; white-space:nowrap; }
+.data-table tbody tr:hover { background:#f8faff; }
+.data-table tbody tr:last-child td { border-bottom:none; }
+.search-field-row { display:flex; align-items:center; gap:12px; }
+.search-field-row .search-field { flex:1; }
+.loading-row { display:flex; align-items:center; gap:10px; padding:24px 20px; color:#888; font-size:13px; }

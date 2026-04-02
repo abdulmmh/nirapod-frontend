@@ -1,0 +1,117 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Edit Fiscal Year</h4>
+    <p>Update fiscal year configuration and tax deadlines.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
+<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
+<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border text-primary"></div></div>
+
+<div class="form-card" *ngIf="!isLoading">
+
+  <div class="edit-banner">
+    <i class="bi bi-pencil-square"></i>
+    Editing Fiscal Year: <strong>FY {{ form.yearName }}</strong>
+  </div>
+
+  <!-- Section 1: Year Info -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon"><i class="bi bi-calendar-range-fill"></i></div>
+      <div><h6 class="section-title">Fiscal Year Period</h6><span class="section-sub">Year name and start/end dates</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Year Name</label>
+        <div class="input-wrap"><i class="bi bi-calendar input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.yearName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Start Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar-check input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.startDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">End Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar-x input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.endDate" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Tax Deadlines -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal"><i class="bi bi-alarm-fill"></i></div>
+      <div><h6 class="section-title">Tax Deadlines</h6><span class="section-sub">VAT and income tax due dates</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">VAT Due Day</label>
+        <div class="input-wrap"><i class="bi bi-receipt-cutoff input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.vatDueDay">
+            <option *ngFor="let d of vatDueDays" [value]="d">{{ d }}th of each month</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Income Tax Due Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar-event input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.incomeTaxDueDate" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Current Year -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange"><i class="bi bi-star-fill"></i></div>
+      <div><h6 class="section-title">Current Year Setting</h6><span class="section-sub">Set as the active fiscal year</span></div>
+    </div>
+    <div class="toggle-section">
+      <div class="toggle-info">
+        <div class="ti-title">Set as Current Year</div>
+        <div class="ti-desc">Previous current year will be automatically closed.</div>
+      </div>
+      <div class="toggle-wrap">
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="form.isCurrentYear" />
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label" [class.on]="form.isCurrentYear">
+          {{ form.isCurrentYear ? 'Yes — Current Year' : 'No' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"><i class="bi bi-x-lg"></i> Cancel</button>
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
+      <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update Fiscal Year</span>
+      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+    </button>
+  </div>
+
+</div>

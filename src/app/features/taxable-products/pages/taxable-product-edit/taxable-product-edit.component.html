@@ -1,0 +1,125 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Edit Product</h4>
+    <p>Update taxable product details.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to View
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
+<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
+<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border text-primary"></div></div>
+
+<div class="form-card" *ngIf="!isLoading">
+
+  <div class="edit-banner">
+    <i class="bi bi-pencil-square"></i>
+    Editing: <strong>{{ form.productName }}</strong>
+    <span class="banner-code">{{ form.productCode }}</span>
+  </div>
+
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon"><i class="bi bi-box-seam-fill"></i></div>
+      <div><h6 class="section-title">Product Identity</h6><span class="section-sub">Name, HS code, category and unit</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label required">Product Name</label>
+        <div class="input-wrap"><i class="bi bi-box-seam input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.productName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">HS Code</label>
+        <div class="input-wrap"><i class="bi bi-upc input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.hsCode" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Category</label>
+        <div class="input-wrap"><i class="bi bi-grid-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.category">
+            <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Unit</label>
+        <div class="input-wrap"><i class="bi bi-rulers input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.unit">
+            <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange"><i class="bi bi-percent"></i></div>
+      <div><h6 class="section-title">Tax Assignment</h6><span class="section-sub">Tax structure — rate auto-fills</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label">Tax Structure</label>
+        <div class="input-wrap"><i class="bi bi-sliders input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.taxStructureId"
+            (ngModelChange)="onTaxStructureChange()">
+            <option *ngFor="let ts of taxStructures" [value]="ts.id">{{ ts.name }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tax Type <span class="auto-label">Auto</span></label>
+        <div class="input-wrap"><i class="bi bi-tag-fill input-icon"></i>
+          <input type="text" class="form-input auto-field" [value]="form.taxType" readonly />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tax Rate (%) <span class="auto-label">Auto</span></label>
+        <div class="input-wrap"><i class="bi bi-percent input-icon"></i>
+          <input type="number" class="form-input auto-field" [value]="form.taxRate" readonly />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple"><i class="bi bi-chat-text-fill"></i></div>
+      <div><h6 class="section-title">Description</h6><span class="section-sub">Product details</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label class="form-label">Description</label>
+        <div class="input-wrap"><i class="bi bi-text-paragraph input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea" [(ngModel)]="form.description" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"><i class="bi bi-x-lg"></i> Cancel</button>
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
+      <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update Product</span>
+      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+    </button>
+  </div>
+
+</div>

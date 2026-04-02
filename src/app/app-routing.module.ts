@@ -10,7 +10,7 @@ import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-hom
 import { ReportsHomeComponent } from './features/reports-analytics/pages/reports-home/reports-home.component';
 import { UserListComponent } from './features/user-management/pages/user-list/user-list.component';
 import { SettingsHomeComponent } from './features/system-settings/pages/settings-home/settings-home.component';
-import { ActivityLogListComponent } from './features/activity-logs/pages/activity-log-list/activity-log-list.component';
+import { ActivityLogsListComponent } from './features/activity-logs/pages/activity-logs-list/activity-logs-list.component';
 
 const routes: Routes = [
 
@@ -153,30 +153,32 @@ const routes: Routes = [
             .then(m => m.FiscalYearsModule)
       },
 
-      // Reports — no tax officer, no data entry, no taxpayer
+      // Administration
       {
-        path: 'reports', component: ReportsHomeComponent,
-        data: { roles: [Role.TAX_COMMISSIONER, Role.AUDITOR] }
+        path: 'reports',
+        loadChildren: () =>
+          import('./features/reports-analytics/reports/reports.module').then(m => m.ReportsModule)
       },
-
-      // Users — admin only
       {
-        path: 'users', component: UserListComponent,
-        data: { roles: [Role.SUPER_ADMIN] } 
+        path: 'users',
+        loadChildren: () =>
+          import('./features/user-management/user-management/user-management.module').then(m => m.UserManagementModule)
       },
-
-      // Settings — admin only
       {
-        path: 'settings', component: SettingsHomeComponent,
-        data: { roles: [Role.SUPER_ADMIN] }
+        path: 'roles',
+        loadChildren: () =>
+          import('./features/roles/roles/roles.module').then(m => m.RolesModule)
       },
-
-      // Activity Logs — admin + commissioner
       {
-        path: 'activity-logs', component: ActivityLogListComponent,
-        data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] }
+        path: 'activity-logs',
+        loadChildren: () =>
+          import('./features/activity-logs/activity-logs/activity-logs.module').then(m => m.ActivityLogsModule)
       },
-
+      {
+        path: 'settings',
+        loadChildren: () =>
+          import('./features/system-settings/settings/settings.module').then(m => m.SettingsModule)
+      },
       // Notices — all roles
       {
         path: 'notices',

@@ -1,0 +1,77 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Roles & Permissions</h4>
+    <p>View access levels and permissions for each system role.</p>
+  </div>
+</div>
+
+<!-- Role Selector Cards -->
+<div class="role-selector">
+  <div class="role-card"
+    *ngFor="let r of roles"
+    [class.selected]="selectedRole === r.role"
+    (click)="selectedRole = r.role">
+    <div class="rc-avatar" [ngClass]="getRoleColorClass(r.color)">
+      <i class="bi bi-person-badge-fill"></i>
+    </div>
+    <div class="rc-info">
+      <div class="rc-label">{{ r.label }}</div>
+      <div class="rc-count">{{ r.userCount }} user{{ r.userCount > 1 ? 's' : '' }}</div>
+    </div>
+    <div class="rc-perms">{{ countPermissions(r) }}<span>perms</span></div>
+  </div>
+</div>
+
+<!-- Permission Matrix -->
+<div class="perm-section">
+  <div class="perm-header">
+    <div class="ph-left">
+      <div class="ph-avatar" [ngClass]="getRoleColorClass(selectedRoleConfig.color)">
+        <i class="bi bi-shield-fill-check"></i>
+      </div>
+      <div>
+        <div class="ph-title">{{ selectedRoleConfig.label }}</div>
+        <div class="ph-desc">{{ selectedRoleConfig.description }}</div>
+      </div>
+    </div>
+    <div class="ph-stats">
+      <span class="ph-stat">{{ countPermissions(selectedRoleConfig) }} permissions</span>
+    </div>
+  </div>
+
+  <div class="perm-table-wrap">
+    <table class="perm-table">
+      <thead>
+        <tr>
+          <th class="module-col">Module</th>
+          <th class="perm-col"><i class="bi bi-plus-circle-fill"></i><span>Create</span></th>
+          <th class="perm-col"><i class="bi bi-eye-fill"></i><span>Read</span></th>
+          <th class="perm-col"><i class="bi bi-pencil-fill"></i><span>Update</span></th>
+          <th class="perm-col"><i class="bi bi-trash-fill"></i><span>Delete</span></th>
+          <th class="perm-col"><i class="bi bi-download"></i><span>Export</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of selectedRoleConfig.permissions; let odd = odd"
+          [class.odd-row]="odd">
+          <td class="module-name">{{ p.module }}</td>
+          <td><span class="perm-chip" [class.yes]="p.create" [class.no]="!p.create">
+            <i [class]="p.create ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+          </span></td>
+          <td><span class="perm-chip" [class.yes]="p.read" [class.no]="!p.read">
+            <i [class]="p.read ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+          </span></td>
+          <td><span class="perm-chip" [class.yes]="p.update" [class.no]="!p.update">
+            <i [class]="p.update ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+          </span></td>
+          <td><span class="perm-chip" [class.yes]="p.delete" [class.no]="!p.delete">
+            <i [class]="p.delete ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+          </span></td>
+          <td><span class="perm-chip" [class.yes]="p.export" [class.no]="!p.export">
+            <i [class]="p.export ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+          </span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

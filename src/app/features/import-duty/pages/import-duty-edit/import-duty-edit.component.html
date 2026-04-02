@@ -1,0 +1,126 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Edit Import Record</h4>
+    <p>Update import duty assessment details.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()"><i class="bi bi-arrow-left"></i> Back to View</button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
+<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
+<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border text-danger"></div></div>
+
+<div class="form-card" *ngIf="!isLoading">
+
+  <div class="edit-banner">
+    <i class="bi bi-pencil-square"></i>
+    Editing: <strong>{{ form.dutyRef }}</strong>
+    <span class="banner-sub">{{ form.businessName }}</span>
+  </div>
+
+  <!-- Section 1: Goods & Valuation -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon"><i class="bi bi-box-seam-fill"></i></div>
+      <div><h6 class="section-title">Goods & Valuation</h6><span class="section-sub">Product, origin and CIF value</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Goods Description</label>
+        <div class="input-wrap"><i class="bi bi-file-text input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.goodsDescription" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Origin Country</label>
+        <div class="input-wrap"><i class="bi bi-globe input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.originCountry">
+            <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">CIF Value (৳)</label>
+        <div class="input-wrap"><i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.cifValue" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duty Rate (%)</label>
+        <div class="input-wrap"><i class="bi bi-percent input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.dutyRate" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Calc Summary -->
+    <div class="calc-summary" *ngIf="form.cifValue > 0">
+      <div class="cs-row"><span>CIF Value</span><span>৳{{ form.cifValue?.toLocaleString() }}</span></div>
+      <div class="cs-row"><span>Duty ({{ form.dutyRate }}%)</span><span class="duty">৳{{ dutyAmount.toLocaleString() }}</span></div>
+      <div class="cs-row"><span>VAT (15%)</span><span class="vat">৳{{ vatOnImport.toLocaleString() }}</span></div>
+      <div class="cs-divider"></div>
+      <div class="cs-row total-row"><span class="bold">Total Payable</span><span class="total">৳{{ totalPayable.toLocaleString() }}</span></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Port & Status -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon red"><i class="bi bi-geo-alt-fill"></i></div>
+      <div><h6 class="section-title">Port, Shipping & Status</h6><span class="section-sub">Entry port, dates and current status</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Port of Entry</label>
+        <div class="input-wrap"><i class="bi bi-geo-alt-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.portOfEntry">
+            <option *ngFor="let p of ports" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bill of Lading / AWB</label>
+        <div class="input-wrap"><i class="bi bi-file-earmark-text input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.billOfLading" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Import Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.importDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Paid Amount (৳)</label>
+        <div class="input-wrap"><i class="bi bi-cash-coin input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.paidAmount" />
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Remarks</label>
+        <div class="input-wrap"><i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea" [(ngModel)]="form.remarks" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"><i class="bi bi-x-lg"></i> Cancel</button>
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
+      <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update Import Record</span>
+      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+    </button>
+  </div>
+
+</div>

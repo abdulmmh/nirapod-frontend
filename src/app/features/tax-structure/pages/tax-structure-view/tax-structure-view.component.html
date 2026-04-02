@@ -1,0 +1,155 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Tax Structure Details</h4>
+    <p>Full tax structure information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-warning"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && tax">
+
+  <!-- Header Card -->
+  <div class="tax-header-card">
+    <div class="thc-left">
+      <div class="thc-icon"><i class="bi bi-percent"></i></div>
+      <div>
+        <div class="thc-code">{{ tax.taxCode }}</div>
+        <div class="thc-name">{{ tax.taxName }}</div>
+        <div class="thc-meta">
+          <span class="type-badge" [ngClass]="getTypeClass(tax.taxType)">
+            {{ tax.taxType }}
+          </span>
+          <span class="applicable-badge">{{ tax.applicableTo }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(tax.status)">
+            {{ tax.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="thc-rate">
+      <div class="thc-rate-value">{{ tax.rate }}%</div>
+      <div class="thc-rate-label">Tax Rate</div>
+    </div>
+  </div>
+
+  <!-- Rate Preview -->
+  <div class="rate-preview-card">
+    <div class="rpc-title">
+      <i class="bi bi-calculator-fill"></i> Rate Calculation Preview
+    </div>
+    <div class="rpc-examples">
+      <div class="rpc-item">
+        <span class="rpc-base">৳1,00,000</span>
+        <span class="rpc-arrow">→</span>
+        <span class="rpc-tax">৳{{ (100000 * tax.rate / 100) | number:'1.0-0' }}</span>
+        <span class="rpc-label">Tax</span>
+      </div>
+      <div class="rpc-item">
+        <span class="rpc-base">৳5,00,000</span>
+        <span class="rpc-arrow">→</span>
+        <span class="rpc-tax">৳{{ (500000 * tax.rate / 100) | number:'1.0-0' }}</span>
+        <span class="rpc-label">Tax</span>
+      </div>
+      <div class="rpc-item">
+        <span class="rpc-base">৳10,00,000</span>
+        <span class="rpc-arrow">→</span>
+        <span class="rpc-tax">৳{{ (1000000 * tax.rate / 100) | number:'1.0-0' }}</span>
+        <span class="rpc-label">Tax</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-info-circle-fill"></i>
+        <span>Tax Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Tax Code</span>
+          <span class="detail-value"><span class="code-badge">{{ tax.taxCode }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tax Name</span>
+          <span class="detail-value fw-bold">{{ tax.taxName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tax Type</span>
+          <span class="detail-value">
+            <span class="type-badge" [ngClass]="getTypeClass(tax.taxType)">{{ tax.taxType }}</span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Rate</span>
+          <span class="detail-value rate-val">{{ tax.rate }}%</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Applicable To</span>
+          <span class="detail-value">{{ tax.applicableTo }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(tax.status)">{{ tax.status }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-calendar-range-fill"></i>
+        <span>Validity Period</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Effective Date</span>
+          <span class="detail-value fw-bold">{{ tax.effectiveDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Expiry Date</span>
+          <span class="detail-value"
+            [class]="isExpired(tax.expiryDate) ? 'expiry-red' : ''">
+            {{ tax.expiryDate || 'No Expiry' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Created By</span>
+          <span class="detail-value">{{ tax.createdBy }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Created At</span>
+          <span class="detail-value">{{ tax.createdAt }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card full-card" *ngIf="tax.description">
+      <div class="detail-card-header">
+        <i class="bi bi-chat-text-fill"></i>
+        <span>Description</span>
+      </div>
+      <div class="detail-body">
+        <div style="padding:14px 18px; font-size:13px; color:#444; line-height:1.7;">
+          {{ tax.description }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

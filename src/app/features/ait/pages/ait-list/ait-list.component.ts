@@ -75,4 +75,7 @@ export class AitListComponent implements OnInit {
     if (!confirm('Delete this AIT record?')) return;
     this.records = this.records.filter(r => r.id !== id);
   }
+
+  view(id: number): void { this.router.navigate(['/ait/view', id]); }
+  edit(id: number): void { this.router.navigate(['/ait/edit', id]); }
 }

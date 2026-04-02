@@ -1,0 +1,273 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>System Settings</h4>
+    <p>Configure system preferences and parameters.</p>
+  </div>
+  <button class="btn-save-settings" (click)="onSave()" [disabled]="isSaving">
+    <span *ngIf="!isSaving"><i class="bi bi-floppy-fill"></i> Save Settings</span>
+    <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Saving...</span>
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+
+<div class="settings-layout">
+
+  <!-- Sidebar Tabs -->
+  <div class="settings-nav">
+    <div class="settings-nav-item"
+      *ngFor="let tab of tabs"
+      [class.active]="activeTab === tab.id"
+      (click)="activeTab = tab.id">
+      <i [class]="tab.icon"></i>
+      <span>{{ tab.label }}</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="settings-content">
+
+    <!-- GENERAL -->
+    <div *ngIf="activeTab === 'general'">
+      <div class="settings-section-title">
+        <i class="bi bi-sliders"></i> General Settings
+      </div>
+      <div class="settings-card">
+        <div class="settings-grid">
+          <div class="setting-row full-width">
+            <label class="setting-label">System Name</label>
+            <input type="text" class="setting-input" [(ngModel)]="general.systemName" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">System Code</label>
+            <input type="text" class="setting-input" [(ngModel)]="general.systemCode" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Organization</label>
+            <input type="text" class="setting-input" [(ngModel)]="general.organization" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Country</label>
+            <input type="text" class="setting-input" [(ngModel)]="general.country" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Timezone</label>
+            <input type="text" class="setting-input" [(ngModel)]="general.timezone" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Currency</label>
+            <input type="text" class="setting-input" [(ngModel)]="general.currency" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Date Format</label>
+            <input type="text" class="setting-input" [(ngModel)]="general.dateFormat" />
+          </div>
+        </div>
+
+        <!-- Maintenance Mode Toggle -->
+        <div class="setting-toggle-row">
+          <div class="str-info">
+            <div class="str-title">Maintenance Mode</div>
+            <div class="str-desc">When enabled, only admins can access the system.</div>
+          </div>
+          <div class="str-control">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="general.maintenanceMode" />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label" [class.on]="general.maintenanceMode">
+              {{ general.maintenanceMode ? 'Enabled' : 'Disabled' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMAIL -->
+    <div *ngIf="activeTab === 'email'">
+      <div class="settings-section-title">
+        <i class="bi bi-envelope-fill"></i> Email Configuration
+      </div>
+      <div class="settings-card">
+        <div class="settings-grid">
+          <div class="setting-row">
+            <label class="setting-label">SMTP Host</label>
+            <input type="text" class="setting-input" [(ngModel)]="email.smtpHost" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">SMTP Port</label>
+            <input type="number" class="setting-input" [(ngModel)]="email.smtpPort" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">SMTP Username</label>
+            <input type="text" class="setting-input" [(ngModel)]="email.smtpUser" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">SMTP Password</label>
+            <input type="password" class="setting-input" [(ngModel)]="email.smtpPassword" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Sender Name</label>
+            <input type="text" class="setting-input" [(ngModel)]="email.senderName" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Sender Email</label>
+            <input type="email" class="setting-input" [(ngModel)]="email.senderEmail" />
+          </div>
+        </div>
+        <div class="setting-toggle-row">
+          <div class="str-info">
+            <div class="str-title">Enable SSL/TLS</div>
+            <div class="str-desc">Use secure encrypted connection for email sending.</div>
+          </div>
+          <div class="str-control">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="email.enableSSL" />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label" [class.on]="email.enableSSL">
+              {{ email.enableSSL ? 'Enabled' : 'Disabled' }}
+            </span>
+          </div>
+        </div>
+        <div class="setting-toggle-row">
+          <div class="str-info">
+            <div class="str-title">Email Notifications</div>
+            <div class="str-desc">Send automated emails for important system events.</div>
+          </div>
+          <div class="str-control">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="email.enableNotifications" />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label" [class.on]="email.enableNotifications">
+              {{ email.enableNotifications ? 'Enabled' : 'Disabled' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div *ngIf="activeTab === 'security'">
+      <div class="settings-section-title">
+        <i class="bi bi-shield-fill-check"></i> Security Settings
+      </div>
+      <div class="settings-card">
+        <div class="settings-grid">
+          <div class="setting-row">
+            <label class="setting-label">Session Timeout (minutes)</label>
+            <input type="number" class="setting-input" [(ngModel)]="security.sessionTimeout" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Max Login Attempts</label>
+            <input type="number" class="setting-input" [(ngModel)]="security.maxLoginAttempts" />
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Min Password Length</label>
+            <input type="number" class="setting-input" [(ngModel)]="security.passwordMinLength" />
+          </div>
+        </div>
+        <div class="setting-toggle-row">
+          <div class="str-info">
+            <div class="str-title">Two-Factor Authentication</div>
+            <div class="str-desc">Require 2FA for all admin accounts.</div>
+          </div>
+          <div class="str-control">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="security.requireTwoFactor" />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label" [class.on]="security.requireTwoFactor">
+              {{ security.requireTwoFactor ? 'Required' : 'Optional' }}
+            </span>
+          </div>
+        </div>
+        <div class="setting-toggle-row">
+          <div class="str-info">
+            <div class="str-title">Audit Log</div>
+            <div class="str-desc">Log all user actions for security and compliance.</div>
+          </div>
+          <div class="str-control">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="security.enableAuditLog" />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label" [class.on]="security.enableAuditLog">
+              {{ security.enableAuditLog ? 'Enabled' : 'Disabled' }}
+            </span>
+          </div>
+        </div>
+        <div class="setting-toggle-row">
+          <div class="str-info">
+            <div class="str-title">IP Whitelisting</div>
+            <div class="str-desc">Restrict access to specific IP addresses only.</div>
+          </div>
+          <div class="str-control">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="security.ipWhitelisting" />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label" [class.on]="security.ipWhitelisting">
+              {{ security.ipWhitelisting ? 'Enabled' : 'Disabled' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYSTEM INFO -->
+    <div *ngIf="activeTab === 'info'">
+      <div class="settings-section-title">
+        <i class="bi bi-info-circle-fill"></i> System Information
+      </div>
+      <div class="settings-card readonly-card">
+        <div class="sysinfo-grid">
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-tag-fill"></i></div>
+            <div><span class="si-label">Version</span><span class="si-value">{{ systemInfo.version }}</span></div>
+          </div>
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-calendar-check"></i></div>
+            <div><span class="si-label">Build Date</span><span class="si-value">{{ systemInfo.buildDate }}</span></div>
+          </div>
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-server"></i></div>
+            <div><span class="si-label">Environment</span><span class="si-value prod">{{ systemInfo.environment }}</span></div>
+          </div>
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-database-fill"></i></div>
+            <div><span class="si-label">Database</span><span class="si-value">{{ systemInfo.dbVersion }}</span></div>
+          </div>
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-code-slash"></i></div>
+            <div><span class="si-label">Angular</span><span class="si-value">{{ systemInfo.angularVer }}</span></div>
+          </div>
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-cup-hot-fill"></i></div>
+            <div><span class="si-label">Spring Boot</span><span class="si-value">{{ systemInfo.springVer }}</span></div>
+          </div>
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-cup-fill"></i></div>
+            <div><span class="si-label">Java</span><span class="si-value">{{ systemInfo.javaVer }}</span></div>
+          </div>
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-cloud-check-fill"></i></div>
+            <div><span class="si-label">Last Backup</span><span class="si-value">{{ systemInfo.lastBackup }}</span></div>
+          </div>
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-activity"></i></div>
+            <div><span class="si-label">Uptime</span><span class="si-value uptime">{{ systemInfo.uptime }}</span></div>
+          </div>
+          <div class="si-item">
+            <div class="si-icon"><i class="bi bi-people-fill"></i></div>
+            <div><span class="si-label">Total Users</span><span class="si-value">{{ systemInfo.totalUsers }}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -97,3 +97,8 @@
 .loading-row { display:flex; align-items:center; gap:10px; padding:24px 20px; color:#888; font-size:13px; }
 
 @media (max-width:768px) { .fy-grid { grid-template-columns:1fr; } }
+
+
+
+.btn-fy-edit { display:inline-flex; align-items:center; gap:5px; background:#e8eef9; color:#1a3f8f; border:none; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.2s; }
+.btn-fy-edit:hover { background:#d0daf5; }

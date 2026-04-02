@@ -329,21 +329,8 @@
 /* ===== Mobile ===== */
 @media (max-width: 768px) {
   .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 280px !important;
-    height: 100vh;
-    z-index: 1200;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.28);
-    pointer-events: none;
-  }
-
-  .sidebar.mobile-open {
-    transform: translateX(0);
-    pointer-events: auto;
+    height: 100%;
   }
 
   .sidebar.collapsed {

@@ -64,5 +64,8 @@ export class TaxStructureListComponent implements OnInit {
     this.taxes = this.taxes.filter(t => t.id !== id);
   }
 
+  view(id: number): void { this.router.navigate(['/tax-structure/view', id]); }
+  edit(id: number): void { this.router.navigate(['/tax-structure/edit', id]); }
+  
   navigateCreate(): void { this.router.navigate(['/tax-structure/create']); }
 }

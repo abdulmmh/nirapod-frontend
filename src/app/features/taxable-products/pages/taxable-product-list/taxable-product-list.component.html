@@ -80,10 +80,9 @@
           </td>
           <td>
             <div class="action-btns">
-              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
-                class="btn-delete" (click)="delete(p.id)">
-                <i class="bi bi-trash-fill"></i>
-              </button>
+              <button class="btn-view" (click)="view(p.id)"><i class="bi bi-eye-fill"></i> View</button>
+              <button *canDo="'edit'" class="btn-edit" (click)="edit(p.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(p.id)"><i class="bi bi-trash-fill"></i></button>
             </div>
           </td>
         </tr>

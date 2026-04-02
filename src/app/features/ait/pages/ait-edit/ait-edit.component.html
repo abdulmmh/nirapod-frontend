@@ -1,0 +1,117 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Edit AIT Record</h4>
+    <p>Update advance income tax deduction details.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()"><i class="bi bi-arrow-left"></i> Back to View</button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
+<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
+<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border" style="color:#7c3aed"></div></div>
+
+<div class="form-card" *ngIf="!isLoading">
+
+  <div class="edit-banner">
+    <i class="bi bi-pencil-square"></i>
+    Editing: <strong>{{ form.aitRef }}</strong>
+    <span class="banner-sub">{{ form.taxpayerName }}</span>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon"><i class="bi bi-percent"></i></div>
+      <div><h6 class="section-title">AIT Details</h6><span class="section-sub">Source, amounts and rate</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Source Type</label>
+        <div class="input-wrap"><i class="bi bi-diagram-3-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.sourceType">
+            <option *ngFor="let s of sourceTypes" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Gross Amount (৳)</label>
+        <div class="input-wrap"><i class="bi bi-currency-dollar input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.grossAmount" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">AIT Rate (%)</label>
+        <div class="input-wrap"><i class="bi bi-percent input-icon"></i>
+          <input type="number" class="form-input" [(ngModel)]="form.aitRate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">AIT Amount <span class="auto-label">Auto</span></label>
+        <div class="input-wrap"><i class="bi bi-calculator input-icon"></i>
+          <input type="number" class="form-input auto-field" [value]="aitAmount" readonly />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2 -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal"><i class="bi bi-calendar-event-fill"></i></div>
+      <div><h6 class="section-title">Deduction & Status</h6><span class="section-sub">Who deducted, dates and status</span></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Deducted By</label>
+        <div class="input-wrap"><i class="bi bi-building input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.deductedBy" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fiscal Year</label>
+        <div class="input-wrap"><i class="bi bi-calendar-range input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.fiscalYear">
+            <option *ngFor="let fy of fiscalYears" [value]="fy">{{ fy }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deduction Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar3 input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.deductionDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deposit Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar-check input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.depositDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Remarks</label>
+        <div class="input-wrap"><i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea" [(ngModel)]="form.remarks" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"><i class="bi bi-x-lg"></i> Cancel</button>
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
+      <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update AIT Record</span>
+      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+    </button>
+  </div>
+
+</div>

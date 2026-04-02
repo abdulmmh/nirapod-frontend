@@ -1,0 +1,108 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Import Duty Details</h4>
+    <p>Full import duty assessment information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()"><i class="bi bi-arrow-left"></i> Back</button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()"><i class="bi bi-pencil-fill"></i> Edit</button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border text-danger"></div></div>
+
+<ng-container *ngIf="!isLoading && record">
+
+  <!-- Header -->
+  <div class="imp-header-card">
+    <div class="ihc-left">
+      <div class="ihc-icon"><i class="bi bi-truck-front-fill"></i></div>
+      <div>
+        <div class="ihc-ref">{{ record.dutyRef }}</div>
+        <div class="ihc-business">{{ record.businessName }}</div>
+        <div class="ihc-meta">
+          <span class="ihc-product">{{ record.productName }}</span>
+          <span class="ihc-hs">{{ record.hsCode }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(record.status)">{{ record.status }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="ihc-right">
+      <div class="ihc-stat">
+        <span class="ihs-label">Total Payable</span>
+        <span class="ihs-value">{{ fmt(record.totalPayable) }}</span>
+      </div>
+      <div class="ihc-stat">
+        <span class="ihs-label">Duty Rate</span>
+        <span class="ihs-rate">{{ record.dutyRate }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Amount Summary -->
+  <div class="imp-amount-row">
+    <div class="ia-card">
+      <div class="iac-icon cif"><i class="bi bi-currency-dollar"></i></div>
+      <div><span class="iac-label">CIF Value</span><span class="iac-value">{{ fmt(record.cifValue) }}</span></div>
+    </div>
+    <div class="ia-card">
+      <div class="iac-icon duty"><i class="bi bi-percent"></i></div>
+      <div><span class="iac-label">Import Duty</span><span class="iac-value duty">{{ fmt(record.dutyAmount) }}</span></div>
+    </div>
+    <div class="ia-card">
+      <div class="iac-icon vat"><i class="bi bi-receipt-cutoff"></i></div>
+      <div><span class="iac-label">VAT on Import</span><span class="iac-value vat">{{ fmt(record.vatOnImport) }}</span></div>
+    </div>
+    <div class="ia-card highlight">
+      <div class="iac-icon total"><i class="bi bi-calculator-fill"></i></div>
+      <div><span class="iac-label">Total Payable</span><span class="iac-value total">{{ fmt(record.totalPayable) }}</span></div>
+    </div>
+    <div class="ia-card">
+      <div class="iac-icon paid"><i class="bi bi-cash-coin"></i></div>
+      <div><span class="iac-label">Paid</span><span class="iac-value paid">{{ record.paidAmount > 0 ? fmt(record.paidAmount) : '—' }}</span></div>
+    </div>
+  </div>
+
+  <!-- Details -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header"><i class="bi bi-person-badge-fill"></i><span>Importer Information</span></div>
+      <div class="detail-body">
+        <div class="detail-row"><span class="detail-label">TIN</span><span class="detail-value"><span class="code-badge">{{ record.tinNumber }}</span></span></div>
+        <div class="detail-row"><span class="detail-label">Taxpayer</span><span class="detail-value fw-bold">{{ record.taxpayerName }}</span></div>
+        <div class="detail-row"><span class="detail-label">Business</span><span class="detail-value">{{ record.businessName }}</span></div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header"><i class="bi bi-box-seam-fill"></i><span>Goods Information</span></div>
+      <div class="detail-body">
+        <div class="detail-row"><span class="detail-label">Product</span><span class="detail-value fw-bold">{{ record.productName }}</span></div>
+        <div class="detail-row"><span class="detail-label">HS Code</span><span class="detail-value"><span class="code-badge">{{ record.hsCode }}</span></span></div>
+        <div class="detail-row"><span class="detail-label">Description</span><span class="detail-value">{{ record.goodsDescription }}</span></div>
+        <div class="detail-row"><span class="detail-label">Origin Country</span><span class="detail-value">🌐 {{ record.originCountry }}</span></div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header"><i class="bi bi-geo-alt-fill"></i><span>Shipping & Port</span></div>
+      <div class="detail-body">
+        <div class="detail-row"><span class="detail-label">Port of Entry</span><span class="detail-value fw-bold">{{ record.portOfEntry }}</span></div>
+        <div class="detail-row"><span class="detail-label">Bill of Lading</span><span class="detail-value"><span class="code-badge">{{ record.billOfLading }}</span></span></div>
+        <div class="detail-row"><span class="detail-label">Import Date</span><span class="detail-value">{{ record.importDate }}</span></div>
+        <div class="detail-row" *ngIf="record.assessmentDate"><span class="detail-label">Assessment Date</span><span class="detail-value">{{ record.assessmentDate }}</span></div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header"><i class="bi bi-shield-fill-check"></i><span>Status & Remarks</span></div>
+      <div class="detail-body">
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge" [ngClass]="getStatusClass(record.status)">{{ record.status }}</span></span></div>
+        <div class="detail-row" *ngIf="record.remarks"><span class="detail-label">Remarks</span><span class="detail-value">{{ record.remarks }}</span></div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

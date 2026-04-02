@@ -1,0 +1,83 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Activity Logs</h4>
+    <p>Complete audit trail of all system activities.</p>
+  </div>
+  <button class="btn-export-log">
+    <i class="bi bi-download"></i> Export Logs
+  </button>
+</div>
+
+<!-- Stats Row -->
+<div class="log-stats">
+  <div class="ls-card">
+    <div class="lsc-icon all"><i class="bi bi-list-check"></i></div>
+    <div><span class="lsc-label">Total Actions</span><span class="lsc-value">{{ logs.length }}</span></div>
+  </div>
+  <div class="ls-card">
+    <div class="lsc-icon success"><i class="bi bi-check-circle-fill"></i></div>
+    <div><span class="lsc-label">Successful</span>
+    <span class="lsc-value">{{ countByStatus('Success') }}</span>
+    </div>
+  </div>
+  <div class="ls-card">
+    <div class="lsc-icon failed"><i class="bi bi-x-circle-fill"></i></div>
+    <div><span class="lsc-label">Failed</span><span class="lsc-value">{{ countByStatus('Failed') }}</span></div>
+  </div>
+  <div class="ls-card">
+    <div class="lsc-icon warning"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <div><span class="lsc-label">Warnings</span><span class="lsc-value">{{ countByStatus('Warning') }}</span></div>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="list-search-bar">
+    <div class="log-filters">
+      <div class="search-field" style="flex:1">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search action, user, module, description..."
+          [(ngModel)]="searchTerm" />
+      </div>
+      <select class="filter-select" [(ngModel)]="filterType">
+        <option value="">All Actions</option>
+        <option *ngFor="let t of actionTypes.slice(1)" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading activity logs...</span>
+  </div>
+
+  <!-- Logs Timeline -->
+  <div class="logs-timeline" *ngIf="!isLoading">
+    <div class="log-item" *ngFor="let log of filtered">
+      <div class="log-icon" [ngClass]="getActionClass(log.actionType)">
+        <i [class]="getActionIcon(log.actionType)"></i>
+      </div>
+      <div class="log-body">
+        <div class="log-header">
+          <div class="log-action">{{ log.action }}</div>
+          <div class="log-time">{{ log.timestamp }}</div>
+        </div>
+        <div class="log-desc">{{ log.description }}</div>
+        <div class="log-meta">
+          <span class="log-user"><i class="bi bi-person-fill"></i> {{ log.performedBy }}</span>
+          <span class="log-role">{{ log.userRole }}</span>
+          <span class="log-module"><i class="bi bi-grid-fill"></i> {{ log.module }}</span>
+          <span class="log-ip"><i class="bi bi-router-fill"></i> {{ log.ipAddress }}</span>
+          <span class="log-status status-badge" [ngClass]="getStatusClass(log.status)">{{ log.status }}</span>
+        </div>
+      </div>
+      <div class="log-type-badge" [ngClass]="getActionClass(log.actionType)">
+        {{ log.actionType }}
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-clock-history"></i><p>No activity logs found.</p>
+    </div>
+  </div>
+
+</div>

@@ -60,4 +60,7 @@ export class ImportDutyListComponent implements OnInit {
     if (!confirm('Delete this import record?')) return;
     this.records = this.records.filter(r => r.id !== id);
   }
+
+  view(id: number): void { this.router.navigate(['/import-duty/view', id]); }
+  edit(id: number): void { this.router.navigate(['/import-duty/edit', id]); }
 }

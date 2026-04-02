@@ -1,0 +1,118 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Product Details</h4>
+    <p>Full taxable product information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && product">
+
+  <!-- Header Card -->
+  <div class="prod-header-card">
+    <div class="phc-left">
+      <div class="phc-icon"><i [class]="getCategoryIcon(product.category)"></i></div>
+      <div>
+        <div class="phc-code">{{ product.productCode }}</div>
+        <div class="phc-name">{{ product.productName }}</div>
+        <div class="phc-meta">
+          <span class="hs-pill">HS: {{ product.hsCode }}</span>
+          <span class="cat-pill-sm">{{ product.category }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(product.status)">
+            {{ product.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="phc-right">
+      <div class="phc-rate">{{ product.taxRate === 0 ? 'Zero' : product.taxRate + '%' }}</div>
+      <div class="phc-rate-label">{{ product.taxType }}</div>
+      <div class="phc-unit">Per {{ product.unit }}</div>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-box-seam-fill"></i>
+        <span>Product Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Product Code</span>
+          <span class="detail-value"><span class="code-badge cyan">{{ product.productCode }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Product Name</span>
+          <span class="detail-value fw-bold">{{ product.productName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">HS Code</span>
+          <span class="detail-value"><span class="code-badge blue">{{ product.hsCode }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Category</span>
+          <span class="detail-value">{{ product.category }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Unit</span>
+          <span class="detail-value">{{ product.unit }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(product.status)">{{ product.status }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-percent"></i>
+        <span>Tax Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Tax Type</span>
+          <span class="detail-value fw-bold">{{ product.taxType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tax Rate</span>
+          <span class="detail-value rate-big">
+            {{ product.taxRate === 0 ? 'Zero Rated (0%)' : product.taxRate + '%' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Created At</span>
+          <span class="detail-value">{{ product.createdAt }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card full-card" *ngIf="product.description">
+      <div class="detail-card-header">
+        <i class="bi bi-chat-text-fill"></i>
+        <span>Description</span>
+      </div>
+      <div style="padding:14px 18px; font-size:13px; color:#444; line-height:1.7;">
+        {{ product.description }}
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>
