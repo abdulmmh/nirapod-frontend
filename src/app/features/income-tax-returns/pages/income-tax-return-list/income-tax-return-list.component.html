@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-left">
     <h4>Income Tax Returns</h4>
-    <p>Manage all income tax return filings.</p>
+    <p>Manage and process all income tax return filings.</p>
   </div>
   <a *canDo="'create'" routerLink="/income-tax-returns/create"
      class="btn-add-primary desktop-add-btn">
@@ -11,6 +11,46 @@
 
 <div class="page-wrapper">
 
+  <!-- Status Filter Tabs -->
+  <div class="status-tabs">
+    <button class="stab"
+      [class.active]="filterStatus === ''"
+      (click)="filterStatus = ''">
+      All <span class="stab-count">{{ countByStatus('') }}</span>
+    </button>
+    <button class="stab submitted"
+      [class.active]="filterStatus === 'Submitted'"
+      (click)="filterStatus = 'Submitted'">
+      Submitted <span class="stab-count">{{ countByStatus('Submitted') }}</span>
+    </button>
+    <button class="stab review"
+      [class.active]="filterStatus === 'Under Review'"
+      (click)="filterStatus = 'Under Review'">
+      Under Review <span class="stab-count">{{ countByStatus('Under Review') }}</span>
+    </button>
+    <button class="stab accepted"
+      [class.active]="filterStatus === 'Accepted'"
+      (click)="filterStatus = 'Accepted'">
+      Accepted <span class="stab-count">{{ countByStatus('Accepted') }}</span>
+    </button>
+    <button class="stab rejected"
+      [class.active]="filterStatus === 'Rejected'"
+      (click)="filterStatus = 'Rejected'">
+      Rejected <span class="stab-count">{{ countByStatus('Rejected') }}</span>
+    </button>
+    <button class="stab draft"
+      [class.active]="filterStatus === 'Draft'"
+      (click)="filterStatus = 'Draft'">
+      Draft <span class="stab-count">{{ countByStatus('Draft') }}</span>
+    </button>
+    <button class="stab overdue"
+      [class.active]="filterStatus === 'Overdue'"
+      (click)="filterStatus = 'Overdue'">
+      Overdue <span class="stab-count">{{ countByStatus('Overdue') }}</span>
+    </button>
+  </div>
+
+  <!-- Search Bar -->
   <div class="list-search-bar">
     <div class="search-field-row">
       <div class="search-field">
@@ -82,11 +122,8 @@
           </td>
 
           <td class="amt-cell">{{ formatCurrency(r.taxableIncome) }}</td>
-
           <td class="amt-cell gross">{{ formatCurrency(r.grossTax) }}</td>
-
           <td class="amt-cell net">{{ formatCurrency(r.netTaxPayable) }}</td>
-
           <td class="amt-cell paid">{{ formatCurrency(r.taxPaid) }}</td>
 
           <td>
@@ -109,7 +146,10 @@
               <button class="btn-view" (click)="view(r.id)">
                 <i class="bi bi-eye-fill"></i> View
               </button>
-              <button *canDo="'edit'" class="btn-edit" (click)="edit(r.id)">
+              <button *canDo="'edit'"
+                class="btn-edit"
+                [disabled]="r.status === 'Accepted' || r.status === 'Under Review'"
+                (click)="edit(r.id)">
                 <i class="bi bi-pencil-fill"></i> Edit
               </button>
               <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
@@ -156,15 +196,25 @@
         <div class="mobile-field"><label>Taxable Income</label><span>{{ formatCurrency(r.taxableIncome) }}</span></div>
         <div class="mobile-field"><label>Net Payable</label><span class="net">{{ formatCurrency(r.netTaxPayable) }}</span></div>
         <div class="mobile-field"><label>Tax Paid</label><span class="paid">{{ formatCurrency(r.taxPaid) }}</span></div>
-        <div class="mobile-field" *ngIf="r.refundable > 0"><label>Refundable</label>
+        <div class="mobile-field" *ngIf="r.refundable > 0">
+          <label>Refundable</label>
           <span class="refund-badge">{{ formatCurrency(r.refundable) }}</span>
         </div>
         <div class="mobile-field"><label>Due Date</label><span>{{ r.dueDate }}</span></div>
       </div>
       <div class="mobile-card-actions">
-        <button class="btn-view" (click)="view(r.id)"><i class="bi bi-eye-fill"></i> View</button>
-        <button *canDo="'edit'" class="btn-edit" (click)="edit(r.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
-        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(r.id)"><i class="bi bi-trash-fill"></i></button>
+        <button class="btn-view" (click)="view(r.id)">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+        <button *canDo="'edit'" class="btn-edit"
+          [disabled]="r.status === 'Accepted' || r.status === 'Under Review'"
+          (click)="edit(r.id)">
+          <i class="bi bi-pencil-fill"></i> Edit
+        </button>
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+          class="btn-delete" (click)="delete(r.id)">
+          <i class="bi bi-trash-fill"></i>
+        </button>
       </div>
     </div>
     <div class="empty-state" *ngIf="filtered.length === 0">

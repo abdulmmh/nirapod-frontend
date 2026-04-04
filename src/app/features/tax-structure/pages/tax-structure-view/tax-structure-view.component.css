@@ -77,3 +77,54 @@
   .thc-rate-value { font-size:36px; }
   .rpc-examples { flex-direction:column; }
 }
+
+.type-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+/* Header badge */
+.header-type-badge.type-vat,
+.header-type-badge.type-ait,
+.header-type-badge.type-import,
+.header-type-badge.type-it,
+.header-type-badge.type-excise,
+.header-type-badge.type-sd {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+}
+
+/* Detail badge */
+.detail-type-badge.type-vat {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.detail-type-badge.type-ait {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.detail-type-badge.type-import {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.detail-type-badge.type-it {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.detail-type-badge.type-excise {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.detail-type-badge.type-sd {
+  background: #fce7f3;
+  color: #be185d;
+}

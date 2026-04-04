@@ -18,12 +18,13 @@ export interface TaxStructure {
 }
 
 export interface TaxStructureCreateRequest {
+  taxCode: string;
   taxName: string;
-  taxType: string;
+  taxType: TaxType;
   rate: number;
-  applicableTo: string;
+  applicableTo: ApplicableTo;
   effectiveDate: string;
   expiryDate: string;
   description: string;
-  status: string;
+  status: TaxStructureStatus;
 }

@@ -29,7 +29,16 @@
       </div>
     </div>
     <div class="form-grid">
-      <div class="form-group full-width">
+      <div class="form-group required">
+          <label class="form-label required">Tax Code</label>
+          <div class="input-wrap">
+            <i class="bi bi-upc-scan input-icon"></i>
+            <input type="text" class="form-input"
+              placeholder="e.g. VAT-STD-001"
+              [(ngModel)]="form.taxCode" />
+          </div>
+        </div>
+      <div class="form-group required">
         <label class="form-label required">Tax Name</label>
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>

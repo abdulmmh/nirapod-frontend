@@ -27,7 +27,7 @@
         <div class="thc-code">{{ tax.taxCode }}</div>
         <div class="thc-name">{{ tax.taxName }}</div>
         <div class="thc-meta">
-          <span class="type-badge" [ngClass]="getTypeClass(tax.taxType)">
+          <span class="type-badge header-type-badge" [ngClass]="getTypeClass(tax.taxType)">
             {{ tax.taxType }}
           </span>
           <span class="applicable-badge">{{ tax.applicableTo }}</span>
@@ -90,7 +90,7 @@
         <div class="detail-row">
           <span class="detail-label">Tax Type</span>
           <span class="detail-value">
-            <span class="type-badge" [ngClass]="getTypeClass(tax.taxType)">{{ tax.taxType }}</span>
+            <span class="type-badge detail-type-badge" [ngClass]="getTypeClass(tax.taxType)">{{ tax.taxType }}</span>
           </span>
         </div>
         <div class="detail-row">
@@ -122,10 +122,10 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Expiry Date</span>
-          <span class="detail-value"
-            [class]="isExpired(tax.expiryDate) ? 'expiry-red' : ''">
+          <span class="detail-value" [ngClass]="{'expiry-red': isExpired(tax.expiryDate)}">
             {{ tax.expiryDate || 'No Expiry' }}
           </span>
+          
         </div>
         <div class="detail-row">
           <span class="detail-label">Created By</span>

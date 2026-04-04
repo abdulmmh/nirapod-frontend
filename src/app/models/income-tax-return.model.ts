@@ -1,6 +1,10 @@
-export type ITRStatus   = 'Draft' | 'Submitted' | 'Accepted' | 'Rejected' | 'Overdue' | 'Under Review' | 'Amended';
+
 export type ITRCategory = 'Individual' | 'Company' | 'Partnership' | 'NGO';
 export type ITRPeriod   = 'Annual' | 'Quarterly';
+export type ITRStatus =
+  'Draft' | 'Submitted' | 'Under Review' |
+  'Accepted' | 'Rejected' | 'Overdue' |
+  'Under Review' | 'Amended' | 'Send Back';
 
 export interface IncomeTaxReturn {
   id: number;
@@ -28,6 +32,7 @@ export interface IncomeTaxReturn {
   submittedBy: string;
   verifiedBy: string;
   remarks: string;
+  actionHistory?: ITRAction[];
 }
 
 export interface IncomeTaxReturnCreateRequest {
@@ -49,4 +54,14 @@ export interface IncomeTaxReturnCreateRequest {
   dueDate: string;
   submittedBy: string;
   remarks: string;
+}
+
+export interface ITRAction {
+  action: string;
+  performedBy: string;
+  role: string;
+  timestamp: string;
+  remarks: string;
+  fromStatus: string;
+  toStatus: string;
 }

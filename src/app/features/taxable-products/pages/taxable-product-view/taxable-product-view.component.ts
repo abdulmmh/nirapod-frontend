@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TaxableProduct } from '../../../../models/taxable-product.model';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-taxable-product-view',
@@ -20,13 +22,19 @@ export class TaxableProductViewComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.product = this.fallback.find(p => p.id === id) || this.fallback[0];
-    this.isLoading = false;
+     this.http.get<TaxableProduct>(API_ENDPOINTS.TAXABLE_PRODUCTS.GET(id)).subscribe({
+              next: data => { this.product = data; this.isLoading = false; },
+              error: ()  => {
+                this.product = this.fallback.find(p => p.id === id) || this.fallback[0];
+                this.isLoading = false;
+              }
+            });
   }
 
   getStatusClass(s: string): string {

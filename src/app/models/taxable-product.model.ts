@@ -19,11 +19,11 @@ export interface TaxableProduct {
 export interface TaxableProductCreateRequest {
   productName: string;
   hsCode: string;
-  category: string;
+  category: ProductCategory;
   taxType: string;
   taxStructureId: number;
   taxRate: number;
   unit: string;
   description: string;
-  status: string;
+  status: ProductStatus;
 }

@@ -98,5 +98,24 @@ export const API_ENDPOINTS = {
     LOGIN:   `${API_BASE_URL}/auth/login`,
     LOGOUT:  `${API_BASE_URL}/auth/logout`,
     PROFILE: `${API_BASE_URL}/auth/profile`,
+  },
+
+  // TaxStructures
+  TAX_STRUCTURES: {
+    LIST:   `${API_BASE_URL}/tax-structures`,
+    CREATE: `${API_BASE_URL}/tax-structures`,
+    UPDATE: (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
+  },
+
+  // TaxableProducts
+  TAXABLE_PRODUCTS: {
+    LIST:   `${API_BASE_URL}/taxable-products`,
+    CREATE: `${API_BASE_URL}/taxable-products`,
+    UPDATE: (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
   }
+
 };

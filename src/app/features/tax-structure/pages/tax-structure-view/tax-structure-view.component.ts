@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TaxStructure } from '../../../../models/tax-structure.model';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
   selector: 'app-tax-structure-view',
@@ -21,13 +23,19 @@ export class TaxStructureViewComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private http: HttpClient  
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.tax = this.fallback.find(t => t.id === id) || this.fallback[0];
-    this.isLoading = false;
+    this.http.get<TaxStructure>(API_ENDPOINTS.TAX_STRUCTURES.GET(id)).subscribe({
+          next: data => { this.tax = data; this.isLoading = false; },
+          error: ()  => {
+            this.tax = this.fallback.find(t => t.id === id) || this.fallback[0];
+            this.isLoading = false;
+          }
+        });
   }
 
   getStatusClass(s: string): string {

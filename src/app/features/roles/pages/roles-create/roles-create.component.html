@@ -1,1 +1,174 @@
-<p>roles-create works!</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Create New Role</h4>
+    <p>Define a new system role with custom permissions.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to Roles
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Role Info -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon"><i class="bi bi-shield-fill-check"></i></div>
+      <div>
+        <h6 class="section-title">Role Information</h6>
+        <span class="section-sub">Name, code and description</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Role Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-shield-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. Senior Tax Officer"
+            [(ngModel)]="form.roleName"
+            (ngModelChange)="onRoleNameChange()" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Role Code <span class="auto-label">Auto</span></label>
+        <div class="input-wrap">
+          <i class="bi bi-code-slash input-icon"></i>
+          <input type="text" class="form-input auto-field"
+            [value]="form.roleCode || 'Auto from name'" readonly />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role Color</label>
+        <div class="color-wrap">
+          <input type="color" class="color-picker" [(ngModel)]="form.color" />
+          <span class="color-preview" [style.background]="form.color">
+            {{ form.roleName || 'Role' }}
+          </span>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label class="form-label">Description</label>
+        <div class="input-wrap">
+          <i class="bi bi-text-paragraph input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Describe this role's responsibilities..."
+            [(ngModel)]="form.description" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Permissions -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon purple"><i class="bi bi-lock-fill"></i></div>
+      <div>
+        <h6 class="section-title">Module Permissions</h6>
+        <span class="section-sub">{{ selectedPermCount }} permissions selected</span>
+      </div>
+      <div class="perm-quick-actions">
+        <button class="pqa-btn" (click)="selectAllModules(true)">
+          <i class="bi bi-check-all"></i> Select All
+        </button>
+        <button class="pqa-btn clear" (click)="selectAllModules(false)">
+          <i class="bi bi-x-lg"></i> Clear All
+        </button>
+      </div>
+    </div>
+
+    <div class="perm-table-wrap">
+      <table class="perm-table">
+        <thead>
+          <tr>
+            <th class="module-col">Module</th>
+            <th class="perm-col"><i class="bi bi-plus-circle-fill"></i><span>Create</span></th>
+            <th class="perm-col"><i class="bi bi-eye-fill"></i><span>Read</span></th>
+            <th class="perm-col"><i class="bi bi-pencil-fill"></i><span>Update</span></th>
+            <th class="perm-col"><i class="bi bi-trash-fill"></i><span>Delete</span></th>
+            <th class="perm-col"><i class="bi bi-download"></i><span>Export</span></th>
+            <th class="perm-col"><i class="bi bi-check-all"></i><span>All</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of modules; let odd = odd" [class.odd-row]="odd">
+            <td class="module-name">{{ m }}</td>
+            <td>
+              <label class="check-wrap">
+                <input type="checkbox" [(ngModel)]="form.permissions[m].create" />
+                <span class="checkmark create"></span>
+              </label>
+            </td>
+            <td>
+              <label class="check-wrap">
+                <input type="checkbox" [(ngModel)]="form.permissions[m].read" />
+                <span class="checkmark read"></span>
+              </label>
+            </td>
+            <td>
+              <label class="check-wrap">
+                <input type="checkbox" [(ngModel)]="form.permissions[m].update" />
+                <span class="checkmark update"></span>
+              </label>
+            </td>
+            <td>
+              <label class="check-wrap">
+                <input type="checkbox" [(ngModel)]="form.permissions[m].delete" />
+                <span class="checkmark delete"></span>
+              </label>
+            </td>
+            <td>
+              <label class="check-wrap">
+                <input type="checkbox" [(ngModel)]="form.permissions[m].export" />
+                <span class="checkmark export"></span>
+              </label>
+            </td>
+            <td>
+              <label class="check-wrap">
+                <input type="checkbox"
+                  [checked]="isAllSelected(m)"
+                  [indeterminate]="isSomeSelected(m)"
+                  (change)="toggleAll(m, $any($event.target).checked)" />
+                <span class="checkmark all"></span>
+              </label>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading"><i class="bi bi-shield-fill-check"></i> Create Role</span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>Creating...
+      </span>
+    </button>
+  </div>
+
+</div>

@@ -12,8 +12,14 @@ import { VatReturn } from '../../../../models/vat-return.model';
 export class VatReturnListComponent implements OnInit {
 
   returns: VatReturn[] = [];
-  searchTerm = '';
-  isLoading  = false;
+  searchTerm   = '';
+  filterStatus = '';
+  isLoading    = false;
+
+  statuses = [
+    '', 'Draft', 'Submitted', 'Under Review',
+    'Accepted', 'Rejected', 'Overdue', 'Amended', 'Send Back'
+  ];
 
   private fallback: VatReturn[] = [
     {
@@ -26,7 +32,12 @@ export class VatReturnListComponent implements OnInit {
       netTaxPayable: 45000, taxPaid: 45000,
       submissionDate: '2024-02-12', dueDate: '2024-02-15',
       assessmentYear: '2024-25', status: 'Accepted',
-      submittedBy: 'Taxpayer', remarks: ''
+      submittedBy: 'Taxpayer', remarks: '',
+      actionHistory: [
+        { action: 'Return Filed', performedBy: 'taxpayer_01', role: 'TAXPAYER', timestamp: '2024-02-12 10:30', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' },
+        { action: 'Review Started', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-02-13 09:00', remarks: 'All documents verified', fromStatus: 'Submitted', toStatus: 'Under Review' },
+        { action: 'Return Accepted', performedBy: 'tax_comm_01', role: 'TAX_COMMISSIONER', timestamp: '2024-02-14 14:00', remarks: 'Return is accurate and complete', fromStatus: 'Under Review', toStatus: 'Accepted' }
+      ]
     },
     {
       id: 2, returnNo: 'VRT-2024-00002',
@@ -38,7 +49,8 @@ export class VatReturnListComponent implements OnInit {
       netTaxPayable: 10000, taxPaid: 0,
       submissionDate: '2024-02-18', dueDate: '2024-02-15',
       assessmentYear: '2024-25', status: 'Overdue',
-      submittedBy: 'Taxpayer', remarks: 'Late submission'
+      submittedBy: 'Taxpayer', remarks: 'Late submission',
+      actionHistory: []
     },
     {
       id: 3, returnNo: 'VRT-2024-00003',
@@ -49,8 +61,12 @@ export class VatReturnListComponent implements OnInit {
       totalSupplies: 1000000, outputTax: 120000, inputTax: 55000,
       netTaxPayable: 65000, taxPaid: 65000,
       submissionDate: '2024-03-14', dueDate: '2024-03-15',
-      assessmentYear: '2024-25', status: 'Accepted',
-      submittedBy: 'Tax Officer', remarks: ''
+      assessmentYear: '2024-25', status: 'Under Review',
+      submittedBy: 'Tax Officer', remarks: 'Large export claim - needs review',
+      actionHistory: [
+        { action: 'Return Filed', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-03-14 11:00', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' },
+        { action: 'Review Started', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-03-15 09:30', remarks: 'Large export claim - needs review', fromStatus: 'Submitted', toStatus: 'Under Review' }
+      ]
     },
     {
       id: 4, returnNo: 'VRT-2024-00004',
@@ -62,7 +78,10 @@ export class VatReturnListComponent implements OnInit {
       netTaxPayable: 57500, taxPaid: 0,
       submissionDate: '2024-04-10', dueDate: '2024-04-15',
       assessmentYear: '2024-25', status: 'Submitted',
-      submittedBy: 'Taxpayer', remarks: 'Under review'
+      submittedBy: 'Taxpayer', remarks: '',
+      actionHistory: [
+        { action: 'Return Filed', performedBy: 'taxpayer_01', role: 'TAXPAYER', timestamp: '2024-04-10 15:00', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' }
+      ]
     },
     {
       id: 5, returnNo: 'VRT-2024-00005',
@@ -74,19 +93,25 @@ export class VatReturnListComponent implements OnInit {
       netTaxPayable: 46000, taxPaid: 0,
       submissionDate: '', dueDate: '2024-03-15',
       assessmentYear: '2024-25', status: 'Draft',
-      submittedBy: '', remarks: ''
+      submittedBy: '', remarks: '',
+      actionHistory: []
     },
     {
       id: 6, returnNo: 'VRT-2024-00006',
       binNo: 'BIN-2024-001002', tinNumber: 'TIN-1002',
       businessName: 'Karim Traders',
-      returnPeriod: 'Monthly', periodMonth: 'February', periodYear: '2024',
+      returnPeriod: 'Monthly', periodMonth: 'March', periodYear: '2024',
       taxableSupplies: 130000, exemptSupplies: 0, zeroRatedSupplies: 0,
       totalSupplies: 130000, outputTax: 19500, inputTax: 9000,
-      netTaxPayable: 10500, taxPaid: 10500,
-      submissionDate: '2024-03-13', dueDate: '2024-03-15',
-      assessmentYear: '2024-25', status: 'Accepted',
-      submittedBy: 'Taxpayer', remarks: ''
+      netTaxPayable: 10500, taxPaid: 0,
+      submissionDate: '2024-04-05', dueDate: '2024-04-15',
+      assessmentYear: '2024-25', status: 'Rejected',
+      submittedBy: 'Taxpayer', remarks: '',
+      actionHistory: [
+        { action: 'Return Filed', performedBy: 'taxpayer_01', role: 'TAXPAYER', timestamp: '2024-04-05 10:00', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' },
+        { action: 'Review Started', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-04-06 09:00', remarks: '', fromStatus: 'Submitted', toStatus: 'Under Review' },
+        { action: 'Return Rejected', performedBy: 'tax_comm_01', role: 'TAX_COMMISSIONER', timestamp: '2024-04-07 11:00', remarks: 'Input tax claim mismatch — supporting docs required', fromStatus: 'Under Review', toStatus: 'Rejected' }
+      ]
     },
   ];
 
@@ -101,26 +126,35 @@ export class VatReturnListComponent implements OnInit {
   }
 
   get filtered(): VatReturn[] {
-    if (!this.searchTerm.trim()) return this.returns;
-    const term = this.searchTerm.toLowerCase();
-    return this.returns.filter(r =>
-      r.returnNo.toLowerCase().includes(term)      ||
-      r.businessName.toLowerCase().includes(term)  ||
-      r.tinNumber.toLowerCase().includes(term)     ||
-      r.binNo.toLowerCase().includes(term)         ||
-      r.periodMonth.toLowerCase().includes(term)   ||
-      r.periodYear.toLowerCase().includes(term)
-    );
+    return this.returns.filter(r => {
+      const matchSearch = !this.searchTerm ||
+        r.returnNo.toLowerCase().includes(this.searchTerm.toLowerCase())     ||
+        r.businessName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        r.tinNumber.toLowerCase().includes(this.searchTerm.toLowerCase())    ||
+        r.binNo.toLowerCase().includes(this.searchTerm.toLowerCase());
+
+      const matchStatus = !this.filterStatus || r.status === this.filterStatus;
+
+      return matchSearch && matchStatus;
+    });
+  }
+
+  // Status counts for tabs
+  countByStatus(status: string): number {
+    if (!status) return this.returns.length;
+    return this.returns.filter(r => r.status === status).length;
   }
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      'Draft':     'status-draft',
-      'Submitted': 'status-pending',
-      'Accepted':  'status-active',
-      'Rejected':  'status-suspended',
-      'Overdue':   'status-overdue',
-      'Amended':   'status-amended'
+      'Draft':        'status-draft',
+      'Submitted':    'status-pending',
+      'Under Review': 'status-review',
+      'Accepted':     'status-active',
+      'Rejected':     'status-suspended',
+      'Overdue':      'status-overdue',
+      'Amended':      'status-amended',
+      'Send Back':    'status-sendback'
     };
     return map[s] ?? '';
   }

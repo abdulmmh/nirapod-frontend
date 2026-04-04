@@ -1,5 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { TaxableProduct } from 'src/app/models/taxable-product.model';
+
 
 @Component({
   selector: 'app-taxable-product-edit',
@@ -34,19 +38,27 @@ export class TaxableProductEditComponent implements OnInit {
     if (s) { this.form.taxType = s.type; this.form.taxRate = s.rate; }
   }
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute, private router: Router,private http: HttpClient  ) {}
 
   ngOnInit(): void {
     this.productId = Number(this.route.snapshot.paramMap.get('id'));
-    this.form = {
-      id: this.productId, productCode: 'PRD-001',
-      productName: 'Mobile Phone', hsCode: '8517.12.00',
-      category: 'Electronics', taxType: 'VAT',
-      taxStructureId: 1, taxRate: 15,
-      unit: 'Piece', description: 'Mobile phones and smartphones',
-      status: 'Active'
-    };
-    this.isLoading = false;
+    this.loadTaxableProduct();
+  }
+
+  loadTaxableProduct(): void {
+    this.isLoading = true;
+
+    this.http.get<TaxableProduct>(API_ENDPOINTS.TAXABLE_PRODUCTS.GET(this.productId)).subscribe({
+      next: (data) => {
+        this.form = { ...data };
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Load failed:', err);
+        this.errorMsg = 'Failed to load taxable product.';
+        this.isLoading = false;
+      }
+    });
   }
 
   isFormValid(): boolean {
@@ -55,14 +67,26 @@ export class TaxableProductEditComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
+    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; 
+      return; 
+    }
     this.isSaving = true;
-    setTimeout(() => {
-      this.isSaving = false;
-      this.successMsg = 'Product updated successfully!';
-      setTimeout(() => this.router.navigate(['/taxable-products']), 1500);
-    }, 800);
-  }
+    this.errorMsg = '';
 
+    this.http.put(`/api/taxable-products/${this.productId}`, this.form).subscribe({
+      next: () => {
+        alert('Updated successfully');
+        this.isSaving = false;
+        this.successMsg = 'Taxable product updated successfully!';
+        setTimeout(() => this.router.navigate(['/taxable-products/view', this.productId]), 1500);
+      },
+      error: (err) => {
+        console.error('Update failed', err);
+        this.isSaving = false;
+        this.errorMsg = 'Failed to update taxable product.';
+      }
+    });
+  }
+ 
   onCancel(): void { this.router.navigate(['/taxable-products/view', this.productId]); }
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { TaxableProductCreateRequest } from '../../../../models/taxable-product.model';
+import { TaxableProductsService } from 'src/app/core/services/taxable-products.service';
 
 @Component({
   selector: 'app-taxable-product-create',
@@ -29,9 +30,7 @@ export class TaxableProductCreateComponent {
   ];
 
   form: TaxableProductCreateRequest = {
-    productName: '', hsCode: '', category: '',
-    taxType: '', taxStructureId: 0, taxRate: 0,
-    unit: '', description: '', status: 'Active'
+    productName: 'Mobile Phone', hsCode: '8517.12.00', category: 'Electronics', taxType: 'VAT', taxStructureId: 1, taxRate: 15, unit: 'Piece', description: 'Mobile phones and smartphones', status: 'Active'
   };
 
   onTaxStructureChange(): void {
@@ -47,20 +46,41 @@ export class TaxableProductCreateComponent {
               this.form.category && this.form.unit);
   }
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private taxableProductsService: TaxableProductsService) {}
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
-    this.isLoading = true; this.errorMsg = ''; this.successMsg = '';
-    setTimeout(() => {
-      this.isLoading = false;
-      this.successMsg = 'Product added successfully!';
-      setTimeout(() => this.router.navigate(['/taxable-products']), 1500);
-    }, 800);
+    if (!this.isFormValid()) {
+      this.errorMsg = 'Please fill in all required fields.';
+      this.successMsg = '';
+      return;
+    }
+    console.log('Submitting form:', this.form);
+    this.isLoading = true;
+    this.errorMsg = '';
+    this.successMsg = '';
+
+    this.taxableProductsService.createTaxableProduct(this.form).subscribe({
+      next: (res) => {
+        console.log('Created successfully', res);
+        this.isLoading = false;
+        this.successMsg = 'Taxable product created successfully!';
+        setTimeout(() => this.router.navigate(['/taxable-products']), 1500);
+      },
+      error: (err) => {
+        console.error('Create failed', err);
+        this.isLoading = false;
+
+        if (err.status === 400) {
+          this.errorMsg = 'Invalid input. Please check the form.';
+        } else {
+          this.errorMsg = 'Create failed. Please try again.';
+        }
+      }
+    });
   }
 
   onReset(): void {
-    this.form = { productName: '', hsCode: '', category: '', taxType: '', taxStructureId: 0, taxRate: 0, unit: '', description: '', status: 'Active' };
+    this.form = { productName: 'Mobile Phone', hsCode: '8517.12.00', category: 'Electronics', taxType: 'VAT', taxStructureId: 1, taxRate: 15, unit: 'Piece', description: 'Mobile phones and smartphones', status: 'Active' };
     this.errorMsg = ''; this.successMsg = '';
   }
 
