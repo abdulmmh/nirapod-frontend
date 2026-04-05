@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Role, ROLE_PERMISSIONS, ROLE_ACTIONS, ROLE_MENU } from '../constants/roles.constants';
 import { API_ENDPOINTS } from '../constants/api.constants';
+import { environment } from '../../../environments/environment';
 
 export interface AuthUser {
   id: number;
@@ -37,18 +38,20 @@ export class AuthService {
     }
   }
 
-  // ── Login (Spring Boot ready — falls back to mock) ──
+  // ── Login: real API; optional dev-only mock if `environment.useMockAuth` ──
   login(credentials: LoginRequest): Observable<any> {
     return this.http.post<any>(API_ENDPOINTS.AUTH.LOGIN, credentials).pipe(
       tap(response => this.handleLoginSuccess(response)),
-      catchError(() => {
-        // ── MOCK LOGIN (remove when Spring Boot is ready) ──
+      catchError(err => {
+        if (!environment.useMockAuth) {
+          return throwError(() => err);
+        }
         const mockUser = this.getMockUser(credentials.email);
         if (mockUser) {
           this.handleLoginSuccess(mockUser);
           return of(mockUser);
         }
-        throw new Error('Invalid credentials');
+        return throwError(() => new Error('Invalid credentials'));
       })
     );
   }
@@ -66,7 +69,7 @@ export class AuthService {
     this.currentUserSubject.next(user);
   }
 
-  // ── Mock users (remove when Spring Boot is ready) ──
+  // ── Dev-only demo users (only used when environment.useMockAuth is true) ──
   private getMockUser(email: string): AuthUser | null {
     const mockUsers: Record<string, AuthUser> = {
       'admin@vattax.gov.bd':       { id: 1, fullName: 'System Admin',       email: 'admin@vattax.gov.bd',       role: Role.SUPER_ADMIN,         token: 'mock-token-admin' },

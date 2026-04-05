@@ -1,16 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
+import { AuthGuard } from 'src/app/core/guards/auth.guard';
 import { Role } from './core/constants/roles.constants';
 
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { LoginComponent } from './features/auth/pages/login/login.component';
 
 import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home/dashboard-home.component';
-import { ReportsHomeComponent } from './features/reports-analytics/pages/reports-home/reports-home.component';
-import { UserListComponent } from './features/user-management/pages/user-list/user-list.component';
-import { SettingsHomeComponent } from './features/system-settings/pages/settings-home/settings-home.component';
-import { ActivityLogsListComponent } from './features/activity-logs/pages/activity-logs-list/activity-logs-list.component';
 
 const routes: Routes = [
 
@@ -23,6 +19,7 @@ const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
 
       // All roles
@@ -157,27 +154,32 @@ const routes: Routes = [
       {
         path: 'reports',
         loadChildren: () =>
-          import('./features/reports-analytics/reports/reports.module').then(m => m.ReportsModule)
+          import('./features/reports-analytics/reports/reports.module').then(m => m.ReportsModule),
+        data: { roles: [Role.TAX_COMMISSIONER, Role.AUDITOR] }
       },
       {
         path: 'users',
         loadChildren: () =>
-          import('./features/user-management/user-management/user-management.module').then(m => m.UserManagementModule)
+          import('./features/user-management/user-management/user-management.module').then(m => m.UserManagementModule),
+        data: { roles: [Role.SUPER_ADMIN] }
       },
       {
         path: 'roles',
         loadChildren: () =>
-          import('./features/roles/roles/roles.module').then(m => m.RolesModule)
+          import('./features/roles/roles/roles.module').then(m => m.RolesModule),
+        data: { roles: [Role.SUPER_ADMIN] }
       },
       {
         path: 'activity-logs',
         loadChildren: () =>
-          import('./features/activity-logs/activity-logs/activity-logs.module').then(m => m.ActivityLogsModule)
+          import('./features/activity-logs/activity-logs/activity-logs.module').then(m => m.ActivityLogsModule),
+        data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] }
       },
       {
         path: 'settings',
         loadChildren: () =>
-          import('./features/system-settings/settings/settings.module').then(m => m.SettingsModule)
+          import('./features/system-settings/settings/settings.module').then(m => m.SettingsModule),
+        data: { roles: [Role.SUPER_ADMIN] }
       },
       // Notices — all roles
       {

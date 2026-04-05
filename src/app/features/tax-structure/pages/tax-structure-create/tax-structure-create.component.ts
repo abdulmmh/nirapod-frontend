@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { TaxStructureCreateRequest } from '../../../../models/tax-structure.model';
-import { TaxStructureService } from 'src/app/core/services/tax-structure.service';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-tax-structure-create',
@@ -32,7 +33,7 @@ export class TaxStructureCreateComponent {
 
   constructor(
     private router: Router,
-    private taxStructureService: TaxStructureService
+    private http: HttpClient
   ) {}
 
   isFormValid(): boolean {
@@ -56,7 +57,7 @@ export class TaxStructureCreateComponent {
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.taxStructureService.createTaxStructure(this.form).subscribe({
+    this.http.post(API_ENDPOINTS.TAX_STRUCTURES.CREATE, this.form).subscribe({
       next: (res) => {
         console.log('Created successfully', res);
         this.isLoading = false;

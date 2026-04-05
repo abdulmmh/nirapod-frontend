@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { TaxableProductCreateRequest } from '../../../../models/taxable-product.model';
-import { TaxableProductsService } from 'src/app/core/services/taxable-products.service';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
   selector: 'app-taxable-product-create',
@@ -46,7 +47,7 @@ export class TaxableProductCreateComponent {
               this.form.category && this.form.unit);
   }
 
-  constructor(private router: Router, private taxableProductsService: TaxableProductsService) {}
+  constructor(private router: Router, private http: HttpClient) {}
 
   onSubmit(): void {
     if (!this.isFormValid()) {
@@ -59,7 +60,7 @@ export class TaxableProductCreateComponent {
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.taxableProductsService.createTaxableProduct(this.form).subscribe({
+    this.http.post(API_ENDPOINTS.TAXABLE_PRODUCTS.CREATE, this.form).subscribe({
       next: (res) => {
         console.log('Created successfully', res);
         this.isLoading = false;
