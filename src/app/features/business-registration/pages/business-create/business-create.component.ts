@@ -39,12 +39,12 @@ export class BusinessCreateComponent {
   };
 
   form: BusinessCreateRequest = {
-    businessName: '', tinNumber: '', ownerName: '',
-    businessType: '', businessCategory: '',
-    tradeLicenseNo: '', binNo: '',
-    incorporationDate: '', registrationDate: new Date().toISOString().split('T')[0],
-    expiryDate: '', email: '', phone: '',
-    address: '', district: '', division: '',
+    businessName: 'Rahman Textile Ltd.', tinNumber: 'TIN-1001', ownerName: 'Abdul Rahman',
+    businessType: 'Private Limited', businessCategory: 'Manufacturing',
+    tradeLicenseNo: 'TL-44821', binNo: 'BIN-2024-001',
+    incorporationDate: '2015-06-01', registrationDate: new Date().toISOString().split('T')[0],
+    expiryDate: '', email: '', phone: '01911-111111',
+    address: 'Mirpur DOHS, Dhaka', district: 'Dhaka', division: 'Dhaka',
     annualTurnover: 0, numberOfEmployees: 0, remarks: ''
   };
 

@@ -30,14 +30,14 @@ export class IncomeTaxReturnCreateComponent {
 
   form: IncomeTaxReturnCreateRequest = {
     tinNumber: '', taxpayerName: '',
-    itrCategory: 'Individual', assessmentYear: '2024-25',
-    incomeYear: '2023-24', returnPeriod: 'Annual',
+    itrCategory: 'Individual', assessmentYear: '2025-26',
+    incomeYear: '2025-26', returnPeriod: 'Annual',
     grossIncome: 0, exemptIncome: 0,
     taxRate: 0, grossTax: 0,
     taxRebate: 0, advanceTaxPaid: 0,
     withholdingTax: 0, taxPaid: 0,
     submissionDate: new Date().toISOString().split('T')[0],
-    dueDate: '2024-11-30', submittedBy: '', remarks: ''
+    dueDate: '2024-11-30', submittedBy: 'Taxpayer', remarks: ''
   };
 
   get availableTaxRates(): number[] {

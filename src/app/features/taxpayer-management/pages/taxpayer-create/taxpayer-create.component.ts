@@ -16,16 +16,16 @@ export class TaxpayerCreateComponent {
   errorMsg   = '';
 
   form: TaxpayerCreateRequest = {
-    tin:              '',
-    fullName:         '',
-    email:            '',
-    phone:            '',
-    taxpayerType:     '',
-    status:           'Active',
-    registrationDate: new Date().toISOString().split('T')[0],
-    address:          '',
-    dateOfBirth:      '',
-    nationalId:       ''
+    tin: 'TIN-1001', 
+    fullName: 'Abdul Karim',        
+    email: 'abdul.karim@example.com',   
+    phone: '01711111111', 
+    taxpayerType: 'Individual', 
+    nationalId: '1234567890123', 
+    dateOfBirth: '1985-03-15', 
+    address: 'Mirpur, Dhaka', 
+    status: 'Active',    
+    registrationDate: new Date().toISOString().split('T')[0]
   };
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -68,16 +68,16 @@ export class TaxpayerCreateComponent {
 
   onReset(): void {
     this.form = {
-      tin:              '',
+      tin:              'TIN-1001',
       fullName:         '',
       email:            '',
-      phone:            '',
-      taxpayerType:     '',
+      phone:            '01711111111',
+      taxpayerType:     'Individual',
       status:           'Active',
       registrationDate: new Date().toISOString().split('T')[0],
       address:          '',
       dateOfBirth:      '',
-      nationalId:       ''
+      nationalId:       '951234567890123'
     };
     this.errorMsg   = '';
     this.successMsg = '';

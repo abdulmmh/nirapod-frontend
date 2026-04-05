@@ -32,7 +32,7 @@ export class IncomeTaxReturnListComponent implements OnInit {
       grossTax: 150000, taxRebate: 10000,
       netTaxPayable: 140000, advanceTaxPaid: 50000,
       withholdingTax: 30000, taxPaid: 60000, refundable: 0,
-      submissionDate: '2024-11-25', dueDate: '2024-11-30',
+      submissionDate: '2025-11-26', dueDate: '2025-11-30',
       status: 'Accepted', submittedBy: 'Taxpayer',
       verifiedBy: 'Tax Officer', remarks: '',
       actionHistory: [
