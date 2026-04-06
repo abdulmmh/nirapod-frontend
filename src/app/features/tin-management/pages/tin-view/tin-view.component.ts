@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Tin } from '../../../../models/tin.model';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
   selector: 'app-tin-view',
@@ -19,13 +21,19 @@ export class TinViewComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.tin = this.fallback.find(t => t.id === id) || this.fallback[0];
-    this.isLoading = false;
+    this.http.get<Tin>(API_ENDPOINTS.TIN.GET(id)).subscribe({
+      next: data => { this.tin = data; this.isLoading = false; },
+      error: ()  => { 
+      this.tin = this.fallback.find(t => t.id === id) || this.fallback[0];
+      this.isLoading = false;
+      }
+    });
   }
 
   getStatusClass(s: string): string {

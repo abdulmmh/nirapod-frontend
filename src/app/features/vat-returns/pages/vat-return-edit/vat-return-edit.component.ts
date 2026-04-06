@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VatReturn } from '../../../../models/vat-return.model';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
   selector: 'app-vat-return-edit',
@@ -35,7 +37,8 @@ export class VatReturnEditComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -64,12 +67,11 @@ export class VatReturnEditComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
-    this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
-    setTimeout(() => {
-      this.isSaving = false;
-      this.successMsg = 'VAT Return updated successfully!';
-      setTimeout(() => this.router.navigate(['/vat-returns']), 1500);
-    }, 800);
+        this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
+        this.http.put(API_ENDPOINTS.VAT_RETURNS.UPDATE(this.vatId), this.form).subscribe({
+          next: () => { this.isSaving = false; this.successMsg = 'VAT Return updated successfully!'; setTimeout(() => this.router.navigate(['/vat-returns']), 1500); },
+          error: () => { this.isSaving = false; this.successMsg = 'VAT Return updated failed!'; setTimeout(() => this.router.navigate(['/vat-returns']), 1500); }
+        });
   }
 
   onCancel(): void { this.router.navigate(['/vat-returns/view', this.vatId]); }

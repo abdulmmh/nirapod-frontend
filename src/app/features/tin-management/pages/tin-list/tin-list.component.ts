@@ -94,7 +94,7 @@ export class TinListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.http.get<Tin[]>(API_ENDPOINTS.TAXPAYERS.LIST).subscribe({
+    this.http.get<Tin[]>(API_ENDPOINTS.TIN.LIST).subscribe({
       next: data => { this.tins = data;           this.isLoading = false; },
       error: ()   => { this.tins = this.fallback; this.isLoading = false; }
     });
@@ -147,7 +147,10 @@ export class TinListComponent implements OnInit {
   edit(id: number): void { this.router.navigate(['/tin/edit', id]); }
 
   delete(id: number): void {
-    if (!confirm('Delete this TIN record?')) return;
-    this.tins = this.tins.filter(t => t.id !== id);
+    if (!confirm('Are you sure you want to delete this TIN record?')) return;
+    this.http.delete(API_ENDPOINTS.TIN.DELETE(id)).subscribe({
+      next: () => { this.tins = this.tins.filter(t => t.id !== id); },
+      error: ()  => { alert('Failed to delete TIN record, Please try again.'); }
+    });
   }
-}
+} 

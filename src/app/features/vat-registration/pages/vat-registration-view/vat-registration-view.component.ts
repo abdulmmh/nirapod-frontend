@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VatRegistration } from '../../../../models/vat-registration.model';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-vat-registration-view',
@@ -43,13 +45,19 @@ export class VatRegistrationViewComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.vat = this.fallback.find(v => v.id === id) || this.fallback[0];
-    this.isLoading = false;
+    this.http.get<VatRegistration>(API_ENDPOINTS.VAT_REGISTRATIONS.GET(id)).subscribe({
+      next: data => { this.vat = data; this.isLoading = false; },
+      error: ()  => {
+        this.vat = this.fallback.find(v => v.id === id) || this.fallback[0];
+        this.isLoading = false;
+      }
+    });
   }
 
   getStatusClass(s: string): string {

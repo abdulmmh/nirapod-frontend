@@ -28,7 +28,23 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `${API_BASE_URL}/businesses/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/businesses/${id}`,
   },
+  // TIN Management
+  TIN: {
+    LIST:   `${API_BASE_URL}/tin`,
+    CREATE: `${API_BASE_URL}/tin`,
+    UPDATE: (id: number) => `${API_BASE_URL}/tin/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/tin/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/tin/${id}`,
+  },
 
+  // VAT Registration
+  VAT_REGISTRATIONS: {
+    LIST:   `${API_BASE_URL}/vat-registrations`,
+    CREATE: `${API_BASE_URL}/vat-registrations`,
+    UPDATE: (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
+  },
   // VAT Returns
   VAT_RETURNS: {
     LIST:   `${API_BASE_URL}/vat-returns`,

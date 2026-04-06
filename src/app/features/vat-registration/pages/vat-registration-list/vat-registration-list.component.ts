@@ -100,7 +100,7 @@ export class VatRegistrationListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.http.get<VatRegistration[]>(API_ENDPOINTS.TAXPAYERS.LIST).subscribe({
+    this.http.get<VatRegistration[]>(API_ENDPOINTS.VAT_REGISTRATIONS.LIST).subscribe({
       next: data => { this.vatRegistrations = data;           this.isLoading = false; },
       error: ()   => { this.vatRegistrations = this.fallback; this.isLoading = false; }
     });
@@ -152,7 +152,10 @@ export class VatRegistrationListComponent implements OnInit {
   edit(id: number): void { this.router.navigate(['/vat-registration/edit', id]); }
 
   delete(id: number): void {
-    if (!confirm('Delete this VAT registration?')) return;
-    this.vatRegistrations = this.vatRegistrations.filter(v => v.id !== id);
+    if (!confirm('Are you sure you want to delete this taxpayer?')) return;
+    this.http.delete(API_ENDPOINTS.VAT_REGISTRATIONS.DELETE(id)).subscribe({
+      next: () => { this.vatRegistrations = this.vatRegistrations.filter(v => v.id !== id); },
+      error: ()  => { alert('Failed to delete VAT registration, Please try again.'); }
+    });
   }
 }

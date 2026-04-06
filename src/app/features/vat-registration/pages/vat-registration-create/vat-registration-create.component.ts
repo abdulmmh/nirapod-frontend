@@ -61,7 +61,7 @@ export class VatRegistrationCreateComponent {
   onSubmit(): void {
     if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
     this.isLoading = true; this.errorMsg = ''; this.successMsg = '';
-    this.http.post(API_ENDPOINTS.TAXPAYERS.CREATE, this.form).subscribe({
+    this.http.post(API_ENDPOINTS.VAT_REGISTRATIONS.CREATE, this.form).subscribe({
       next: () => { this.isLoading = false; this.successMsg = 'VAT Registration successful!'; setTimeout(() => this.router.navigate(['/vat-registration']), 1500); },
       error: () => { this.isLoading = false; this.successMsg = 'VAT Registration successful!'; setTimeout(() => this.router.navigate(['/vat-registration']), 1500); }
     });

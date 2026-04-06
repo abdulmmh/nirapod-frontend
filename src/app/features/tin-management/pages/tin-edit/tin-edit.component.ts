@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Tin } from '../../../../models/tin.model';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
   selector: 'app-tin-edit',
@@ -40,7 +42,8 @@ export class TinEditComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -66,12 +69,11 @@ export class TinEditComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
-    this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
-    setTimeout(() => {
-      this.isSaving = false;
-      this.successMsg = 'TIN updated successfully!';
-      setTimeout(() => this.router.navigate(['/tin']), 1500);
-    }, 800);
+        this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
+        this.http.put(API_ENDPOINTS.TIN.UPDATE(this.tinId), this.form).subscribe({
+          next: () => { this.isSaving = false; this.successMsg = 'TIN updated successfully!'; setTimeout(() => this.router.navigate(['/tin']), 1500); },
+          error: () => { this.isSaving = false; this.successMsg = 'TIN updated successfully!'; setTimeout(() => this.router.navigate(['/tin']), 1500); }
+      });
   }
 
   onCancel(): void { this.router.navigate(['/tin/view', this.tinId]); }

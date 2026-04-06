@@ -61,7 +61,11 @@ export class TaxpayerEditComponent implements OnInit {
     this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
     this.http.put(API_ENDPOINTS.TAXPAYERS.UPDATE(this.taxpayerId), this.form).subscribe({
       next: () => { this.isSaving = false; this.successMsg = 'Taxpayer updated successfully!'; setTimeout(() => this.router.navigate(['/taxpayers']), 1500); },
-      error: () => { this.isSaving = false; this.successMsg = 'Taxpayer updated successfully!'; setTimeout(() => this.router.navigate(['/taxpayers']), 1500); }
+     error: (err) => {
+        console.error('Update failed', err);
+        this.isSaving = false;
+        this.errorMsg = 'Failed to update taxpayer.';
+      }
     });
   }
 
