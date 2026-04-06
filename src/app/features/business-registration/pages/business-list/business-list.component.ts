@@ -100,7 +100,7 @@ export class BusinessListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.http.get<Business[]>(API_ENDPOINTS.TAXPAYERS.LIST).subscribe({
+    this.http.get<Business[]>(API_ENDPOINTS.BUSINESSES.LIST).subscribe({
       next: data => { this.businesses = data;           this.isLoading = false; },
       error: ()   => { this.businesses = this.fallback; this.isLoading = false; }
     });
@@ -163,9 +163,13 @@ export class BusinessListComponent implements OnInit {
   view(id: number): void { this.router.navigate(['/businesses/view', id]); }
   edit(id: number): void { this.router.navigate(['/businesses/edit', id]); }
 
+  
   delete(id: number): void {
-    if (!confirm('Delete this business?')) return;
-    this.businesses = this.businesses.filter(b => b.id !== id);
+    if (!confirm('Are you sure you want to delete this business?')) return;
+    this.http.delete(API_ENDPOINTS.BUSINESSES.DELETE(id)).subscribe({
+      next: () => { this.businesses = this.businesses.filter(b => b.id !== id); },
+      error: ()  => { alert('Failed to delete business, Please try again.'); }
+    });
   }
 
   isExpired(date: string): boolean {

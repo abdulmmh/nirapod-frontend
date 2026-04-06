@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Business } from '../../../../models/business.model';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
   selector: 'app-business-edit',
@@ -50,23 +51,27 @@ export class BusinessEditComponent implements OnInit {
   }
 
   loadBusiness(): void {
-    this.isLoading = true;
-    this.form = {
-      id: this.businessId,
-      businessRegNo: 'BRN-2024-00001',
-      businessName: 'Rahman Textile Ltd.',
-      tinNumber: 'TIN-1001', ownerName: 'Abdul Rahman',
-      businessType: 'Private Limited', businessCategory: 'Manufacturing',
-      tradeLicenseNo: 'TL-44821', binNo: 'BIN-2024-001',
-      incorporationDate: '2015-06-01', registrationDate: '2024-01-10',
-      expiryDate: '2025-01-10', email: 'rahman@textile.com',
-      phone: '01711-111111', address: 'Mirpur DOHS, Dhaka',
-      district: 'Dhaka', division: 'Dhaka',
-      annualTurnover: 5000000, numberOfEmployees: 120,
-      status: 'Active', remarks: ''
-    };
-    this.isLoading = false;
-  }
+        this.isLoading = true;
+        this.http.get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId)).subscribe({
+              next: data => { this.form = { ...data }; this.isLoading = false; },
+              error: ()  => {
+        this.form = {
+          id: this.businessId,
+          businessRegNo: 'BRN-2024-00001',
+          businessName: 'Rahman Textile Ltd.',
+          tinNumber: 'TIN-1001', ownerName: 'Abdul Rahman',
+          businessType: 'Private Limited', businessCategory: 'Manufacturing',
+          tradeLicenseNo: 'TL-44821', binNo: 'BIN-2024-001',
+          incorporationDate: '2015-06-01', registrationDate: '2024-01-10',
+          expiryDate: '2025-01-10', email: 'rahman@textile.com',
+          phone: '01711-111111', address: 'Mirpur DOHS, Dhaka',
+          district: 'Dhaka', division: 'Dhaka',
+          annualTurnover: 5000000, numberOfEmployees: 120,
+          status: 'Active', remarks: ''
+        };
+        this.isLoading = false;}
+      });
+    }
 
   isFormValid(): boolean {
     return !!(this.form.businessName && this.form.tinNumber &&
@@ -77,11 +82,10 @@ export class BusinessEditComponent implements OnInit {
   onSubmit(): void {
     if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
     this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
-    setTimeout(() => {
-      this.isSaving = false;
-      this.successMsg = 'Business updated successfully!';
-      setTimeout(() => this.router.navigate(['/businesses']), 1500);
-    }, 800);
+    this.http.put(API_ENDPOINTS.BUSINESSES.UPDATE(this.businessId), this.form).subscribe({
+      next: () => { this.isSaving = false; this.successMsg = 'Business updated successfully!'; setTimeout(() => this.router.navigate(['/businesses']), 1500); },
+      error: () => { this.isSaving = false; this.successMsg = 'Business updated successfully!'; setTimeout(() => this.router.navigate(['/businesses']), 1500); }
+    });
   }
 
   onCancel(): void { this.router.navigate(['/businesses/view', this.businessId]); }

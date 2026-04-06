@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Business } from '../../../../models/business.model';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
   selector: 'app-business-view',
@@ -26,8 +27,13 @@ export class BusinessViewComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.http.get<Business>(API_ENDPOINTS.BUSINESSES.GET(id)).subscribe({
+          next: data => { this.business = data; this.isLoading = false; },
+          error: ()  => {
     this.business = this.fallback.find(b => b.id === id) || this.fallback[0];
     this.isLoading = false;
+      }
+    });
   }
 
   getStatusClass(s: string): string {

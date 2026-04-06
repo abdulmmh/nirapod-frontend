@@ -65,7 +65,7 @@ export class BusinessCreateComponent {
   onSubmit(): void {
     if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
     this.isLoading = true; this.errorMsg = ''; this.successMsg = '';
-    this.http.post(API_ENDPOINTS.TAXPAYERS.CREATE, this.form).subscribe({
+    this.http.post(API_ENDPOINTS.BUSINESSES.CREATE, this.form).subscribe({
       next: () => { this.isLoading = false; this.successMsg = 'Business registered successfully!'; setTimeout(() => this.router.navigate(['/businesses']), 1500); },
       error: () => { this.isLoading = false; this.successMsg = 'Business registered successfully!'; setTimeout(() => this.router.navigate(['/businesses']), 1500); }
     });
