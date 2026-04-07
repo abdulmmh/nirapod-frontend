@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { TaxpayerCreateRequest } from '../../../../models/taxpayer.model';
+import { Subject, takeUntil } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-taxpayer-create',
@@ -12,75 +14,78 @@ import { TaxpayerCreateRequest } from '../../../../models/taxpayer.model';
 export class TaxpayerCreateComponent {
 
   isLoading  = false;
-  successMsg = '';
-  errorMsg   = '';
+  
 
-  form: TaxpayerCreateRequest = {
-    tin: 'TIN-1001', 
-    fullName: 'Abdul Karim',        
-    email: 'abdul.karim@example.com',   
-    phone: '01711111111', 
-    taxpayerType: 'Individual', 
-    nationalId: '1234567890123', 
-    dateOfBirth: '1985-03-15', 
-    address: 'Mirpur, Dhaka', 
-    status: 'Active',    
-    registrationDate: new Date().toISOString().split('T')[0]
-  };
 
-  constructor(private http: HttpClient, private router: Router) {}
+  form: TaxpayerCreateRequest = this.getEmptyForm();
+
+  private destroy$ = new Subject<void>();
+
+  constructor(private http: HttpClient, private router: Router, private toast: ToastService) {}
 
   isFormValid(): boolean {
-    return !!(
-      this.form.tin          &&
-      this.form.fullName     &&
-      this.form.email        &&
-      this.form.phone        &&
-      this.form.taxpayerType &&
-      this.form.nationalId
-    );
+    const requiredFields = 
+      !!this.form.tin          &&
+      !!this.form.fullName     &&
+      !!this.form.phone        &&
+      !!this.form.taxpayerType &&
+      !!this.form.nationalId   && 
+      !!this.form.dateOfBirth  &&
+      !!this.form.address     &&
+      !!this.form.status      &&
+      !!this.form.registrationDate;
+    
+      return requiredFields && this.isEmailValid();
+  }
+    
+  isEmailValid(): boolean {
+    if (!this.form.email) return true;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email);
   }
 
-  onSubmit(): void {
-    if (!this.isFormValid()) {
-      this.errorMsg = 'Please fill in all required fields.';
-      return;
-    }
-
-    this.isLoading  = true;
-    this.errorMsg   = '';
-    this.successMsg = '';
-
-    this.http.post(API_ENDPOINTS.TAXPAYERS.CREATE, this.form).subscribe({
-      next: () => {
-        this.isLoading  = false;
-        this.successMsg = 'Taxpayer registered successfully!';
-        setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
-      },
-      error: () => {
-        // Mock success when API unavailable
-        this.isLoading  = false;
-        this.successMsg = 'Taxpayer registered successfully!';
-        setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
-      }
-    });
-  }
-
-  onReset(): void {
-    this.form = {
-      tin:              'TIN-1001',
+  private getEmptyForm(): TaxpayerCreateRequest {
+    return {
+      tin:              '',
       fullName:         '',
       email:            '',
-      phone:            '01711111111',
+      phone:            '',
       taxpayerType:     'Individual',
-      status:           'Active',
+      status:           'Active', 
       registrationDate: new Date().toISOString().split('T')[0],
       address:          '',
       dateOfBirth:      '',
-      nationalId:       '951234567890123'
+      nationalId:       ''
     };
-    this.errorMsg   = '';
-    this.successMsg = '';
+  }
+
+
+  onSubmit(): void {
+      if (!this.isFormValid()) {
+        this.toast.warning('Please fill in all required fields with valid values.');
+        return;
+      }
+  
+      this.isLoading = true;
+  
+      this.http.post(API_ENDPOINTS.TAXPAYERS.CREATE, this.form)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.toast.success('Taxpayer registered successfully!');
+            setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+          },
+          error: () => {
+            this.isLoading = false;
+            this.toast.error('Failed to register taxpayer. Please try again.');
+          }
+        });
+    }
+
+  onReset(): void {
+    this.form = this.getEmptyForm();
+    this.toast.info('Form has been reset.');
+
   }
 
   onCancel(): void {

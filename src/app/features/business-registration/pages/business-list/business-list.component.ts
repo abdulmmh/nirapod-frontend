@@ -30,7 +30,6 @@ export class BusinessListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.toast.success('Test toast working!');
     this.loadBusinesses();
   }
 

@@ -149,7 +149,7 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
           this.isSaving = false;
           this.toast.error('Failed to update business. Please try again.');
         }
-      });
+    });
   }
 
   onCancel(): void {

@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-taxpayer-edit',
@@ -13,59 +15,92 @@ export class TaxpayerEditComponent implements OnInit {
 
   isLoading  = true;
   isSaving   = false;
-  successMsg = '';
-  errorMsg   = '';
-  taxpayerId = 0;
+  taxpayerId : number | null = null;
 
   statuses       = ['Active', 'Inactive', 'Pending', 'Suspended'];
   taxpayerTypes  = ['Individual', 'Business', 'Company'];
 
-  form: any = {};
+  form: Partial<Taxpayer> = {};
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
-    this.taxpayerId = Number(this.route.snapshot.paramMap.get('id'));
+    const rawId   = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
+      this.isLoading = false;
+      this.toast.error('Invalid taxpayer ID. Please go back and try again.');
+      return;
+    }
+
+    this.taxpayerId = parsedId;
     this.loadTaxpayer();
   }
 
   loadTaxpayer(): void {
     this.isLoading = true;
-    this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(this.taxpayerId)).subscribe({
-      next: data => { this.form = { ...data }; this.isLoading = false; },
-      error: ()  => {
-        this.form = {
-          id: this.taxpayerId,
-          tin: 'TIN-1001', fullName: 'Abdul Karim',
-          email: 'abdul.karim@example.com', phone: '01711111111',
-          taxpayerType: 'Individual', status: 'Active',
-          registrationDate: '2024-01-10', address: 'Mirpur, Dhaka',
-          nationalId: '1234567890123', dateOfBirth: '1985-03-15'
-        };
-        this.isLoading = false;
-      }
-    });
+    this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(this.taxpayerId!))
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: data => {
+              this.form      = { ...data };
+              this.isLoading = false;
+            },
+            error: () => {
+              this.isLoading = false;
+              this.toast.error('Failed to load taxpayer data. Please refresh or go back.');
+            }
+          });
   }
 
   isFormValid(): boolean {
-    return !!(this.form.tin && this.form.fullName &&
-              this.form.phone && this.form.taxpayerType);
+    const requiredFields =
+      !!(this.form.tin            && 
+        this.form.fullName        && 
+        this.form.email           && 
+        this.form.phone           && 
+        this.form.taxpayerType    && 
+        this.form.nationalId      && 
+        this.form.dateOfBirth     && 
+        this.form.address         && 
+        this.form.status);
+
+    return requiredFields && this.isEmailValid();
   }
 
-  onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
-    this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
-    this.http.put(API_ENDPOINTS.TAXPAYERS.UPDATE(this.taxpayerId), this.form).subscribe({
-      next: () => { this.isSaving = false; this.successMsg = 'Taxpayer updated successfully!'; setTimeout(() => this.router.navigate(['/taxpayers']), 1500); },
-     error: (err) => {
-        console.error('Update failed', err);
-        this.isSaving = false;
-        this.errorMsg = 'Failed to update taxpayer.';
-      }
+  isEmailValid(): boolean {
+    if (!this.form.email) return true;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email);
+  }
+
+   onSubmit(): void {
+    if (!this.isFormValid()) {
+      this.toast.warning('Please fill in all required fields with valid values.');
+      return;
+    }
+
+    this.isSaving = true;
+
+    this.http.put(API_ENDPOINTS.TAXPAYERS.UPDATE(this.taxpayerId!), this.form)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.toast.success('Taxpayer updated successfully!');
+          setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+        },
+        error: () => {
+          this.isSaving = false;
+          this.toast.error('Failed to update taxpayer. Please try again.');
+        }
     });
   }
 

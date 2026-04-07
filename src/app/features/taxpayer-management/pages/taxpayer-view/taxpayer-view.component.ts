@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
+import { Subject, takeUntil } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-taxpayer-view',
@@ -13,29 +15,52 @@ export class TaxpayerViewComponent implements OnInit {
 
   taxpayer: Taxpayer | null = null;
   isLoading = true;
-
-  private fallback: Taxpayer[] = [
-    { id: 1, tin: 'TIN-1001', fullName: 'Abdul Karim', email: 'abdul.karim@example.com', phone: '01711111111', taxpayerType: 'Individual', status: 'Active', registrationDate: '2024-01-10', address: 'Mirpur, Dhaka', nationalId: '1234567890123', dateOfBirth: '1985-03-15' },
-    { id: 2, tin: 'TIN-1002', fullName: 'Nusrat Jahan', email: 'nusrat.jahan@example.com', phone: '01822222222', taxpayerType: 'Business', status: 'Inactive', registrationDate: '2024-01-15', address: 'Gulshan, Dhaka', nationalId: '9876543210123', dateOfBirth: '1990-07-22' },
-    { id: 3, tin: 'TIN-1003', fullName: 'Rahim Traders Ltd.', email: 'rahim.traders@example.com', phone: '01933333333', taxpayerType: 'Company', status: 'Pending', registrationDate: '2024-02-01', address: 'Motijheel, Dhaka', nationalId: '1122334455667', dateOfBirth: '' },
-  ];
+  taxpayerId: number | null = null;
+  
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(id)).subscribe({
-      next: data => { this.taxpayer = data; this.isLoading = false; },
-      error: ()  => {
-        this.taxpayer = this.fallback.find(t => t.id === id) || this.fallback[0];
-        this.isLoading = false;
-      }
-    });
+    const rawId    = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
+      this.isLoading = false;
+      this.toast.error('Invalid business ID. Please go back and try again.');
+      return;
+    }
+
+    this.taxpayerId = parsedId;
+    this.loadTaxpayer();
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+    loadTaxpayer(): void {
+      this.isLoading = true;
+  
+      this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(this.taxpayerId!))
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: data => {
+            this.taxpayer  = data;
+            this.isLoading = false;
+          },
+          error: () => {
+            this.isLoading = false;
+            this.toast.error('Failed to load taxpayer details. Please go back and try again.');
+          }
+        });
+    }
 
   getStatusClass(status: string): string {
     const map: Record<string, string> = {
@@ -45,6 +70,9 @@ export class TaxpayerViewComponent implements OnInit {
     return map[status] ?? '';
   }
 
-  onEdit(): void { this.router.navigate(['/taxpayers', 'edit', this.taxpayer?.id]); }
+  onEdit(): void { 
+    if (!this.taxpayer?.id) return;
+    this.router.navigate(['/taxpayers', 'edit', this.taxpayer?.id]); 
+  }
   onBack(): void { this.router.navigate(['/taxpayers']); }
 }
