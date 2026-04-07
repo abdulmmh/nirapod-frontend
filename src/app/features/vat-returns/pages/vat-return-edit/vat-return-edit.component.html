@@ -17,6 +17,7 @@
 
 <div class="loading-overlay" *ngIf="isLoading">
   <div class="spinner-border text-primary"></div>
+  <p>Loading VAT return data...</p>
 </div>
 
 <div class="form-card" *ngIf="!isLoading">
@@ -105,6 +106,15 @@
         </div>
       </div>
       <div class="form-group">
+        <label class="form-label">Assessment Year</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
+            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
         <label class="form-label">Status</label>
         <div class="input-wrap">
           <i class="bi bi-toggle-on input-icon"></i>
@@ -189,9 +199,24 @@
     </div>
 
     <!-- Net Tax Display -->
-    <div class="net-tax-display">
-      <span class="ntd-label">Net Tax Payable</span>
-      <span class="ntd-value">৳{{ netTaxPayable.toLocaleString() }}</span>
+    <div class="tax-summary">
+      <div class="ts-row">
+        <span class="ts-label">Total Supplies</span>
+        <span class="ts-value">৳{{ totalSupplies.toLocaleString() }}</span>
+      </div>
+      <div class="ts-row">
+        <span class="ts-label">Output Tax</span>
+        <span class="ts-value output">৳{{ (form.outputTax || 0).toLocaleString() }}</span>
+      </div>
+      <div class="ts-row">
+        <span class="ts-label">Input Tax Credit</span>
+        <span class="ts-value input">- ৳{{ (form.inputTax || 0).toLocaleString() }}</span>
+      </div>
+      <div class="ts-divider"></div>
+      <div class="ts-row total-row">
+        <span class="ts-label total">Net Tax Payable</span>
+        <span class="ts-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
+      </div>
     </div>
   </div>
 
@@ -233,6 +258,9 @@
   <div class="form-actions">
     <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
       <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isSaving">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
     <button class="btn-submit" (click)="onSubmit()"
       [disabled]="isSaving || !isFormValid()">

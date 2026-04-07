@@ -27,7 +27,7 @@ export class TinViewComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.http.get<Tin>(API_ENDPOINTS.TIN.GET(id)).subscribe({
+    this.http.get<Tin>(API_ENDPOINTS.TINS.GET(id)).subscribe({
       next: data => { this.tin = data; this.isLoading = false; },
       error: ()  => { 
       this.tin = this.fallback.find(t => t.id === id) || this.fallback[0];

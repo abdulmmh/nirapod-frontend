@@ -109,3 +109,18 @@
   .status-tabs { gap:4px; padding:10px 10px 0; overflow-x:auto; flex-wrap:nowrap; }
   .stab { font-size:11px; padding:7px 10px; white-space:nowrap; }
 }
+
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; }
+.modal-card { background:#fff; border-radius:16px; width:300px; display:flex; flex-direction:column; align-items:center; overflow:hidden; padding-bottom:24px; }
+.modal-accent { width:100%; height:6px; }
+.modal-accent.error { background:#A32D2D; }
+.modal-icon-wrap { width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-top:24px; margin-bottom:8px; }
+.modal-icon-wrap.error { background:#FCEBEB; }
+.modal-title { font-size:20px; font-weight:600; margin:8px 0 6px; color:#1a1a1a; }
+.modal-msg { font-size:13px; color:#666; text-align:center; margin:0 24px 20px; line-height:1.6; }
+.modal-actions { display:flex; gap:12px; padding:0 24px; width:100%; box-sizing:border-box; }
+.btn-modal-cancel { flex:1; padding:10px 0; border-radius:8px; border:1px solid #ccc; background:#fff; font-size:14px; font-weight:500; cursor:pointer; color:#333; }
+.btn-modal-confirm { flex:1; padding:10px 0; border-radius:8px; border:none; font-size:14px; font-weight:500; cursor:pointer; color:#fff; display:flex; align-items:center; justify-content:center; gap:6px; }
+.btn-modal-confirm.error { background:#A32D2D; }
+.btn-modal-cancel:hover { background:#f5f5f5; }
+.btn-modal-confirm.error:hover { background:#7a1f1f; }

@@ -60,9 +60,14 @@ export class VatReturnCreateComponent {
   onSubmit(): void {
     if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
     this.isLoading = true; this.errorMsg = ''; this.successMsg = '';
-    this.http.post(API_ENDPOINTS.TAXPAYERS.CREATE, this.form).subscribe({
+    const payload = {
+      ...this.form,
+      totalSupplies: this.totalSupplies,
+      netTaxPayable: this.netTaxPayable
+    };
+    this.http.post(API_ENDPOINTS.VAT_RETURNS.CREATE, payload).subscribe({
       next: () => { this.isLoading = false; this.successMsg = 'VAT Return filed successfully!'; setTimeout(() => this.router.navigate(['/vat-returns']), 1500); },
-      error: () => { this.isLoading = false; this.successMsg = 'VAT Return filed successfully!'; setTimeout(() => this.router.navigate(['/vat-returns']), 1500); }
+      error: () => { this.isLoading = false; this.errorMsg = 'Failed to file VAT return. Please try again.'; }
     });
   }
 

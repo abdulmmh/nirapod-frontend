@@ -23,6 +23,7 @@
 
 <div class="loading-overlay" *ngIf="isLoading">
   <div class="spinner-border text-primary"></div>
+  <p>Loading VAT return details...</p>
 </div>
 
 <ng-container *ngIf="!isLoading && vr">
@@ -48,7 +49,7 @@
       </div>
       <div class="vr-stat">
         <span class="vrs-label">Due Date</span>
-        <span class="vrs-value sm">{{ vr.dueDate }}</span>
+        <span class="vrs-value sm">{{ vr.dueDate || '—' }}</span>
       </div>
     </div>
   </div>
@@ -143,150 +144,163 @@
     </div>
   </div>
 
-  <!-- Details Grid + Action History -->
-  <div class="view-main-grid">
-
-    <!-- Left: Details -->
-    <div class="view-left">
-
-      <div class="detail-card">
-        <div class="detail-card-header">
-          <i class="bi bi-building-fill"></i>
-          <span>Business Information</span>
-        </div>
-        <div class="detail-body">
-          <div class="detail-row">
-            <span class="detail-label">Return No.</span>
-            <span class="detail-value"><span class="code-badge">{{ vr.returnNo }}</span></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">BIN No.</span>
-            <span class="detail-value"><span class="code-badge">{{ vr.binNo }}</span></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">TIN No.</span>
-            <span class="detail-value"><span class="code-badge">{{ vr.tinNumber }}</span></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Business</span>
-            <span class="detail-value fw-bold">{{ vr.businessName }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Assessment Year</span>
-            <span class="detail-value">{{ vr.assessmentYear }}</span>
-          </div>
-        </div>
+  <div class="details-grid">
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-file-earmark-text-fill"></i>
+        <span>Return Information</span>
       </div>
-
-      <div class="detail-card" style="margin-top:14px">
-        <div class="detail-card-header">
-          <i class="bi bi-calendar-range-fill"></i>
-          <span>Period & Submission</span>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Return No.</span>
+          <span class="detail-value"><span class="code-badge">{{ vr.returnNo }}</span></span>
         </div>
-        <div class="detail-body">
-          <div class="detail-row">
-            <span class="detail-label">Return Period</span>
-            <span class="detail-value">{{ vr.returnPeriod }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Period</span>
-            <span class="detail-value fw-bold">{{ vr.periodMonth }} {{ vr.periodYear }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Due Date</span>
-            <span class="detail-value">{{ vr.dueDate }}</span>
-          </div>
-          <div class="detail-row" *ngIf="vr.submissionDate">
-            <span class="detail-label">Submitted On</span>
-            <span class="detail-value">{{ vr.submissionDate }}</span>
-          </div>
-          <div class="detail-row" *ngIf="vr.submittedBy">
-            <span class="detail-label">Submitted By</span>
-            <span class="detail-value">{{ vr.submittedBy }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Status</span>
-            <span class="detail-value">
-              <span class="status-badge" [ngClass]="getStatusClass(vr.status)">{{ vr.status }}</span>
-            </span>
-          </div>
+        <div class="detail-row">
+          <span class="detail-label">Return Period</span>
+          <span class="detail-value">{{ vr.returnPeriod }}</span>
         </div>
-      </div>
-
-      <div class="detail-card" style="margin-top:14px">
-        <div class="detail-card-header">
-          <i class="bi bi-table"></i>
-          <span>Supply Breakdown</span>
+        <div class="detail-row">
+          <span class="detail-label">Period</span>
+          <span class="detail-value fw-bold">{{ vr.periodMonth }} {{ vr.periodYear }}</span>
         </div>
-        <div class="detail-body">
-          <div class="detail-row">
-            <span class="detail-label">Taxable Supplies</span>
-            <span class="detail-value">{{ fmt(vr.taxableSupplies) }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Exempt Supplies</span>
-            <span class="detail-value">{{ fmt(vr.exemptSupplies) }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Zero Rated</span>
-            <span class="detail-value">{{ fmt(vr.zeroRatedSupplies) }}</span>
-          </div>
-          <div class="detail-row total-row">
-            <span class="detail-label fw-bold">Total Supplies</span>
-            <span class="detail-value fw-bold">{{ fmt(vr.totalSupplies) }}</span>
-          </div>
-          <div class="detail-row" *ngIf="vr.remarks">
-            <span class="detail-label">Remarks</span>
-            <span class="detail-value">{{ vr.remarks }}</span>
-          </div>
+        <div class="detail-row">
+          <span class="detail-label">Assessment Year</span>
+          <span class="detail-value">{{ vr.assessmentYear || '—' }}</span>
         </div>
-      </div>
-
-    </div>
-
-    <!-- Right: Action Timeline -->
-    <div class="view-right">
-      <div class="timeline-card">
-        <div class="tc-header">
-          <i class="bi bi-clock-history"></i>
-          <span>Action History</span>
-          <span class="tc-count">{{ vr.actionHistory?.length || 0 }} actions</span>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(vr.status)">{{ vr.status }}</span>
+          </span>
         </div>
-
-        <div class="timeline" *ngIf="vr.actionHistory && vr.actionHistory.length > 0">
-          <div class="tl-item"
-            *ngFor="let a of vr.actionHistory; let last = last"
-            [class.last]="last">
-            <div class="tl-dot" [ngClass]="getActionColor(a.toStatus)">
-              <i [class]="getActionIcon(a.action)"></i>
-            </div>
-            <div class="tl-body">
-              <div class="tl-action">{{ a.action }}</div>
-              <div class="tl-status">
-                <span class="tl-from">{{ a.fromStatus }}</span>
-                <i class="bi bi-arrow-right tl-arrow"></i>
-                <span class="tl-to" [ngClass]="getStatusClass(a.toStatus)">{{ a.toStatus }}</span>
-              </div>
-              <div class="tl-meta">
-                <span class="tl-user"><i class="bi bi-person-fill"></i> {{ a.performedBy }}</span>
-                <span class="tl-role">{{ a.role }}</span>
-              </div>
-              <div class="tl-remarks" *ngIf="a.remarks">
-                <i class="bi bi-chat-left-text-fill"></i> {{ a.remarks }}
-              </div>
-              <div class="tl-time">{{ a.timestamp }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="no-history" *ngIf="!vr.actionHistory || vr.actionHistory.length === 0">
-          <i class="bi bi-clock"></i>
-          <p>No action history yet</p>
-        </div>
-
       </div>
     </div>
 
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-building-fill"></i>
+        <span>Business Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Business Name</span>
+          <span class="detail-value fw-bold">{{ vr.businessName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">BIN No.</span>
+          <span class="detail-value"><span class="code-badge">{{ vr.binNo }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">TIN No.</span>
+          <span class="detail-value"><span class="code-badge">{{ vr.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row" *ngIf="vr.submittedBy">
+          <span class="detail-label">Submitted By</span>
+          <span class="detail-value">{{ vr.submittedBy }}</span>
+        </div>
+        <div class="detail-row" *ngIf="vr.submissionDate">
+          <span class="detail-label">Submitted On</span>
+          <span class="detail-value">{{ vr.submissionDate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-table"></i>
+        <span>Supply Breakdown</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Taxable Supplies</span>
+          <span class="detail-value">{{ fmt(vr.taxableSupplies) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Exempt Supplies</span>
+          <span class="detail-value">{{ fmt(vr.exemptSupplies) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Zero Rated Supplies</span>
+          <span class="detail-value">{{ fmt(vr.zeroRatedSupplies) }}</span>
+        </div>
+        <div class="detail-row total-row">
+          <span class="detail-label detail-label-strong">Total Supplies</span>
+          <span class="detail-value fw-bold">{{ fmt(vr.totalSupplies) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-cash-stack"></i>
+        <span>Tax Summary & Filing</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Output Tax</span>
+          <span class="detail-value tax-output">{{ fmt(vr.outputTax) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Input Tax Credit</span>
+          <span class="detail-value tax-input">{{ fmt(vr.inputTax) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tax Paid</span>
+          <span class="detail-value">{{ vr.taxPaid > 0 ? fmt(vr.taxPaid) : '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Due Date</span>
+          <span class="detail-value">{{ vr.dueDate || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Net Tax Payable</span>
+          <span class="detail-value net-payable">{{ fmt(vr.netTaxPayable) }}</span>
+        </div>
+        <div class="detail-row" *ngIf="vr.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value detail-value-note">{{ vr.remarks }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-card">
+    <div class="tc-header">
+      <i class="bi bi-clock-history"></i>
+      <span>Action History</span>
+      <span class="tc-count">{{ vr.actionHistory?.length || 0 }} actions</span>
+    </div>
+
+    <div class="timeline" *ngIf="vr.actionHistory && vr.actionHistory.length > 0">
+      <div class="tl-item"
+        *ngFor="let a of vr.actionHistory; let last = last"
+        [class.last]="last">
+        <div class="tl-dot" [ngClass]="getActionColor(a.toStatus)">
+          <i [class]="getActionIcon(a.action)"></i>
+        </div>
+        <div class="tl-body">
+          <div class="tl-action">{{ a.action }}</div>
+          <div class="tl-status">
+            <span class="tl-from">{{ a.fromStatus }}</span>
+            <i class="bi bi-arrow-right tl-arrow"></i>
+            <span class="tl-to" [ngClass]="getStatusClass(a.toStatus)">{{ a.toStatus }}</span>
+          </div>
+          <div class="tl-meta">
+            <span class="tl-user"><i class="bi bi-person-fill"></i> {{ a.performedBy }}</span>
+            <span class="tl-role">{{ a.role }}</span>
+          </div>
+          <div class="tl-remarks" *ngIf="a.remarks">
+            <i class="bi bi-chat-left-text-fill"></i> {{ a.remarks }}
+          </div>
+          <div class="tl-time">{{ a.timestamp }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-history" *ngIf="!vr.actionHistory || vr.actionHistory.length === 0">
+      <i class="bi bi-clock"></i>
+      <p>No action history yet</p>
+    </div>
   </div>
 
 </ng-container>

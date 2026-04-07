@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Tin } from '../../../../models/tin.model';
+import { Subject, takeUntil } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-tin-list',
@@ -15,16 +17,42 @@ export class TinListComponent implements OnInit {
   searchTerm = '';
   isLoading  = false;
 
+  private destroy$ = new Subject<void>();
   
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router,
+    private toast: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.http.get<Tin[]>(API_ENDPOINTS.TIN.LIST).subscribe({
-      next: data => { this.tins = data;           this.isLoading = false; },
-      error: ()   => { this.tins = this.fallback; this.isLoading = false; }
-    });
+    this.loadTins();
+  }
+
+  private loadTins(): void {
+    this.http.get<Tin[]>(API_ENDPOINTS.TINS.LIST)
+      .pipe(takeUntil(this.destroy$)) 
+      .subscribe({
+        next: (data) => {
+          this.tins = data;
+          this.isLoading = false;
+          if (data.length === 0) {
+            this.toast.info('No TIN records found. Click "Register TIN" to add one.');
+          }
+        },
+        error: () => {
+          this.isLoading = false;
+          this.toast.error('Failed to load TIN records. Please try again later.');
+        }
+      });
+  } 
+
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get filteredTins(): Tin[] {
@@ -73,11 +101,33 @@ export class TinListComponent implements OnInit {
   view(id: number): void { this.router.navigate(['/tin/view', id]); }
   edit(id: number): void { this.router.navigate(['/tin/edit', id]); }
 
-  delete(id: number): void {
-    if (!confirm('Are you sure you want to delete this TIN record?')) return;
-    this.http.delete(API_ENDPOINTS.TIN.DELETE(id)).subscribe({
-      next: () => { this.tins = this.tins.filter(t => t.id !== id); },
-      error: ()  => { alert('Failed to delete TIN record, Please try again.'); }
-    });
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
+    this.showDeleteModal = false;
+    this.pendingDeleteId = null;
+
+    this.http
+      .delete(API_ENDPOINTS.TINS.DELETE(id))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.tins = this.tins.filter((t) => t.id !== id);
+          this.toast.success('TIN deleted successfully.');
+        },
+        error: () => {
+          this.toast.error('Failed to delete TIN. Please try again.');
+        },
+      });
   }
 } 

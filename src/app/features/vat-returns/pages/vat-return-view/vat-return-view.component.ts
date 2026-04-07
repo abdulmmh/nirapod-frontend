@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { VatReturn, VatReturnAction } from '../../../../models/vat-return.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Role } from '../../../../core/constants/roles.constants';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 
 @Component({
   selector: 'app-vat-return-view',
@@ -95,13 +97,22 @@ export class VatReturnViewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    public authService: AuthService
+    public authService: AuthService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.vr = this.fallbackData.find(r => r.id === id) || this.fallbackData[0];
-    this.isLoading = false;
+    this.http.get<VatReturn>(API_ENDPOINTS.VAT_RETURNS.GET(id)).subscribe({
+      next: (data) => {
+        this.vr = data;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.vr = this.fallbackData.find(r => r.id === id) || this.fallbackData[0];
+        this.isLoading = false;
+      }
+    });
   }
 
   // ── Workflow Permission Checks ──

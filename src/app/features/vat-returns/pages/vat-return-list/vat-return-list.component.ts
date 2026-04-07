@@ -15,6 +15,8 @@ export class VatReturnListComponent implements OnInit {
   searchTerm   = '';
   filterStatus = '';
   isLoading    = false;
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
   statuses = [
     '', 'Draft', 'Submitted', 'Under Review',
@@ -119,7 +121,7 @@ export class VatReturnListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.http.get<VatReturn[]>(API_ENDPOINTS.TAXPAYERS.LIST).subscribe({
+    this.http.get<VatReturn[]>(API_ENDPOINTS.VAT_RETURNS.LIST).subscribe({
       next: data => { this.returns = data;           this.isLoading = false; },
       error: ()   => { this.returns = this.fallback; this.isLoading = false; }
     });
@@ -167,8 +169,21 @@ export class VatReturnListComponent implements OnInit {
   view(id: number): void { this.router.navigate(['/vat-returns/view', id]); }
   edit(id: number): void { this.router.navigate(['/vat-returns/edit', id]); }
 
-  delete(id: number): void {
-    if (!confirm('Delete this VAT return?')) return;
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
     this.returns = this.returns.filter(r => r.id !== id);
   }
 }
