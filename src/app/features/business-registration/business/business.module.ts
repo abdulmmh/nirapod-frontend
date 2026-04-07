@@ -11,18 +11,21 @@ import { BusinessEditComponent } from '../pages/business-edit/business-edit.comp
 
 
 
+
 @NgModule({
   declarations: [
     BusinessListComponent,
     BusinessCreateComponent,
     BusinessViewComponent,
-    BusinessEditComponent
+    BusinessEditComponent,
+
   ],
   imports: [
     CommonModule,
     FormsModule,
     SharedModule,
     BusinessRoutingModule,
+    
 
   ]
 })

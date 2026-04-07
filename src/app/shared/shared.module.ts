@@ -2,11 +2,13 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HasRoleDirective, CanDoDirective } from '../core/directives/has-role.directive';
+import { ToastComponent } from './toast/toast.component';
 
 @NgModule({
   declarations: [
     HasRoleDirective,
-    CanDoDirective
+    CanDoDirective,
+    ToastComponent
   ],
   imports: [
     CommonModule,
@@ -16,7 +18,8 @@ import { HasRoleDirective, CanDoDirective } from '../core/directives/has-role.di
     CommonModule,
     RouterModule,
     HasRoleDirective,
-    CanDoDirective
+    CanDoDirective,
+    ToastComponent
   ]
 })
 export class SharedModule { }

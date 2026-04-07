@@ -29,6 +29,7 @@ import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-hom
 import { ReportsHomeComponent } from './features/reports-analytics/pages/reports-home/reports-home.component';
 import { SettingsHomeComponent } from './features/system-settings/pages/settings-home/settings-home.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -49,15 +50,6 @@ import { SettingsHomeComponent } from './features/system-settings/pages/settings
     // Other Features
     ReportsHomeComponent,
     SettingsHomeComponent,
-
-
-
-
-
-
-  
-
-
 
   ],
   imports: [

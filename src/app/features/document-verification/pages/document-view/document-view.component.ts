@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Document } from '../../../../models/document.model';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-document-view',
@@ -14,18 +15,12 @@ export class DocumentViewComponent implements OnInit {
   document: Document | null = null;
   isLoading = true;
 
-  private fallback: Document[] = [
-    {
-      id: 1, documentNo: 'DOC-2024-00001',
-      tinNumber: 'TIN-1001', taxpayerName: 'Rahman Textile Ltd.',
-      documentType: 'Trade License', documentCategory: 'Business',
-      documentTitle: 'Trade License 2024', referenceNo: 'TL-44821',
-      issueDate: '2024-01-01', expiryDate: '2024-12-31',
-      submissionDate: '2024-01-10', verificationDate: '2024-01-12',
-      fileSize: '2.4 MB', status: 'Verified',
-      verifiedBy: 'Tax Officer', remarks: ''
-    },
-  ];
+  errorMsg = '';
+
+  documentId : number | null = null;
+
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -34,15 +29,43 @@ export class DocumentViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.http.get<Document>(API_ENDPOINTS.DOCUMENTS.GET(id)).subscribe({
-      next: data => { this.document = data; this.isLoading = false; },
-      error: ()  => {
-        this.document = this.fallback.find(d => d.id === id) || this.fallback[0];
-        this.isLoading = false;
-      }
-    });
+    const rawId   = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
+      this.isLoading = false;
+      this.errorMsg  = 'Invalid document ID. Please go back and try again.';
+      return;
+    }
+
+    this.documentId = parsedId;
+    this.loadDocument();
   }
+
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadDocument(): void {
+      this.isLoading = true;
+      this.errorMsg  = '';
+  
+      this.http.get<Document>(API_ENDPOINTS.DOCUMENTS.GET(this.documentId!))
+        .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
+        .subscribe({
+          next: data => {
+            this.document  = data;
+            this.isLoading = false;
+          },
+          // FIX #1: Removed fake fallback array entirely — show a real error instead
+          error: () => {
+            this.isLoading = false;
+            this.errorMsg  = 'Failed to load document details. Please go back and try again.';
+          }
+        });
+    }
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
@@ -66,9 +89,16 @@ export class DocumentViewComponent implements OnInit {
 
   isExpired(date: string): boolean {
     if (!date) return false;
-    return new Date(date) < new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(date) < today;
   }
 
-  onEdit(): void { this.router.navigate(['/documents', this.document?.id, 'edit']); }
-  onBack(): void { this.router.navigate(['/documents']); }
+  onEdit(): void { 
+    if (!this.document?.id) return;
+    this.router.navigate(['/documents', this.document?.id, 'edit']); 
+  }
+  onBack(): void { 
+    this.router.navigate(['/documents']); 
+  }
 }

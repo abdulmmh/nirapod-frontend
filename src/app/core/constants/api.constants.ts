@@ -45,6 +45,7 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
   },
+
   // VAT Returns
   VAT_RETURNS: {
     LIST:   `${API_BASE_URL}/vat-returns`,
@@ -52,6 +53,25 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
   },
+
+  // AIT (Annual Income Tax)
+  AIT: {
+    LIST:   `${API_BASE_URL}/ait`,
+    CREATE: `${API_BASE_URL}/ait`,
+    UPDATE: (id: number) => `${API_BASE_URL}/ait/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/ait/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/ait/${id}`,
+  },
+
+  // Fiscal Years
+  FISCAL_YEARS: {
+    LIST:   `${API_BASE_URL}/fiscal-years`,
+    CREATE: `${API_BASE_URL}/fiscal-years`,
+    UPDATE: (id: number) => `${API_BASE_URL}/fiscal-years/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/fiscal-years/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/fiscal-years/${id}`,
+  },
+
 
   // Payments
   PAYMENTS: {

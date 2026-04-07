@@ -29,6 +29,14 @@
     </div>
   </div>
 
+  <!-- Error Message -->
+  <div class="alert alert-danger d-flex align-items-center gap-2 mb-3"
+       *ngIf="errorMsg && !isLoading">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ errorMsg }}</span>
+  </div>
+
+
   <!-- Loading -->
   <div class="loading-row" *ngIf="isLoading">
     <div class="spinner-border spinner-border-sm text-primary"></div>
@@ -107,7 +115,7 @@
               <button
                 *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
                 class="btn-delete"
-                (click)="delete(p.id)"
+                (click)="confirmDelete(p.id)"
               >
                 <i class="bi bi-trash-fill"></i> Delete
               </button>
@@ -192,7 +200,7 @@
         <button
           *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
           class="btn-delete"
-          (click)="delete(p.id)"
+          (click)="confirmDelete(p.id)"
         >
           <i class="bi bi-trash-fill"></i> Delete
         </button>
@@ -213,3 +221,23 @@
   routerLink="/payments/create" title="Record Payment">
   <i class="bi bi-plus-lg"></i>
 </button>
+
+<!-- FIX #3: Delete Confirmation Modal (replaces browser confirm()) -->
+<div class="modal-overlay" *ngIf="showDeleteModal">
+  <div class="modal-card">
+    <div class="modal-accent error"></div>
+    <div class="modal-icon-wrap error">
+      <i class="bi bi-trash-fill" style="color:#A32D2D; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Delete Business?</p>
+    <p class="modal-msg">
+      This action cannot be undone. Are you sure you want to delete this business record?
+    </p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-modal-confirm error" (click)="confirmDeleteExecute()">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>

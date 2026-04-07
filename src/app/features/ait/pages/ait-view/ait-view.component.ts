@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Ait } from '../../../../models/ait.model';
+import { Subject, takeUntil } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
   selector: 'app-ait-view',
@@ -12,18 +15,51 @@ export class AitViewComponent implements OnInit {
   record: Ait | null = null;
   isLoading = true;
 
-  private fallback: Ait[] = [
-    { id: 1, aitRef: 'AIT-2024-00001', tinNumber: 'TIN-1001', taxpayerName: 'Abdul Karim', sourceType: 'Salary', taxStructureId: 3, grossAmount: 500000, aitRate: 10, aitAmount: 50000, deductionDate: '2024-01-31', depositDate: '2024-02-07', deductedBy: 'ABC Company Ltd.', fiscalYear: '2024-25', status: 'Deposited', remarks: '' },
-    { id: 2, aitRef: 'AIT-2024-00002', tinNumber: 'TIN-1004', taxpayerName: 'Faruk Hossain', sourceType: 'Import', taxStructureId: 4, grossAmount: 5000000, aitRate: 5, aitAmount: 250000, deductionDate: '2024-03-15', depositDate: '2024-03-22', deductedBy: 'Customs Authority', fiscalYear: '2024-25', status: 'Deposited', remarks: '' },
-  ];
+  errorMsg = '';
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  aitId : number | null = null;
+
+  private destroy$ = new Subject<void>();
+
+
+  constructor(private route: ActivatedRoute, private router: Router, private http: HttpClient) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.record = this.fallback.find(r => r.id === id) || this.fallback[0];
-    this.isLoading = false;
+    const rawId   = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
+      this.isLoading = false;
+      this.errorMsg  = 'Invalid Ait ID. Please go back and try again.';
+      return;
+    }
+    this.aitId = parsedId;
+    this.loadAit();
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadAit(): void {
+      this.isLoading = true;
+      this.errorMsg  = '';
+  
+      this.http.get<Ait>(API_ENDPOINTS.AIT.GET(this.aitId!))
+        .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
+        .subscribe({
+          next: data => {
+            this.record  = data;
+            this.isLoading = false;
+          },
+          // FIX #1: Removed fake fallback array entirely — show a real error instead
+          error: () => {
+            this.isLoading = false;
+            this.errorMsg  = 'Failed to load Ait details. Please go back and try again.';
+          }
+        });
+    }
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {

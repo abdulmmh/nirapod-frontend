@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FiscalYear } from '../../../../models/fiscal-year.model';
+import { Subject, takeUntil } from 'rxjs';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-fiscal-year-list',
@@ -11,20 +14,40 @@ export class FiscalYearListComponent implements OnInit {
 
   years: FiscalYear[] = [];
   isLoading = false;
+  errorMsg   = '';
 
-  private fallback: FiscalYear[] = [
-    { id: 1, yearName: '2024-25', startDate: '2024-07-01', endDate: '2025-06-30', vatDueDay: 15, incomeTaxDueDate: '2024-11-30', isCurrentYear: true, status: 'Active', createdAt: '2024-07-01' },
-    { id: 2, yearName: '2023-24', startDate: '2023-07-01', endDate: '2024-06-30', vatDueDay: 15, incomeTaxDueDate: '2023-11-30', isCurrentYear: false, status: 'Closed', createdAt: '2023-07-01' },
-    { id: 3, yearName: '2022-23', startDate: '2022-07-01', endDate: '2023-06-30', vatDueDay: 15, incomeTaxDueDate: '2022-11-30', isCurrentYear: false, status: 'Closed', createdAt: '2022-07-01' },
-    { id: 4, yearName: '2025-26', startDate: '2025-07-01', endDate: '2026-06-30', vatDueDay: 15, incomeTaxDueDate: '2025-11-30', isCurrentYear: false, status: 'Upcoming', createdAt: '2024-12-01' },
-  ];
+  private destroy$ = new Subject<void>();
+  
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.isLoading = true;
-    setTimeout(() => { this.years = this.fallback; this.isLoading = false; }, 400);
+    this.loadFiscalYears();
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+loadFiscalYears(): void {
+      this.isLoading = true;
+      this.errorMsg  = '';
+  
+      this.http.get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST)
+        .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
+        .subscribe({
+          next: data => {
+            this.years = data;
+            this.isLoading  = false;
+          },
+          // FIX #1: Removed fake fallback — show a real error message instead
+          error: () => {
+            this.isLoading = false;
+            this.errorMsg  = 'Failed to load fiscal years. Please refresh the page.';
+          }
+        });
+    }
 
   getStatusClass(s: string): string {
     return s === 'Active' ? 'status-active' : s === 'Upcoming' ? 'status-upcoming' : 'status-inactive';
@@ -35,6 +58,13 @@ export class FiscalYearListComponent implements OnInit {
       ...y, isCurrentYear: y.id === id,
       status: y.id === id ? 'Active' : y.status === 'Active' ? 'Closed' : y.status
     }));
+  }
+
+  isExpired(date: string): boolean {
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(date) < today;
   }
 
  edit(id: number): void { this.router.navigate(['/fiscal-years/edit', id]); }

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { DocumentCreateRequest } from '../../../../models/document.model';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-document-create',
@@ -15,6 +16,8 @@ export class DocumentCreateComponent {
   successMsg = '';
   errorMsg   = '';
 
+  form: DocumentCreateRequest = this.getEmptyForm();
+
   documentTypes = [
     'NID', 'Trade License', 'TIN Certificate', 'BIN Certificate',
     'VAT Return', 'Income Tax Return', 'Bank Statement', 'Audit Report', 'Other'
@@ -24,18 +27,24 @@ export class DocumentCreateComponent {
     'Taxpayer', 'Business', 'Return', 'Payment', 'Legal', 'Other'
   ];
 
-  form: DocumentCreateRequest = {
-    tinNumber:        '',
-    taxpayerName:     '',
-    documentType:     '',
-    documentCategory: '',
-    documentTitle:    '',
-    referenceNo:      '',
-    issueDate:        '',
-    expiryDate:       '',
-    submissionDate:   new Date().toISOString().split('T')[0],
-    remarks:          ''
-  };
+  private destroy$ = new Subject<void>();
+
+
+  private getEmptyForm(): DocumentCreateRequest {
+    return {
+      tinNumber: '', 
+      taxpayerName: '', 
+      documentType: '',  
+      documentCategory: '',
+      documentTitle: '', 
+      referenceNo: '', 
+      issueDate: '',
+      expiryDate: '', 
+      submissionDate: new Date().toISOString().split('T')[0],
+      remarks: ''
+    };
+  }
+  
 
   isFormValid(): boolean {
     return !!(
@@ -43,9 +52,12 @@ export class DocumentCreateComponent {
       this.form.taxpayerName     &&
       this.form.documentType     &&
       this.form.documentCategory &&
-      this.form.documentTitle
+      this.form.documentTitle    &&
+      this.form.issueDate        &&
+      this.form.submissionDate
     );
   }
+    
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -59,7 +71,9 @@ export class DocumentCreateComponent {
     this.errorMsg   = '';
     this.successMsg = '';
 
-    this.http.post(API_ENDPOINTS.DOCUMENTS.CREATE, this.form).subscribe({
+    this.http.post(API_ENDPOINTS.DOCUMENTS.CREATE, this.form)
+    .pipe(takeUntil(this.destroy$)) 
+    .subscribe({
       next: () => {
         this.isLoading  = false;
         this.successMsg = 'Document submitted successfully!';
@@ -67,21 +81,20 @@ export class DocumentCreateComponent {
       },
       error: () => {
         this.isLoading  = false;
-        this.successMsg = '';
         this.errorMsg   = 'Failed to submit document. Please try again.';
       }
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onReset(): void {
-    this.form = {
-      tinNumber: '', taxpayerName: '', documentType: '',
-      documentCategory: '', documentTitle: '', referenceNo: '',
-      issueDate: '', expiryDate: '',
-      submissionDate: new Date().toISOString().split('T')[0],
-      remarks: ''
-    };
-    this.errorMsg = ''; this.successMsg = '';
+    this.form = this.getEmptyForm();
+    this.errorMsg = ''; 
+    this.successMsg = '';
   }
 
   onCancel(): void { this.router.navigate(['/documents']); }

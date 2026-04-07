@@ -25,6 +25,7 @@
     </div>
   </div>
 
+
   <div class="loading-row" *ngIf="isLoading">
     <div class="spinner-border spinner-border-sm text-primary"></div>
     <span>Loading businesses...</span>
@@ -105,14 +106,15 @@
 
           <td>
             <div class="action-btns">
-              <button class="btn-view"   (click)="view(b.id)">
+              <button class="btn-view" (click)="view(b.id)">
                 <i class="bi bi-eye-fill"></i> View
               </button>
               <button *canDo="'edit'" class="btn-edit" (click)="edit(b.id)">
                 <i class="bi bi-pencil-fill"></i> Edit
               </button>
+              <!-- FIX #2: delete(b.id) → confirmDelete(b.id) -->
               <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
-                class="btn-delete" (click)="delete(b.id)">
+                class="btn-delete" (click)="confirmDelete(b.id)">
                 <i class="bi bi-trash-fill"></i>
               </button>
             </div>
@@ -164,7 +166,11 @@
       <div class="mobile-card-actions">
         <button class="btn-view" (click)="view(b.id)"><i class="bi bi-eye-fill"></i> View</button>
         <button *canDo="'edit'" class="btn-edit" (click)="edit(b.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
-        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(b.id)"><i class="bi bi-trash-fill"></i></button>
+        <!-- FIX #2: delete(b.id) → confirmDelete(b.id) -->
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
+          class="btn-delete" (click)="confirmDelete(b.id)">
+          <i class="bi bi-trash-fill"></i>
+        </button>
       </div>
     </div>
     <div class="empty-state" *ngIf="filteredBusinesses.length === 0">
@@ -177,3 +183,23 @@
 <button *canDo="'create'" class="fab-btn" routerLink="/businesses/create">
   <i class="bi bi-plus-lg"></i>
 </button>
+
+<!-- FIX #3: Delete Confirmation Modal (replaces browser confirm()) -->
+<div class="modal-overlay" *ngIf="showDeleteModal">
+  <div class="modal-card">
+    <div class="modal-accent error"></div>
+    <div class="modal-icon-wrap error">
+      <i class="bi bi-trash-fill" style="color:#A32D2D; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Delete Business?</p>
+    <p class="modal-msg">
+      This action cannot be undone. Are you sure you want to delete this business record?
+    </p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-modal-confirm error" (click)="confirmDeleteExecute()">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>

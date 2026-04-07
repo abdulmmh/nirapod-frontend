@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Ait } from '../../../../models/ait.model';
+import { Subject, takeUntil } from 'rxjs';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-ait-list',
@@ -13,20 +16,38 @@ export class AitListComponent implements OnInit {
   searchTerm = '';
   isLoading  = false;
 
-  private fallback: Ait[] = [
-    { id: 1, aitRef: 'AIT-2024-00001', tinNumber: 'TIN-1001', taxpayerName: 'Abdul Karim', sourceType: 'Salary', taxStructureId: 3, grossAmount: 500000, aitRate: 10, aitAmount: 50000, deductionDate: '2024-01-31', depositDate: '2024-02-07', deductedBy: 'ABC Company Ltd.', fiscalYear: '2024-25', status: 'Deposited', remarks: '' },
-    { id: 2, aitRef: 'AIT-2024-00002', tinNumber: 'TIN-1004', taxpayerName: 'Faruk Hossain', sourceType: 'Import', taxStructureId: 4, grossAmount: 5000000, aitRate: 5, aitAmount: 250000, deductionDate: '2024-03-15', depositDate: '2024-03-22', deductedBy: 'Customs Authority', fiscalYear: '2024-25', status: 'Deposited', remarks: '' },
-    { id: 3, aitRef: 'AIT-2024-00003', tinNumber: 'TIN-1002', taxpayerName: 'Karim Uddin', sourceType: 'Contract', taxStructureId: 5, grossAmount: 800000, aitRate: 7, aitAmount: 56000, deductionDate: '2024-02-15', depositDate: '', deductedBy: 'XYZ Corporation', fiscalYear: '2024-25', status: 'Deducted', remarks: 'Deposit pending' },
-    { id: 4, aitRef: 'AIT-2024-00004', tinNumber: 'TIN-1006', taxpayerName: 'Imran Ahmed', sourceType: 'Interest', taxStructureId: 3, grossAmount: 150000, aitRate: 10, aitAmount: 15000, deductionDate: '2024-03-31', depositDate: '2024-04-07', deductedBy: 'BRAC Bank Ltd.', fiscalYear: '2024-25', status: 'Credited', remarks: 'Bank interest AIT' },
-    { id: 5, aitRef: 'AIT-2024-00005', tinNumber: 'TIN-1003', taxpayerName: 'Dr. Nasrin Islam', sourceType: 'Dividend', taxStructureId: 3, grossAmount: 200000, aitRate: 10, aitAmount: 20000, deductionDate: '2024-04-15', depositDate: '', deductedBy: 'Dhaka Pharma Co.', fiscalYear: '2024-25', status: 'Draft', remarks: '' },
-    { id: 6, aitRef: 'AIT-2024-00006', tinNumber: 'TIN-1001', taxpayerName: 'Abdul Karim', sourceType: 'Commission', taxStructureId: 3, grossAmount: 300000, aitRate: 10, aitAmount: 30000, deductionDate: '2024-02-28', depositDate: '2024-03-07', deductedBy: 'DEF Agency', fiscalYear: '2024-25', status: 'Deposited', remarks: '' },
-  ];
+  errorMsg = '';
 
-  constructor(private router: Router) {}
+  private destroy$ = new Subject<void>();
+
+  showDeleteModal   = false;
+  pendingDeleteId: number | null = null;
+
+  constructor(private router: Router, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.isLoading = true;
-    setTimeout(() => { this.records = this.fallback; this.isLoading = false; }, 400);
+    this.loadAits();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadAits(): void {
+    this.http.get<Ait[]>(API_ENDPOINTS.AIT.LIST)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: data => {
+          this.records = data;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.errorMsg = 'Failed to load AIT records. Please try again.';
+        }
+      });
   }
 
   get filtered(): Ait[] {
@@ -71,9 +92,40 @@ export class AitListComponent implements OnInit {
 
   get totalAIT(): number { return this.records.reduce((s, r) => s + r.aitAmount, 0); }
 
-  delete(id: number): void {
-    if (!confirm('Delete this AIT record?')) return;
-    this.records = this.records.filter(r => r.id !== id);
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
+    this.showDeleteModal  = false;
+    this.pendingDeleteId  = null;
+    this.errorMsg         = '';
+
+    this.http.delete(API_ENDPOINTS.AIT.DELETE(id))
+      .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
+      .subscribe({
+        next: () => {
+          this.records = this.records.filter(r => r.id !== id);
+        },
+        error: () => {
+          this.errorMsg = 'Failed to delete AIT record. Please try again.';
+        }
+      });
+  }
+  
+  isExpired(date: string): boolean {
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(date) < today;
   }
 
   view(id: number): void { this.router.navigate(['/ait/view', id]); }

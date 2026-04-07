@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Payment } from '../../../../models/payment.model';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-payment-list',
@@ -14,6 +15,13 @@ export class PaymentListComponent implements OnInit {
   payments: Payment[] = [];
   searchTerm = '';
   isLoading  = false;
+
+  errorMsg   = ''; 
+
+  private destroy$ = new Subject<void>(); 
+
+  showDeleteModal   = false;
+  pendingDeleteId: number | null = null;
 
   private fallback: Payment[] = [
     {
@@ -94,6 +102,12 @@ export class PaymentListComponent implements OnInit {
     });
   }
 
+   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+
   get filteredPayments(): Payment[] {
     if (!this.searchTerm.trim()) return this.payments;
     const term = this.searchTerm.toLowerCase();
@@ -141,11 +155,31 @@ export class PaymentListComponent implements OnInit {
     this.router.navigate(['/payments','edit', id]);
   }
 
-  delete(id: number): void {
-    if (!confirm('Are you sure you want to delete this payment?')) return;
-    this.http.delete(API_ENDPOINTS.PAYMENTS.DELETE(id)).subscribe({
-      next: () => { this.payments = this.payments.filter(p => p.id !== id); },
-      error: ()  => { alert('Failed to delete payment, Please try again.'); }
-    });
-  }
+   confirmDelete(id: number): void {
+      this.pendingDeleteId = id;
+      this.showDeleteModal = true;
+    }
+    cancelDelete(): void {
+      this.pendingDeleteId = null;
+      this.showDeleteModal = false;
+    }
+  
+    confirmDeleteExecute(): void {
+      if (this.pendingDeleteId === null) return;
+      const id = this.pendingDeleteId;
+      this.showDeleteModal  = false;
+      this.pendingDeleteId  = null;
+      this.errorMsg         = '';
+  
+      this.http.delete(API_ENDPOINTS.PAYMENTS.DELETE(id))
+        .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
+        .subscribe({
+          next: () => {
+            this.payments = this.payments.filter(p => p.id !== id);
+          },
+          error: () => {
+            this.errorMsg = 'Failed to delete payment. Please try again.';
+          }
+        });
+    }
 }

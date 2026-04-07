@@ -1,45 +1,97 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Business } from '../../../../models/business.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-business-view',
   templateUrl: './business-view.component.html',
   styleUrls: ['./business-view.component.css']
 })
-export class BusinessViewComponent implements OnInit {
+export class BusinessViewComponent implements OnInit, OnDestroy {
 
   business: Business | null = null;
-  isLoading = true;
+  isLoading  = true;
+  businessId: number | null = null;
 
-  private fallback: Business[] = [
-    { id: 1, businessRegNo: 'BRN-2024-00001', businessName: 'Rahman Textile Ltd.', tinNumber: 'TIN-1001', ownerName: 'Abdul Rahman', businessType: 'Private Limited', businessCategory: 'Manufacturing', tradeLicenseNo: 'TL-44821', binNo: 'BIN-2024-001', incorporationDate: '2015-06-01', registrationDate: '2024-01-10', expiryDate: '2025-01-10', email: 'rahman@textile.com', phone: '01711-111111', address: 'Mirpur DOHS, Dhaka', district: 'Dhaka', division: 'Dhaka', annualTurnover: 5000000, numberOfEmployees: 120, status: 'Active', remarks: '' },
-    { id: 2, businessRegNo: 'BRN-2024-00002', businessName: 'Karim Traders', tinNumber: 'TIN-1002', ownerName: 'Karim Uddin', businessType: 'Sole Proprietorship', businessCategory: 'Trading', tradeLicenseNo: 'TL-55932', binNo: 'BIN-2024-002', incorporationDate: '2018-03-15', registrationDate: '2024-01-15', expiryDate: '2025-01-15', email: 'karim@traders.com', phone: '01822-222222', address: 'Gulshan-1, Dhaka', district: 'Dhaka', division: 'Dhaka', annualTurnover: 1200000, numberOfEmployees: 15, status: 'Active', remarks: '' },
-  ];
+  private destroy$ = new Subject<void>();
 
   constructor(
-    private route: ActivatedRoute,
+    private route:  ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http:   HttpClient,
+    private toast:  ToastService
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.http.get<Business>(API_ENDPOINTS.BUSINESSES.GET(id)).subscribe({
-          next: data => { this.business = data; this.isLoading = false; },
-          error: ()  => {
-    this.business = this.fallback.find(b => b.id === id) || this.fallback[0];
-    this.isLoading = false;
-      }
-    });
+    const rawId    = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
+      this.isLoading = false;
+      this.toast.error('Invalid business ID. Please go back and try again.');
+      return;
+    }
+
+    this.businessId = parsedId;
+    this.loadBusiness();
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ─── Data Loading ─────────────────────────────────────────────────────────────
+
+  loadBusiness(): void {
+    this.isLoading = true;
+
+    this.http.get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId!))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: data => {
+          this.business  = data;
+          this.isLoading = false;
+
+          // WARNING: expired license
+          if (data.expiryDate && this.isExpired(data.expiryDate)) {
+            this.toast.warning('This business license has expired.');
+          }
+
+          // INFO: suspended or dissolved status
+          if (data.status === 'Suspended' || data.status === 'Dissolved') {
+            this.toast.info(`This business is currently ${data.status}.`);
+          }
+        },
+        error: () => {
+          this.isLoading = false;
+          this.toast.error('Failed to load business details. Please go back and try again.');
+        }
+      });
+  }
+
+  // ─── Navigation ───────────────────────────────────────────────────────────────
+
+  onEdit(): void {
+    if (!this.business?.id) return;
+    this.router.navigate(['/businesses/edit', this.business.id]);
+  }
+
+  onBack(): void { this.router.navigate(['/businesses']); }
+
+  // ─── Helper Methods ───────────────────────────────────────────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      'Active': 'status-active', 'Inactive': 'status-inactive',
-      'Pending': 'status-pending', 'Suspended': 'status-suspended',
+      'Active':    'status-active',
+      'Inactive':  'status-inactive',
+      'Pending':   'status-pending',
+      'Suspended': 'status-suspended',
       'Dissolved': 'status-inactive'
     };
     return map[s] ?? '';
@@ -47,22 +99,29 @@ export class BusinessViewComponent implements OnInit {
 
   getCategoryIcon(c: string): string {
     const map: Record<string, string> = {
-      'Manufacturing': 'bi bi-gear-fill', 'Trading': 'bi bi-bag-fill',
-      'Service': 'bi bi-briefcase-fill', 'Agriculture': 'bi bi-tree-fill',
-      'Construction': 'bi bi-building-fill', 'IT': 'bi bi-laptop-fill',
-      'Healthcare': 'bi bi-heart-pulse-fill', 'Education': 'bi bi-book-fill',
-      'Other': 'bi bi-grid-fill'
+      'Manufacturing': 'bi bi-gear-fill',
+      'Trading':       'bi bi-bag-fill',
+      'Service':       'bi bi-briefcase-fill',
+      'Agriculture':   'bi bi-tree-fill',
+      'Construction':  'bi bi-building-fill',
+      'IT':            'bi bi-laptop-fill',
+      'Healthcare':    'bi bi-heart-pulse-fill',
+      'Education':     'bi bi-book-fill',
+      'Other':         'bi bi-grid-fill'
     };
     return map[c] ?? 'bi bi-grid-fill';
   }
 
   isExpired(date: string): boolean {
     if (!date) return false;
-    return new Date(date) < new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(date) < today;
   }
 
-  formatCurrency(a: number): string { return `৳${a.toLocaleString()}`; }
-
-  onEdit(): void { this.router.navigate(['/businesses/edit', this.business?.id]); }
-  onBack(): void { this.router.navigate(['/businesses']); }
+  formatCurrency(amount: number): string {
+    if (amount >= 10000000) return `৳${(amount / 10000000).toFixed(2)} Cr`;
+    if (amount >= 100000)   return `৳${(amount / 100000).toFixed(2)} L`;
+    return `৳${amount.toLocaleString()}`;
+  }
 }
