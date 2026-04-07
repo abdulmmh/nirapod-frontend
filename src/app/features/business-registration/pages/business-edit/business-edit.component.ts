@@ -10,28 +10,59 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-business-edit',
   templateUrl: './business-edit.component.html',
-  styleUrls: ['./business-edit.component.css']
+  styleUrls: ['./business-edit.component.css'],
 })
 export class BusinessEditComponent implements OnInit, OnDestroy {
-
-  isLoading  = true;
-  isSaving   = false;
+  isLoading = true;
+  isSaving = false;
   businessId: number | null = null;
 
-  businessTypes      = ['Sole Proprietorship', 'Partnership', 'Private Limited', 'Public Limited', 'NGO', 'Other'];
-  businessCategories = ['Manufacturing', 'Trading', 'Service', 'Agriculture', 'Construction', 'IT', 'Healthcare', 'Education', 'Other'];
-  statuses           = ['Active', 'Inactive', 'Pending', 'Suspended', 'Dissolved'];
-  divisions          = ['Dhaka', 'Chittagong', 'Rajshahi', 'Khulna', 'Barisal', 'Sylhet', 'Rangpur', 'Mymensingh'];
+  businessTypes = [
+    'Sole Proprietorship',
+    'Partnership',
+    'Private Limited',
+    'Public Limited',
+    'NGO',
+    'Other',
+  ];
+  businessCategories = [
+    'Manufacturing',
+    'Trading',
+    'Service',
+    'Agriculture',
+    'Construction',
+    'IT',
+    'Healthcare',
+    'Education',
+    'Other',
+  ];
+  statuses = ['Active', 'Inactive', 'Pending', 'Suspended', 'Dissolved'];
+  divisions = [
+    'Dhaka',
+    'Chittagong',
+    'Rajshahi',
+    'Khulna',
+    'Barisal',
+    'Sylhet',
+    'Rangpur',
+    'Mymensingh',
+  ];
 
   districts: Record<string, string[]> = {
-    'Dhaka':      ['Dhaka', 'Gazipur', 'Narayanganj', 'Tangail', 'Narsingdi'],
-    'Chittagong': ['Chittagong', "Cox's Bazar", 'Comilla', 'Feni', 'Brahmanbaria'],
-    'Rajshahi':   ['Rajshahi', 'Bogra', 'Pabna', 'Sirajganj', 'Natore'],
-    'Khulna':     ['Khulna', 'Jessore', 'Satkhira', 'Bagerhat', 'Kushtia'],
-    'Barisal':    ['Barisal', 'Bhola', 'Patuakhali', 'Jhalokati', 'Pirojpur'],
-    'Sylhet':     ['Sylhet', 'Moulvibazar', 'Habiganj', 'Sunamganj'],
-    'Rangpur':    ['Rangpur', 'Dinajpur', 'Kurigram', 'Gaibandha', 'Lalmonirhat'],
-    'Mymensingh': ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur']
+    Dhaka: ['Dhaka', 'Gazipur', 'Narayanganj', 'Tangail', 'Narsingdi'],
+    Chittagong: [
+      'Chittagong',
+      "Cox's Bazar",
+      'Comilla',
+      'Feni',
+      'Brahmanbaria',
+    ],
+    Rajshahi: ['Rajshahi', 'Bogra', 'Pabna', 'Sirajganj', 'Natore'],
+    Khulna: ['Khulna', 'Jessore', 'Satkhira', 'Bagerhat', 'Kushtia'],
+    Barisal: ['Barisal', 'Bhola', 'Patuakhali', 'Jhalokati', 'Pirojpur'],
+    Sylhet: ['Sylhet', 'Moulvibazar', 'Habiganj', 'Sunamganj'],
+    Rangpur: ['Rangpur', 'Dinajpur', 'Kurigram', 'Gaibandha', 'Lalmonirhat'],
+    Mymensingh: ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur'],
   };
 
   form: Partial<Business> = {};
@@ -43,14 +74,14 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private route:  ActivatedRoute,
+    private route: ActivatedRoute,
     private router: Router,
-    private http:   HttpClient,
-    private toast:  ToastService
+    private http: HttpClient,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
-    const rawId   = this.route.snapshot.paramMap.get('id');
+    const rawId = this.route.snapshot.paramMap.get('id');
     const parsedId = Number(rawId);
 
     if (!rawId || isNaN(parsedId) || parsedId <= 0) {
@@ -73,44 +104,52 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
   loadBusiness(): void {
     this.isLoading = true;
 
-    this.http.get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId!))
+    this.http
+      .get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId!))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: data => {
-          this.form      = { ...data };
+        next: (data) => {
+          this.form = { ...data };
           this.isLoading = false;
 
           // WARNING: license already expired
           if (data.expiryDate && this.isExpired(data.expiryDate)) {
-            this.toast.warning('This business license has expired. Please update the expiry date.');
+            this.toast.warning(
+              'This business license has expired. Please update the expiry date.',
+            );
           }
         },
         error: () => {
           this.isLoading = false;
-          this.toast.error('Failed to load business data. Please refresh or go back.');
-        }
+          this.toast.error(
+            'Failed to load business data. Please refresh or go back.',
+          );
+        },
       });
   }
 
   // ─── Event Handlers ───────────────────────────────────────────────────────────
 
-  onDivisionChange(): void { this.form.district = ''; }
+  onDivisionChange(): void {
+    this.form.district = '';
+  }
 
   // ─── Validation ───────────────────────────────────────────────────────────────
 
   isFormValid(): boolean {
-    const requiredFields =
-      !!(this.form.businessName     &&
-         this.form.tinNumber        &&
-         this.form.ownerName        &&
-         this.form.businessType     &&
-         this.form.businessCategory &&
-         this.form.tradeLicenseNo   &&
-         this.form.phone            &&
-         this.form.division         &&
-         this.form.district         &&
-         this.form.status           &&
-         this.form.registrationDate);
+    const requiredFields = !!(
+      this.form.businessName &&
+      this.form.tinNumber &&
+      this.form.ownerName &&
+      this.form.businessType &&
+      this.form.businessCategory &&
+      this.form.tradeLicenseNo &&
+      this.form.phone &&
+      this.form.division &&
+      this.form.district &&
+      this.form.status &&
+      this.form.registrationDate
+    );
 
     return requiredFields && this.isEmailValid();
   }
@@ -131,13 +170,16 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (!this.isFormValid()) {
-      this.toast.warning('Please fill in all required fields with valid values.');
+      this.toast.warning(
+        'Please fill in all required fields with valid values.',
+      );
       return;
     }
 
     this.isSaving = true;
 
-    this.http.put(API_ENDPOINTS.BUSINESSES.UPDATE(this.businessId!), this.form)
+    this.http
+      .put(API_ENDPOINTS.BUSINESSES.UPDATE(this.businessId!), this.form)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -148,8 +190,8 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
         error: () => {
           this.isSaving = false;
           this.toast.error('Failed to update business. Please try again.');
-        }
-    });
+        },
+      });
   }
 
   onCancel(): void {

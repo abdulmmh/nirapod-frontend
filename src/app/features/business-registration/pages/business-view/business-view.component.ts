@@ -10,25 +10,24 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-business-view',
   templateUrl: './business-view.component.html',
-  styleUrls: ['./business-view.component.css']
+  styleUrls: ['./business-view.component.css'],
 })
 export class BusinessViewComponent implements OnInit, OnDestroy {
-
   business: Business | null = null;
-  isLoading  = true;
+  isLoading = true;
   businessId: number | null = null;
 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private route:  ActivatedRoute,
+    private route: ActivatedRoute,
     private router: Router,
-    private http:   HttpClient,
-    private toast:  ToastService
+    private http: HttpClient,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
-    const rawId    = this.route.snapshot.paramMap.get('id');
+    const rawId = this.route.snapshot.paramMap.get('id');
     const parsedId = Number(rawId);
 
     if (!rawId || isNaN(parsedId) || parsedId <= 0) {
@@ -51,11 +50,12 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
   loadBusiness(): void {
     this.isLoading = true;
 
-    this.http.get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId!))
+    this.http
+      .get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId!))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: data => {
-          this.business  = data;
+        next: (data) => {
+          this.business = data;
           this.isLoading = false;
 
           // WARNING: expired license
@@ -70,8 +70,10 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.isLoading = false;
-          this.toast.error('Failed to load business details. Please go back and try again.');
-        }
+          this.toast.error(
+            'Failed to load business details. Please go back and try again.',
+          );
+        },
       });
   }
 
@@ -82,32 +84,34 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/businesses/edit', this.business.id]);
   }
 
-  onBack(): void { this.router.navigate(['/businesses']); }
+  onBack(): void {
+    this.router.navigate(['/businesses']);
+  }
 
   // ─── Helper Methods ───────────────────────────────────────────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      'Active':    'status-active',
-      'Inactive':  'status-inactive',
-      'Pending':   'status-pending',
-      'Suspended': 'status-suspended',
-      'Dissolved': 'status-inactive'
+      Active: 'status-active',
+      Inactive: 'status-inactive',
+      Pending: 'status-pending',
+      Suspended: 'status-suspended',
+      Dissolved: 'status-inactive',
     };
     return map[s] ?? '';
   }
 
   getCategoryIcon(c: string): string {
     const map: Record<string, string> = {
-      'Manufacturing': 'bi bi-gear-fill',
-      'Trading':       'bi bi-bag-fill',
-      'Service':       'bi bi-briefcase-fill',
-      'Agriculture':   'bi bi-tree-fill',
-      'Construction':  'bi bi-building-fill',
-      'IT':            'bi bi-laptop-fill',
-      'Healthcare':    'bi bi-heart-pulse-fill',
-      'Education':     'bi bi-book-fill',
-      'Other':         'bi bi-grid-fill'
+      Manufacturing: 'bi bi-gear-fill',
+      Trading: 'bi bi-bag-fill',
+      Service: 'bi bi-briefcase-fill',
+      Agriculture: 'bi bi-tree-fill',
+      Construction: 'bi bi-building-fill',
+      IT: 'bi bi-laptop-fill',
+      Healthcare: 'bi bi-heart-pulse-fill',
+      Education: 'bi bi-book-fill',
+      Other: 'bi bi-grid-fill',
     };
     return map[c] ?? 'bi bi-grid-fill';
   }
@@ -121,7 +125,7 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
 
   formatCurrency(amount: number): string {
     if (amount >= 10000000) return `৳${(amount / 10000000).toFixed(2)} Cr`;
-    if (amount >= 100000)   return `৳${(amount / 100000).toFixed(2)} L`;
+    if (amount >= 100000) return `৳${(amount / 100000).toFixed(2)} L`;
     return `৳${amount.toLocaleString()}`;
   }
 }

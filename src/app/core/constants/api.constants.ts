@@ -29,7 +29,7 @@ export const API_ENDPOINTS = {
     GET:    (id: number) => `${API_BASE_URL}/businesses/${id}`,
   },
   // TIN Management
-  TIN: {
+  TINS: {
     LIST:   `${API_BASE_URL}/tin`,
     CREATE: `${API_BASE_URL}/tin`,
     UPDATE: (id: number) => `${API_BASE_URL}/tin/${id}`,

@@ -10,23 +10,22 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-business-list',
   templateUrl: './business-list.component.html',
-  styleUrls: ['./business-list.component.css']
+  styleUrls: ['./business-list.component.css'],
 })
 export class BusinessListComponent implements OnInit, OnDestroy {
-
   businesses: Business[] = [];
   searchTerm = '';
-  isLoading  = false;
+  isLoading = false;
 
   private destroy$ = new Subject<void>();
 
-  showDeleteModal  = false;
+  showDeleteModal = false;
   pendingDeleteId: number | null = null;
 
   constructor(
-    private http:   HttpClient,
+    private http: HttpClient,
     private router: Router,
-    private toast:  ToastService
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -43,28 +42,35 @@ export class BusinessListComponent implements OnInit, OnDestroy {
   loadBusinesses(): void {
     this.isLoading = true;
 
-    this.http.get<Business[]>(API_ENDPOINTS.BUSINESSES.LIST)
+    this.http
+      .get<Business[]>(API_ENDPOINTS.BUSINESSES.LIST)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: data => {
+        next: (data) => {
           this.businesses = data;
-          this.isLoading  = false;
+          this.isLoading = false;
 
-          // INFO: 
+          // INFO:
           if (data.length === 0) {
-            this.toast.info('No businesses registered yet. Click "Register Business" to add one.');
+            this.toast.info(
+              'No businesses registered yet. Click "Register Business" to add one.',
+            );
           }
 
-          // WARNING: 
-          const soon = data.filter(b => this.isExpiringSoon(b.expiryDate));
+          // WARNING:
+          const soon = data.filter((b) => this.isExpiringSoon(b.expiryDate));
           if (soon.length > 0) {
-            this.toast.warning(`${soon.length} business license(s) expiring within 30 days.`);
+            this.toast.warning(
+              `${soon.length} business license(s) expiring within 30 days.`,
+            );
           }
         },
         error: () => {
           this.isLoading = false;
-          this.toast.error('Failed to load businesses. Please refresh the page.');
-        }
+          this.toast.error(
+            'Failed to load businesses. Please refresh the page.',
+          );
+        },
       });
   }
 
@@ -73,13 +79,14 @@ export class BusinessListComponent implements OnInit, OnDestroy {
   get filteredBusinesses(): Business[] {
     if (!this.searchTerm.trim()) return this.businesses;
     const term = this.searchTerm.toLowerCase();
-    return this.businesses.filter(b =>
-      b.businessName.toLowerCase().includes(term)  ||
-      b.businessRegNo.toLowerCase().includes(term) ||
-      b.tinNumber.toLowerCase().includes(term)     ||
-      b.ownerName.toLowerCase().includes(term)     ||
-      b.businessType.toLowerCase().includes(term)  ||
-      b.district.toLowerCase().includes(term)
+    return this.businesses.filter(
+      (b) =>
+        b.businessName.toLowerCase().includes(term) ||
+        b.businessRegNo.toLowerCase().includes(term) ||
+        b.tinNumber.toLowerCase().includes(term) ||
+        b.ownerName.toLowerCase().includes(term) ||
+        b.businessType.toLowerCase().includes(term) ||
+        b.district.toLowerCase().includes(term),
     );
   }
 
@@ -101,33 +108,38 @@ export class BusinessListComponent implements OnInit, OnDestroy {
     this.showDeleteModal = false;
     this.pendingDeleteId = null;
 
-    this.http.delete(API_ENDPOINTS.BUSINESSES.DELETE(id))
+    this.http
+      .delete(API_ENDPOINTS.BUSINESSES.DELETE(id))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.businesses = this.businesses.filter(b => b.id !== id);
+          this.businesses = this.businesses.filter((b) => b.id !== id);
           this.toast.success('Business deleted successfully.');
         },
         error: () => {
           this.toast.error('Failed to delete business. Please try again.');
-        }
+        },
       });
   }
 
   // ─── Navigation ───────────────────────────────────────────────────────────────
 
-  view(id: number): void { this.router.navigate(['/businesses/view', id]); }
-  edit(id: number): void { this.router.navigate(['/businesses/edit', id]); }
+  view(id: number): void {
+    this.router.navigate(['/businesses/view', id]);
+  }
+  edit(id: number): void {
+    this.router.navigate(['/businesses/edit', id]);
+  }
 
   // ─── Helper Methods ───────────────────────────────────────────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      'Active':    'status-active',
-      'Inactive':  'status-inactive',
-      'Pending':   'status-pending',
-      'Suspended': 'status-suspended',
-      'Dissolved': 'status-inactive'
+      Active: 'status-active',
+      Inactive: 'status-inactive',
+      Pending: 'status-pending',
+      Suspended: 'status-suspended',
+      Dissolved: 'status-inactive',
     };
     return map[s] ?? '';
   }
@@ -135,33 +147,33 @@ export class BusinessListComponent implements OnInit, OnDestroy {
   getTypeClass(t: string): string {
     const map: Record<string, string> = {
       'Sole Proprietorship': 'type-sole',
-      'Partnership':         'type-partner',
-      'Private Limited':     'type-pvt',
-      'Public Limited':      'type-pub',
-      'NGO':                 'type-ngo',
-      'Other':               'type-other'
+      Partnership: 'type-partner',
+      'Private Limited': 'type-pvt',
+      'Public Limited': 'type-pub',
+      NGO: 'type-ngo',
+      Other: 'type-other',
     };
     return map[t] ?? '';
   }
 
   getCategoryIcon(c: string): string {
     const map: Record<string, string> = {
-      'Manufacturing': 'bi bi-gear-fill',
-      'Trading':       'bi bi-bag-fill',
-      'Service':       'bi bi-briefcase-fill',
-      'Agriculture':   'bi bi-tree-fill',
-      'Construction':  'bi bi-building-fill',
-      'IT':            'bi bi-laptop-fill',
-      'Healthcare':    'bi bi-heart-pulse-fill',
-      'Education':     'bi bi-book-fill',
-      'Other':         'bi bi-grid-fill'
+      Manufacturing: 'bi bi-gear-fill',
+      Trading: 'bi bi-bag-fill',
+      Service: 'bi bi-briefcase-fill',
+      Agriculture: 'bi bi-tree-fill',
+      Construction: 'bi bi-building-fill',
+      IT: 'bi bi-laptop-fill',
+      Healthcare: 'bi bi-heart-pulse-fill',
+      Education: 'bi bi-book-fill',
+      Other: 'bi bi-grid-fill',
     };
     return map[c] ?? 'bi bi-grid-fill';
   }
 
   formatCurrency(amount: number): string {
     if (amount >= 10000000) return `৳${(amount / 10000000).toFixed(2)} Cr`;
-    if (amount >= 100000)   return `৳${(amount / 100000).toFixed(2)} L`;
+    if (amount >= 100000) return `৳${(amount / 100000).toFixed(2)} L`;
     return `৳${amount.toLocaleString()}`;
   }
 
@@ -174,10 +186,10 @@ export class BusinessListComponent implements OnInit, OnDestroy {
 
   isExpiringSoon(date: string): boolean {
     if (!date) return false;
-    const today  = new Date();
+    const today = new Date();
     today.setHours(0, 0, 0, 0);
     const expiry = new Date(date);
-    const diff   = (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+    const diff = (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
     return diff >= 0 && diff <= 30;
   }
 }

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { TinCreateRequest } from '../../../../models/tin.model';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
@@ -131,41 +131,25 @@ export class TinCreateComponent {
     
         this.isLoading = true;
     
-        this.http.post(API_ENDPOINTS.BUSINESSES.CREATE, this.form)
+        this.http.post(API_ENDPOINTS.TINS.CREATE, this.form)
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: () => {
               this.isLoading = false;
-              this.toast.success('Business registered successfully!');
-              setTimeout(() => this.router.navigate(['/businesses']), 1500);
+              this.toast.success('Tin registered successfully!');
+              setTimeout(() => this.router.navigate(['/tin']), 1500);
             },
             error: () => {
               this.isLoading = false;
-              this.toast.error('Failed to register business. Please try again.');
+              this.toast.error('Failed to register tin. Please try again.');
             }
           });
   }
 
   onReset(): void {
-    this.form = {
-      taxpayerName: '',
-      tinCategory: '',
-      nationalId: '',
-      passportNo: '',
-      dateOfBirth: '',
-      incorporationDate: '',
-      email: '',
-      phone: '',
-      address: '',
-      district: '',
-      division: '',
-      taxZone: '',
-      taxCircle: '',
-      issuedDate: new Date().toISOString().split('T')[0],
-      remarks: '',
-    };
-    this.errorMsg = '';
-    this.successMsg = '';
+    this.form = 
+      this.getEmptyForm();
+    this.toast.info('Form has been reset.');
   }
 
   onCancel(): void {
