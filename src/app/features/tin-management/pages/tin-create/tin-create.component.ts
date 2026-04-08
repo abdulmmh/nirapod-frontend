@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { TinCreateRequest } from '../../../../models/tin.model';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
@@ -125,30 +125,34 @@ export class TinCreateComponent {
 
   onSubmit(): void {
     if (!this.isFormValid()) {
-          this.toast.warning('Please fill in all required fields with valid values.');
-          return;
-        }
-    
-        this.isLoading = true;
-    
-        this.http.post(API_ENDPOINTS.TINS.CREATE, this.form)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: () => {
-              this.isLoading = false;
-              this.toast.success('Tin registered successfully!');
-              setTimeout(() => this.router.navigate(['/tin']), 1500);
-            },
-            error: () => {
-              this.isLoading = false;
-              this.toast.error('Failed to register tin. Please try again.');
-            }
-          });
+      this.toast.warning(
+        'Please fill in all required fields with valid values.',
+      );
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.http
+      .post(API_ENDPOINTS.TINS.CREATE, this.form)
+      .pipe(takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+        }))
+      .subscribe({
+        next: () => {
+          this.toast.success('Tin registered successfully!');
+          setTimeout(() => this.router.navigate(['/tin']), 1500);
+        },
+        error: (error) => {
+          console.error('Error registering tin:', error);
+          this.toast.error('Failed to register tin. Please try again.');
+        },
+      });
   }
 
   onReset(): void {
-    this.form = 
-      this.getEmptyForm();
+    this.form = this.getEmptyForm();
     this.toast.info('Form has been reset.');
   }
 

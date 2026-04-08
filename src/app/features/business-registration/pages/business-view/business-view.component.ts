@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { Business } from '../../../../models/business.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -48,19 +48,31 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
   // ─── Data Loading ─────────────────────────────────────────────────────────────
 
   loadBusiness(): void {
+    if (!this.businessId) {
+      this.toast.error('Invalid Business ID. Please go back and try again.');
+      return;
+    }
     this.isLoading = true;
 
     this.http
-      .get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId!))
-      .pipe(takeUntil(this.destroy$))
+      .get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId))
+      .pipe(takeUntil(this.destroy$),
+        finalize(() => {
+            this.isLoading = false;
+      }))
       .subscribe({
         next: (data) => {
           this.business = data;
-          this.isLoading = false;
+
 
           // WARNING: expired license
           if (data.expiryDate && this.isExpired(data.expiryDate)) {
             this.toast.warning('This business license has expired.');
+          }
+
+          // WARNING: expiring soon
+          if (data.expiryDate && this.isExpiringSoon(data.expiryDate)) {
+            this.toast.warning('This business license is expiring within 30 days.');
           }
 
           // INFO: suspended or dissolved status
@@ -68,8 +80,8 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
             this.toast.info(`This business is currently ${data.status}.`);
           }
         },
-        error: () => {
-          this.isLoading = false;
+        error: (error) => {
+          console.error('Failed to load business details', error);
           this.toast.error(
             'Failed to load business details. Please go back and try again.',
           );
@@ -121,6 +133,15 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return new Date(date) < today;
+  }
+
+  isExpiringSoon(date: string): boolean {
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiry = new Date(date);
+    const diff = (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+    return diff >= 0 && diff <= 30;
   }
 
   formatCurrency(amount: number): string {

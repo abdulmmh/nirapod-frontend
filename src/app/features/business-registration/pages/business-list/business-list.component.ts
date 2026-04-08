@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Business } from '../../../../models/business.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -44,11 +44,15 @@ export class BusinessListComponent implements OnInit, OnDestroy {
 
     this.http
       .get<Business[]>(API_ENDPOINTS.BUSINESSES.LIST)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
       .subscribe({
         next: (data) => {
           this.businesses = data;
-          this.isLoading = false;
 
           // INFO:
           if (data.length === 0) {
@@ -65,8 +69,8 @@ export class BusinessListComponent implements OnInit, OnDestroy {
             );
           }
         },
-        error: () => {
-          this.isLoading = false;
+        error: (error) => {
+          console.error('Error loading businesses:', error);
           this.toast.error(
             'Failed to load businesses. Please refresh the page.',
           );
@@ -110,7 +114,10 @@ export class BusinessListComponent implements OnInit, OnDestroy {
 
     this.http
       .delete(API_ENDPOINTS.BUSINESSES.DELETE(id))
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+        }))
       .subscribe({
         next: () => {
           this.businesses = this.businesses.filter((b) => b.id !== id);

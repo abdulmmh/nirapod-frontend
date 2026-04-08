@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Tin } from '../../../../models/tin.model';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
@@ -33,17 +33,19 @@ export class TinListComponent implements OnInit {
 
   private loadTins(): void {
     this.http.get<Tin[]>(API_ENDPOINTS.TINS.LIST)
-      .pipe(takeUntil(this.destroy$)) 
+      .pipe(takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false; 
+        }))
       .subscribe({
         next: (data) => {
           this.tins = data;
-          this.isLoading = false;
           if (data.length === 0) {
             this.toast.info('No TIN records found. Click "Register TIN" to add one.');
           }
         },
-        error: () => {
-          this.isLoading = false;
+        error: (error) => {
+          console.error('Error fetching TIN records:', error);
           this.toast.error('Failed to load TIN records. Please try again later.');
         }
       });
@@ -125,7 +127,8 @@ export class TinListComponent implements OnInit {
           this.tins = this.tins.filter((t) => t.id !== id);
           this.toast.success('TIN deleted successfully.');
         },
-        error: () => {
+        error: (error) => {
+          console.error('Error deleting TIN:', error);
           this.toast.error('Failed to delete TIN. Please try again.');
         },
       });

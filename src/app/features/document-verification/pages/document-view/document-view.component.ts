@@ -3,7 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Document } from '../../../../models/document.model';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-document-view',
@@ -14,9 +15,6 @@ export class DocumentViewComponent implements OnInit {
 
   document: Document | null = null;
   isLoading = true;
-
-  errorMsg = '';
-
   documentId : number | null = null;
 
 
@@ -25,7 +23,8 @@ export class DocumentViewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -34,7 +33,7 @@ export class DocumentViewComponent implements OnInit {
 
     if (!rawId || isNaN(parsedId) || parsedId <= 0) {
       this.isLoading = false;
-      this.errorMsg  = 'Invalid document ID. Please go back and try again.';
+      this.toast.error('Invalid document ID. Please go back and try again.');
       return;
     }
 
@@ -49,20 +48,39 @@ export class DocumentViewComponent implements OnInit {
   }
 
   loadDocument(): void {
+    if (!this.documentId) {
+      this.toast.error('Invalid document ID. Please go back and try again.');
+      return;
+    }
       this.isLoading = true;
-      this.errorMsg  = '';
   
       this.http.get<Document>(API_ENDPOINTS.DOCUMENTS.GET(this.documentId!))
-        .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
+        .pipe(takeUntil(this.destroy$),
+         finalize  (() => this.isLoading = false)) // FIX #3: Auto-cancel on destroy
         .subscribe({
           next: data => {
             this.document  = data;
-            this.isLoading = false;
-          },
+          
+
+          // WARNING: expired documents
+          if (data.expiryDate && this.isExpired(data.expiryDate)) {
+            this.toast.warning('This document has expired.');
+          }
+
+          // WARNING: expiring soon documents
+          if (data.expiryDate && this.isExpiringSoon(data.expiryDate)) {
+            this.toast.warning('This document is expiring soon.');
+          }
+
+          // INFO: suspended or dissolved status
+          if (data.status === 'Pending' || data.status === 'Rejected' || data.status === 'Under Review') {
+            this.toast.info(`This document is currently ${data.status}.`);
+          }
+        },
           // FIX #1: Removed fake fallback array entirely — show a real error instead
-          error: () => {
-            this.isLoading = false;
-            this.errorMsg  = 'Failed to load document details. Please go back and try again.';
+          error: (error) => {
+            console.error('Failed to load document details', error);
+            this.toast.error('Failed to load document details. Please go back and try again.');
           }
         });
     }
@@ -92,6 +110,15 @@ export class DocumentViewComponent implements OnInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return new Date(date) < today;
+  }
+
+  isExpiringSoon(date: string): boolean {
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiry = new Date(date);
+    const diff = (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+    return diff >= 0 && diff <= 30;
   }
 
   onEdit(): void { 

@@ -4,7 +4,7 @@ import { Tin } from '../../../../models/tin.model';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-tin-edit',
@@ -14,7 +14,7 @@ import { Subject, takeUntil } from 'rxjs';
 export class TinEditComponent implements OnInit {
   isLoading = true;
   isSaving = false;
-  tinId = 0;
+  tinId: number | null = null;
 
   tinCategories = ['Individual', 'Company', 'Partnership', 'NGO', 'Government'];
   statuses = ['Active', 'Inactive', 'Pending', 'Suspended', 'Cancelled'];
@@ -101,22 +101,34 @@ export class TinEditComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  loadTin(): void {
-    this.isLoading = true;
-    this.http
-      .get<Tin>(API_ENDPOINTS.TINS.UPDATE(this.tinId))
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.form = { ...data };
-          this.isLoading = false;
-        },
-        error: () => {
-          this.isLoading = false;
-          this.toast.error('Failed to load TIN details. Please go back and try again.');
-        },
-      });
+ 
+
+loadTin(): void {
+  if (!this.tinId) {
+    this.toast.error('Invalid TIN ID. Please go back and try again.');
+    return;
   }
+
+  this.isLoading = true;
+
+  this.http
+    .get<Tin>(API_ENDPOINTS.TINS.UPDATE(this.tinId))
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.isLoading = false;
+      })
+    )
+    .subscribe({
+      next: (tin: Tin) => {
+        this.form = { ...tin };
+      },
+      error: (error) => {
+        console.error('Error loading TIN details:', error);
+        this.toast.error('Failed to load TIN details. Please go back and try again.');
+      }
+    });
+}
   isFormValid(): boolean {
     return !!(
       this.form.taxpayerName &&
@@ -140,20 +152,27 @@ export class TinEditComponent implements OnInit {
       );
       return;
     }
+    if (!this.tinId) {
+      this.toast.error('Invalid TIN ID. Please go back and try again.');
+      return;
+    }
 
     this.isSaving = true;
 
     this.http
       .put(API_ENDPOINTS.TINS.UPDATE(this.tinId), this.form)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$),
+        finalize(() => {
+          this.isSaving = false;
+        }))
       .subscribe({
         next: () => {
-          this.isSaving = false;
+          
           this.toast.success('TIN updated successfully!');
           setTimeout(() => this.router.navigate(['/tins']), 1500);
         },
-        error: () => {
-          this.isSaving = false;
+        error: (error) => {
+          console.error('Error updating TIN:', error);
           this.toast.error('Failed to update TIN. Please try again.');
         },
       });

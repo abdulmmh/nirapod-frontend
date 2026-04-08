@@ -2,7 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { BusinessCreateRequest } from '../../../../models/business.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -154,15 +154,15 @@ export class BusinessCreateComponent implements OnDestroy {
 
     this.http
       .post(API_ENDPOINTS.BUSINESSES.CREATE, this.form)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false))
       .subscribe({
         next: () => {
-          this.isLoading = false;
           this.toast.success('Business registered successfully!');
           setTimeout(() => this.router.navigate(['/businesses']), 1500);
         },
-        error: () => {
-          this.isLoading = false;
+        error: (error) => {
+          console.error('Error registering business:', error);
           this.toast.error('Failed to register business. Please try again.');
         },
       });

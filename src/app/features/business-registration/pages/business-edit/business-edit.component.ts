@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { Business } from '../../../../models/business.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -102,16 +102,21 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
   // ─── Data Loading ─────────────────────────────────────────────────────────────
 
   loadBusiness(): void {
+    if (!this.businessId) {
+      this.toast.error('Invalid Business ID. Please go back and try again.');
+      return;
+    }
     this.isLoading = true;
 
     this.http
-      .get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId!))
-      .pipe(takeUntil(this.destroy$))
+      .get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId))
+      .pipe(takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+        }))
       .subscribe({
         next: (data) => {
           this.form = { ...data };
-          this.isLoading = false;
-
           // WARNING: license already expired
           if (data.expiryDate && this.isExpired(data.expiryDate)) {
             this.toast.warning(
@@ -119,8 +124,8 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
             );
           }
         },
-        error: () => {
-          this.isLoading = false;
+        error: (error) => {
+          console.error('Error loading business data:', error);
           this.toast.error(
             'Failed to load business data. Please refresh or go back.',
           );
@@ -176,19 +181,26 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.businessId) {
+    this.toast.error('Invalid Business ID. Please go back and try again.');
+    return;
+  }
+
     this.isSaving = true;
 
     this.http
-      .put(API_ENDPOINTS.BUSINESSES.UPDATE(this.businessId!), this.form)
-      .pipe(takeUntil(this.destroy$))
+      .put(API_ENDPOINTS.BUSINESSES.UPDATE(this.businessId), this.form)
+      .pipe(takeUntil(this.destroy$),
+        finalize(() => {
+          this.isSaving = false;
+        }))
       .subscribe({
         next: () => {
-          this.isSaving = false;
           this.toast.success('Business updated successfully!');
           setTimeout(() => this.router.navigate(['/businesses']), 1500);
         },
-        error: () => {
-          this.isSaving = false;
+        error: (error) => {
+         console.error('Error updating business:', error);
           this.toast.error('Failed to update business. Please try again.');
         },
       });
