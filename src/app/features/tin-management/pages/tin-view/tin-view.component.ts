@@ -13,11 +13,16 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 })
 export class TinViewComponent implements OnInit {
 
+
+  // ────────────────── Properties ─────────────────────
+
   tin: Tin | null = null;
   isLoading = true;
   tinId: number | null = null;
  
   private destroy$ = new Subject<void>();
+
+  // ──────────────────── Constructor ───────────────────────
 
   constructor(
     private route: ActivatedRoute,
@@ -26,18 +31,10 @@ export class TinViewComponent implements OnInit {
     private toast: ToastService,
   ) {}
 
+  // ────────────────────── Lifecycle ──────────────────────
+
   ngOnInit(): void {
-    const rawId = this.route.snapshot.paramMap.get('id');
-    const parsedId = Number(rawId);
-
-    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
-      this.isLoading = false;
-      this.toast.error('Invalid business ID. Please go back and try again.');
-      return;
-    }
-
-    this.tinId = parsedId;
-    this.loadTin();
+    this.initializeTin();
   }
 
   ngOnDestroy(): void {
@@ -45,29 +42,68 @@ export class TinViewComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  loadTin(): void {
-    this.isLoading = true;
-    
-        this.http
-          .get<Tin>(API_ENDPOINTS.TINS.GET(this.tinId!))
-          .pipe(takeUntil(this.destroy$),
-            finalize(() => {
-              this.isLoading = false;
-            })
-          )
-          .subscribe({
-            next: (data) => {
-              this.tin = data;
-              this.isLoading = false;
-            },
-            error: () => {
-              this.isLoading = false;
-              this.toast.error(
-                'Failed to load tin details. Please go back and try again.',
-              );
-            },
-          });
-      }
+  // ────────────────────── Initialization  ─────────────────────
+  
+  private initializeTin(): void {
+    const id = this.getValidTinId();
+
+    if (!id) {
+      this.handleInvalidId();
+      return;
+    }
+
+    this.tinId = id;
+    this.fetchTin();
+  }
+
+  private getValidTinId(): number | null {
+    const rawId = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    return rawId && !isNaN(parsedId) && parsedId > 0 ? parsedId : null;
+  }
+
+  private handleInvalidId(): void {
+    this.isLoading = false;
+    this.toast.error('Invalid TIN ID. Please go back and try again.');
+  }
+
+  // ───────────────────────  Data Fetching ──────────────────
+
+  private fetchTin(): void {
+    if (!this.tinId) return;
+
+    this.http
+      .get<Tin>(API_ENDPOINTS.TINS.GET(this.tinId!))
+      .pipe(takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe({
+        next: (data) => this.handleFetchSuccess(data),
+        error: (error) => this.handleFetchError(error),
+      });
+  }
+
+  private handleFetchSuccess(data: Tin): void {
+    this.tin = data;
+  }
+
+  private handleFetchError(error: unknown): void {
+    console.error('Failed to load TIN record', error);
+    this.toast.error(
+      'Failed to load TIN records. Please go back and try again.',
+    );
+  }
+
+  // ───────────────────── Navigation ────────────────────────  
+
+  
+  onEdit(): void { this.router.navigate(['/tin/edit', this.tin?.id]); }
+  onBack(): void { this.router.navigate(['/tin']); }
+
+  // ─────────────────────  UI Helpers  ───────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
@@ -87,6 +123,4 @@ export class TinViewComponent implements OnInit {
     return map[c] ?? 'bi bi-person-fill';
   }
 
-  onEdit(): void { this.router.navigate(['/tin/edit', this.tin?.id]); }
-  onBack(): void { this.router.navigate(['/tin']); }
 }

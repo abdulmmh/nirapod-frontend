@@ -13,6 +13,8 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 })
 export class TinListComponent implements OnInit {
 
+  // ────────────────── Properties ──────────────────
+
   tins: Tin[] = [];
   searchTerm = '';
   isLoading  = false;
@@ -22,45 +24,74 @@ export class TinListComponent implements OnInit {
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
 
-  constructor(private http: HttpClient, private router: Router,
-    private toast: ToastService
+  // ──────────────Constructor  ───────────────────
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
   ) {}
 
+  // ─────────────── Lifecycle  ───────────────────
+
   ngOnInit(): void {
-    this.isLoading = true;
-    this.loadTins();
+    this.fetchTines();
   }
-
-  private loadTins(): void {
-    this.http.get<Tin[]>(API_ENDPOINTS.TINS.LIST)
-      .pipe(takeUntil(this.destroy$),
-        finalize(() => {
-          this.isLoading = false; 
-        }))
-      .subscribe({
-        next: (data) => {
-          this.tins = data;
-          if (data.length === 0) {
-            this.toast.info('No TIN records found. Click "Register TIN" to add one.');
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching TIN records:', error);
-          this.toast.error('Failed to load TIN records. Please try again later.');
-        }
-      });
-  } 
-
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
+  
+  // ───────────────── Data Fetching  ────────────────────────
+
+  private fetchTines(): void {
+    this.isLoading = true;
+
+    this.http
+      .get<Tin[]>(API_ENDPOINTS.TINS.LIST)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
+      .subscribe({
+        next: (data) => this.handleFetchSuccess(data),
+        error: (error) => this.handleFetchError(error),
+      });
+  }
+
+  private handleFetchSuccess(data: Tin[]): void {
+    this.tins = data;
+
+    this.notifyIfEmpty(data);
+  }
+
+  private handleFetchError(error: unknown): void {
+    console.error('Error loading TIN records:', error);
+    this.toast.error('Failed to load TIN records. Please refresh the page.');
+  }
+
+  private notifyIfEmpty(data: Tin[]): void {
+    if (data.length === 0) {
+      this.toast.info(
+        'No Tines registered yet. Click "Register Tin" to add one.',
+      );
+    }
+  }
+
+  // ────────────────── Filtering ──────────────────────
+
   get filteredTins(): Tin[] {
     if (!this.searchTerm.trim()) return this.tins;
+
     const term = this.searchTerm.toLowerCase();
-    return this.tins.filter(t =>
+
+    return this.tins.filter((t) =>this.matchesSearch(t, term));
+  }
+
+  private matchesSearch(t: Tin, term: string): boolean {
+      return (
       t.tinNumber.toLowerCase().includes(term)      ||
       t.taxpayerName.toLowerCase().includes(term)   ||
       t.tinCategory.toLowerCase().includes(term)    ||
@@ -68,6 +99,67 @@ export class TinListComponent implements OnInit {
       t.district.toLowerCase().includes(term)
     );
   }
+
+
+
+  // ──────────────── Delete Flow  ─────────────────
+    
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.resetDeleteState();
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+
+    const id = this.pendingDeleteId;
+    this.resetDeleteState();
+
+    this.deleteTin(id);
+  }    
+
+
+  private deleteTin(id: number): void {
+    this.isLoading = true;
+
+    this.http
+      .delete(API_ENDPOINTS.TINS.DELETE(id))
+      .pipe(takeUntil(this.destroy$),
+       finalize(() => (this.isLoading = false))
+      )
+      .subscribe({
+        next: () => this.handleDeleteSuccess(id),
+        error: () => this.handleDeleteError(),
+      });
+  }
+
+  private handleDeleteSuccess(id: number): void {
+    this.tins = this.tins.filter((b) => b.id !== id);
+    this.toast.success('TIN record deleted successfully.');
+    this.resetDeleteState();
+  }
+
+  private handleDeleteError(): void {
+    this.toast.error('Failed to delete TIN record. Please try again.');
+    this.resetDeleteState();
+  }
+
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
+  }
+
+  // ─────────────────  Navigation  ───────────────────────
+  
+  view(id: number): void { this.router.navigate(['/tin/view', id]); }
+  edit(id: number): void { this.router.navigate(['/tin/edit', id]); }
+
+
+  // ────────────── UI Helpers  ─────────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
@@ -99,38 +191,5 @@ export class TinListComponent implements OnInit {
     };
     return map[c] ?? 'bi bi-person-fill';
   }
+}
 
-  view(id: number): void { this.router.navigate(['/tin/view', id]); }
-  edit(id: number): void { this.router.navigate(['/tin/edit', id]); }
-
-  confirmDelete(id: number): void {
-    this.pendingDeleteId = id;
-    this.showDeleteModal = true;
-  }
-
-  cancelDelete(): void {
-    this.pendingDeleteId = null;
-    this.showDeleteModal = false;
-  }
-
-  confirmDeleteExecute(): void {
-    if (this.pendingDeleteId === null) return;
-    const id = this.pendingDeleteId;
-    this.showDeleteModal = false;
-    this.pendingDeleteId = null;
-
-    this.http
-      .delete(API_ENDPOINTS.TINS.DELETE(id))
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.tins = this.tins.filter((t) => t.id !== id);
-          this.toast.success('TIN deleted successfully.');
-        },
-        error: (error) => {
-          console.error('Error deleting TIN:', error);
-          this.toast.error('Failed to delete TIN. Please try again.');
-        },
-      });
-  }
-} 

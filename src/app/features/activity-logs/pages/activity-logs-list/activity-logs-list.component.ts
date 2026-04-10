@@ -1,17 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivityLog } from 'src/app/models/activity-logs.model';
 
-export interface ActivityLog {
-  id: number;
-  action: string;
-  actionType: 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'VIEW';
-  module: string;
-  description: string;
-  performedBy: string;
-  userRole: string;
-  ipAddress: string;
-  timestamp: string;
-  status: 'Success' | 'Failed' | 'Warning';
-}
+
 
 @Component({
   selector: 'app-activity-logs-list',

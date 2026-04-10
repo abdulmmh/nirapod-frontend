@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Audit } from '../../../../models/audit.model';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-audit-list',
@@ -11,99 +13,81 @@ import { Audit } from '../../../../models/audit.model';
 })
 export class AuditListComponent implements OnInit {
 
+  // ────────────────── State ──────────────────
   audits: Audit[] = [];
   searchTerm = '';
   isLoading  = false;
 
-  private fallback: Audit[] = [
-    {
-      id: 1, auditNo: 'AUD-2024-00001',
-      tinNumber: 'TIN-1001', taxpayerName: 'Rahman Textile Ltd.',
-      auditType: 'VAT Audit', priority: 'High',
-      assessmentYear: '2024-25', returnNo: 'VAT-2024-00001',
-      scheduledDate: '2024-03-01', startDate: '2024-03-05',
-      completionDate: '2024-03-20',
-      assignedTo: 'Auditor Rahim', supervisedBy: 'Tax Commissioner',
-      auditFindings: 'Minor discrepancies found in VAT records',
-      taxDemand: 45000, penaltyRecommended: 12000,
-      status: 'Completed', remarks: 'Taxpayer notified'
-    },
-    {
-      id: 2, auditNo: 'AUD-2024-00002',
-      tinNumber: 'TIN-1002', taxpayerName: 'Karim Traders',
-      auditType: 'Income Tax Audit', priority: 'Medium',
-      assessmentYear: '2024-25', returnNo: 'ITR-2024-00002',
-      scheduledDate: '2024-03-10', startDate: '2024-03-12',
-      completionDate: '',
-      assignedTo: 'Auditor Kamal', supervisedBy: 'Tax Commissioner',
-      auditFindings: '',
-      taxDemand: 0, penaltyRecommended: 0,
-      status: 'In Progress', remarks: 'Documents under review'
-    },
-    {
-      id: 3, auditNo: 'AUD-2024-00003',
-      tinNumber: 'TIN-1003', taxpayerName: 'Dhaka Pharma Co.',
-      auditType: 'Full Audit', priority: 'Critical',
-      assessmentYear: '2024-25', returnNo: '',
-      scheduledDate: '2024-03-15', startDate: '',
-      completionDate: '',
-      assignedTo: 'Auditor Nasrin', supervisedBy: 'Tax Commissioner',
-      auditFindings: '',
-      taxDemand: 0, penaltyRecommended: 0,
-      status: 'Flagged', remarks: 'Suspected tax evasion'
-    },
-    {
-      id: 4, auditNo: 'AUD-2024-00004',
-      tinNumber: 'TIN-1004', taxpayerName: 'Chittagong Exports',
-      auditType: 'Desk Audit', priority: 'Low',
-      assessmentYear: '2024-25', returnNo: 'VAT-2024-00004',
-      scheduledDate: '2024-03-20', startDate: '',
-      completionDate: '',
-      assignedTo: 'Auditor Faruk', supervisedBy: 'Tax Commissioner',
-      auditFindings: '',
-      taxDemand: 0, penaltyRecommended: 0,
-      status: 'Scheduled', remarks: ''
-    },
-    {
-      id: 5, auditNo: 'AUD-2024-00005',
-      tinNumber: 'TIN-1005', taxpayerName: 'Sylhet Tea House',
-      auditType: 'Field Audit', priority: 'High',
-      assessmentYear: '2024-25', returnNo: 'ITR-2024-00005',
-      scheduledDate: '2024-03-25', startDate: '2024-03-26',
-      completionDate: '',
-      assignedTo: 'Auditor Imran', supervisedBy: 'Tax Commissioner',
-      auditFindings: 'Incomplete records found',
-      taxDemand: 125000, penaltyRecommended: 35000,
-      status: 'Flagged', remarks: 'Legal notice issued'
-    },
-    {
-      id: 6, auditNo: 'AUD-2024-00006',
-      tinNumber: 'TIN-1006', taxpayerName: 'BD Tech Solutions',
-      auditType: 'Special Audit', priority: 'Medium',
-      assessmentYear: '2024-25', returnNo: 'VAT-2024-00006',
-      scheduledDate: '2024-04-01', startDate: '',
-      completionDate: '',
-      assignedTo: 'Auditor Reza', supervisedBy: 'Tax Commissioner',
-      auditFindings: '',
-      taxDemand: 0, penaltyRecommended: 0,
-      status: 'Pending', remarks: 'Awaiting assignment confirmation'
-    },
-  ];
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  private destroy$ = new Subject<void>();
+
+  // ──────────────Constructor  ───────────────────
+  
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
+  ) {}
+
+  // ─────────────── Lifecycle  ───────────────────
 
   ngOnInit(): void {
-    this.isLoading = true;
-    this.http.get<Audit[]>(API_ENDPOINTS.AUDITS.LIST).subscribe({
-      next: data => { this.audits = data;           this.isLoading = false; },
-      error: ()   => { this.audits = this.fallback; this.isLoading = false; }
-    });
+    this.fetchAudit();
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ───────────────── Data Fetching  ────────────────────────
+  
+  private fetchAudit(): void {
+    this.isLoading = true;
+
+    this.http
+      .get<Audit[]>(API_ENDPOINTS.AUDITS.LIST)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
+      .subscribe({
+        next: (data) => this.handleFetchSuccess(data),
+        error: (err) => this.handleFetchError(err),
+      });
+  }
+
+  private handleFetchSuccess(data: Audit[]): void {
+    this.audits = data;
+  }
+
+  private handleFetchError(err: any): void {
+    console.error('Error fetching audits:', err);
+    this.toast.error('Failed to load audits. Please try again.');
+  }
+
+  private notifyIfEmpty(data: Audit[]): void {
+    if (data.length === 0) {
+      this.toast.info(
+        'No audits found. Click "Register Audit" to add one');
+    }
+  }
+
+  // ────────────────── Filtering ──────────────────────
 
   get filteredAudits(): Audit[] {
     if (!this.searchTerm.trim()) return this.audits;
+
     const term = this.searchTerm.toLowerCase();
-    return this.audits.filter(a =>
+
+    return this.audits.filter((a) => this.matchesSearchTerm(a, term));
+  }
+
+  private matchesSearchTerm(a: Audit, term: string): boolean {
+    return (
+      a.id.toString().includes(term) ||
       a.auditNo.toLowerCase().includes(term)       ||
       a.taxpayerName.toLowerCase().includes(term)  ||
       a.tinNumber.toLowerCase().includes(term)     ||
@@ -112,6 +96,66 @@ export class AuditListComponent implements OnInit {
     );
   }
 
+
+  // ──────────────── Delete Flow  ─────────────────
+  
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.resetDeleteState();
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+
+    const id = this.pendingDeleteId;
+    this.resetDeleteState();
+
+    this.deleteAudit(id);
+  }
+
+
+  private deleteAudit(id: number): void {
+    this.isLoading = true;
+
+    this.http
+      .delete(API_ENDPOINTS.AUDITS.DELETE(id))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false))
+      )
+      .subscribe({
+        next: () => this.handleDeleteSuccess(id),
+        error: (err) => this.handleDeleteError(err),
+      });
+  }
+
+  private handleDeleteSuccess(id: number): void {
+    this.audits = this.audits.filter((a) => a.id !== id);
+    this.toast.success('Audit deleted successfully');
+  }
+
+  private handleDeleteError(err: any): void {
+    console.error('Error deleting audit:', err);
+    this.toast.error('Failed to delete audit. Please try again.');
+  }
+  
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
+  }
+
+
+  // ─────────────────  Navigation  ───────────────────────
+
+  viewAudit(id: number): void   { this.router.navigate(['/audits', id]); }
+  editAudit(id: number): void   { this.router.navigate(['/audits', id, 'edit']); }
+
+  // ──────────────── UI Helpers ───────────────────
+  
   getStatusClass(status: string): string {
     const map: Record<string, string> = {
       'Scheduled':   'status-scheduled',
@@ -150,16 +194,5 @@ export class AuditListComponent implements OnInit {
     if (amount === 0) return '—';
     if (amount >= 100000) return `৳${(amount / 100000).toFixed(2)}L`;
     return `৳${amount.toLocaleString()}`;
-  }
-
-  viewAudit(id: number): void   { this.router.navigate(['/audits', id]); }
-  editAudit(id: number): void   { this.router.navigate(['/audits', id, 'edit']); }
-
-  delete(id: number): void {
-    if (!confirm('Are you sure you want to delete this audit?')) return;
-    this.http.delete(API_ENDPOINTS.AUDITS.GET(id)).subscribe({
-      next: () => { this.audits = this.audits.filter(a => a.id !== id); },
-      error: ()  => { this.audits = this.audits.filter(a => a.id !== id); }
-    });
   }
 }

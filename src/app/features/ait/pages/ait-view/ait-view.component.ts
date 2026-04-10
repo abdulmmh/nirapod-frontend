@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Ait } from '../../../../models/ait.model';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-ait-view',
@@ -12,29 +13,26 @@ import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 })
 export class AitViewComponent implements OnInit {
 
-  record: Ait | null = null;
+  // ────────────────── State ──────────────────────
+  ait: Ait | null = null;
+  aitId: number | null = null;
   isLoading = true;
-
-  errorMsg = '';
-
-  aitId : number | null = null;
 
   private destroy$ = new Subject<void>();
 
+  // ──────────────────── Constructor ───────────────────────
 
-  constructor(private route: ActivatedRoute, private router: Router, private http: HttpClient) {}
+   constructor(
+     private route: ActivatedRoute,
+     private router: Router,
+     private http: HttpClient,
+     private toast: ToastService
+   ) {}
+
+  // ────────────────────── Lifecycle ──────────────────────
 
   ngOnInit(): void {
-    const rawId   = this.route.snapshot.paramMap.get('id');
-    const parsedId = Number(rawId);
-
-    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
-      this.isLoading = false;
-      this.errorMsg  = 'Invalid Ait ID. Please go back and try again.';
-      return;
-    }
-    this.aitId = parsedId;
-    this.loadAit();
+    this.initializeAit();
   }
 
   ngOnDestroy(): void {
@@ -42,24 +40,68 @@ export class AitViewComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  loadAit(): void {
-      this.isLoading = true;
-      this.errorMsg  = '';
-  
-      this.http.get<Ait>(API_ENDPOINTS.AIT.GET(this.aitId!))
-        .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
-        .subscribe({
-          next: data => {
-            this.record  = data;
-            this.isLoading = false;
-          },
-          // FIX #1: Removed fake fallback array entirely — show a real error instead
-          error: () => {
-            this.isLoading = false;
-            this.errorMsg  = 'Failed to load Ait details. Please go back and try again.';
-          }
-        });
+  // ────────────────────── Initialization  ─────────────────────
+
+  private initializeAit(): void {
+    const id = this.getValidAitId();
+
+    if (!id) {
+      this.handleInvalidId();
+      return;
     }
+
+    this.aitId = id;
+    this.fetchAit();
+  }
+
+  private getValidAitId(): number | null {
+    const id = this.route.snapshot.paramMap.get('id');
+    return id ? Number(id) : null;
+  }
+
+  private handleInvalidId(): void {
+    this.toast.error('Invalid AIT ID');
+    this.router.navigate(['/ait']);
+  }
+
+  // ───────────────────────  Data Fetching ──────────────────
+ 
+  private fetchAit(): void {
+    if (!this.aitId) return;
+
+    this.isLoading = true;
+    this.http.get<Ait>(`${API_ENDPOINTS.AITS}/${this.aitId}`)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false))
+      )
+      .subscribe({
+        next: (data) => this.handleFetchSuccess(data),
+        error: (err) => this.handleFetchError(err)
+      });
+  }
+
+  private handleFetchSuccess(data: Ait): void {
+    this.ait = data;
+  }
+
+  private handleFetchError(err: unknown): void {
+    this.toast.error('Failed to load AIT details');
+    console.error('Failed to load AIT details', err);
+  }
+
+  // ───────────────────── Navigation ────────────────────────  
+
+  onEdit(): void {
+    if (!this.ait?.id) return;
+    this.router.navigate(['/ait/edit', this.ait.id]);
+  }
+
+  onBack(): void {
+    this.router.navigate(['/ait']);
+  }
+
+  // ─────────────────────  UI Helpers  ───────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
@@ -79,7 +121,10 @@ export class AitViewComponent implements OnInit {
     return map[s] ?? '';
   }
 
-  fmt(a: number): string { return `৳${a.toLocaleString()}`; }
-  onEdit(): void { this.router.navigate(['/ait/edit', this.record?.id]); }
-  onBack(): void { this.router.navigate(['/ait']); }
+  formatCurrency(amount: number): string {
+    if (amount >= 10000000) return `৳${(amount / 10000000).toFixed(2)} Cr`;
+    if (amount >= 100000) return `৳${(amount / 100000).toFixed(2)} L`;
+    return `৳${amount.toLocaleString()}`;
+  }
+ 
 }

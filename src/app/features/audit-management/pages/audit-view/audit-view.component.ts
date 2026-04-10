@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Audit } from '../../../../models/audit.model';
+import { Subject, takeUntil, finalize } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-audit-view',
@@ -11,40 +13,96 @@ import { Audit } from '../../../../models/audit.model';
 })
 export class AuditViewComponent implements OnInit {
 
+  // ────────────────── State ──────────────────────
+
   audit: Audit | null = null;
+  auditId: number | null = null;
   isLoading = true;
 
-  private fallback: Audit[] = [
-    {
-      id: 1, auditNo: 'AUD-2024-00001',
-      tinNumber: 'TIN-1001', taxpayerName: 'Rahman Textile Ltd.',
-      auditType: 'VAT Audit', priority: 'High',
-      assessmentYear: '2024-25', returnNo: 'VAT-2024-00001',
-      scheduledDate: '2024-03-01', startDate: '2024-03-05',
-      completionDate: '2024-03-20',
-      assignedTo: 'Auditor Rahim', supervisedBy: 'Tax Commissioner',
-      auditFindings: 'Minor discrepancies found in VAT records',
-      taxDemand: 45000, penaltyRecommended: 12000,
-      status: 'Completed', remarks: 'Taxpayer notified'
-    },
-  ];
+  private destroy$ = new Subject<void>();
+  
+  // ──────────────────── Constructor ───────────────────────
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toast: ToastService,
   ) {}
 
+
+
+  // ────────────────────── Lifecycle ──────────────────────
+
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.http.get<Audit>(API_ENDPOINTS.AUDITS.GET(id)).subscribe({
-      next: data => { this.audit = data; this.isLoading = false; },
-      error: ()  => {
-        this.audit = this.fallback.find(a => a.id === id) || this.fallback[0];
-        this.isLoading = false;
-      }
-    });
+    this.initializeAudit();
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+ // ────────────────────── Initialization  ─────────────────────
+
+
+ private initializeAudit(): void {
+    const id = this.getValidAuditId();
+
+    if (!id) {
+      this.handleInvalidId();
+      return;
+    }
+
+    this.auditId = id;
+    this.fetchAudit();
+  }
+
+  private getValidAuditId(): number | null {
+    const rawId = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    return rawId && !isNaN(parsedId) && parsedId > 0 ? parsedId : null;
+  }
+
+  private handleInvalidId(): void {
+    this.toast.error('Invalid audit ID. Please go back and try again.');
+    
+  }
+
+
+  // ───────────────────────  Data Fetching ────────────────
+
+  private fetchAudit(): void {
+    this.isLoading = true;
+
+    this.http.get<Audit>(`${API_ENDPOINTS.AUDITS}/${this.auditId}`)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
+      .subscribe({
+        next: (data) => this.handleFetchSuccess(data),
+        error: (error) => this.handleFetchError(error),
+      });
+  }
+
+  private handleFetchSuccess(data: Audit): void {
+    this.audit = data;
+  }
+
+  private handleFetchError(error: unknown): void {
+    console.error('Failed to load audit details', error);
+    this.toast.error('Failed to load audit details. Please go back and try again.');
+  }
+
+ // ───────────────────── Navigation ────────────────────────
+
+  onEdit(): void { this.router.navigate(['/audits', this.audit?.id, 'edit']); }
+  onBack(): void { this.router.navigate(['/audits']); }
+
+
+  // ─────────────────────  UI Helpers  ───────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
@@ -68,6 +126,4 @@ export class AuditViewComponent implements OnInit {
     return `৳${amount.toLocaleString()}`;
   }
 
-  onEdit(): void { this.router.navigate(['/audits', this.audit?.id, 'edit']); }
-  onBack(): void { this.router.navigate(['/audits']); }
 }

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
+
 import { Business } from '../../../../models/business.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -13,11 +14,17 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
   styleUrls: ['./business-view.component.css'],
 })
 export class BusinessViewComponent implements OnInit, OnDestroy {
+
+
+  // ────────────────── Properties ──────────────────────
+
   business: Business | null = null;
-  isLoading = true;
   businessId: number | null = null;
+  isLoading = true;
 
   private destroy$ = new Subject<void>();
+
+  // ──────────────────── Constructor ───────────────────────
 
   constructor(
     private route: ActivatedRoute,
@@ -26,18 +33,10 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
     private toast: ToastService,
   ) {}
 
+  // ────────────────────── Lifecycle ──────────────────────
+
   ngOnInit(): void {
-    const rawId = this.route.snapshot.paramMap.get('id');
-    const parsedId = Number(rawId);
-
-    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
-      this.isLoading = false;
-      this.toast.error('Invalid business ID. Please go back and try again.');
-      return;
-    }
-
-    this.businessId = parsedId;
-    this.loadBusiness();
+    this.initializeBusiness();
   }
 
   ngOnDestroy(): void {
@@ -45,52 +44,91 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ─── Data Loading ─────────────────────────────────────────────────────────────
+  // ────────────────────── Initialization  ─────────────────────
+  
+  private initializeBusiness(): void {
+    const id = this.getValidBusinessId();
 
-  loadBusiness(): void {
-    if (!this.businessId) {
-      this.toast.error('Invalid Business ID. Please go back and try again.');
+    if (!id) {
+      this.handleInvalidId();
       return;
     }
+
+    this.businessId = id;
+    this.fetchBusiness();
+  }
+
+  private getValidBusinessId(): number | null {
+    const rawId = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    return rawId && !isNaN(parsedId) && parsedId > 0 ? parsedId : null;
+  }
+
+  private handleInvalidId(): void {
+    this.isLoading = false;
+    this.toast.error('Invalid business ID. Please go back and try again.');
+  }
+
+  // ───────────────────────  Data Fetching ──────────────────
+  
+  private fetchBusiness(): void {
+    if (!this.businessId) return;
+
     this.isLoading = true;
 
     this.http
       .get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId))
-      .pipe(takeUntil(this.destroy$),
-        finalize(() => {
-            this.isLoading = false;
-      }))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false))
+      )
       .subscribe({
-        next: (data) => {
-          this.business = data;
-
-
-          // WARNING: expired license
-          if (data.expiryDate && this.isExpired(data.expiryDate)) {
-            this.toast.warning('This business license has expired.');
-          }
-
-          // WARNING: expiring soon
-          if (data.expiryDate && this.isExpiringSoon(data.expiryDate)) {
-            this.toast.warning('This business license is expiring within 30 days.');
-          }
-
-          // INFO: suspended or dissolved status
-          if (data.status === 'Suspended' || data.status === 'Dissolved') {
-            this.toast.info(`This business is currently ${data.status}.`);
-          }
-        },
-        error: (error) => {
-          console.error('Failed to load business details', error);
-          this.toast.error(
-            'Failed to load business details. Please go back and try again.',
-          );
-        },
+        next: (data) => this.handleFetchSuccess(data),
+        error: (error) => this.handleFetchError(error),
       });
   }
 
-  // ─── Navigation ───────────────────────────────────────────────────────────────
+  private handleFetchSuccess(data: Business): void {
+    this.business = data;
+    this.handleBusinessNotifications(data);
+  }
 
+  private handleFetchError(error: unknown): void {
+    console.error('Failed to load business details', error);
+    this.toast.error(
+      'Failed to load business details. Please go back and try again.',
+    );
+  }
+
+  // ─────────────────── Notifications ─────────────────────
+  private handleBusinessNotifications(data: Business): void {
+    this.notifyIfExpired(data);
+    this.notifyIfExpiringSoon(data);
+    this.notifyIfInactiveStatus(data);
+  }
+
+  private notifyIfExpired(data: Business): void {
+    if (data.expiryDate && this.isExpired(data.expiryDate)) {
+      this.toast.warning('This business license has expired.');
+    }
+  }
+
+  private notifyIfExpiringSoon(data: Business): void {
+    if (data.expiryDate && this.isExpiringSoon(data.expiryDate)) {
+      this.toast.warning(
+        'This business license is expiring within 30 days.',
+      );
+    }
+  }
+
+  private notifyIfInactiveStatus(data: Business): void {
+    if (data.status === 'Suspended' || data.status === 'Dissolved') {
+      this.toast.info(`This business is currently ${data.status}.`);
+    }
+  }
+
+  // ───────────────────── Navigation ────────────────────────
   onEdit(): void {
     if (!this.business?.id) return;
     this.router.navigate(['/businesses/edit', this.business.id]);
@@ -100,9 +138,9 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/businesses']);
   }
 
-  // ─── Helper Methods ───────────────────────────────────────────────────────────
-
-  getStatusClass(s: string): string {
+  // ─────────────────────  UI Helpers  ───────────────────────
+  
+  getStatusClass(status: string): string {
     const map: Record<string, string> = {
       Active: 'status-active',
       Inactive: 'status-inactive',
@@ -110,10 +148,10 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
       Suspended: 'status-suspended',
       Dissolved: 'status-inactive',
     };
-    return map[s] ?? '';
+    return map[status] ?? '';
   }
 
-  getCategoryIcon(c: string): string {
+  getCategoryIcon(category: string): string {
     const map: Record<string, string> = {
       Manufacturing: 'bi bi-gear-fill',
       Trading: 'bi bi-bag-fill',
@@ -125,28 +163,37 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
       Education: 'bi bi-book-fill',
       Other: 'bi bi-grid-fill',
     };
-    return map[c] ?? 'bi bi-grid-fill';
-  }
-
-  isExpired(date: string): boolean {
-    if (!date) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return new Date(date) < today;
-  }
-
-  isExpiringSoon(date: string): boolean {
-    if (!date) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const expiry = new Date(date);
-    const diff = (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-    return diff >= 0 && diff <= 30;
+    return map[category] ?? 'bi bi-grid-fill';
   }
 
   formatCurrency(amount: number): string {
     if (amount >= 10000000) return `৳${(amount / 10000000).toFixed(2)} Cr`;
     if (amount >= 100000) return `৳${(amount / 100000).toFixed(2)} L`;
     return `৳${amount.toLocaleString()}`;
+  }
+
+  // ─────────────── Date Helpers ──────────────────────
+
+  isExpired(date: string): boolean {
+    if (!date) return false;
+    return new Date(date) < this.getToday();
+  }
+
+  isExpiringSoon(date: string): boolean {
+    if (!date) return false;
+
+    const today = this.getToday();
+    const expiry = new Date(date);
+
+    const diff =
+      (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+    return diff >= 0 && diff <= 30;
+  }
+
+  private getToday(): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
   }
 }

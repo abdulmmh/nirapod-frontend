@@ -1,774 +1,268 @@
-<div class="dashboard-wrapper">
+<div class="dashboard-wrap">
 
-  <!-- Loading -->
-  <div class="loading-overlay" *ngIf="isLoading">
-    <div class="spinner-wrap">
-      <div class="spinner-border text-primary"></div>
-      <p>Loading Dashboard...</p>
-    </div>
-  </div>
-
-  <!-- Error -->
-  <div class="error-banner" *ngIf="hasError && !isLoading">
-    <i class="bi bi-exclamation-triangle-fill"></i>
-    Failed to load dashboard.
-    <button class="btn btn-sm btn-outline-danger ms-3" (click)="load()">Retry</button>
-  </div>
-
-  <ng-container *ngIf="!isLoading">
-
-    <!-- ── Welcome Header ── -->
-    <div class="dash-header">
-      <div class="welcome-block">
-        <div class="welcome-avatar">{{ user?.fullName?.charAt(0) }}</div>
-        <div>
-          <h4 class="dash-title">{{ greeting }}, {{ user?.fullName }}!</h4>
-          <p class="dash-subtitle">
-            <span class="role-pill">{{ roleLabel }}</span>
-            Today is {{ today }}
-          </p>
-        </div>
+  <!-- ── Page Header ── -->
+  <div class="dash-header">
+    <div class="dash-header-left">
+      <div class="greeting-avatar">
+        {{ currentUser?.fullName?.charAt(0) || 'A' }}
       </div>
-      <button class="btn-refresh" (click)="load()">
+      <div>
+        <h4 class="greeting-title">
+          {{ getGreeting() }}, {{ currentUser?.fullName || 'Admin' }}!
+        </h4>
+        <p class="greeting-sub">
+          <span class="role-chip">{{ currentUser?.role || 'System Administrator' }}</span>
+          Today is {{ currentDate | date:'EEEE, d MMMM yyyy' }}
+        </p>
+      </div>
+    </div>
+    <div class="dash-header-right">
+      <select class="year-select" [(ngModel)]="selectedYear">
+        <option *ngFor="let y of years" [value]="y">FY {{ y }}</option>
+      </select>
+      <button class="btn-refresh" (click)="onRefresh()" [class.spinning]="isRefreshing">
         <i class="bi bi-arrow-clockwise"></i> Refresh
       </button>
     </div>
+  </div>
 
-    <!-- ════════════════════════════════════════
-         SUPER ADMIN DASHBOARD
-    ════════════════════════════════════════ -->
-    <ng-container *ngIf="role === Role.SUPER_ADMIN">
-
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-blue">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Total Taxpayers</span>
-              <span class="kpi-value">{{ fmt(stat('totalTaxpayers')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('taxpayerGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
+  <!-- ── Stat Cards ── -->
+  <div class="stat-cards-grid">
+    <div class="stat-card" *ngFor="let s of statCards" [ngClass]="'sc-' + s.color">
+      <div class="sc-body">
+        <div class="sc-icon-wrap">
+          <i [class]="s.icon"></i>
         </div>
-
-        <div class="kpi-card kpi-green">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-currency-dollar"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Total Revenue</span>
-              <span class="kpi-value">{{ fmt(stat('totalRevenue'), 'currency') }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('revenueGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-teal">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-arrow-repeat"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">VAT Returns</span>
-              <span class="kpi-value">{{ fmt(stat('totalVatReturns')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('vatReturnGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-orange">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-credit-card-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Total Payments</span>
-              <span class="kpi-value">{{ fmt(stat('totalPayments')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('paymentGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
+        <div class="sc-info">
+          <span class="sc-label">{{ s.label }}</span>
+          <span class="sc-value">
+            {{ s.label === 'Total Revenue' ? '৳' : '' }}{{ formatValue(s.value, s.suffix) }}{{ s.suffix }}
+          </span>
+          <span class="sc-change" [class.negative]="s.change < 0">
+            <i [class]="s.change >= 0 ? 'bi bi-arrow-up' : 'bi bi-arrow-down'"></i>
+            {{ s.change | number:'1.1-1' }}% vs last month
+          </span>
         </div>
       </div>
 
-      <div class="alert-row">
-        <div class="alert-card alert-warning" routerLink="/audits">
-          <i class="bi bi-shield-exclamation alert-icon"></i>
-          <div class="alert-body">
-            <span class="alert-value">{{ stat('pendingAudits') }}</span>
-            <span class="alert-label">Pending Audits</span>
-          </div>
-          <i class="bi bi-arrow-right-short alert-arrow"></i>
-        </div>
-        <div class="alert-card alert-info" routerLink="/refunds">
-          <i class="bi bi-cash-stack alert-icon"></i>
-          <div class="alert-body">
-            <span class="alert-value">{{ stat('pendingRefunds') }}</span>
-            <span class="alert-label">Pending Refunds</span>
-          </div>
-          <i class="bi bi-arrow-right-short alert-arrow"></i>
-        </div>
-        <div class="alert-card alert-danger" routerLink="/penalties">
-          <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
-          <div class="alert-body">
-            <span class="alert-value">{{ stat('issuedPenalties') }}</span>
-            <span class="alert-label">Issued Penalties</span>
-          </div>
-          <i class="bi bi-arrow-right-short alert-arrow"></i>
-        </div>
-      </div>
-
-      <ng-container *ngTemplateOutlet="chartsAdminCommissioner"></ng-container>
-      <ng-container *ngTemplateOutlet="tablesTaxpayersPayments"></ng-container>
-
-    </ng-container>
-
-    <!-- ════════════════════════════════════════
-         TAX COMMISSIONER DASHBOARD
-    ════════════════════════════════════════ -->
-    <ng-container *ngIf="role === Role.TAX_COMMISSIONER">
-
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-green">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-currency-dollar"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Total Revenue</span>
-              <span class="kpi-value">{{ fmt(stat('totalRevenue'), 'currency') }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('revenueGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-teal">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-arrow-repeat"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">VAT Returns</span>
-              <span class="kpi-value">{{ fmt(stat('totalVatReturns')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('vatReturnGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-purple">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-shield-fill-check"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Total Audits</span>
-              <span class="kpi-value">{{ fmt(stat('totalAudits')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('auditGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-orange">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-cash-stack"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Pending Refunds</span>
-              <span class="kpi-value">{{ fmt(stat('pendingRefunds')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>3.2%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-      </div>
-
-      <ng-container *ngTemplateOutlet="chartsAdminCommissioner"></ng-container>
-      <ng-container *ngTemplateOutlet="tablesTaxpayersPayments"></ng-container>
-
-    </ng-container>
-
-    <!-- ════════════════════════════════════════
-         TAX OFFICER DASHBOARD
-    ════════════════════════════════════════ -->
-    <ng-container *ngIf="role === Role.TAX_OFFICER">
-
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-blue">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Total Taxpayers</span>
-              <span class="kpi-value">{{ fmt(stat('totalTaxpayers')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('taxpayerGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-teal">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-arrow-repeat"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">VAT Returns</span>
-              <span class="kpi-value">{{ fmt(stat('totalVatReturns')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('vatReturnGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-orange">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-credit-card-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Total Payments</span>
-              <span class="kpi-value">{{ fmt(stat('totalPayments')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('paymentGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-red">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-file-earmark-x-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Pending Audits</span>
-              <span class="kpi-value">{{ fmt(stat('pendingAudits')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth negative"><i class="bi bi-arrow-down-short"></i>2.1%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="charts-row" *ngIf="chartData">
-        <div class="chart-card">
-          <div class="chart-header">
-            <div>
-              <h6 class="chart-title">VAT Collection Trend</h6>
-              <span class="chart-sub">Last 6 months</span>
-            </div>
-            <span class="chart-badge teal">Monthly</span>
-          </div>
-          <ng-container *ngTemplateOutlet="barChart; context: { bars: vatBars, data: chartData.vatChart, color: 'teal-bar' }"></ng-container>
-        </div>
-      </div>
-
-      <ng-container *ngTemplateOutlet="tablesTaxpayersPayments"></ng-container>
-
-    </ng-container>
-
-    <!-- ════════════════════════════════════════
-         AUDITOR DASHBOARD
-    ════════════════════════════════════════ -->
-    <ng-container *ngIf="role === Role.AUDITOR">
-
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-blue">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-shield-fill-check"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Total Audits</span>
-              <span class="kpi-value">{{ fmt(stat('totalAudits')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>{{ stat('auditGrowth') }}%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-orange">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Pending Audits</span>
-              <span class="kpi-value">{{ fmt(stat('pendingAudits')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth negative"><i class="bi bi-arrow-down-short"></i>3.5%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-green">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-check-circle-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Completed</span>
-              <span class="kpi-value">{{ fmt(stat('completedAudits')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>8.2%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-red">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-flag-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Flagged Cases</span>
-              <span class="kpi-value">{{ fmt(stat('flaggedCases')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth negative"><i class="bi bi-arrow-up-short"></i>1.2%</span>
-            <span class="kpi-period">vs last month</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="charts-row" *ngIf="chartData">
-        <div class="chart-card">
-          <div class="chart-header">
-            <div>
-              <h6 class="chart-title">Audit Activity Trend</h6>
-              <span class="chart-sub">Last 6 months</span>
-            </div>
-            <span class="chart-badge purple">Monthly</span>
-          </div>
-          <ng-container *ngTemplateOutlet="barChart; context: { bars: auditBars, data: chartData.auditChart, color: 'purple-bar' }"></ng-container>
-        </div>
-      </div>
-
-      <!-- Audit Table -->
-      <div class="table-card">
-        <div class="table-card-header">
-          <div>
-            <h6 class="table-title">Pending Audits</h6>
-            <span class="table-sub">Cases requiring attention</span>
-          </div>
-          <a routerLink="/audits" class="view-all-btn">View All <i class="bi bi-arrow-right"></i></a>
-        </div>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Audit No</th>
-                <th>Taxpayer</th>
-                <th>Type</th>
-                <th>Assigned</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let a of recentAudits">
-                <td><span class="code-badge">{{ a.auditNo }}</span></td>
-                <td>{{ a.taxpayerName }}</td>
-                <td><span class="type-badge">{{ a.auditType }}</span></td>
-                <td>{{ a.assignedDate }}</td>
-                <td><span class="status-badge" [ngClass]="statusClass(a.status)">{{ a.status }}</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </ng-container>
-
-    <!-- ════════════════════════════════════════
-         DATA ENTRY OPERATOR DASHBOARD
-    ════════════════════════════════════════ -->
-    <ng-container *ngIf="role === Role.DATA_ENTRY_OPERATOR">
-
-      <div class="kpi-grid kpi-grid-3">
-        <div class="kpi-card kpi-blue">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-pencil-square"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Today's Entries</span>
-              <span class="kpi-value">{{ fmt(stat('todayEntries')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>5.0%</span>
-            <span class="kpi-period">vs yesterday</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-orange">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Pending Tasks</span>
-              <span class="kpi-value">{{ fmt(stat('pendingTasks')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth negative"><i class="bi bi-arrow-down-short"></i>2.0%</span>
-            <span class="kpi-period">vs yesterday</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-teal">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-person-plus-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Taxpayers Added</span>
-              <span class="kpi-value">{{ fmt(stat('taxpayersAddedThisMonth')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <span class="kpi-growth positive"><i class="bi bi-arrow-up-short"></i>7.3%</span>
-            <span class="kpi-period">this month</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <h6 class="quick-title">Quick Actions</h6>
-        <div class="quick-grid">
-          <a routerLink="/taxpayers/create" class="quick-btn blue">
-            <i class="bi bi-person-plus-fill"></i>
-            <span>Add Taxpayer</span>
-          </a>
-          <a routerLink="/businesses/create" class="quick-btn teal">
-            <i class="bi bi-building-fill"></i>
-            <span>Add Business</span>
-          </a>
-          <a routerLink="/tin/create" class="quick-btn orange">
-            <i class="bi bi-upc-scan"></i>
-            <span>Issue TIN</span>
-          </a>
-          <a routerLink="/vat-returns/create" class="quick-btn purple">
-            <i class="bi bi-arrow-repeat"></i>
-            <span>Submit VAT Return</span>
-          </a>
-          <a routerLink="/payments/create" class="quick-btn green">
-            <i class="bi bi-credit-card-fill"></i>
-            <span>Record Payment</span>
-          </a>
-          <a routerLink="/income-tax/create" class="quick-btn red">
-            <i class="bi bi-receipt-cutoff"></i>
-            <span>Submit IT Return</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Recent Entries -->
-      <div class="table-card">
-        <div class="table-card-header">
-          <div>
-            <h6 class="table-title">Recent Entries</h6>
-            <span class="table-sub">Your recent data entries</span>
-          </div>
-        </div>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Description</th>
-                <th>Entered At</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let e of recentEntries">
-                <td><span class="type-badge">{{ e.entryType }}</span></td>
-                <td>{{ e.description }}</td>
-                <td>{{ e.enteredAt }}</td>
-                <td><span class="status-badge" [ngClass]="statusClass(e.status)">{{ e.status }}</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </ng-container>
-
-    <!-- ════════════════════════════════════════
-         TAXPAYER SELF-SERVICE DASHBOARD
-    ════════════════════════════════════════ -->
-    <ng-container *ngIf="role === Role.TAXPAYER">
-
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-blue">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-arrow-repeat"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">My VAT Returns</span>
-              <span class="kpi-value">{{ fmt(stat('myVatReturns')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <a routerLink="/vat-returns" class="kpi-link">View All</a>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-green">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-credit-card-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Total Paid</span>
-              <span class="kpi-value">{{ fmt(stat('myTotalPaid'), 'currency') }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <a routerLink="/payments" class="kpi-link">View All</a>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-orange">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-bell-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Pending Notices</span>
-              <span class="kpi-value">{{ fmt(stat('myPendingNotices')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <a routerLink="/notices" class="kpi-link">View All</a>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-teal">
-          <div class="kpi-left">
-            <div class="kpi-icon"><i class="bi bi-cash-stack"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-title">Refund Requests</span>
-              <span class="kpi-value">{{ fmt(stat('myRefundStatus')) }}</span>
-            </div>
-          </div>
-          <div class="kpi-right">
-            <a routerLink="/refunds" class="kpi-link">View All</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Taxpayer Quick Actions -->
-      <div class="quick-actions">
-        <h6 class="quick-title">Quick Actions</h6>
-        <div class="quick-grid">
-          <a routerLink="/vat-returns/create" class="quick-btn blue">
-            <i class="bi bi-arrow-repeat"></i>
-            <span>Submit VAT Return</span>
-          </a>
-          <a routerLink="/income-tax/create" class="quick-btn teal">
-            <i class="bi bi-receipt-cutoff"></i>
-            <span>Submit IT Return</span>
-          </a>
-          <a routerLink="/payments/create" class="quick-btn green">
-            <i class="bi bi-credit-card-fill"></i>
-            <span>Make Payment</span>
-          </a>
-          <a routerLink="/notices" class="quick-btn orange">
-            <i class="bi bi-bell-fill"></i>
-            <span>View Notices</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- My Returns & Notices -->
-      <div class="tables-row">
-
-        <div class="table-card">
-          <div class="table-card-header">
-            <div>
-              <h6 class="table-title">My Returns</h6>
-              <span class="table-sub">Recent filings</span>
-            </div>
-            <a routerLink="/vat-returns" class="view-all-btn">View All <i class="bi bi-arrow-right"></i></a>
-          </div>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Return No</th>
-                  <th>Period</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let r of myReturns">
-                  <td><span class="code-badge">{{ r.returnNo }}</span></td>
-                  <td>{{ r.period }}</td>
-                  <td class="amount-cell">{{ fmt(r.amount, 'currency') }}</td>
-                  <td><span class="status-badge" [ngClass]="statusClass(r.status)">{{ r.status }}</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="table-card">
-          <div class="table-card-header">
-            <div>
-              <h6 class="table-title">My Notices</h6>
-              <span class="table-sub">From NBR</span>
-            </div>
-            <a routerLink="/notices" class="view-all-btn">View All <i class="bi bi-arrow-right"></i></a>
-          </div>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Notice No</th>
-                  <th>Subject</th>
-                  <th>Due Date</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let n of myNotices">
-                  <td><span class="code-badge">{{ n.noticeNo }}</span></td>
-                  <td>{{ n.subject }}</td>
-                  <td>{{ n.dueDate }}</td>
-                  <td><span class="status-badge" [ngClass]="statusClass(n.status)">{{ n.status }}</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-
-    </ng-container>
-
-    <!-- ════════════════════════════════════════
-         GUEST DASHBOARD
-    ════════════════════════════════════════ -->
-    <ng-container *ngIf="role === Role.GUEST">
-      <div class="guest-block">
-        <div class="guest-icon"><i class="bi bi-person-lock"></i></div>
-        <h5>Limited Access</h5>
-        <p>You are logged in as a Guest. Please contact your administrator to get full access.</p>
-      </div>
-    </ng-container>
-
-  </ng-container>
-
-  <!-- ════════════════════════════════════════
-       SHARED TEMPLATES
-  ════════════════════════════════════════ -->
-
-  <!-- Charts: Admin + Commissioner -->
-  <ng-template #chartsAdminCommissioner>
-    <div class="charts-row" *ngIf="chartData">
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <h6 class="chart-title">VAT Collection Trend</h6>
-            <span class="chart-sub">Last 6 months</span>
-          </div>
-          <span class="chart-badge teal">Monthly</span>
-        </div>
-        <ng-container *ngTemplateOutlet="barChart; context: { bars: vatBars, data: chartData.vatChart, color: 'teal-bar' }"></ng-container>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <h6 class="chart-title">Payment Collection Trend</h6>
-            <span class="chart-sub">Last 6 months</span>
-          </div>
-          <span class="chart-badge blue">Monthly</span>
-        </div>
-        <ng-container *ngTemplateOutlet="barChart; context: { bars: paymentBars, data: chartData.paymentChart, color: 'blue-bar' }"></ng-container>
+      <!-- Circular Progress -->
+      <div class="sc-circle-wrap">
+        <svg class="sc-circle" viewBox="0 0 56 56">
+          <circle cx="28" cy="28" r="24"
+            fill="none" stroke-width="4"
+            class="circle-bg" />
+          <circle cx="28" cy="28" r="24"
+            fill="none" stroke-width="4"
+            class="circle-val"
+            [style.stroke-dasharray]="150.8"
+            [style.stroke-dashoffset]="150.8 - (s.progress / 100) * 150.8"
+            stroke-linecap="round"
+            transform="rotate(-90 28 28)" />
+        </svg>
+        <span class="circle-pct">{{ s.progress }}%</span>
       </div>
     </div>
-  </ng-template>
+  </div>
 
-  <!-- Tables: Taxpayers + Payments -->
-  <ng-template #tablesTaxpayersPayments>
-    <div class="tables-row">
-      <div class="table-card">
-        <div class="table-card-header">
+  <!-- ── Quick Actions ── -->
+  <div class="quick-actions-row">
+    <div class="qa-title"><i class="bi bi-lightning-fill"></i> Quick Actions</div>
+    <div class="qa-btns">
+      <a class="qa-btn" *ngFor="let q of quickActions"
+        [routerLink]="q.route" [ngClass]="'qa-' + q.color">
+        <i [class]="q.icon"></i>
+        <span>{{ q.label }}</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── Charts Row 1 ── -->
+  <div class="charts-row charts-row-1">
+
+    <!-- VAT Collection Trend -->
+    <div class="chart-card chart-vat">
+      <div class="chart-card-header">
+        <div class="cch-left">
+          <div class="cch-icon teal"><i class="bi bi-graph-up-arrow"></i></div>
           <div>
-            <h6 class="table-title">Recent Taxpayers</h6>
-            <span class="table-sub">Latest registrations</span>
+            <div class="cch-title">VAT Collection Trend</div>
+            <div class="cch-sub">Last 6 months (৳ Lakh)</div>
           </div>
-          <a routerLink="/taxpayers" class="view-all-btn">View All <i class="bi bi-arrow-right"></i></a>
         </div>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>TIN</th><th>Name</th><th>Phone</th><th>Date</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let tp of recentTaxpayers">
-                <td><span class="code-badge">{{ tp.tin }}</span></td>
-                <td>
-                  <div class="td-name">
-                    <div class="td-avatar">{{ tp.fullName.charAt(0) }}</div>
-                    <span>{{ tp.fullName }}</span>
-                  </div>
-                </td>
-                <td>{{ tp.phone }}</td>
-                <td>{{ tp.registrationDate }}</td>
-                <td><span class="status-badge" [ngClass]="statusClass(tp.status)">{{ tp.status }}</span></td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="cch-right">
+          <div class="chart-legend">
+            <span class="leg-dot teal"></span><span>Actual</span>
+            <span class="leg-dot blue"></span><span>Target</span>
+          </div>
         </div>
       </div>
+      <!-- ✅ canvas height fixed via CSS class -->
+      <canvas id="vatChart" class="chart-canvas"></canvas>
+    </div>
 
-      <div class="table-card">
-        <div class="table-card-header">
+    <!-- Compliance Gauge -->
+    <div class="chart-card chart-gauge">
+      <div class="chart-card-header">
+        <div class="cch-left">
+          <div class="cch-icon purple"><i class="bi bi-speedometer2"></i></div>
           <div>
-            <h6 class="table-title">Recent Payments</h6>
-            <span class="table-sub">Latest transactions</span>
+            <div class="cch-title">Tax Compliance</div>
+            <div class="cch-sub">FY {{ selectedYear }}</div>
           </div>
-          <a routerLink="/payments" class="view-all-btn">View All <i class="bi bi-arrow-right"></i></a>
         </div>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>TXN ID</th><th>Taxpayer</th><th>Type</th><th>Amount</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let pay of recentPayments">
-                <td><span class="code-badge mono">{{ pay.transactionId }}</span></td>
-                <td>{{ pay.taxpayerName }}</td>
-                <td><span class="type-badge">{{ pay.paymentType }}</span></td>
-                <td class="amount-cell">{{ fmt(pay.amount, 'currency') }}</td>
-                <td><span class="status-badge" [ngClass]="statusClass(pay.status)">{{ pay.status }}</span></td>
-              </tr>
-            </tbody>
-          </table>
+      </div>
+      <!-- ✅ gauge canvas -->
+      <canvas id="gaugeCanvas" class="gauge-canvas"></canvas>
+
+      <div class="gauge-stats">
+        <div class="gs-item">
+          <span class="gs-val green">18,450</span>
+          <span class="gs-label">Filed</span>
+        </div>
+        <div class="gs-divider"></div>
+        <div class="gs-item">
+          <span class="gs-val red">6,400</span>
+          <span class="gs-label">Pending</span>
         </div>
       </div>
     </div>
-  </ng-template>
 
-  <!-- Reusable Bar Chart -->
-  <ng-template #barChart let-bars="bars" let-data="data" let-color="color">
-    <div class="bar-chart">
-      <div class="bar-group" *ngFor="let point of data; let i = index">
-        <div class="bar-wrap">
-          <span class="bar-tip">{{ fmt(point.value, 'currency') }}</span>
-          <div class="bar" [class]="color" [style.height.%]="bars[i]"></div>
+  </div>
+
+  <!-- ── Charts Row 2 ── -->
+  <div class="charts-row charts-row-2">
+
+    <!-- Payment Collection Bar Chart -->
+    <div class="chart-card chart-pay">
+      <div class="chart-card-header">
+        <div class="cch-left">
+          <div class="cch-icon blue"><i class="bi bi-bar-chart-fill"></i></div>
+          <div>
+            <div class="cch-title">Payment Collection</div>
+            <div class="cch-sub">Last 6 months (৳ Lakh)</div>
+          </div>
         </div>
-        <span class="bar-label">{{ point.label }}</span>
+      </div>
+      <canvas id="payChart" class="chart-canvas"></canvas>
+    </div>
+
+    <!-- Tax Type Donut -->
+    <div class="chart-card chart-donut">
+      <div class="chart-card-header">
+        <div class="cch-left">
+          <div class="cch-icon orange"><i class="bi bi-pie-chart-fill"></i></div>
+          <div>
+            <div class="cch-title">Revenue Breakdown</div>
+            <div class="cch-sub">By tax type (৳ Crore)</div>
+          </div>
+        </div>
+      </div>
+      <div class="donut-wrap">
+        <canvas id="donutChart" class="donut-canvas"></canvas>
+        <div class="donut-legend">
+          <div class="dl-item" *ngFor="let t of taxBreakdown">
+            <span class="dl-dot" [style.background]="t.color"></span>
+            <span class="dl-label">{{ t.label }}</span>
+            <span class="dl-val">৳{{ t.value }}Cr</span>
+            <span class="dl-pct">{{ t.percentage }}%</span>
+          </div>
+        </div>
       </div>
     </div>
-  </ng-template>
+
+  </div>
+
+  <!-- ── Zone-wise Collection ── -->
+  <div class="zone-card">
+    <div class="chart-card-header">
+      <div class="cch-left">
+        <div class="cch-icon navy"><i class="bi bi-geo-alt-fill"></i></div>
+        <div>
+          <div class="cch-title">Zone-wise VAT Collection</div>
+          <div class="cch-sub">Progress vs target (৳ Crore)</div>
+        </div>
+      </div>
+    </div>
+    <div class="zone-list">
+      <div class="zone-item" *ngFor="let z of zones">
+        <div class="zone-info">
+          <span class="zone-name">{{ z.name }}</span>
+          <span class="zone-vals">৳{{ z.collection }}Cr / ৳{{ z.target }}Cr</span>
+        </div>
+        <div class="zone-bar-wrap">
+          <div class="zone-bar-bg">
+            <div class="zone-bar-fill"
+              [style.width.%]="getZonePercent(z)"
+              [style.background]="z.color">
+            </div>
+          </div>
+          <span class="zone-pct" [style.color]="z.color">{{ getZonePercent(z) }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tables Row ── -->
+  <div class="tables-row">
+
+    <!-- Recent Taxpayers -->
+    <div class="table-card">
+      <div class="tc-header">
+        <div class="cch-left">
+          <div class="cch-icon teal"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <div class="cch-title">Recent Taxpayers</div>
+            <div class="cch-sub">Latest registrations</div>
+          </div>
+        </div>
+        <a routerLink="/taxpayers" class="view-all-link">
+          View All <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="mini-table">
+        <div class="mt-row" *ngFor="let t of recentTaxpayers">
+          <div class="mt-avatar">{{ t.name.charAt(0) }}</div>
+          <div class="mt-info">
+            <span class="mt-name">{{ t.name }}</span>
+            <span class="mt-sub">{{ t.tin }} · {{ t.type }}</span>
+          </div>
+          <div class="mt-right">
+            <span class="status-badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span>
+            <span class="mt-date">{{ t.date }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Payments -->
+    <div class="table-card">
+      <div class="tc-header">
+        <div class="cch-left">
+          <div class="cch-icon blue"><i class="bi bi-credit-card-fill"></i></div>
+          <div>
+            <div class="cch-title">Recent Payments</div>
+            <div class="cch-sub">Latest transactions</div>
+          </div>
+        </div>
+        <a routerLink="/payments" class="view-all-link">
+          View All <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="mini-table">
+        <div class="mt-row" *ngFor="let p of recentPayments">
+          <div class="mt-avatar pay">৳</div>
+          <div class="mt-info">
+            <span class="mt-name">{{ p.taxpayer }}</span>
+            <span class="mt-sub">{{ p.ref }} · {{ p.type }}</span>
+          </div>
+          <div class="mt-right">
+            <span class="mt-amount">{{ formatCurrency(p.amount) }}</span>
+            <span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ p.status }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 
 </div>

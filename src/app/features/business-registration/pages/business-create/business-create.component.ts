@@ -13,7 +13,17 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
   styleUrls: ['./business-create.component.css'],
 })
 export class BusinessCreateComponent implements OnDestroy {
+
+  // ──────────────── State ────────────────
+
   isLoading = false;
+
+  form: BusinessCreateRequest = this.getEmptyForm();
+
+  private destroy$ = new Subject<void>();
+
+
+  // ──────────────── Static Data ────────────────
 
   businessTypes = [
     'Sole Proprietorship',
@@ -64,9 +74,7 @@ export class BusinessCreateComponent implements OnDestroy {
     Mymensingh: ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur'],
   };
 
-  form: BusinessCreateRequest = this.getEmptyForm();
-
-  private destroy$ = new Subject<void>();
+  // ────────────── Constructor  ────────────────
 
   constructor(
     private http: HttpClient,
@@ -74,24 +82,14 @@ export class BusinessCreateComponent implements OnDestroy {
     private toast: ToastService,
   ) {}
 
+  // ──────────────── Lifecycle ────────────────
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  // ─── Getters ─────────────────────────────────────────────────────────────────
-
-  get availableDistricts(): string[] {
-    return this.districts[this.form.division] || [];
-  }
-
-  // ─── Event Handlers ───────────────────────────────────────────────────────────
-
-  onDivisionChange(): void {
-    this.form.district = '';
-  }
-
-  // ─── Helpers ─────────────────────────────────────────────────────────────────
+  // ──────────────── Form Factory  ────────────────
 
   private getEmptyForm(): BusinessCreateRequest {
     return {
@@ -116,7 +114,21 @@ export class BusinessCreateComponent implements OnDestroy {
     };
   }
 
-  // ─── Validation ───────────────────────────────────────────────────────────────
+
+  // ────────── Getters ─────────────
+
+  get availableDistricts(): string[] {
+    return this.districts[this.form.division] || [];
+  }
+
+  // ────────── Event Handlers ─────────────
+
+  onDivisionChange(): void {
+    this.form.district = '';
+  }
+
+  
+  // ──────────────── Validation  ───────────────
 
   isFormValid(): boolean {
     const requiredFields = !!(
@@ -140,34 +152,43 @@ export class BusinessCreateComponent implements OnDestroy {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email);
   }
 
-  // ─── Form Actions ─────────────────────────────────────────────────────────────
+  // ──────────────── Actions ────────────────
 
   onSubmit(): void {
     if (!this.isFormValid()) {
-      this.toast.warning(
-        'Please fill in all required fields with valid values.',
-      );
+      this.showValidationWarning();
       return;
-    }
+    } 
 
     this.isLoading = true;
+    this.createBusiness();
+  }
 
+  private createBusiness(): void {
     this.http
       .post(API_ENDPOINTS.BUSINESSES.CREATE, this.form)
       .pipe(takeUntil(this.destroy$),
         finalize(() => this.isLoading = false))
       .subscribe({
-        next: () => {
-          this.toast.success('Business registered successfully!');
-          setTimeout(() => this.router.navigate(['/businesses']), 1500);
-        },
-        error: (error) => {
-          console.error('Error registering business:', error);
-          this.toast.error('Failed to register business. Please try again.');
-        },
+        next: () => this.handleSuccess(),
+        error: (error) => this.handleError(error),
       });
   }
 
+  private handleSuccess(): void {
+    this.toast.success('Business created successfully!');
+    setTimeout(() => this.router.navigate(['/businesses']), 1500);
+  }
+
+  private handleError(error: unknown): void {
+    console.error('Error creating business:', error);
+    this.toast.error('Failed to create business. Please try again.');
+  }
+  
+  private showValidationWarning(): void {
+    this.toast.warning('Please fill in all required fields with valid values.');
+  }
+  
   onReset(): void {
     this.form = this.getEmptyForm();
     this.toast.info('Form has been reset.');

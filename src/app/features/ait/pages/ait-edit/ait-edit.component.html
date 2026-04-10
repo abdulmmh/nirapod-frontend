@@ -6,10 +6,6 @@
   <button class="btn-back" (click)="onCancel()"><i class="bi bi-arrow-left"></i> Back to View</button>
 </div>
 
-<div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
-<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
-<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border" style="color:#7c3aed"></div></div>
-
 <div class="form-card" *ngIf="!isLoading">
 
   <div class="edit-banner">

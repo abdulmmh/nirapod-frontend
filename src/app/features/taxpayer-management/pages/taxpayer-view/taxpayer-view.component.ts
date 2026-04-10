@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
@@ -13,11 +13,15 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 })
 export class TaxpayerViewComponent implements OnInit {
 
+ // ────────────────── Properties ──────────────────────
+
   taxpayer: Taxpayer | null = null;
   isLoading = true;
   taxpayerId: number | null = null;
   
   private destroy$ = new Subject<void>();
+
+  // ──────────────────── Constructor ───────────────────────
 
   constructor(
     private route: ActivatedRoute,
@@ -26,18 +30,10 @@ export class TaxpayerViewComponent implements OnInit {
     private toast: ToastService
   ) {}
 
+ // ────────────────────── Lifecycle ──────────────────────
+
   ngOnInit(): void {
-    const rawId    = this.route.snapshot.paramMap.get('id');
-    const parsedId = Number(rawId);
-
-    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
-      this.isLoading = false;
-      this.toast.error('Invalid business ID. Please go back and try again.');
-      return;
-    }
-
-    this.taxpayerId = parsedId;
-    this.loadTaxpayer();
+    this.initializeTaxpayer();
   }
 
   ngOnDestroy(): void {
@@ -45,22 +41,69 @@ export class TaxpayerViewComponent implements OnInit {
     this.destroy$.complete();
   }
 
-    loadTaxpayer(): void {
-      this.isLoading = true;
-  
-      this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(this.taxpayerId!))
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: data => {
-            this.taxpayer  = data;
-            this.isLoading = false;
-          },
-          error: () => {
-            this.isLoading = false;
-            this.toast.error('Failed to load taxpayer details. Please go back and try again.');
-          }
-        });
+  // ────────────────────── Initialization  ─────────────────────
+
+  private initializeTaxpayer(): void {
+    const id = this.getValidTaxpayerId();
+
+    if (!id) {
+      this.handleInvalidId();
+      return;
     }
+
+    this.taxpayerId = id;
+    this.fetchTaxpayer();
+  }
+
+  private getValidTaxpayerId(): number | null {
+   const rawId = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    return rawId && !isNaN(parsedId) && parsedId > 0 ? parsedId : null;
+  }
+
+  private handleInvalidId(): void {
+    this.toast.error('Invalid taxpayer ID.Please go back and try again.');
+    this.isLoading = false;
+  }
+
+  private fetchTaxpayer(): void {
+    if (!this.taxpayerId) return;
+
+    this.isLoading = true;
+
+    this.http
+      .get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(this.taxpayerId))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false))
+      )
+      .subscribe({
+        next: (data) => this.handleFetchSuccess(data),
+        error: (error) => this.handleFetchError(error),
+      });
+  }
+
+  private handleFetchSuccess(data: Taxpayer): void {
+    this.taxpayer = data;
+  }
+
+  private handleFetchError(error: any): void {
+    this.toast.error('Failed to fetch taxpayer details. Please try again.');
+    this.isLoading = false;
+  }
+
+ // ───────────────────── Navigation ────────────────────────
+
+  onEdit(): void {
+    if (!this.taxpayer?.id) return;
+    this.router.navigate(['/taxpayers/edit', this.taxpayer.id]);
+  }
+
+  onBack(): void {
+    this.router.navigate(['/Taxpayer']);
+  }
+  // ────────────────────── UI Helpers ──────────────────────
 
   getStatusClass(status: string): string {
     const map: Record<string, string> = {
@@ -70,9 +113,5 @@ export class TaxpayerViewComponent implements OnInit {
     return map[status] ?? '';
   }
 
-  onEdit(): void { 
-    if (!this.taxpayer?.id) return;
-    this.router.navigate(['/taxpayers', 'edit', this.taxpayer?.id]); 
-  }
-  onBack(): void { this.router.navigate(['/taxpayers']); }
+
 }

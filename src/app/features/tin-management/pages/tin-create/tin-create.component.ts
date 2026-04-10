@@ -12,7 +12,17 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
   styleUrls: ['./tin-create.component.css'],
 })
 export class TinCreateComponent {
+
+  // ──────────────── Properties ────────────────
+  
   isLoading = false;
+
+  form: TinCreateRequest = this.getEmptyForm();
+
+  private destroy$ = new Subject<void>();
+
+
+  // ──────────────── Static Data ────────────────
 
   tinCategories = ['Individual', 'Company', 'Partnership', 'NGO', 'Government'];
   divisions = [
@@ -54,7 +64,23 @@ export class TinCreateComponent {
     Mymensingh: ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur'],
   };
 
-  form: TinCreateRequest = this.getEmptyForm();
+  
+  // ────────────── Constructor  ────────────────
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
+  ) {}
+
+  // ──────────────── Lifecycle ────────────────
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ──────────────── Form Factory  ────────────────
 
   private getEmptyForm(): TinCreateRequest {
     return {
@@ -76,7 +102,8 @@ export class TinCreateComponent {
     };
   }
 
-  private destroy$ = new Subject<void>();
+
+  // ────────── Getters ─────────────
 
   get isIndividual(): boolean {
     return this.form.tinCategory === 'Individual';
@@ -92,9 +119,14 @@ export class TinCreateComponent {
     return this.districts[this.form.division] || [];
   }
 
+
+  // ────────── Event Handlers ─────────────
+
   onDivisionChange(): void {
     this.form.district = '';
   }
+
+  // ──────────────── Validation  ───────────────
 
   isFormValid(): boolean {
     return !!(
@@ -112,43 +144,44 @@ export class TinCreateComponent {
     );
   }
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private toast: ToastService,
-  ) {}
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+ // ──────────────── Actions ────────────────
 
   onSubmit(): void {
     if (!this.isFormValid()) {
-      this.toast.warning(
-        'Please fill in all required fields with valid values.',
-      );
+      this.showValidationWarning();
       return;
     }
 
     this.isLoading = true;
+    this.createTin();
+  }
 
+  private createTin(): void {
     this.http
       .post(API_ENDPOINTS.TINS.CREATE, this.form)
-      .pipe(takeUntil(this.destroy$),
-        finalize(() => {
-          this.isLoading = false;
-        }))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
       .subscribe({
-        next: () => {
-          this.toast.success('Tin registered successfully!');
-          setTimeout(() => this.router.navigate(['/tin']), 1500);
-        },
-        error: (error) => {
-          console.error('Error registering tin:', error);
-          this.toast.error('Failed to register tin. Please try again.');
-        },
+        next: () => this.handleSuccess(),
+        error: (error) => this.handleError(error),
       });
+  }
+
+  private handleSuccess(): void {
+    this.toast.success('Tin record created successfully!');
+    setTimeout(() => this.router.navigate(['/tins']), 1500);
+  }
+
+  private handleError(error: unknown): void {
+    console.error('Error creating TIN records:', error);
+    this.toast.error('Failed to create TIN records. Please try again.');
+  }
+  
+  private showValidationWarning(): void {
+    this.toast.warning('Please fill in all required fields with valid values.');
   }
 
   onReset(): void {

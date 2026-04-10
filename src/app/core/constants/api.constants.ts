@@ -1,3 +1,5 @@
+import { AitSourceType } from "src/app/models/ait.model";
+
 export const API_BASE_URL = 'http://localhost:8080/api';
 
 export const API_ENDPOINTS = {
@@ -28,6 +30,8 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `${API_BASE_URL}/businesses/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/businesses/${id}`,
   },
+
+
   // TIN Management
   TINS: {
     LIST:   `${API_BASE_URL}/tin`,
@@ -54,8 +58,8 @@ export const API_ENDPOINTS = {
     GET:    (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
   },
 
-  // AIT (Annual Income Tax)
-  AIT: {
+  // AIT (Advance Income Tax)
+  AITS: {
     LIST:   `${API_BASE_URL}/ait`,
     CREATE: `${API_BASE_URL}/ait`,
     UPDATE: (id: number) => `${API_BASE_URL}/ait/${id}`,
@@ -111,7 +115,9 @@ export const API_ENDPOINTS = {
   AUDITS: {
     LIST:   `${API_BASE_URL}/audits`,
     CREATE: `${API_BASE_URL}/audits`,
+    UPDATE: (id: number) => `${API_BASE_URL}/audits/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/audits/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/audits/${id}`,
   },
 
   // Users
@@ -143,6 +149,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
+    BY_SOURCE: (source: AitSourceType) => `${API_BASE_URL}/tax-structures?source=${source}`,
   },
 
   // TaxableProducts

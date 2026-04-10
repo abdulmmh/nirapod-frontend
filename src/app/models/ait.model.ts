@@ -12,23 +12,26 @@ export interface Ait {
   aitRate: number;
   aitAmount: number;
   deductionDate: string;
-  depositDate: string;
+  depositDate?: string; 
   deductedBy: string;
   fiscalYear: string;
   status: AitStatus;
-  remarks: string;
+  remarks?: string; 
 }
 
+
 export interface AitCreateRequest {
+
   tinNumber: string;
   taxpayerName: string;
-  sourceType: string;
+  sourceType: AitSourceType; 
   taxStructureId: number;
   grossAmount: number;
   aitRate: number;
   deductionDate: string;
+  depositDate?: string; 
   fiscalYear: string;
   deductedBy: string;
-  status: string;
-  remarks: string;
+  status: AitStatus; 
+  remarks?: string;
 }

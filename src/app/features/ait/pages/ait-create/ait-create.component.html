@@ -8,13 +8,6 @@
   </button>
 </div>
 
-<div class="alert-success" *ngIf="successMsg">
-  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
-</div>
-<div class="alert-error" *ngIf="errorMsg">
-  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
-</div>
-
 <div class="form-card">
 
   <!-- Section 1: Taxpayer -->
@@ -37,7 +30,8 @@
             (ngModelChange)="onTaxpayerChange()">
             <option value="">Select Taxpayer</option>
             <option *ngFor="let tp of taxpayers" [value]="tp.tin">
-              {{ tp.name }} — {{ tp.tin }}
+              {{ tp.fullName }} — 
+              {{ tp.tin }}
             </option>
           </select>
         </div>
@@ -87,7 +81,7 @@
             (ngModelChange)="onStructureChange()"
             [disabled]="availableStructures.length === 0">
             <option [value]="0">{{ availableStructures.length === 0 ? 'Select source first' : 'Select Structure' }}</option>
-            <option *ngFor="let s of availableStructures" [value]="s.id">{{ s.name }}</option>
+            <option *ngFor="let s of availableStructures" [value]="s.id">{{ s.taxName }}</option>
           </select>
         </div>
       </div>

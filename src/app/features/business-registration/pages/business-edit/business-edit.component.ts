@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
+
 import { Business } from '../../../../models/business.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -13,11 +14,20 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
   styleUrls: ['./business-edit.component.css'],
 })
 export class BusinessEditComponent implements OnInit, OnDestroy {
+ 
+  // ──────── Properties ──────────
+
   isLoading = true;
   isSaving = false;
   businessId: number | null = null;
 
-  businessTypes = [
+  form: Partial<Business> = {};
+
+  private destroy$ = new Subject<void>();
+
+  // ────────── Static Data ──────────────
+
+  readonly businessTypes = [
     'Sole Proprietorship',
     'Partnership',
     'Private Limited',
@@ -25,7 +35,8 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
     'NGO',
     'Other',
   ];
-  businessCategories = [
+
+  readonly businessCategories = [
     'Manufacturing',
     'Trading',
     'Service',
@@ -36,8 +47,16 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
     'Education',
     'Other',
   ];
-  statuses = ['Active', 'Inactive', 'Pending', 'Suspended', 'Dissolved'];
-  divisions = [
+
+  readonly statuses = [
+    'Active',
+    'Inactive',
+    'Pending',
+    'Suspended',
+    'Dissolved',
+  ];
+
+  readonly divisions = [
     'Dhaka',
     'Chittagong',
     'Rajshahi',
@@ -48,7 +67,7 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
     'Mymensingh',
   ];
 
-  districts: Record<string, string[]> = {
+  readonly districts: Record<string, string[]> = {
     Dhaka: ['Dhaka', 'Gazipur', 'Narayanganj', 'Tangail', 'Narsingdi'],
     Chittagong: [
       'Chittagong',
@@ -65,13 +84,13 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
     Mymensingh: ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur'],
   };
 
-  form: Partial<Business> = {};
-
-  private destroy$ = new Subject<void>();
+  // ─────────  Getter ───────────────
 
   get availableDistricts(): string[] {
     return this.districts[this.form.division ?? ''] || [];
   }
+
+  // ─────────── Constructor ──────────────
 
   constructor(
     private route: ActivatedRoute,
@@ -80,18 +99,10 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
     private toast: ToastService,
   ) {}
 
+  // ───────────── Lifecycle ──────────────────
+
   ngOnInit(): void {
-    const rawId = this.route.snapshot.paramMap.get('id');
-    const parsedId = Number(rawId);
-
-    if (!rawId || isNaN(parsedId) || parsedId <= 0) {
-      this.isLoading = false;
-      this.toast.error('Invalid business ID. Please go back and try again.');
-      return;
-    }
-
-    this.businessId = parsedId;
-    this.loadBusiness();
+    this.initializeBusiness();
   }
 
   ngOnDestroy(): void {
@@ -99,50 +110,86 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ─── Data Loading ─────────────────────────────────────────────────────────────
+  // ─────────── Initialization  ─────────────
 
-  loadBusiness(): void {
-    if (!this.businessId) {
-      this.toast.error('Invalid Business ID. Please go back and try again.');
+  private initializeBusiness(): void {
+    const id = this.getValidBusinessId();
+
+    if (!id) {
+      this.handleInvalidId();
       return;
     }
+
+    this.businessId = id;
+    this.fetchBusiness();
+  }
+
+  // ───────────  Data Fetching ───────────────
+
+  private fetchBusiness(): void {
+    if (!this.businessId) return;
+
     this.isLoading = true;
 
     this.http
       .get<Business>(API_ENDPOINTS.BUSINESSES.GET(this.businessId))
-      .pipe(takeUntil(this.destroy$),
-        finalize(() => {
-          this.isLoading = false;
-        }))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
       .subscribe({
-        next: (data) => {
-          this.form = { ...data };
-          // WARNING: license already expired
-          if (data.expiryDate && this.isExpired(data.expiryDate)) {
-            this.toast.warning(
-              'This business license has expired. Please update the expiry date.',
-            );
-          }
-        },
-        error: (error) => {
-          console.error('Error loading business data:', error);
-          this.toast.error(
-            'Failed to load business data. Please refresh or go back.',
-          );
-        },
+        next: (data) => this.handleFetchSuccess(data),
+        error: (error) => this.handleFetchError(error),
       });
   }
 
-  // ─── Event Handlers ───────────────────────────────────────────────────────────
+  private handleFetchSuccess(data: Business): void {
+    this.form = { ...data };
+
+    if (data.expiryDate && this.isExpired(data.expiryDate)) {
+      this.toast.warning(
+        'This business license has expired. Please update the expiry date.',
+      );
+    }
+  }
+
+  private handleFetchError(error: unknown): void {
+    console.error('Error loading business data:', error);
+    this.toast.error(
+      'Failed to load business data. Please refresh or go back.',
+    );
+  }
+
+  // ─────────── Events  ────────────────
 
   onDivisionChange(): void {
     this.form.district = '';
   }
 
-  // ─── Validation ───────────────────────────────────────────────────────────────
+  onCancel(): void {
+    this.router.navigate(['/businesses/view', this.businessId]);
+  }
+
+  // ────────── Validation ───────────────
+
+  private getValidBusinessId(): number | null {
+    const rawId = this.route.snapshot.paramMap.get('id');
+    const parsedId = Number(rawId);
+
+    return rawId && !isNaN(parsedId) && parsedId > 0 ? parsedId : null;
+  }
+
+  private handleInvalidId(): void {
+    this.isLoading = false;
+    this.toast.error('Invalid business ID. Please go back and try again.');
+  }
 
   isFormValid(): boolean {
-    const requiredFields = !!(
+    return this.hasRequiredFields() && this.isEmailValid();
+  }
+
+  private hasRequiredFields(): boolean {
+    return !!(
       this.form.businessName &&
       this.form.tinNumber &&
       this.form.ownerName &&
@@ -155,58 +202,60 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
       this.form.status &&
       this.form.registrationDate
     );
-
-    return requiredFields && this.isEmailValid();
   }
 
-  isEmailValid(): boolean {
+  private isEmailValid(): boolean {
     if (!this.form.email) return true;
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email);
   }
 
-  isExpired(date: string): boolean {
-    if (!date) return false;
+  private isExpired(date: string): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return new Date(date) < today;
   }
 
-  // ─── Form Actions ─────────────────────────────────────────────────────────────
+  // ───────── Actions  ─────────────
 
   onSubmit(): void {
     if (!this.isFormValid()) {
-      this.toast.warning(
-        'Please fill in all required fields with valid values.',
-      );
+      this.showValidationWarning();
       return;
     }
 
     if (!this.businessId) {
-    this.toast.error('Invalid Business ID. Please go back and try again.');
-    return;
-  }
+      this.handleInvalidId();
+      return;
+    }
 
     this.isSaving = true;
+    this.updateBusiness();
+  }
 
+  private updateBusiness(): void {
     this.http
-      .put(API_ENDPOINTS.BUSINESSES.UPDATE(this.businessId), this.form)
-      .pipe(takeUntil(this.destroy$),
-        finalize(() => {
-          this.isSaving = false;
-        }))
+      .put(API_ENDPOINTS.BUSINESSES.UPDATE(this.businessId!), this.form)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isSaving = false)),
+      )
       .subscribe({
-        next: () => {
-          this.toast.success('Business updated successfully!');
-          setTimeout(() => this.router.navigate(['/businesses']), 1500);
-        },
-        error: (error) => {
-         console.error('Error updating business:', error);
-          this.toast.error('Failed to update business. Please try again.');
-        },
+        next: () => this.handleUpdateSuccess(),
+        error: (error) => this.handleUpdateError(error),
       });
   }
 
-  onCancel(): void {
-    this.router.navigate(['/businesses/view', this.businessId]);
+  private handleUpdateSuccess(): void {
+    this.toast.success('Business updated successfully!');
+    setTimeout(() => this.router.navigate(['/businesses']), 1500);
+  }
+
+  private handleUpdateError(error: unknown): void {
+    console.error('Error updating business:', error);
+    this.toast.error('Failed to update business. Please try again.');
+  }
+
+  private showValidationWarning(): void {
+    this.toast.warning('Please fill in all required fields with valid values.');
   }
 }

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
@@ -13,6 +13,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 })
 export class TaxpayerListComponent implements OnInit {
 
+// ────────────────── Properties ──────────────────
   taxpayers: Taxpayer[] = [];
   searchTerm = '';
   isLoading  = false;
@@ -23,10 +24,17 @@ export class TaxpayerListComponent implements OnInit {
   pendingDeleteId: number | null = null;
 
 
-  constructor(private http: HttpClient, private router: Router, private toast: ToastService) {}
+  // ──────────────Constructor  ───────────────────
 
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
+  ) {}
+
+  // ─────────────── Lifecycle  ───────────────────
   ngOnInit(): void {
-    this.loadTaxpayers();
+    this.fetchTaxpayer();
   }
 
   ngOnDestroy(): void {
@@ -34,38 +42,62 @@ export class TaxpayerListComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  loadTaxpayers(): void {
-      this.isLoading = true;
-  
-      this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: data => {
-            this.taxpayers = data;
-            this.isLoading  = false;
-  
-            // INFO: 
-            if (data.length === 0) {
-              this.toast.info('No taxpayers registered yet. Click "Register Taxpayer" to add one.');
-            }
-          },
-          error: () => {
-            this.isLoading = false;
-            this.toast.error('Failed to load taxpayers. Please refresh the page.');
-          }
-        });
+
+  // ───────────────── Data Fetching  ────────────────────────
+
+  private fetchTaxpayer(): void {
+    this.isLoading = true;
+
+    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
+      .subscribe({
+        next: (data) => this.handleFetchSuccess(data),
+        error: (error) => this.handleFetchError(error),
+      });
+  }
+
+  private handleFetchSuccess(data: Taxpayer[]): void {
+    this.taxpayers = data;
+
+    this.notifyIfEmpty(data);
+  }
+
+  private handleFetchError(error: unknown): void {
+    console.error('Error loading taxpayers:', error);
+    this.toast.error('Failed to load taxpayers. Please refresh the page.');
+  }
+
+  private notifyIfEmpty(data: Taxpayer[]): void {
+    if (data.length === 0) {
+      this.toast.info(
+        'No taxpayers registered yet. Click "Register Taxpayer" to add one.',
+      );
     }
+  }
+
+  // ─────────────────── Filtering  ─────────────────────────
 
   get filteredTaxpayers(): Taxpayer[] {
     if (!this.searchTerm.trim()) return this.taxpayers;
+
     const term = this.searchTerm.toLowerCase();
-    return this.taxpayers.filter(tp =>
+
+    return this.taxpayers.filter((tp) => this.matchesSearchTerm(tp, term));
+  }
+
+  private matchesSearchTerm(tp: Taxpayer, term: string): boolean {
+    return (
       tp.fullName.toLowerCase().includes(term) ||
       tp.tin.toLowerCase().includes(term)      ||
       tp.email.toLowerCase().includes(term)    ||
       tp.phone.includes(term)
     );
   }
+
+  // ─────────────────── Delete Flow ─────────────────────────
 
    confirmDelete(id: number): void {
     this.pendingDeleteId = id;
@@ -79,23 +111,58 @@ export class TaxpayerListComponent implements OnInit {
 
   confirmDeleteExecute(): void {
     if (this.pendingDeleteId === null) return;
+
     const id = this.pendingDeleteId;
-    this.showDeleteModal = false;
-    this.pendingDeleteId = null;
+
+    this.resetDeleteState();
+
+    this.deleteTaxpayer(id);
+  }
+
+
+  private deleteTaxpayer(id: number): void {
+    if (this.pendingDeleteId === null) return;
 
     this.http.delete(API_ENDPOINTS.TAXPAYERS.DELETE(id))
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.taxpayers = this.taxpayers.filter(t => t.id !== id);
-          this.toast.success('Taxpayer deleted successfully.');
-        },
-        error: () => {
-          this.toast.error('Failed to delete taxpayer. Please try again.');
-        }
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false))
+      )
+       .subscribe({
+        next: () => this.handleDeleteSuccess(id),
+        error: () => this.handleDeleteError(),
       });
   }
 
+  private handleDeleteSuccess(id: number): void {
+    this.taxpayers = this.taxpayers.filter((tp) => tp.id !== id);
+    this.toast.success('Taxpayer deleted successfully.');
+    this.resetDeleteState();
+  }
+
+  private handleDeleteError(): void {
+    this.toast.error('Failed to delete taxpayer. Please try again.');
+    this.resetDeleteState();
+  }
+
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
+  }
+
+  // ─────────────────── Pagination ─────────────────────────
+
+   viewTaxpayers(id: number): void {
+    this.router.navigate(['/taxpayers/view' , id]);
+  }
+
+  editTaxpayers(id: number): void {
+    this.router.navigate(['/taxpayers/edit', id]);
+  }
+
+
+  // ─────────────────── UI Helpers ─────────────────────────
+  
   getStatusClass(status: string): string {
     const map: Record<string, string> = {
       'Active':    'status-active',
@@ -106,12 +173,5 @@ export class TaxpayerListComponent implements OnInit {
     return map[status] ?? '';
   }
 
-  viewTaxpayers(id: number): void {
-    this.router.navigate(['/taxpayers/view' , id]);
-  }
-
-  editTaxpayers(id: number): void {
-    this.router.navigate(['/taxpayers/edit', id]);
-  }
-
+ 
 }
