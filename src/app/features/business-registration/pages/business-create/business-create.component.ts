@@ -93,6 +93,7 @@ export class BusinessCreateComponent implements OnDestroy {
 
   private getEmptyForm(): BusinessCreateRequest {
     return {
+      taxpayerId: 0,
       businessName: '',
       tinNumber: '',
       ownerName: '',
@@ -132,6 +133,7 @@ export class BusinessCreateComponent implements OnDestroy {
 
   isFormValid(): boolean {
     const requiredFields = !!(
+      this.form.taxpayerId &&
       this.form.businessName &&
       this.form.tinNumber &&
       this.form.ownerName &&

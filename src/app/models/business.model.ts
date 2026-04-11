@@ -4,6 +4,7 @@ export type BusinessCategory = 'Manufacturing' | 'Trading' | 'Service' | 'Agricu
 
 export interface Business {
   id: number;
+  taxpayerId: number;
   businessRegNo: string;
   businessName: string;
   tinNumber: string;
@@ -27,6 +28,7 @@ export interface Business {
 }
 
 export interface BusinessCreateRequest {
+  taxpayerId: number;
   businessName: string;
   tinNumber: string;
   ownerName: string;

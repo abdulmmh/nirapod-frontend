@@ -159,6 +159,12 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
+  },
+  //Get MaterData
+  MASTER_DATA: {
+  DIVISIONS: `${API_BASE_URL}/master/divisions`,
+  DISTRICTS: `${API_BASE_URL}/master/districts`,
+  TAXPAYER_TYPES: `${API_BASE_URL}/master/taxpayer-types`,
+  DISTRICTS_BY_DIVISION: (divisionId: number) => `${API_BASE_URL}/master/districts/division/${divisionId}`,
   }
-
 };

@@ -10,7 +10,7 @@ export class BaseApiService {
 
   constructor(protected http: HttpClient) {}
 
-  protected get<T>(url: string, params?: any): Observable<T> {
+  public get<T>(url: string, params?: any): Observable<T> {
     let httpParams = new HttpParams();
     if (params) {
       Object.keys(params).forEach(key => {
