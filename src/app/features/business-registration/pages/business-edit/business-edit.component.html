@@ -8,7 +8,6 @@
   </button>
 </div>
 
-
 <div class="loading-overlay" *ngIf="isLoading">
   <div class="spinner-border text-primary"></div>
   <p>Loading business data...</p>
@@ -34,6 +33,7 @@
       </div>
     </div>
     <div class="form-grid">
+
       <div class="form-group full-width">
         <label class="form-label required">Business Name</label>
         <div class="input-wrap">
@@ -41,6 +41,7 @@
           <input type="text" class="form-input" [(ngModel)]="form.businessName" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label required">TIN Number</label>
         <div class="input-wrap">
@@ -48,6 +49,7 @@
           <input type="text" class="form-input" [(ngModel)]="form.tinNumber" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label required">Owner Name</label>
         <div class="input-wrap">
@@ -55,24 +57,29 @@
           <input type="text" class="form-input" [(ngModel)]="form.ownerName" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label required">Business Type</label>
         <div class="input-wrap">
           <i class="bi bi-diagram-3-fill input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.businessType">
-            <option *ngFor="let t of businessTypes" [value]="t">{{ t }}</option>
+            <option value="">Select Type</option>
+            <option *ngFor="let t of businessTypes" [value]="t.id">{{ t.typeName }}</option>
           </select>
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label required">Business Category</label>
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.businessCategory">
-            <option *ngFor="let c of businessCategories" [value]="c">{{ c }}</option>
+            <option value="">Select Category</option>
+            <option *ngFor="let c of businessCategories" [value]="c.id">{{ c.categoryName }}</option>
           </select>
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Status</label>
         <div class="input-wrap">
@@ -82,6 +89,7 @@
           </select>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -99,6 +107,7 @@
       </div>
     </div>
     <div class="form-grid">
+
       <div class="form-group">
         <label class="form-label">Trade License No.</label>
         <div class="input-wrap">
@@ -106,6 +115,7 @@
           <input type="text" class="form-input" [(ngModel)]="form.tradeLicenseNo" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">BIN No.</label>
         <div class="input-wrap">
@@ -113,6 +123,7 @@
           <input type="text" class="form-input" [(ngModel)]="form.binNo" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Incorporation Date</label>
         <div class="input-wrap">
@@ -120,13 +131,15 @@
           <input type="date" class="form-input" [(ngModel)]="form.incorporationDate" />
         </div>
       </div>
+
       <div class="form-group">
-        <label class="form-label">Registration Date</label>
+        <label class="form-label required">Registration Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-check input-icon"></i>
           <input type="date" class="form-input" [(ngModel)]="form.registrationDate" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Expiry Date</label>
         <div class="input-wrap">
@@ -134,6 +147,7 @@
           <input type="date" class="form-input" [(ngModel)]="form.expiryDate" />
         </div>
       </div>
+
     </div>
   </div>
 
@@ -151,6 +165,7 @@
       </div>
     </div>
     <div class="form-grid">
+
       <div class="form-group">
         <label class="form-label">Email</label>
         <div class="input-wrap">
@@ -158,6 +173,7 @@
           <input type="email" class="form-input" [(ngModel)]="form.email" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label required">Phone</label>
         <div class="input-wrap">
@@ -165,24 +181,35 @@
           <input type="text" class="form-input" [(ngModel)]="form.phone" />
         </div>
       </div>
+
       <div class="form-group">
-        <label class="form-label">Division</label>
+        <label class="form-label required">Division</label>
         <div class="input-wrap">
           <i class="bi bi-map-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.division">
-            <option *ngFor="let d of divisions" [value]="d">{{ d }}</option>
+          <select class="form-input form-select"
+            [(ngModel)]="form.divisionId"
+            (ngModelChange)="onDivisionChange()">
+            <option [ngValue]="undefined">Select Division</option>
+            <option *ngFor="let d of divisions" [value]="d.id">{{ d.name }}</option>
           </select>
         </div>
       </div>
+
       <div class="form-group">
-        <label class="form-label">District</label>
+        <label class="form-label required">District</label>
         <div class="input-wrap">
           <i class="bi bi-geo-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.district">
-            <option *ngFor="let d of availableDistricts" [value]="d">{{ d }}</option>
+          <select class="form-input form-select"
+            [(ngModel)]="form.districtId"
+            [disabled]="!form.divisionId || districts.length === 0">
+            <option [ngValue]="undefined">
+              {{ !form.divisionId ? 'Select division first' : districts.length === 0 ? 'Loading...' : 'Select District' }}
+            </option>
+            <option *ngFor="let d of districts" [value]="d.id">{{ d.name }}</option>
           </select>
         </div>
       </div>
+
       <div class="form-group full-width">
         <label class="form-label">Full Address</label>
         <div class="input-wrap">
@@ -191,6 +218,7 @@
             [(ngModel)]="form.address" rows="2"></textarea>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -208,6 +236,7 @@
       </div>
     </div>
     <div class="form-grid">
+
       <div class="form-group">
         <label class="form-label">Annual Turnover (৳)</label>
         <div class="input-wrap">
@@ -215,6 +244,7 @@
           <input type="number" class="form-input" [(ngModel)]="form.annualTurnover" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Number of Employees</label>
         <div class="input-wrap">
@@ -222,6 +252,7 @@
           <input type="number" class="form-input" [(ngModel)]="form.numberOfEmployees" />
         </div>
       </div>
+
       <div class="form-group full-width">
         <label class="form-label">Remarks</label>
         <div class="input-wrap">
@@ -230,6 +261,7 @@
             [(ngModel)]="form.remarks" rows="2"></textarea>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -241,7 +273,9 @@
     <button class="btn-submit" (click)="onSubmit()"
       [disabled]="isSaving || !isFormValid()">
       <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update Business</span>
-      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+      <span *ngIf="isSaving">
+        <span class="spinner-border spinner-border-sm me-2"></span>Updating...
+      </span>
     </button>
   </div>
 

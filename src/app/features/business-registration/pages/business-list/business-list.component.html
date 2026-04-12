@@ -3,8 +3,7 @@
     <h4>Business Registration</h4>
     <p>Manage all registered businesses and trade licenses.</p>
   </div>
-  <a *canDo="'create'" routerLink="/businesses/create"
-     class="btn-add-primary desktop-add-btn">
+  <a *canDo="'create'" routerLink="/businesses/create" class="btn-add-primary desktop-add-btn">
     <i class="bi bi-plus-lg"></i> Register Business
   </a>
 </div>
@@ -24,7 +23,6 @@
       </button>
     </div>
   </div>
-
 
   <div class="loading-row" *ngIf="isLoading">
     <div class="spinner-border spinner-border-sm text-primary"></div>
@@ -69,32 +67,31 @@
             </div>
           </td>
 
+
           <td>
             <span class="type-badge" [ngClass]="getTypeClass(b.businessType)">
-              {{ b.businessType }}
+              {{ getTypeName(b.businessType) }}
             </span>
           </td>
 
           <td>
             <span class="category-pill">
               <i [class]="getCategoryIcon(b.businessCategory)"></i>
-              {{ b.businessCategory }}
+              {{ getCategoryName(b.businessCategory) }}
             </span>
           </td>
 
           <td><span class="code-sm">{{ b.tinNumber }}</span></td>
-
           <td><span class="code-sm">{{ b.tradeLicenseNo }}</span></td>
 
-          <td>{{ b.district }}</td>
+          <td>{{ getDistrictName(b) }}</td>
 
-          <td class="num-cell">{{ b.numberOfEmployees }}</td>
-
+          <td class="num-cell">{{ b.numberOfEmployees ?? 0 }}</td>
           <td class="num-cell">{{ formatCurrency(b.annualTurnover) }}</td>
 
           <td>
-            <span [class]="isExpired(b.expiryDate) ? 'expiry-red' : 'expiry-normal'">
-              {{ b.expiryDate }}
+            <span [class]="isExpired(b.expiryDate!) ? 'expiry-red' : 'expiry-normal'">
+              {{ b.expiryDate || '—' }}
             </span>
           </td>
 
@@ -112,7 +109,6 @@
               <button *canDo="'edit'" class="btn-edit" (click)="edit(b.id)">
                 <i class="bi bi-pencil-fill"></i> Edit
               </button>
-              <!-- FIX #2: delete(b.id) → confirmDelete(b.id) -->
               <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
                 class="btn-delete" (click)="confirmDelete(b.id)">
                 <i class="bi bi-trash-fill"></i>
@@ -120,6 +116,7 @@
             </div>
           </td>
         </tr>
+
         <tr *ngIf="filteredBusinesses.length === 0">
           <td colspan="13">
             <div class="empty-state">
@@ -153,20 +150,22 @@
         <div class="mobile-field"><label>Owner</label><span>{{ b.ownerName }}</span></div>
         <div class="mobile-field"><label>TIN</label><span>{{ b.tinNumber }}</span></div>
         <div class="mobile-field"><label>Type</label>
-          <span class="type-badge" [ngClass]="getTypeClass(b.businessType)">{{ b.businessType }}</span>
+          <span class="type-badge" [ngClass]="getTypeClass(b.businessType)">
+            {{ getTypeName(b.businessType) }}
+          </span>
         </div>
-        <div class="mobile-field"><label>Category</label><span>{{ b.businessCategory }}</span></div>
-        <div class="mobile-field"><label>District</label><span>{{ b.district }}</span></div>
+        <div class="mobile-field"><label>Category</label><span>{{ getCategoryName(b.businessCategory) }}</span></div>
+        <div class="mobile-field"><label>Division</label><span>{{ getDivisionName(b) }}</span></div>
+        <div class="mobile-field"><label>District</label><span>{{ getDistrictName(b) }}</span></div>
         <div class="mobile-field"><label>Turnover</label><span>{{ formatCurrency(b.annualTurnover) }}</span></div>
-        <div class="mobile-field"><label>Employees</label><span>{{ b.numberOfEmployees }}</span></div>
+        <div class="mobile-field"><label>Employees</label><span>{{ b.numberOfEmployees ?? 0 }}</span></div>
         <div class="mobile-field"><label>Expiry</label>
-          <span [class]="isExpired(b.expiryDate) ? 'expiry-red' : ''">{{ b.expiryDate }}</span>
+          <span [class]="isExpired(b.expiryDate!) ? 'expiry-red' : ''">{{ b.expiryDate || '—' }}</span>
         </div>
       </div>
       <div class="mobile-card-actions">
         <button class="btn-view" (click)="view(b.id)"><i class="bi bi-eye-fill"></i> View</button>
         <button *canDo="'edit'" class="btn-edit" (click)="edit(b.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
-        <!-- FIX #2: delete(b.id) → confirmDelete(b.id) -->
         <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
           class="btn-delete" (click)="confirmDelete(b.id)">
           <i class="bi bi-trash-fill"></i>
@@ -184,7 +183,7 @@
   <i class="bi bi-plus-lg"></i>
 </button>
 
-<!-- FIX #3: Delete Confirmation Modal (replaces browser confirm()) -->
+<!-- Delete Confirmation Modal -->
 <div class="modal-overlay" *ngIf="showDeleteModal">
   <div class="modal-card">
     <div class="modal-accent error"></div>

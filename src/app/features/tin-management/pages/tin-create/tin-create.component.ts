@@ -12,15 +12,13 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
   styleUrls: ['./tin-create.component.css'],
 })
 export class TinCreateComponent {
-
   // ──────────────── Properties ────────────────
-  
+
   isLoading = false;
 
   form: TinCreateRequest = this.getEmptyForm();
 
   private destroy$ = new Subject<void>();
-
 
   // ──────────────── Static Data ────────────────
 
@@ -64,7 +62,6 @@ export class TinCreateComponent {
     Mymensingh: ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur'],
   };
 
-  
   // ────────────── Constructor  ────────────────
 
   constructor(
@@ -86,7 +83,7 @@ export class TinCreateComponent {
     return {
       taxpayerName: '',
       tinCategory: '',
-      nationalId: '',
+      nid: '',
       passportNo: '',
       dateOfBirth: '',
       incorporationDate: '',
@@ -101,7 +98,6 @@ export class TinCreateComponent {
       remarks: '',
     };
   }
-
 
   // ────────── Getters ─────────────
 
@@ -119,7 +115,6 @@ export class TinCreateComponent {
     return this.districts[this.form.division] || [];
   }
 
-
   // ────────── Event Handlers ─────────────
 
   onDivisionChange(): void {
@@ -136,16 +131,13 @@ export class TinCreateComponent {
       this.form.taxZone &&
       this.form.taxCircle &&
       this.form.issuedDate &&
-      (this.isIndividual
-        ? this.form.nationalId || this.form.passportNo
-        : true) &&
+      (this.isIndividual ? this.form.nid || this.form.passportNo : true) &&
       this.form.division &&
       this.form.district
     );
   }
 
-
- // ──────────────── Actions ────────────────
+  // ──────────────── Actions ────────────────
 
   onSubmit(): void {
     if (!this.isFormValid()) {
@@ -162,7 +154,7 @@ export class TinCreateComponent {
       .post(API_ENDPOINTS.TINS.CREATE, this.form)
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
+        finalize(() => (this.isLoading = false)),
       )
       .subscribe({
         next: () => this.handleSuccess(),
@@ -179,7 +171,7 @@ export class TinCreateComponent {
     console.error('Error creating TIN records:', error);
     this.toast.error('Failed to create TIN records. Please try again.');
   }
-  
+
   private showValidationWarning(): void {
     this.toast.warning('Please fill in all required fields with valid values.');
   }

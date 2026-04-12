@@ -74,9 +74,9 @@
           </td>
 
           <td>
-            <span class="code-sm" *ngIf="t.nationalId">{{ t.nationalId }}</span>
-            <span class="code-sm" *ngIf="!t.nationalId && t.passportNo">{{ t.passportNo }}</span>
-            <span class="text-muted" *ngIf="!t.nationalId && !t.passportNo">—</span>
+            <span class="code-sm" *ngIf="t.nid">{{ t.nid }}</span>
+            <span class="code-sm" *ngIf="!t.nid && t.passportNo">{{ t.passportNo }}</span>
+            <span class="text-muted" *ngIf="!t.nid && !t.passportNo">—</span>
           </td>
 
           <td><span class="zone-badge">{{ t.taxZone }}</span></td>
@@ -136,7 +136,7 @@
         <div class="mobile-field"><label>Category</label>
           <span class="cat-badge" [ngClass]="getCategoryClass(t.tinCategory)">{{ t.tinCategory }}</span>
         </div>
-        <div class="mobile-field" *ngIf="t.nationalId"><label>NID</label><span>{{ t.nationalId }}</span></div>
+        <div class="mobile-field" *ngIf="t.nid"><label>NID</label><span>{{ t.nid }}</span></div>
         <div class="mobile-field"><label>Tax Zone</label><span>{{ t.taxZone }}</span></div>
         <div class="mobile-field"><label>Tax Circle</label><span>{{ t.taxCircle }}</span></div>
         <div class="mobile-field"><label>District</label><span>{{ t.district }}</span></div>

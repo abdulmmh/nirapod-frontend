@@ -160,11 +160,15 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
   },
+
   //Get MaterData
   MASTER_DATA: {
   DIVISIONS: `${API_BASE_URL}/master/divisions`,
   DISTRICTS: `${API_BASE_URL}/master/districts`,
   TAXPAYER_TYPES: `${API_BASE_URL}/master/taxpayer-types`,
-  DISTRICTS_BY_DIVISION: (divisionId: number) => `${API_BASE_URL}/master/districts/division/${divisionId}`,
+  BUSINESS_TYPES:      `${API_BASE_URL}/master/business-types`,
+  BUSINESS_CATEGORIES: `${API_BASE_URL}/master/business-categories`,
+  DISTRICTS_BY_DIVISION: (divisionId: number) =>
+  `${API_BASE_URL}/master/divisions/${divisionId}/districts`
   }
 };

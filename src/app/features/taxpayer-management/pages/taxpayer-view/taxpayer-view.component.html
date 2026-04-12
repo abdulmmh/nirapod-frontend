@@ -25,9 +25,9 @@
       <div class="profile-avatar">{{ taxpayer.fullName.charAt(0) }}</div>
       <div>
         <div class="profile-name">{{ taxpayer.fullName }}</div>
-        <div class="profile-tin">{{ taxpayer.tin }}</div>
+        <div class="profile-tin">{{ taxpayer.tinNumber }}</div>
         <div class="profile-meta">
-          <span class="type-pill">{{ taxpayer.taxpayerType }}</span>
+          <span class="type-pill">{{ taxpayer.taxpayerType.typeName }}</span>
           <span class="status-badge" [ngClass]="getStatusClass(taxpayer.status)">
             {{ taxpayer.status }}
           </span>
@@ -53,7 +53,7 @@
       <div class="detail-body">
         <div class="detail-row">
           <span class="detail-label">TIN Number</span>
-          <span class="detail-value"><span class="code-badge">{{ taxpayer.tin }}</span></span>
+          <span class="detail-value"><span class="code-badge">{{ taxpayer.tinNumber }}</span></span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Full Name</span>
@@ -61,15 +61,15 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Taxpayer Type</span>
-          <span class="detail-value">{{ taxpayer.taxpayerType }}</span>
+          <span class="detail-value">{{ taxpayer.taxpayerType.typeName }}</span>
         </div>
         <div class="detail-row" *ngIf="taxpayer.dateOfBirth">
           <span class="detail-label">Date of Birth</span>
           <span class="detail-value">{{ taxpayer.dateOfBirth }}</span>
         </div>
-        <div class="detail-row" *ngIf="taxpayer.nationalId">
+        <div class="detail-row" *ngIf="taxpayer.nid">
           <span class="detail-label">National ID</span>
-          <span class="detail-value"><span class="code-badge">{{ taxpayer.nationalId }}</span></span>
+          <span class="detail-value"><span class="code-badge">{{ taxpayer.nid }}</span></span>
         </div>
       </div>
     </div>

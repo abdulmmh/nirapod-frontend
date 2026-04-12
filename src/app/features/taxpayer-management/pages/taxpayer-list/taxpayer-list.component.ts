@@ -9,20 +9,18 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-taxpayer-list',
   templateUrl: './taxpayer-list.component.html',
-  styleUrls: ['./taxpayer-list.component.css']
+  styleUrls: ['./taxpayer-list.component.css'],
 })
 export class TaxpayerListComponent implements OnInit {
-
-// ────────────────── Properties ──────────────────
+  // ────────────────── Properties ──────────────────
   taxpayers: Taxpayer[] = [];
   searchTerm = '';
-  isLoading  = false;
+  isLoading = false;
 
   private destroy$ = new Subject<void>();
-  
-  showDeleteModal  = false;
-  pendingDeleteId: number | null = null;
 
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
   // ──────────────Constructor  ───────────────────
 
@@ -42,13 +40,13 @@ export class TaxpayerListComponent implements OnInit {
     this.destroy$.complete();
   }
 
-
   // ───────────────── Data Fetching  ────────────────────────
 
   private fetchTaxpayer(): void {
     this.isLoading = true;
 
-    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST)
+    this.http
+      .get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false)),
@@ -91,15 +89,15 @@ export class TaxpayerListComponent implements OnInit {
   private matchesSearchTerm(tp: Taxpayer, term: string): boolean {
     return (
       tp.fullName.toLowerCase().includes(term) ||
-      tp.tin.toLowerCase().includes(term)      ||
-      tp.email.toLowerCase().includes(term)    ||
+      tp.tinNumber.toLowerCase().includes(term) ||
+      tp.email.toLowerCase().includes(term) ||
       tp.phone.includes(term)
     );
   }
 
   // ─────────────────── Delete Flow ─────────────────────────
 
-   confirmDelete(id: number): void {
+  confirmDelete(id: number): void {
     this.pendingDeleteId = id;
     this.showDeleteModal = true;
   }
@@ -119,16 +117,16 @@ export class TaxpayerListComponent implements OnInit {
     this.deleteTaxpayer(id);
   }
 
-
   private deleteTaxpayer(id: number): void {
     if (this.pendingDeleteId === null) return;
 
-    this.http.delete(API_ENDPOINTS.TAXPAYERS.DELETE(id))
+    this.http
+      .delete(API_ENDPOINTS.TAXPAYERS.DELETE(id))
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => (this.isLoading = false))
+        finalize(() => (this.isLoading = false)),
       )
-       .subscribe({
+      .subscribe({
         next: () => this.handleDeleteSuccess(id),
         error: () => this.handleDeleteError(),
       });
@@ -152,26 +150,23 @@ export class TaxpayerListComponent implements OnInit {
 
   // ─────────────────── Pagination ─────────────────────────
 
-   viewTaxpayers(id: number): void {
-    this.router.navigate(['/taxpayers/view' , id]);
+  viewTaxpayers(id: number): void {
+    this.router.navigate(['/taxpayers/view', id]);
   }
 
   editTaxpayers(id: number): void {
     this.router.navigate(['/taxpayers/edit', id]);
   }
 
-
   // ─────────────────── UI Helpers ─────────────────────────
-  
+
   getStatusClass(status: string): string {
     const map: Record<string, string> = {
-      'Active':    'status-active',
-      'Inactive':  'status-inactive',
-      'Pending':   'status-pending',
-      'Suspended': 'status-suspended'
+      Active: 'status-active',
+      Inactive: 'status-inactive',
+      Pending: 'status-pending',
+      Suspended: 'status-suspended',
     };
     return map[status] ?? '';
   }
-
- 
 }

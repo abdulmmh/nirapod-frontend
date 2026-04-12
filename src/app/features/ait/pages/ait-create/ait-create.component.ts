@@ -7,7 +7,7 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import {
   AitCreateRequest,
   AitSourceType,
-  AitStatus
+  AitStatus,
 } from '../../../../models/ait.model';
 
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
@@ -18,10 +18,9 @@ import { TaxStructure } from 'src/app/models/tax-structure.model';
 @Component({
   selector: 'app-ait-create',
   templateUrl: './ait-create.component.html',
-  styleUrls: ['./ait-create.component.css']
+  styleUrls: ['./ait-create.component.css'],
 })
 export class AitCreateComponent implements OnInit, OnDestroy {
-
   // ──────────────── State ────────────────
   isLoading = false;
 
@@ -33,11 +32,21 @@ export class AitCreateComponent implements OnInit, OnDestroy {
   availableStructures: Partial<TaxStructure>[] = [];
 
   sourceTypes: AitSourceType[] = [
-    'Salary', 'Import', 'Contract', 'Interest', 'Dividend', 'Commission', 'Export'
+    'Salary',
+    'Import',
+    'Contract',
+    'Interest',
+    'Dividend',
+    'Commission',
+    'Export',
   ];
 
   statuses: AitStatus[] = [
-    'Draft', 'Deducted', 'Deposited', 'Credited', 'Disputed'
+    'Draft',
+    'Deducted',
+    'Deposited',
+    'Credited',
+    'Disputed',
   ];
 
   fiscalYears: string[] = [];
@@ -64,11 +73,12 @@ export class AitCreateComponent implements OnInit, OnDestroy {
   // ──────────────── API Calls ────────────────
 
   private loadTaxpayers(): void {
-    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST)
+    this.http
+      .get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res) => this.taxpayers = res,
-        error: () => this.toast.error('Failed to load taxpayers')
+        next: (res) => (this.taxpayers = res),
+        error: () => this.toast.error('Failed to load taxpayers'),
       });
   }
 
@@ -76,20 +86,18 @@ export class AitCreateComponent implements OnInit, OnDestroy {
     if (!source) return;
 
     this.http
-      .get<TaxStructure[]>(
-        API_ENDPOINTS.TAX_STRUCTURES.BY_SOURCE(source)
-      )
+      .get<TaxStructure[]>(API_ENDPOINTS.TAX_STRUCTURES.BY_SOURCE(source))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res) => this.availableStructures = res,
-        error: () => this.toast.error('Failed to load tax structures')
+        next: (res) => (this.availableStructures = res),
+        error: () => this.toast.error('Failed to load tax structures'),
       });
   }
 
   // ──────────────── Events ────────────────
 
   onTaxpayerChange(): void {
-    const tp = this.taxpayers.find(t => t.tin === this.form.tinNumber);
+    const tp = this.taxpayers.find((t) => t.tinNumber === this.form.tinNumber);
     if (tp) this.form.taxpayerName = tp.fullName!;
   }
 
@@ -100,7 +108,7 @@ export class AitCreateComponent implements OnInit, OnDestroy {
 
   onStructureChange(): void {
     const structure = this.availableStructures.find(
-      s => s.id === Number(this.form.taxStructureId)
+      (s) => s.id === Number(this.form.taxStructureId),
     );
 
     if (structure) {
@@ -150,7 +158,7 @@ export class AitCreateComponent implements OnInit, OnDestroy {
       fiscalYear: '',
       deductedBy: '',
       status: 'Draft' as AitStatus,
-      remarks: ''
+      remarks: '',
     };
   }
 
@@ -182,14 +190,15 @@ export class AitCreateComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
 
-    this.http.post(API_ENDPOINTS.AITS.CREATE, this.form)
+    this.http
+      .post(API_ENDPOINTS.AITS.CREATE, this.form)
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
+        finalize(() => (this.isLoading = false)),
       )
       .subscribe({
         next: () => this.handleSuccess(),
-        error: (err) => this.handleError(err)
+        error: (err) => this.handleError(err),
       });
   }
 

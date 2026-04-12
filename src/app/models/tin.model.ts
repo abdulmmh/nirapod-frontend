@@ -1,12 +1,22 @@
-export type TinStatus   = 'Active' | 'Inactive' | 'Suspended' | 'Cancelled' | 'Pending';
-export type TinCategory = 'Individual' | 'Company' | 'Partnership' | 'NGO' | 'Government';
+export type TinStatus =
+  | 'Active'
+  | 'Inactive'
+  | 'Suspended'
+  | 'Cancelled'
+  | 'Pending';
+export type TinCategory =
+  | 'Individual'
+  | 'Company'
+  | 'Partnership'
+  | 'NGO'
+  | 'Government';
 
 export interface Tin {
   id: number;
   tinNumber: string;
   taxpayerName: string;
   tinCategory: TinCategory;
-  nationalId: string;
+  nid: string;
   passportNo: string;
   dateOfBirth: string;
   incorporationDate: string;
@@ -26,7 +36,7 @@ export interface Tin {
 export interface TinCreateRequest {
   taxpayerName: string;
   tinCategory: string;
-  nationalId: string;
+  nid: string;
   passportNo: string;
   dateOfBirth: string;
   incorporationDate: string;

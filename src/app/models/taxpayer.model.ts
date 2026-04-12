@@ -1,16 +1,53 @@
 
+// export type TaxpayerStatus = 'Active' | 'Inactive' | 'Pending' | 'Suspended';
+// // export type TaxpayerType = 'Individual' | 'Business' | 'Company';
+// export interface TaxpayerType {
+//   id: number;
+//   typeName: string;
+// }
+// export interface Taxpayer {
+//   id: number;
+//   tinNumber: string;
+//   fullName: string;
+//   email: string;
+//   phone: string;
+//   taxpayerType: TaxpayerType;
+//   nid: string;
+//   dateOfBirth: string;
+//   address: string;
+//   status: TaxpayerStatus;
+//   registrationDate: string;
+// }
+
+// export interface TaxpayerCreateRequest {
+//   tinNumber: string;
+//   fullName: string;
+//   email: string;
+//   phone: string;
+//   taxpayerType: TaxpayerType;
+//   nid: string;
+//   dateOfBirth: string;
+//   address: string;
+//   status: TaxpayerStatus;
+//   registrationDate: string;
+// }
+
 
 export type TaxpayerStatus = 'Active' | 'Inactive' | 'Pending' | 'Suspended';
-export type TaxpayerType = 'Individual' | 'Business' | 'Company';
+
+export interface TaxpayerType {
+  id: number;
+  typeName: string;
+}
 
 export interface Taxpayer {
   id: number;
-  tin: string;
+  tinNumber: string;
   fullName: string;
   email: string;
   phone: string;
   taxpayerType: TaxpayerType;
-  nationalId: string;
+  nid: string;
   dateOfBirth: string;
   address: string;
   status: TaxpayerStatus;
@@ -18,14 +55,14 @@ export interface Taxpayer {
 }
 
 export interface TaxpayerCreateRequest {
-  tin: string;
+  tinNumber: string;
   fullName: string;
   email: string;
   phone: string;
-  taxpayerType: string;
-  nationalId: string;
+  taxpayerType: TaxpayerType;
+  nid: string;
   dateOfBirth: string;
   address: string;
-  status: string;
+  status: TaxpayerStatus;
   registrationDate: string;
 }

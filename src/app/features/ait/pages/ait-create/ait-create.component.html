@@ -29,9 +29,9 @@
           <select class="form-input form-select" [(ngModel)]="form.tinNumber"
             (ngModelChange)="onTaxpayerChange()">
             <option value="">Select Taxpayer</option>
-            <option *ngFor="let tp of taxpayers" [value]="tp.tin">
+            <option *ngFor="let tp of taxpayers" [value]="tp.tinNumber">
               {{ tp.fullName }} — 
-              {{ tp.tin }}
+              {{ tp.tinNumber }}
             </option>
           </select>
         </div>

@@ -12,7 +12,6 @@ import { finalize, Subject, takeUntil } from 'rxjs';
   styleUrls: ['./tin-edit.component.css'],
 })
 export class TinEditComponent implements OnInit {
-
   // ──────── Properties ──────────
 
   isLoading = true;
@@ -65,8 +64,6 @@ export class TinEditComponent implements OnInit {
     Mymensingh: ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur'],
   };
 
-
-
   // ─────────  Getter ───────────────
 
   get isIndividual(): boolean {
@@ -83,14 +80,13 @@ export class TinEditComponent implements OnInit {
     return this.districts[this.form.division ?? ''] || [];
   }
 
-
   // ─────────── Constructor ──────────────
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private toast: ToastService
+    private toast: ToastService,
   ) {}
 
   // ───────────── Lifecycle ──────────────────
@@ -117,7 +113,6 @@ export class TinEditComponent implements OnInit {
     this.tinId = id;
     this.fetchTin();
   }
- 
 
   private fetchTin(): void {
     if (!this.tinId) return;
@@ -142,9 +137,7 @@ export class TinEditComponent implements OnInit {
 
   private handleFetchError(error: unknown): void {
     console.error('Error loading business data:', error);
-    this.toast.error(
-      'Failed to load TIN record. Please refresh or go back.',
-    );
+    this.toast.error('Failed to load TIN record. Please refresh or go back.');
   }
 
   // ─────────── Events  ────────────────
@@ -166,7 +159,6 @@ export class TinEditComponent implements OnInit {
     this.toast.error('Invalid TIN ID. Please go back and try again.');
   }
 
-
   isFormValid(): boolean {
     return !!(
       this.form.taxpayerName &&
@@ -175,16 +167,14 @@ export class TinEditComponent implements OnInit {
       this.form.taxZone &&
       this.form.taxCircle &&
       this.form.issuedDate &&
-      (this.isIndividual ? this.form.nationalId : true) &&
+      (this.isIndividual ? this.form.nid : true) &&
       (this.isIndividual ? this.form.passportNo : true) &&
       this.form.division &&
-      this.form.district  &&
-      this.form.status  
+      this.form.district &&
+      this.form.status
     );
   }
 
-
-  
   // ───────── Actions  ─────────────
 
   onSubmit(): void {

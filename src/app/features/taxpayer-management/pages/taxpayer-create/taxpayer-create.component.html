@@ -34,7 +34,7 @@
             type="text"
             class="form-input"
             placeholder="e.g. TIN-2024-001"
-            [(ngModel)]="form.tin"
+            [(ngModel)]="form.tinNumber"
           />
         </div>
       </div>
@@ -60,7 +60,7 @@
             type="text"
             class="form-input"
             placeholder="Enter NID number"
-            [(ngModel)]="form.nationalId"
+            [(ngModel)]="form.nid"
           />
         </div>
       </div>
@@ -82,10 +82,9 @@
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.taxpayerType">
-            <option value="">Select Type</option>
-            <option value="Individual">Individual</option>
-            <option value="Business">Business</option>
-            <option value="Company">Company</option>
+            <option *ngFor="let type of taxpayerTypes" [ngValue]="type">
+              <td>{{ type.typeName }}</td>
+            </option>
           </select>
         </div>
       </div>

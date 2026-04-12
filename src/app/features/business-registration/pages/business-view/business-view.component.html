@@ -29,7 +29,7 @@
         <div class="biz-reg-no">{{ business.businessRegNo }}</div>
         <div class="biz-name">{{ business.businessName }}</div>
         <div class="biz-meta">
-          <span class="biz-type-pill">{{ business.businessType }}</span>
+          <span class="biz-type-pill">{{ getTypeName(business.businessType) }}</span>
           <span class="biz-cat-pill">{{ business.businessCategory }}</span>
           <span class="status-badge" [ngClass]="getStatusClass(business.status)">
             {{ business.status }}
@@ -44,7 +44,7 @@
       </div>
       <div class="biz-stat">
         <span class="bs-label">Employees</span>
-        <span class="bs-value">{{ business.numberOfEmployees }}</span>
+        <span class="bs-value">{{ business.numberOfEmployees ?? 0 }}</span>
       </div>
     </div>
   </div>
@@ -52,6 +52,7 @@
   <!-- Details Grid -->
   <div class="details-grid">
 
+    <!-- Business Information -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-building-fill"></i>
@@ -64,23 +65,26 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Owner Name</span>
-          <span class="detail-value">{{ business.ownerName }}</span>
+          <span class="detail-value">{{ business.ownerName || '—' }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">TIN Number</span>
-          <span class="detail-value"><span class="code-badge">{{ business.tinNumber }}</span></span>
+          <span class="detail-value">
+            <span class="code-badge">{{ business.tinNumber }}</span>
+          </span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Business Type</span>
-          <span class="detail-value">{{ business.businessType }}</span>
+          <span class="detail-value">{{ getTypeName(business.businessType) }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Category</span>
-          <span class="detail-value">{{ business.businessCategory }}</span>
+          <span class="detail-value">{{ business.businessCategory || '—' }}</span>
         </div>
       </div>
     </div>
 
+    <!-- License & Registration -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-file-earmark-text-fill"></i>
@@ -89,15 +93,21 @@
       <div class="detail-body">
         <div class="detail-row">
           <span class="detail-label">Reg No.</span>
-          <span class="detail-value"><span class="code-badge purple">{{ business.businessRegNo }}</span></span>
+          <span class="detail-value">
+            <span class="code-badge purple">{{ business.businessRegNo }}</span>
+          </span>
         </div>
         <div class="detail-row" *ngIf="business.tradeLicenseNo">
           <span class="detail-label">Trade License</span>
-          <span class="detail-value"><span class="code-badge">{{ business.tradeLicenseNo }}</span></span>
+          <span class="detail-value">
+            <span class="code-badge">{{ business.tradeLicenseNo }}</span>
+          </span>
         </div>
         <div class="detail-row" *ngIf="business.binNo">
           <span class="detail-label">BIN No.</span>
-          <span class="detail-value"><span class="code-badge">{{ business.binNo }}</span></span>
+          <span class="detail-value">
+            <span class="code-badge">{{ business.binNo }}</span>
+          </span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Incorporation</span>
@@ -105,18 +115,19 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Registration</span>
-          <span class="detail-value">{{ business.registrationDate }}</span>
+          <span class="detail-value">{{ business.registrationDate || '—' }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Expiry</span>
           <span class="detail-value"
-            [class]="isExpired(business.expiryDate) ? 'expiry-red' : ''">
+            [class]="isExpired(business.expiryDate!) ? 'expiry-red' : ''">
             {{ business.expiryDate || '—' }}
           </span>
         </div>
       </div>
     </div>
 
+    <!-- Contact & Location -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-geo-alt-fill"></i>
@@ -129,15 +140,15 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Phone</span>
-          <span class="detail-value">{{ business.phone }}</span>
+          <span class="detail-value">{{ business.phone || '—' }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Division</span>
-          <span class="detail-value">{{ business.division }}</span>
+          <span class="detail-value">{{ getDivisionName() }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">District</span>
-          <span class="detail-value">{{ business.district }}</span>
+          <span class="detail-value">{{ getDistrictName() }}</span>
         </div>
         <div class="detail-row" *ngIf="business.address">
           <span class="detail-label">Address</span>
@@ -146,6 +157,7 @@
       </div>
     </div>
 
+    <!-- Financial & Workforce -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-cash-stack"></i>
@@ -154,11 +166,13 @@
       <div class="detail-body">
         <div class="detail-row">
           <span class="detail-label">Annual Turnover</span>
-          <span class="detail-value fw-bold turnover">{{ formatCurrency(business.annualTurnover) }}</span>
+          <span class="detail-value fw-bold turnover">
+            {{ formatCurrency(business.annualTurnover) }}
+          </span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Employees</span>
-          <span class="detail-value fw-bold">{{ business.numberOfEmployees }}</span>
+          <span class="detail-value fw-bold">{{ business.numberOfEmployees ?? 0 }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Status</span>

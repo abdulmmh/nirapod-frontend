@@ -54,7 +54,7 @@
       <tbody>
         <tr *ngFor="let tp of filteredTaxpayers; let i = index">
           <td>{{ i + 1 }}</td>
-          <td><span class="tin-code">{{ tp.tin }}</span></td>
+          <td><span class="tin-code">{{ tp.tinNumber }}</span></td>
           <td>
             <div class="td-name">
               <div class="td-avatar">{{ tp.fullName.charAt(0) }}</div>
@@ -63,7 +63,7 @@
           </td>
           <td>{{ tp.email }}</td>
           <td>{{ tp.phone }}</td>
-          <td>{{ tp.taxpayerType }}</td>
+          <td>{{ tp.taxpayerType.typeName }}</td>
           <td>
             <span class="status-badge" [ngClass]="getStatusClass(tp.status)">
               {{ tp.status }}
@@ -116,7 +116,7 @@
           <div class="mobile-avatar">{{ tp.fullName.charAt(0) }}</div>
           <div>
             <div class="mobile-name">{{ tp.fullName }}</div>
-            <div class="mobile-sub">{{ tp.tin }}</div>
+            <div class="mobile-sub">{{ tp.tinNumber }}</div>
           </div>
         </div>
         <span class="status-badge" [ngClass]="getStatusClass(tp.status)">
