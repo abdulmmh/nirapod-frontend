@@ -64,7 +64,7 @@
           <i class="bi bi-diagram-3-fill input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.businessType">
             <option value="">Select Type</option>
-            <option *ngFor="let t of businessTypes" [value]="t.id">{{ t.typeName }}</option>
+            <option *ngFor="let t of businessTypes" [ngValue]="t.id.toString()">{{ t.typeName }}</option>
           </select>
         </div>
       </div>
@@ -75,7 +75,7 @@
           <i class="bi bi-tag-fill input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.businessCategory">
             <option value="">Select Category</option>
-            <option *ngFor="let c of businessCategories" [value]="c.id">{{ c.categoryName }}</option>
+            <option *ngFor="let c of businessCategories" [ngValue]="c.id.toString()">{{ c.categoryName }}</option>
           </select>
         </div>
       </div>
@@ -190,7 +190,7 @@
             [(ngModel)]="form.divisionId"
             (ngModelChange)="onDivisionChange()">
             <option [ngValue]="undefined">Select Division</option>
-            <option *ngFor="let d of divisions" [value]="d.id">{{ d.name }}</option>
+            <option *ngFor="let d of divisions" [ngValue]="d.id">{{ d.name }}</option>
           </select>
         </div>
       </div>
@@ -205,7 +205,7 @@
             <option [ngValue]="undefined">
               {{ !form.divisionId ? 'Select division first' : districts.length === 0 ? 'Loading...' : 'Select District' }}
             </option>
-            <option *ngFor="let d of districts" [value]="d.id">{{ d.name }}</option>
+            <option *ngFor="let d of districts" [ngValue]="d.id">{{ d.name }}</option>
           </select>
         </div>
       </div>

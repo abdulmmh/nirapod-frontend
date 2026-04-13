@@ -31,7 +31,7 @@ export class MasterDataService extends BaseApiService {
   }
 
   getActiveTaxpayers(): Observable<any[]> {
-    return this.get<any[]>(API_ENDPOINTS.TAXPAYERS.LIST).pipe(
+    return this.get<any[]>(`${API_ENDPOINTS.TAXPAYERS.LIST}?status=Active`).pipe(
       catchError(() => of([]))
     );
   }

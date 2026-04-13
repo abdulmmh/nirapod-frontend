@@ -110,12 +110,20 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
   }
 
   private handleFetchSuccess(data: Business): void {
-    
+
+    // businessType & businessCategory come as objects from backend e.g. { id: 2, typeName: '...' }
+    // Extract id as string so [(ngModel)] matches [ngValue]="t.id.toString()" in the template
+    const btRaw = (data as any).businessType;
+    const bcRaw = (data as any).businessCategory;
+
     // Extract IDs for the form dropdowns
     this.form = {
       ...data,
-      divisionId: data.division?.id ?? data.divisionId,
-      districtId: data.district?.id ?? data.districtId,
+      businessType:     (btRaw && typeof btRaw === 'object' ? btRaw.id : btRaw)?.toString() ?? '',
+      businessCategory: (bcRaw && typeof bcRaw === 'object' ? bcRaw.id : bcRaw)?.toString() ?? '',
+      divisionId:       data.division?.id  ?? data.divisionId,
+      districtId:       data.district?.id  ?? data.districtId,
+      taxpayerId:       (data as any).taxpayer?.id ?? (data as any).taxpayerId,
     };
 
     // Load districts for the selected division
@@ -175,8 +183,8 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
       this.form.businessName     &&
       this.form.tinNumber        &&
       this.form.ownerName        &&
-      this.form.businessType     &&
-      this.form.businessCategory &&
+      this.form.businessType     &&   // string ID like "2"
+      this.form.businessCategory &&   // string ID like "3"
       this.form.phone            &&
       this.form.divisionId       &&
       this.form.districtId       &&
@@ -211,10 +219,13 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
   private updateBusiness(): void {
     const payload = {
       ...this.form,
-      divisionId: this.form.divisionId,
-      districtId: this.form.districtId,
-      division:   undefined,
-      district:   undefined,
+      taxpayer:         { id: this.form.taxpayerId ?? (this.form as any).taxpayer?.id },
+      businessType:     { id: Number(this.form.businessType) },
+      businessCategory: { id: Number(this.form.businessCategory) },
+      division:         { id: this.form.divisionId },
+      district:         { id: this.form.districtId },
+      divisionId:       undefined,
+      districtId:       undefined,
     };
 
     this.http

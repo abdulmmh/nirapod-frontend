@@ -114,8 +114,22 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
   }
 
 
-  getTypeName(type: string): string {
-    return BUSINESS_TYPE_MAP[type] ?? type;
+  // businessType may be an object { id, typeName } or a raw string ID
+  getTypeName(type: any): string {
+    if (!type) return '—';
+    if (typeof type === 'object') {
+      return type.typeName || BUSINESS_TYPE_MAP[String(type.id)] || '—';
+    }
+    return BUSINESS_TYPE_MAP[String(type)] ?? type;
+  }
+
+  // businessCategory may be an object { id, categoryName } or a raw string
+  getCategoryName(category: any): string {
+    if (!category) return '—';
+    if (typeof category === 'object') {
+      return category.categoryName || category.name || '—';
+    }
+    return category;
   }
 
 
@@ -127,7 +141,8 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
     return this.business?.division?.name ?? '—';
   }
 
-  getCategoryIcon(category: string): string {
+  getCategoryIcon(category: any): string {
+    const name = this.getCategoryName(category);
     const map: Record<string, string> = {
       Manufacturing: 'bi bi-gear-fill',
       Trading:       'bi bi-bag-fill',
@@ -139,7 +154,7 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
       Education:     'bi bi-book-fill',
       Other:         'bi bi-grid-fill',
     };
-    return map[category] ?? 'bi bi-grid-fill';
+    return map[name] ?? 'bi bi-grid-fill';
   }
 
   formatCurrency(amount: number | null | undefined): string {

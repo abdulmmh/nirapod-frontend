@@ -58,6 +58,15 @@ export const API_ENDPOINTS = {
     GET:    (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
   },
 
+  //Income Tax Return
+  // VAT Returns
+  INCOME_TAX_RETURNS: {
+    LIST:   `${API_BASE_URL}/income-tax-returns`,
+    CREATE: `${API_BASE_URL}/income-tax-returns`,
+    UPDATE: (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
+  },
+
   // AIT (Advance Income Tax)
   AITS: {
     LIST:   `${API_BASE_URL}/ait`,
@@ -161,7 +170,7 @@ export const API_ENDPOINTS = {
     GET:    (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
   },
 
-  //Get MaterData
+  // Get MaterData
   MASTER_DATA: {
   DIVISIONS: `${API_BASE_URL}/master/divisions`,
   DISTRICTS: `${API_BASE_URL}/master/districts`,

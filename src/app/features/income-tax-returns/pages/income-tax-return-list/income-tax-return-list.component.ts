@@ -152,7 +152,7 @@ export class IncomeTaxReturnListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.http.get<IncomeTaxReturn[]>(API_ENDPOINTS.TAXPAYERS.LIST).subscribe({
+    this.http.get<IncomeTaxReturn[]>(API_ENDPOINTS.INCOME_TAX_RETURNS.LIST).subscribe({
       next: data => { this.returns = data;           this.isLoading = false; },
       error: ()   => { this.returns = this.fallback; this.isLoading = false; }
     });

@@ -30,7 +30,7 @@
         <div class="biz-name">{{ business.businessName }}</div>
         <div class="biz-meta">
           <span class="biz-type-pill">{{ getTypeName(business.businessType) }}</span>
-          <span class="biz-cat-pill">{{ business.businessCategory }}</span>
+          <span class="biz-cat-pill">{{ getCategoryName(business.businessCategory) }}</span>
           <span class="status-badge" [ngClass]="getStatusClass(business.status)">
             {{ business.status }}
           </span>
@@ -79,7 +79,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Category</span>
-          <span class="detail-value">{{ business.businessCategory || '—' }}</span>
+          <span class="detail-value">{{ getCategoryName(business.businessCategory) }}</span>
         </div>
       </div>
     </div>
