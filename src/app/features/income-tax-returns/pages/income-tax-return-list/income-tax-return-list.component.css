@@ -152,6 +152,16 @@
 .btn-export:hover { background:#e0d5f5; border-color:#7c3aed; }
 .loading-row { display:flex; align-items:center; gap:10px; padding:24px 20px; color:#888; font-size:13px; }
 
+.btn-amend {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #fef3e2; color: #f59e0b;
+  border: 1px solid #fde8c0;
+  padding: 5px 12px; border-radius: 7px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-amend:hover { background: #fde8c0; }
+
 /* ── Responsive ── */
 @media (max-width:768px) {
   .status-tabs { gap:4px; padding:10px 10px 0; overflow-x:auto; flex-wrap:nowrap; }

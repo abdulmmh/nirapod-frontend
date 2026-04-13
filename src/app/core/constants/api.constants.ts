@@ -59,7 +59,6 @@ export const API_ENDPOINTS = {
   },
 
   //Income Tax Return
-  // VAT Returns
   INCOME_TAX_RETURNS: {
     LIST:   `${API_BASE_URL}/income-tax-returns`,
     CREATE: `${API_BASE_URL}/income-tax-returns`,

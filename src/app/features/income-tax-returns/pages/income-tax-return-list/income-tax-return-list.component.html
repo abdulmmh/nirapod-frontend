@@ -206,11 +206,17 @@
         <button class="btn-view" (click)="view(r.id)">
           <i class="bi bi-eye-fill"></i> View
         </button>
-        <button *canDo="'edit'" class="btn-edit"
-          [disabled]="r.status === 'Accepted' || r.status === 'Under Review'"
-          (click)="edit(r.id)">
-          <i class="bi bi-pencil-fill"></i> Edit
-        </button>
+        <ng-container *ngIf="r.status === 'Draft' || r.status === 'Send Back'">
+          <button *canDo="'edit'" class="btn-edit" (click)="edit(r.id)">
+            <i class="bi bi-pencil-fill"></i> Edit
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="r.status === 'Rejected'">
+          <button *canDo="'edit'" class="btn-amend" (click)="edit(r.id)">
+            <i class="bi bi-arrow-repeat"></i> Amend
+          </button>
+        </ng-container>
         <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
           class="btn-delete" (click)="delete(r.id)">
           <i class="bi bi-trash-fill"></i>
