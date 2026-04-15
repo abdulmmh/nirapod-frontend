@@ -3,11 +3,9 @@ import { BaseApiService } from './base-api.service';
 import { API_ENDPOINTS } from '../constants/api.constants';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { TaxpayerType } from 'src/app/models/taxpayer.model';
-import { BusinessCategory, BusinessType } from 'src/app/models/business.model';
+import { BusinessCategory, BusinessType, TaxpayerType } from 'src/app/models/master-data.model';
+import { District, Division } from 'src/app/models/master-data.model';
 
-export interface Division  { id: number; name: string; }
-export interface District  { id: number; name: string; divisionId: number; }
 
 @Injectable({ providedIn: 'root' })
 export class MasterDataService extends BaseApiService {

@@ -5,9 +5,10 @@ import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { MasterDataService } from 'src/app/core/services/master-data.service';
-import { BusinessCreateRequest, BusinessStatus, BusinessType, DistrictObj, DivisionObj, BusinessCategory } from 'src/app/models/business.model';
+import { BusinessCreateRequest, BusinessStatus } from 'src/app/models/business.model';
 import { Taxpayer } from 'src/app/models/taxpayer.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { Division, District, BusinessType, BusinessCategory } from 'src/app/models/master-data.model';
 
 @Component({
   selector: 'app-business-create',
@@ -33,8 +34,8 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
   get isAutoFilled(): boolean { return this.selectedTaxpayer !== null; }
 
   // Dropdown master data
-  divisions:          DivisionObj[]      = [];
-  districts:          DistrictObj[]      = [];
+  divisions:          Division[]      = [];
+  districts:          District[]      = [];
   businessTypes:      BusinessType[]     = [];
   businessCategories: BusinessCategory[] = [];
   statuses: BusinessStatus[] = ['Active', 'Inactive', 'Suspended', 'Cancelled', 'Pending'];

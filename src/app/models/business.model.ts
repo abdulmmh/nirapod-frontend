@@ -1,25 +1,6 @@
-// ── Division & District (object form from API) ──
-export interface DivisionObj {
-  id: number;
-  name: string;
-  districts?: DistrictObj[];
-}
+import { BusinessCategory, BusinessType, District, Division } from "./master-data.model";
 
-export interface DistrictObj {
-  id: number;
-  name: string;
-}
 
-// ── Dropdown types ──
-export interface BusinessType {
-  id: number;
-  typeName: string;
-}
-
-export interface BusinessCategory {
-  id: number;
-  categoryName: string;
-}
 
 export type BusinessStatus =
   | 'Active'
@@ -54,8 +35,8 @@ export interface Business {
   taxpayer?: { id: number; fullName?: string; tinNumber?: string };
   taxpayerId?: number;        
 
-  division?: DivisionObj;
-  district?: DistrictObj;
+  division?: Division;
+  district?: District;
 
   divisionId?: number;
   districtId?: number;

@@ -2,10 +2,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { TaxpayerCreateRequest, TaxpayerType } from '../../../../models/taxpayer.model';
+import { TaxpayerCreateRequest } from '../../../../models/taxpayer.model';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { MasterDataService } from 'src/app/core/services/master-data.service';
+import { TaxpayerType } from 'src/app/models/master-data.model';
 
 @Component({
   selector: 'app-taxpayer-create',

@@ -4,10 +4,11 @@ import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
-import { Business, BusinessCategory, BusinessType } from '../../../../models/business.model';
+import { Business } from '../../../../models/business.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { MasterDataService, Division, District } from 'src/app/core/services/master-data.service';
+import { MasterDataService } from 'src/app/core/services/master-data.service';
+import { Division, District, BusinessType, BusinessCategory } from 'src/app/models/master-data.model';
 
 @Component({
   selector: 'app-business-edit',

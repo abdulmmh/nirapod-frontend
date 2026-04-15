@@ -5,8 +5,9 @@ import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Business, BUSINESS_TYPE_MAP, BusinessCategory, BusinessType } from '../../../../models/business.model';
+import { Business, BUSINESS_TYPE_MAP } from '../../../../models/business.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
+import { BusinessCategory, BusinessType } from 'src/app/models/master-data.model';
 
 @Component({
   selector: 'app-business-list',
