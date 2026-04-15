@@ -177,6 +177,10 @@ export const API_ENDPOINTS = {
   BUSINESS_TYPES:      `${API_BASE_URL}/master/business-types`,
   BUSINESS_CATEGORIES: `${API_BASE_URL}/master/business-categories`,
   DISTRICTS_BY_DIVISION: (divisionId: number) =>
-  `${API_BASE_URL}/master/divisions/${divisionId}/districts`
+    `${API_BASE_URL}/master/divisions/${divisionId}/districts`,
+  TAX_ZONES_BY_DISTRICT: (districtId: number) =>
+    `${API_BASE_URL}/master/districts/${districtId}/tax-zones`,
+  TAX_CIRCLES_BY_ZONE: (zoneId: number) =>
+    `${API_BASE_URL}/master/tax-zones/${zoneId}/tax-circles`,
   }
 };

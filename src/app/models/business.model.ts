@@ -21,6 +21,13 @@ export interface BusinessCategory {
   categoryName: string;
 }
 
+export type BusinessStatus =
+  | 'Active'
+  | 'Inactive'
+  | 'Suspended'
+  | 'Cancelled'
+  | 'Pending';
+
 // ── Main Business model ──
 export interface Business {
   id: number;
@@ -29,13 +36,13 @@ export interface Business {
   tinNumber: string;
   binNo?: string;
   ownerName: string;
-  businessType: string;       // comes as "2" from backend
-  businessCategory: string;
+  businessType: BusinessType;       
+  businessCategory: BusinessCategory;
   tradeLicenseNo: string;
   email?: string;
   phone: string;
   address?: string;
-  status: string;
+  status: BusinessStatus;
   annualTurnover?: number;
   numberOfEmployees?: number;
   incorporationDate?: string;
@@ -43,10 +50,9 @@ export interface Business {
   expiryDate?: string;
   remarks?: string;
   createdAt?: string;
-
-  // Taxpayer (now included in GET response after Bug 1 fix)
+  
   taxpayer?: { id: number; fullName?: string; tinNumber?: string };
-  taxpayerId?: number;        // extracted from taxpayer.id for form use
+  taxpayerId?: number;        
 
   division?: DivisionObj;
   district?: DistrictObj;
@@ -71,6 +77,7 @@ export interface BusinessCreateRequest {
   expiryDate?: string;
   email?: string;
   phone: string;
+  status: BusinessStatus;
   address: string;
   districtId: number;          
   divisionId: number;          

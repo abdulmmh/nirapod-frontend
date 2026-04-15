@@ -87,8 +87,8 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
     else if (data.expiryDate && this.isExpiringSoon(data.expiryDate))
       this.toast.warning('This business license is expiring within 30 days.');
 
-    if (data.status === 'Suspended' || data.status === 'Dissolved')
-      this.toast.info(`This business is currently ${data.status}.`);
+    // if (data.status === 'Suspended' || data.status === 'Dissolved')
+    //   this.toast.info(`This business is currently ${data.status}.`);
   }
 
   // ─────────────────── Navigation ──────────────────────────

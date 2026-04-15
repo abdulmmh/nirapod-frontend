@@ -10,40 +10,52 @@
 
 <div class="form-card">
 
-  <!-- ── Section 0: Taxpayer Search ── -->
+  <!-- ══════════════ Section 0: Taxpayer Search ══════════════ -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon search-icon">
         <i class="bi bi-search"></i>
       </div>
       <div>
-        <h6 class="section-title">Find Taxpayer</h6>
-        <span class="section-sub">Search by NID or name — details will auto-fill</span>
+        <h6 class="section-title">Search Taxpayer</h6>
+        <span class="section-sub">Search using NID or name — we’ll fill in the details for you</span>
       </div>
     </div>
 
+    <!-- Search Input -->
     <div class="search-row">
       <div class="input-wrap search-input-wrap">
         <i class="bi bi-person-badge-fill input-icon"></i>
-        <input type="text" class="form-input"
-          placeholder="Enter NID number or taxpayer name..."
+        <input
+          type="text"
+          class="form-input"
+          placeholder="write taxpayer name or NID number..."
           [(ngModel)]="searchQuery"
           (ngModelChange)="onSearchInput()"
           (keyup.enter)="searchTaxpayer()"
           [disabled]="isAutoFilled" />
-        <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearSelectedTaxpayer()">
+
+        <!-- Clear button when taxpayer selected -->
+        <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearSelectedTaxpayer()" title="Clear selection">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
-      <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
+
+      <button class="btn-search" (click)="searchTaxpayer()"
+        [disabled]="isSearching || isAutoFilled">
         <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
-        <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span> Searching...</span>
+        <span *ngIf="isSearching">
+          <span class="spinner-border spinner-border-sm"></span> Searching...
+        </span>
       </button>
     </div>
 
+    <!-- Search Results Dropdown -->
     <div class="search-results" *ngIf="showResults && searchResults.length > 0">
       <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
-        <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
+        <div class="result-avatar">
+          <i class="bi bi-person-fill"></i>
+        </div>
         <div class="result-info">
           <span class="result-name">{{ t.fullName }}</span>
           <span class="result-meta">
@@ -51,17 +63,24 @@
             <span *ngIf="t.phone"> · {{ t.phone }}</span>
           </span>
         </div>
-        <span class="result-badge">Select</span>
+        <div class="result-status">
+          <span class="result-badge">Tap to select</span>
+        </div>
       </div>
     </div>
 
+    <!-- No Results -->
     <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
-      <i class="bi bi-info-circle"></i> No taxpayer found. Fill in details below manually.
+      <i class="bi bi-info-circle"></i>
+      No match found — you can enter the details manually below.
     </div>
 
+    <!-- Selected Taxpayer Card -->
     <div class="selected-card" *ngIf="isAutoFilled && selectedTaxpayer">
       <div class="selected-card-left">
-        <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
+        <div class="selected-avatar">
+          <i class="bi bi-person-check-fill"></i>
+        </div>
         <div>
           <p class="selected-name">{{ selectedTaxpayer.fullName }}</p>
           <p class="selected-meta">
@@ -70,13 +89,16 @@
           </p>
         </div>
       </div>
-      <div class="autofill-tag"><i class="bi bi-lightning-charge-fill"></i> Auto-filled</div>
+      <div class="autofill-tag">
+        <i class="bi bi-lightning-charge-fill"></i> Auto-filled
+      </div>
     </div>
+
   </div>
 
   <div class="section-divider"></div>
 
-  <!-- ── Section 1: Taxpayer Information ── -->
+  <!-- ══════════════ Section 1: Taxpayer Info ══════════════ -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon">
@@ -94,7 +116,7 @@
         <div class="input-wrap" [class.locked]="isAutoFilled">
           <i class="bi bi-person-fill input-icon"></i>
           <input type="text" class="form-input"
-            placeholder="Full name or company name"
+            placeholder="Enter full name or company name"
             [(ngModel)]="form.taxpayerName"
             [disabled]="isAutoFilled" />
           <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
@@ -107,7 +129,7 @@
           <i class="bi bi-tag-fill input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.tinCategory">
             <option value="">Select Category</option>
-            <option *ngFor="let c of tinCategories" [value]="c">{{ c }}</option>
+            <option *ngFor="let c of tinCategories" [ngValue]="c">{{ c }}</option>
           </select>
         </div>
       </div>
@@ -126,29 +148,37 @@
           <label class="form-label">National ID</label>
           <div class="input-wrap" [class.locked]="isAutoFilled && form.nid">
             <i class="bi bi-card-text input-icon"></i>
-            <input type="text" class="form-input" placeholder="13 digit NID"
-              [(ngModel)]="form.nid" [disabled]="isAutoFilled && !!form.nid" />
+            <input type="text" class="form-input"
+              placeholder="Enter 13 digit NID"
+              [(ngModel)]="form.nid"
+              [disabled]="isAutoFilled && !!form.nid" />
             <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled && form.nid"></i>
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Passport No.</label>
           <div class="input-wrap">
             <i class="bi bi-passport input-icon"></i>
-            <input type="text" class="form-input" placeholder="Optional" [(ngModel)]="form.passportNo" />
+            <input type="text" class="form-input"
+              placeholder="Optional"
+              [(ngModel)]="form.passportNo" />
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Date of Birth</label>
           <div class="input-wrap" [class.locked]="isAutoFilled && form.dateOfBirth">
             <i class="bi bi-calendar3 input-icon"></i>
             <input type="date" class="form-input"
-              [(ngModel)]="form.dateOfBirth" [disabled]="isAutoFilled && !!form.dateOfBirth" />
+              [(ngModel)]="form.dateOfBirth"
+              [disabled]="isAutoFilled && !!form.dateOfBirth" />
             <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled && form.dateOfBirth"></i>
           </div>
         </div>
       </ng-container>
 
+      <!-- Company fields -->
       <div class="form-group" *ngIf="isCompany">
         <label class="form-label">Incorporation Date</label>
         <div class="input-wrap">
@@ -162,90 +192,64 @@
 
   <div class="section-divider"></div>
 
-  <!-- ── Section 2: Location → Zone → Circle (3-level cascade) ── -->
+  <!-- ══════════════ Section 2: Tax Authority ══════════════ -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-shield-fill-check"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Tax Authority Assignment</h6>
+        <span class="section-sub">Assign tax zone and circle</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Tax Zone</label>
+        <div class="input-wrap">
+          <i class="bi bi-grid-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.taxZone">
+            <option value="">Select Zone</option>
+            <option *ngFor="let z of taxZones" [ngValue]="z">{{ z }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Tax Circle</label>
+        <div class="input-wrap">
+          <i class="bi bi-circle-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.taxCircle">
+            <option value="">Select Circle</option>
+            <option *ngFor="let c of taxCircles" [ngValue]="c">{{ c }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════ Section 3: Contact & Location ══════════════ -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon orange">
         <i class="bi bi-geo-alt-fill"></i>
       </div>
       <div>
-        <h6 class="section-title">Location & Tax Authority</h6>
-        <span class="section-sub">Select division → district → tax zone → tax circle</span>
+        <h6 class="section-title">Contact & Location</h6>
+        <span class="section-sub">Contact and address details</span>
       </div>
     </div>
     <div class="form-grid">
 
-      <!-- Division -->
-      <div class="form-group">
-        <label class="form-label required">Division</label>
-        <div class="input-wrap">
-          <i class="bi bi-map-fill input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="selectedDivisionId"
-            (ngModelChange)="onDivisionChange()">
-            <option [ngValue]="null">Select Division</option>
-            <option *ngFor="let d of divisions" [ngValue]="d.id">{{ d.name }}</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- District — loads after division -->
-      <div class="form-group">
-        <label class="form-label required">District</label>
-        <div class="input-wrap">
-          <i class="bi bi-geo-fill input-icon"></i>
-          <span *ngIf="loadingDistricts" class="spinner-border spinner-border-sm dropdown-spinner"></span>
-          <select class="form-input form-select"
-            [(ngModel)]="form.district"
-            (ngModelChange)="onDistrictChange()"
-            [disabled]="!selectedDivisionId || loadingDistricts">
-            <option value="">Select District</option>
-            <option *ngFor="let d of districts" [value]="d.name">{{ d.name }}</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Tax Zone — loads after district -->
-      <div class="form-group">
-        <label class="form-label required">Tax Zone</label>
-        <div class="input-wrap">
-          <i class="bi bi-grid-fill input-icon"></i>
-          <span *ngIf="loadingZones" class="spinner-border spinner-border-sm dropdown-spinner"></span>
-          <select class="form-input form-select"
-            [(ngModel)]="form.taxZone"
-            (ngModelChange)="onZoneChange()"
-            [disabled]="!form.district || loadingZones">
-            <option value="">Select Tax Zone</option>
-            <option *ngFor="let z of taxZones" [value]="z.name">{{ z.name }}</option>
-          </select>
-        </div>
-        <span class="field-hint" *ngIf="form.district && taxZones.length === 0 && !loadingZones">
-          No zones found for {{ form.district }}
-        </span>
-      </div>
-
-      <!-- Tax Circle — loads after zone -->
-      <div class="form-group">
-        <label class="form-label required">Tax Circle</label>
-        <div class="input-wrap">
-          <i class="bi bi-circle-fill input-icon"></i>
-          <span *ngIf="loadingCircles" class="spinner-border spinner-border-sm dropdown-spinner"></span>
-          <select class="form-input form-select"
-            [(ngModel)]="form.taxCircle"
-            [disabled]="!form.taxZone || loadingCircles">
-            <option value="">Select Tax Circle</option>
-            <option *ngFor="let c of taxCircles" [value]="c.name">{{ c.name }}</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Contact fields -->
       <div class="form-group">
         <label class="form-label">Email</label>
         <div class="input-wrap" [class.locked]="isAutoFilled && form.email">
           <i class="bi bi-envelope-fill input-icon"></i>
-          <input type="email" class="form-input" placeholder="Enter email"
-            [(ngModel)]="form.email" [disabled]="isAutoFilled && !!form.email" />
+          <input type="email" class="form-input"
+            placeholder="Enter email"
+            [(ngModel)]="form.email"
+            [disabled]="isAutoFilled && !!form.email" />
           <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled && form.email"></i>
         </div>
       </div>
@@ -254,9 +258,35 @@
         <label class="form-label required">Phone</label>
         <div class="input-wrap" [class.locked]="isAutoFilled && form.phone">
           <i class="bi bi-telephone-fill input-icon"></i>
-          <input type="text" class="form-input" placeholder="01xxx-xxxxxx"
-            [(ngModel)]="form.phone" [disabled]="isAutoFilled && !!form.phone" />
+          <input type="text" class="form-input"
+            placeholder="01xxx-xxxxxx"
+            [(ngModel)]="form.phone"
+            [disabled]="isAutoFilled && !!form.phone" />
           <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled && form.phone"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Division</label>
+        <div class="input-wrap">
+          <i class="bi bi-map-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.division"
+            (ngModelChange)="onDivisionChange()">
+            <option value="">Select Division</option>
+            <option *ngFor="let d of divisions" [ngValue]="d">{{ d }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">District</label>
+        <div class="input-wrap">
+          <i class="bi bi-geo-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.district"
+            [disabled]="!form.division">
+            <option value="">Select District</option>
+            <option *ngFor="let d of districts" [ngValue]="d">{{ d }}</option>
+          </select>
         </div>
       </div>
 
@@ -264,8 +294,11 @@
         <label class="form-label">Address</label>
         <div class="input-wrap" [class.locked]="isAutoFilled && form.address">
           <i class="bi bi-geo-alt-fill input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea" placeholder="Enter full address..."
-            [(ngModel)]="form.address" [disabled]="isAutoFilled && !!form.address" rows="2"></textarea>
+          <textarea class="form-input form-textarea"
+            placeholder="Enter full address..."
+            [(ngModel)]="form.address"
+            [disabled]="isAutoFilled && !!form.address"
+            rows="2"></textarea>
           <i class="bi bi-lock-fill lock-icon textarea-lock" *ngIf="isAutoFilled && form.address"></i>
         </div>
       </div>
@@ -275,7 +308,7 @@
 
   <div class="section-divider"></div>
 
-  <!-- ── Section 3: Remarks ── -->
+  <!-- ══════════════ Section 4: Remarks ══════════════ -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon purple">
@@ -291,14 +324,15 @@
         <label class="form-label">Remarks</label>
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea" placeholder="Optional remarks..."
+          <textarea class="form-input form-textarea"
+            placeholder="Optional remarks..."
             [(ngModel)]="form.remarks" rows="2"></textarea>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── Actions ── -->
+  <!-- ══════════════ Actions ══════════════ -->
   <div class="form-actions">
     <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
       <i class="bi bi-x-lg"></i> Cancel
@@ -306,9 +340,12 @@
     <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
       <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
-    <button class="btn-submit" (click)="onSubmit()" [disabled]="isLoading || !isFormValid()">
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
       <span *ngIf="!isLoading"><i class="bi bi-upc-scan"></i> Issue TIN</span>
-      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Issuing...</span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>Issuing...
+      </span>
     </button>
   </div>
 

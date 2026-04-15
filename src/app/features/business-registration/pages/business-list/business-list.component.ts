@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Business, BUSINESS_TYPE_MAP } from '../../../../models/business.model';
+import { Business, BUSINESS_TYPE_MAP, BusinessCategory, BusinessType } from '../../../../models/business.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
@@ -49,7 +49,7 @@ export class BusinessListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => this.handleFetchSuccess(data),
         error: (error) => this.handleFetchError(error),
-      });
+    });
   }
 
   private handleFetchSuccess(data: Business[]): void {
@@ -148,20 +148,20 @@ export class BusinessListComponent implements OnInit, OnDestroy {
   // ────────────── UI Helpers  ─────────────────────────
 
 
-  getTypeName(type: any): string {
+  getTypeName(type: BusinessType): string {
     if (!type) return '—';
 
     if (typeof type === 'object') {
-      return type.name || type.typeName || 'Unknown';
+      return type.typeName || type.typeName || 'Unknown';
     }
     return BUSINESS_TYPE_MAP[type] ?? type;
   }
 
-  getCategoryName(category: any): string {
+  getCategoryName(category: BusinessCategory): string {
     if (!category) return '—';
 
     if (typeof category === 'object') {
-      return category.name || category.categoryName || 'Unknown';
+      return category.categoryName || category.categoryName || 'Unknown';
     }
     return category;
   }
@@ -177,7 +177,7 @@ export class BusinessListComponent implements OnInit, OnDestroy {
     return map[status] ?? '';
   }
 
-  getTypeClass(type: string): string {
+  getTypeClass(type: BusinessType): string {
     const name = this.getTypeName(type);
     const map: Record<string, string> = {
       'Sole Proprietorship': 'type-sole',
@@ -190,7 +190,7 @@ export class BusinessListComponent implements OnInit, OnDestroy {
     return map[name] ?? '';
   }
 
-  getCategoryIcon(category: any): string {
+  getCategoryIcon(category: BusinessCategory): string {
     const categoryName = this.getCategoryName(category); 
     
     const map: Record<string, string> = {

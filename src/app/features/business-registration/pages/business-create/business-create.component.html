@@ -10,6 +10,69 @@
 
 <div class="form-card">
 
+  <!-- Section 0: Taxpayer Search (TIN-style) -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon search-icon">
+        <i class="bi bi-search"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Find Taxpayer</h6>
+        <span class="section-sub">Search by TIN number or name — details will auto-fill</span>
+      </div>
+    </div>
+
+    <div class="search-row">
+      <div class="input-wrap search-input-wrap">
+        <i class="bi bi-person-badge-fill input-icon"></i>
+        <input type="text" class="form-input"
+          placeholder="Enter TIN number or taxpayer name..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchInput()"
+          (keyup.enter)="searchTaxpayer()"
+          [disabled]="isAutoFilled" />
+        <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearTaxpayer()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
+        <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
+        <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span> Searching...</span>
+      </button>
+    </div>
+
+    <!-- Search Results List -->
+    <div class="search-results" *ngIf="showResults && searchResults.length > 0">
+      <div class="result-item" *ngFor="let taxpayer of searchResults" (click)="selectTaxpayer(taxpayer)">
+        <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
+        <div class="result-info">
+          <span class="result-name">{{ taxpayer.fullName }}</span>
+          <span class="result-meta">TIN: {{ taxpayer.tinNumber }}</span>
+        </div>
+        <span class="result-badge">Select</span>
+      </div>
+    </div>
+
+    <!-- No results -->
+    <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
+      <i class="bi bi-info-circle"></i> No taxpayer found. Please check the TIN or name.
+    </div>
+
+    <!-- Selected Taxpayer Card -->
+    <div class="selected-card" *ngIf="isAutoFilled && selectedTaxpayer">
+      <div class="selected-card-left">
+        <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
+        <div>
+          <p class="selected-name">{{ selectedTaxpayer.fullName }}</p>
+          <p class="selected-meta">TIN: {{ selectedTaxpayer.tinNumber }}</p>
+        </div>
+      </div>
+      <div class="autofill-tag"><i class="bi bi-lightning-charge-fill"></i> Auto-filled</div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
   <!-- Section 1: Business Identity -->
   <div class="form-section">
     <div class="section-header">
@@ -33,55 +96,35 @@
         </div>
       </div>
 
-      <!-- Taxpayer dropdown -->
-      <div class="form-group">
-        <label class="form-label required">Taxpayer</label>
-        <div class="input-wrap">
-          <i class="bi bi-person-fill input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="form.taxpayerId"
-            (ngModelChange)="onTaxpayerChange()">
-            <option [ngValue]="0">Select Taxpayer</option>
-            <option *ngFor="let t of activeTaxpayers" [ngValue]="t.id">
-              {{ t.fullName }} — {{ t.tinNumber }}
-            </option>
-          </select>
-        </div>
-      </div>
-
       <!-- TIN — auto fills from taxpayer -->
       <div class="form-group">
-        <label class="form-label required">
-          TIN Number <span class="auto-label">Auto</span>
-        </label>
-        <div class="input-wrap">
+        <label class="form-label required">TIN Number <span class="auto-label">Auto</span></label>
+        <div class="input-wrap" [class.locked]="isAutoFilled">
           <i class="bi bi-upc-scan input-icon"></i>
           <input type="text" class="form-input auto-field"
             placeholder="Auto from taxpayer"
             [(ngModel)]="form.tinNumber" readonly />
+          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
         </div>
       </div>
 
       <!-- Owner — auto fills from taxpayer -->
       <div class="form-group">
-        <label class="form-label required">
-          Owner Name <span class="auto-label">Auto</span>
-        </label>
-        <div class="input-wrap">
+        <label class="form-label required">Owner Name <span class="auto-label">Auto</span></label>
+        <div class="input-wrap" [class.locked]="isAutoFilled">
           <i class="bi bi-person-fill input-icon"></i>
           <input type="text" class="form-input auto-field"
             placeholder="Auto from taxpayer"
             [(ngModel)]="form.ownerName" readonly />
+          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
         </div>
       </div>
-
 
       <div class="form-group">
         <label class="form-label required">Business Type</label>
         <div class="input-wrap">
           <i class="bi bi-diagram-3-fill input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="form.businessTypeId">
+          <select class="form-input form-select" [(ngModel)]="form.businessTypeId">
             <option [ngValue]="0">Select Type</option>
             <option *ngFor="let item of businessTypes" [ngValue]="item.id">
               {{ item.typeName }}
@@ -90,17 +133,25 @@
         </div>
       </div>
 
-     
       <div class="form-group">
         <label class="form-label required">Business Category</label>
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="form.businessCategoryId">
+          <select class="form-input form-select" [(ngModel)]="form.businessCategoryId">
             <option [ngValue]="0">Select Category</option>
             <option *ngFor="let item of businessCategories" [ngValue]="item.id">
               {{ item.categoryName }}
             </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
           </select>
         </div>
       </div>
@@ -147,8 +198,7 @@
         <label class="form-label">Incorporation Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.incorporationDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.incorporationDate" />
         </div>
       </div>
 
@@ -156,8 +206,7 @@
         <label class="form-label required">Registration Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.registrationDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.registrationDate" />
         </div>
       </div>
 
@@ -165,8 +214,7 @@
         <label class="form-label">Expiry Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-x input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.expiryDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.expiryDate" />
         </div>
       </div>
 
@@ -208,7 +256,6 @@
         </div>
       </div>
 
-      <!-- Division -->
       <div class="form-group">
         <label class="form-label required">Division</label>
         <div class="input-wrap">
@@ -222,7 +269,6 @@
         </div>
       </div>
 
-      <!-- District — loads after division selected -->
       <div class="form-group">
         <label class="form-label required">District</label>
         <div class="input-wrap">
@@ -253,7 +299,7 @@
 
   <div class="section-divider"></div>
 
-  <!-- Section 4: Financial -->
+  <!-- Section 4: Financial & Workforce -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon orange">

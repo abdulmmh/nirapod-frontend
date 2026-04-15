@@ -1,6 +1,5 @@
 <div class="dashboard-wrap">
 
-  <!-- ── Page Header ── -->
   <div class="dash-header">
     <div class="dash-header-left">
       <div class="greeting-avatar">
@@ -26,7 +25,6 @@
     </div>
   </div>
 
-  <!-- ── Stat Cards ── -->
   <div class="stat-cards-grid">
     <div class="stat-card" *ngFor="let s of statCards" [ngClass]="'sc-' + s.color">
       <div class="sc-body">
@@ -39,81 +37,64 @@
             {{ s.label === 'Total Revenue' ? '৳' : '' }}{{ formatValue(s.value, s.suffix) }}{{ s.suffix }}
           </span>
           <span class="sc-change" [class.negative]="s.change < 0">
-            <i [class]="s.change >= 0 ? 'bi bi-arrow-up' : 'bi bi-arrow-down'"></i>
+            <i [class]="s.change >= 0 ? 'bi bi-trend-up' : 'bi bi-trend-down'"></i>
             {{ s.change | number:'1.1-1' }}% vs last month
           </span>
         </div>
       </div>
 
-      <!-- Circular Progress -->
       <div class="sc-circle-wrap">
-        <svg class="sc-circle" viewBox="0 0 56 56">
-          <circle cx="28" cy="28" r="24"
-            fill="none" stroke-width="4"
-            class="circle-bg" />
-          <circle cx="28" cy="28" r="24"
-            fill="none" stroke-width="4"
-            class="circle-val"
-            [style.stroke-dasharray]="150.8"
-            [style.stroke-dashoffset]="150.8 - (s.progress / 100) * 150.8"
-            stroke-linecap="round"
-            transform="rotate(-90 28 28)" />
+        <svg class="sc-circle" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="28" fill="none" stroke-width="5" class="circle-bg" />
+          <circle cx="32" cy="32" r="28" fill="none" stroke-width="5" class="circle-val"
+            [style.stroke-dasharray]="175.9"
+            [style.stroke-dashoffset]="175.9 - (s.progress / 100) * 175.9"
+            stroke-linecap="round" transform="rotate(-90 32 32)" />
         </svg>
         <span class="circle-pct">{{ s.progress }}%</span>
       </div>
     </div>
   </div>
 
-  <!-- ── Quick Actions ── -->
   <div class="quick-actions-row">
-    <div class="qa-title"><i class="bi bi-lightning-fill"></i> Quick Actions</div>
+    <div class="qa-title"><i class="bi bi-lightning-charge-fill"></i> Quick Actions</div>
     <div class="qa-btns">
-      <a class="qa-btn" *ngFor="let q of quickActions"
-        [routerLink]="q.route" [ngClass]="'qa-' + q.color">
+      <a class="qa-btn" *ngFor="let q of quickActions" [routerLink]="q.route" [ngClass]="'qa-' + q.color">
         <i [class]="q.icon"></i>
         <span>{{ q.label }}</span>
       </a>
     </div>
   </div>
 
-  <!-- ── Charts Row 1 ── -->
   <div class="charts-row charts-row-1">
-
-    <!-- VAT Collection Trend -->
     <div class="chart-card chart-vat">
       <div class="chart-card-header">
         <div class="cch-left">
-          <div class="cch-icon teal"><i class="bi bi-graph-up-arrow"></i></div>
+          <div class="cch-icon teal"><i class="bi bi-graph-up"></i></div>
           <div>
             <div class="cch-title">VAT Collection Trend</div>
             <div class="cch-sub">Last 6 months (৳ Lakh)</div>
           </div>
         </div>
-        <div class="cch-right">
-          <div class="chart-legend">
-            <span class="leg-dot teal"></span><span>Actual</span>
-            <span class="leg-dot blue"></span><span>Target</span>
-          </div>
+        <div class="chart-legend">
+          <span class="leg-dot teal"></span><span>Actual</span>
+          <span class="leg-dot blue"></span><span>Target</span>
         </div>
       </div>
-      <!-- ✅ canvas height fixed via CSS class -->
       <canvas id="vatChart" class="chart-canvas"></canvas>
     </div>
 
-    <!-- Compliance Gauge -->
     <div class="chart-card chart-gauge">
       <div class="chart-card-header">
         <div class="cch-left">
-          <div class="cch-icon purple"><i class="bi bi-speedometer2"></i></div>
+          <div class="cch-icon purple"><i class="bi bi-speedometer"></i></div>
           <div>
             <div class="cch-title">Tax Compliance</div>
             <div class="cch-sub">FY {{ selectedYear }}</div>
           </div>
         </div>
       </div>
-      <!-- ✅ gauge canvas -->
       <canvas id="gaugeCanvas" class="gauge-canvas"></canvas>
-
       <div class="gauge-stats">
         <div class="gs-item">
           <span class="gs-val green">18,450</span>
@@ -126,17 +107,13 @@
         </div>
       </div>
     </div>
-
   </div>
 
-  <!-- ── Charts Row 2 ── -->
   <div class="charts-row charts-row-2">
-
-    <!-- Payment Collection Bar Chart -->
     <div class="chart-card chart-pay">
       <div class="chart-card-header">
         <div class="cch-left">
-          <div class="cch-icon blue"><i class="bi bi-bar-chart-fill"></i></div>
+          <div class="cch-icon blue"><i class="bi bi-bar-chart-line-fill"></i></div>
           <div>
             <div class="cch-title">Payment Collection</div>
             <div class="cch-sub">Last 6 months (৳ Lakh)</div>
@@ -146,7 +123,6 @@
       <canvas id="payChart" class="chart-canvas"></canvas>
     </div>
 
-    <!-- Tax Type Donut -->
     <div class="chart-card chart-donut">
       <div class="chart-card-header">
         <div class="cch-left">
@@ -169,12 +145,10 @@
         </div>
       </div>
     </div>
-
   </div>
 
-  <!-- ── Zone-wise Collection ── -->
   <div class="zone-card">
-    <div class="chart-card-header">
+    <div class="chart-card-header" style="margin-bottom: 0;">
       <div class="cch-left">
         <div class="cch-icon navy"><i class="bi bi-geo-alt-fill"></i></div>
         <div>
@@ -191,10 +165,7 @@
         </div>
         <div class="zone-bar-wrap">
           <div class="zone-bar-bg">
-            <div class="zone-bar-fill"
-              [style.width.%]="getZonePercent(z)"
-              [style.background]="z.color">
-            </div>
+            <div class="zone-bar-fill" [style.width.%]="getZonePercent(z)" [style.background]="z.color"></div>
           </div>
           <span class="zone-pct" [style.color]="z.color">{{ getZonePercent(z) }}%</span>
         </div>
@@ -202,10 +173,7 @@
     </div>
   </div>
 
-  <!-- ── Tables Row ── -->
   <div class="tables-row">
-
-    <!-- Recent Taxpayers -->
     <div class="table-card">
       <div class="tc-header">
         <div class="cch-left">
@@ -215,16 +183,14 @@
             <div class="cch-sub">Latest registrations</div>
           </div>
         </div>
-        <a routerLink="/taxpayers" class="view-all-link">
-          View All <i class="bi bi-arrow-right"></i>
-        </a>
+        <a routerLink="/taxpayers" class="view-all-link">View All <i class="bi bi-arrow-right-short"></i></a>
       </div>
       <div class="mini-table">
         <div class="mt-row" *ngFor="let t of recentTaxpayers">
           <div class="mt-avatar">{{ t.name.charAt(0) }}</div>
           <div class="mt-info">
             <span class="mt-name">{{ t.name }}</span>
-            <span class="mt-sub">{{ t.tin }} · {{ t.type }}</span>
+            <span class="mt-sub">{{ t.tin }} &bull; {{ t.type }}</span>
           </div>
           <div class="mt-right">
             <span class="status-badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span>
@@ -234,26 +200,23 @@
       </div>
     </div>
 
-    <!-- Recent Payments -->
     <div class="table-card">
       <div class="tc-header">
         <div class="cch-left">
-          <div class="cch-icon blue"><i class="bi bi-credit-card-fill"></i></div>
+          <div class="cch-icon blue"><i class="bi bi-credit-card-2-front-fill"></i></div>
           <div>
             <div class="cch-title">Recent Payments</div>
             <div class="cch-sub">Latest transactions</div>
           </div>
         </div>
-        <a routerLink="/payments" class="view-all-link">
-          View All <i class="bi bi-arrow-right"></i>
-        </a>
+        <a routerLink="/payments" class="view-all-link">View All <i class="bi bi-arrow-right-short"></i></a>
       </div>
       <div class="mini-table">
         <div class="mt-row" *ngFor="let p of recentPayments">
           <div class="mt-avatar pay">৳</div>
           <div class="mt-info">
             <span class="mt-name">{{ p.taxpayer }}</span>
-            <span class="mt-sub">{{ p.ref }} · {{ p.type }}</span>
+            <span class="mt-sub">{{ p.ref }} &bull; {{ p.type }}</span>
           </div>
           <div class="mt-right">
             <span class="mt-amount">{{ formatCurrency(p.amount) }}</span>
@@ -262,7 +225,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
 </div>
