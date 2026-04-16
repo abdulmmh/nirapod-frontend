@@ -125,10 +125,10 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
   selectTaxpayer(taxpayer: Taxpayer): void {
     this.selectedTaxpayer = taxpayer;
     this.showResults      = false;
-    this.searchQuery      = taxpayer.fullName;
+    // this.searchQuery      = taxpayer.fullName;
 
     // Form auto-fill
-    this.form.taxpayerId = taxpayer.id;
+    // this.form.taxpayerId = taxpayer.id;
     this.form.tinNumber  = taxpayer.tinNumber || '';
     this.form.ownerName  = taxpayer.fullName  || '';
 

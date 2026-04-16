@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { IncomeTaxReturnsRoutingModule } from './income-tax-returns-routing.module';
 import { IncomeTaxReturnListComponent } from '../pages/income-tax-return-list/income-tax-return-list.component';
@@ -19,6 +19,7 @@ import { IncomeTaxReturnEditComponent } from '../pages/income-tax-return-edit/in
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     SharedModule,
     IncomeTaxReturnsRoutingModule
   ]

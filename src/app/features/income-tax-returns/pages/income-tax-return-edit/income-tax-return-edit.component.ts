@@ -1,28 +1,66 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { IncomeTaxReturn } from '../../../../models/income-tax-return.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-income-tax-return-edit',
   templateUrl: './income-tax-return-edit.component.html',
   styleUrls: ['./income-tax-return-edit.component.css']
 })
-export class IncomeTaxReturnEditComponent implements OnInit {
+export class IncomeTaxReturnEditComponent implements OnInit, OnDestroy {
 
-  isLoading  = true;
-  isSaving   = false;
-  successMsg = '';
-  errorMsg   = '';
-  itrId      = 0;
+  isLoading = true;
+  isSaving  = false;
+  itrId     = 0;
+
+  private destroy$ = new Subject<void>();
 
   itrCategories   = ['Individual', 'Company', 'Partnership', 'NGO'];
   returnPeriods   = ['Annual', 'Quarterly'];
-  assessmentYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
-  incomeYears     = ['2023-24', '2022-23', '2021-22', '2020-21'];
+  assessmentYears = ['2025-26', '2024-25', '2023-24', '2022-23', '2021-22'];
+  incomeYears     = ['2024-25', '2023-24', '2022-23', '2021-22', '2020-21'];
   statuses        = ['Draft', 'Submitted', 'Accepted', 'Rejected', 'Overdue', 'Under Review', 'Amended'];
   submitters      = ['Taxpayer', 'Tax Officer', 'Data Entry Operator', 'Tax Commissioner'];
 
   form: any = {};
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient,
+    private toast: ToastService
+  ) {}
+
+  ngOnInit(): void {
+    this.itrId = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadData(): void {
+    this.isLoading = true;
+    this.http.get<IncomeTaxReturn>(API_ENDPOINTS.INCOME_TAX_RETURNS.GET(this.itrId))
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: (data) => {
+          this.form = { ...data };
+        },
+        error: () => {
+          this.toast.error('Failed to load income tax return data.');
+          this.router.navigate(['/income-tax-returns']);
+        }
+      });
+  }
+
+  // ── Calculated Fields ──
 
   get taxableIncome(): number {
     return Math.max(0, (this.form.grossIncome || 0) - (this.form.exemptIncome || 0));
@@ -33,49 +71,47 @@ export class IncomeTaxReturnEditComponent implements OnInit {
   }
 
   get refundable(): number {
-    const totalPaid = (this.form.advanceTaxPaid || 0) + (this.form.withholdingTax || 0) + (this.form.taxPaid || 0);
+    const totalPaid = (this.form.advanceTaxPaid || 0)
+      + (this.form.withholdingTax || 0)
+      + (this.form.taxPaid || 0);
     return Math.max(0, totalPaid - this.netTaxPayable);
   }
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
-
-  ngOnInit(): void {
-    this.itrId = Number(this.route.snapshot.paramMap.get('id'));
-    this.form = {
-      id: this.itrId,
-      returnNo: 'ITR-2024-00001',
-      tinNumber: 'TIN-1001', taxpayerName: 'Abdul Karim',
-      itrCategory: 'Individual', assessmentYear: '2024-25',
-      incomeYear: '2023-24', returnPeriod: 'Annual',
-      grossIncome: 1200000, exemptIncome: 200000,
-      taxableIncome: 1000000, taxRate: 15,
-      grossTax: 150000, taxRebate: 10000,
-      netTaxPayable: 140000, advanceTaxPaid: 50000,
-      withholdingTax: 30000, taxPaid: 60000,
-      refundable: 0, submissionDate: '2024-11-25',
-      dueDate: '2024-11-30', status: 'Accepted',
-      submittedBy: 'Taxpayer', verifiedBy: 'Tax Officer', remarks: ''
-    };
-    this.isLoading = false;
-  }
-
   isFormValid(): boolean {
-    return !!(this.form.tinNumber && this.form.taxpayerName &&
-              this.form.itrCategory && this.form.assessmentYear);
+    return !!(
+      this.form.tinNumber &&
+      this.form.taxpayerName &&
+      this.form.itrCategory &&
+      this.form.assessmentYear
+    );
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
-    this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
-    setTimeout(() => {
-      this.isSaving = false;
-      this.successMsg = 'Income tax return updated successfully!';
-      setTimeout(() => this.router.navigate(['/income-tax-returns']), 1500);
-    }, 800);
+    if (!this.isFormValid()) {
+      this.toast.warning('Please fill in all required fields.');
+      return;
+    }
+
+    this.isSaving = true;
+
+    this.http.put(API_ENDPOINTS.INCOME_TAX_RETURNS.UPDATE(this.itrId), this.form)
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.isSaving = false)))
+      .subscribe({
+        next: () => {
+          this.toast.success('Income tax return updated successfully!');
+          setTimeout(() => this.router.navigate(['/income-tax-returns/view', this.itrId]), 1500);
+        },
+        error: (err) => {
+          if (err.status === 409) {
+            this.toast.error(err.error?.message || 'Conflict: another return exists for this TIN and year.');
+          } else {
+            this.toast.error('Failed to update income tax return. Please try again.');
+          }
+        }
+      });
   }
 
-  onCancel(): void { this.router.navigate(['/income-tax-returns/view', this.itrId]); }
+  onCancel(): void {
+    this.router.navigate(['/income-tax-returns/view', this.itrId]);
+  }
 }

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { TaxpayerRoutingModule } from './taxpayer-routing.module';
 
@@ -22,7 +22,8 @@ import { TaxpayerViewComponent } from '../pages/taxpayer-view/taxpayer-view.comp
     CommonModule,
     FormsModule,
     SharedModule,
-    TaxpayerRoutingModule
+    TaxpayerRoutingModule,
+    ReactiveFormsModule
   ]
 })
 export class TaxpayerModule { }

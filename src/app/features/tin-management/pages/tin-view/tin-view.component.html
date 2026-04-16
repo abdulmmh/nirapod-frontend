@@ -3,6 +3,17 @@
     <h4>TIN Details</h4>
     <p>Full TIN record information.</p>
   </div>
+  <div class="d-flex justify-content-end mb-3">
+    <button 
+      class="btn btn-outline-success d-flex align-items-center gap-2" 
+      (click)="onDownloadCertificate(tin!.id, tin!.tinNumber)"
+      [disabled]="isDownloading">
+      
+      <i class="bi" [ngClass]="isDownloading ? 'bi-arrow-repeat spinner-border spinner-border-sm' : 'bi-file-earmark-pdf-fill'"></i>
+      
+      <span>{{ isDownloading ? 'Downloading...' : 'Download Certificate' }}</span>
+    </button>
+  </div>
   <div class="header-actions">
     <button class="btn-back" (click)="onBack()">
       <i class="bi bi-arrow-left"></i> Back
@@ -19,7 +30,6 @@
 
 <ng-container *ngIf="!isLoading && tin">
 
-  <!-- TIN Header Card -->
   <div class="tin-header-card">
     <div class="tin-header-left">
       <div class="tin-icon">
@@ -41,16 +51,15 @@
     <div class="tin-header-right">
       <div class="tin-stat">
         <span class="ts-label">Issued Date</span>
-        <span class="ts-value">{{ tin.issuedDate }}</span>
+        <span class="ts-value">{{ tin.issuedDate | date:'mediumDate' }}</span>
       </div>
-      <div class="tin-stat">
+      <div class="tin-stat" *ngIf="tin.lastUpdated">
         <span class="ts-label">Last Updated</span>
-        <span class="ts-value">{{ tin.lastUpdated }}</span>
+        <span class="ts-value">{{ tin.lastUpdated | date:'mediumDate' }}</span>
       </div>
     </div>
   </div>
 
-  <!-- Details Grid -->
   <div class="details-grid">
 
     <div class="detail-card">
@@ -81,11 +90,11 @@
         </div>
         <div class="detail-row" *ngIf="tin.dateOfBirth">
           <span class="detail-label">Date of Birth</span>
-          <span class="detail-value">{{ tin.dateOfBirth }}</span>
+          <span class="detail-value">{{ tin.dateOfBirth | date:'mediumDate' }}</span>
         </div>
         <div class="detail-row" *ngIf="tin.incorporationDate">
           <span class="detail-label">Incorporation Date</span>
-          <span class="detail-value">{{ tin.incorporationDate }}</span>
+          <span class="detail-value">{{ tin.incorporationDate | date:'mediumDate' }}</span>
         </div>
       </div>
     </div>
@@ -112,13 +121,13 @@
             </span>
           </span>
         </div>
-        <div class="detail-row">
+        <div class="detail-row" *ngIf="tin.issuedDate">
           <span class="detail-label">Issued Date</span>
-          <span class="detail-value">{{ tin.issuedDate }}</span>
+          <span class="detail-value">{{ tin.issuedDate | date:'mediumDate' }}</span>
         </div>
-        <div class="detail-row">
+        <div class="detail-row" *ngIf="tin.lastUpdated">
           <span class="detail-label">Last Updated</span>
-          <span class="detail-value">{{ tin.lastUpdated }}</span>
+          <span class="detail-value">{{ tin.lastUpdated | date:'mediumDate' }}</span>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -11,9 +11,9 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
   templateUrl: './taxpayer-view.component.html',
   styleUrls: ['./taxpayer-view.component.css']
 })
-export class TaxpayerViewComponent implements OnInit {
+export class TaxpayerViewComponent implements OnInit, OnDestroy {
 
- // ────────────────── Properties ──────────────────────
+  // ────────────────── Properties ──────────────────────
 
   taxpayer: Taxpayer | null = null;
   isLoading = true;
@@ -30,7 +30,7 @@ export class TaxpayerViewComponent implements OnInit {
     private toast: ToastService
   ) {}
 
- // ────────────────────── Lifecycle ──────────────────────
+  // ────────────────────── Lifecycle ──────────────────────
 
   ngOnInit(): void {
     this.initializeTaxpayer();
@@ -56,14 +56,14 @@ export class TaxpayerViewComponent implements OnInit {
   }
 
   private getValidTaxpayerId(): number | null {
-   const rawId = this.route.snapshot.paramMap.get('id');
+    const rawId = this.route.snapshot.paramMap.get('id');
     const parsedId = Number(rawId);
 
     return rawId && !isNaN(parsedId) && parsedId > 0 ? parsedId : null;
   }
 
   private handleInvalidId(): void {
-    this.toast.error('Invalid taxpayer ID.Please go back and try again.');
+    this.toast.error('Invalid taxpayer ID. Please go back and try again.');
     this.isLoading = false;
   }
 
@@ -93,7 +93,30 @@ export class TaxpayerViewComponent implements OnInit {
     this.isLoading = false;
   }
 
- // ───────────────────── Navigation ────────────────────────
+  // ───────────────────── Helper Methods ────────────────────────
+
+  getDisplayName(taxpayer: any): string {
+    const typeName = taxpayer?.taxpayerType?.typeName?.toLowerCase() || '';
+    
+    if (typeName.includes('company')) {
+      return taxpayer.companyName || 'Unknown Company';
+    } 
+    else {
+      return taxpayer.fullName || 'Unknown Individual'; 
+    }
+  }
+
+  get isCompany(): boolean {
+    const typeName = this.taxpayer?.taxpayerType?.typeName?.toLowerCase() || '';
+    return typeName.includes('company');
+  }
+
+  get isIndividual(): boolean {
+    const typeName = this.taxpayer?.taxpayerType?.typeName?.toLowerCase() || '';
+    return typeName.includes('individual');
+  }
+
+  // ───────────────────── Navigation ────────────────────────
 
   onEdit(): void {
     if (!this.taxpayer?.id) return;
@@ -101,17 +124,18 @@ export class TaxpayerViewComponent implements OnInit {
   }
 
   onBack(): void {
-    this.router.navigate(['/Taxpayer']);
+    this.router.navigate(['/taxpayers']);
   }
+
   // ────────────────────── UI Helpers ──────────────────────
 
   getStatusClass(status: string): string {
     const map: Record<string, string> = {
-      'Active': 'status-active', 'Inactive': 'status-inactive',
-      'Pending': 'status-pending', 'Suspended': 'status-suspended'
+      'Active': 'status-active', 
+      'Inactive': 'status-inactive',
+      'Pending': 'status-pending', 
+      'Suspended': 'status-suspended'
     };
     return map[status] ?? '';
   }
-
-
 }

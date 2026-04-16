@@ -3,7 +3,7 @@ import { BaseApiService } from './base-api.service';
 import { API_ENDPOINTS } from '../constants/api.constants';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { BusinessCategory, BusinessType, TaxpayerType } from 'src/app/models/master-data.model';
+import { BusinessCategory, BusinessType, TaxCircle, TaxpayerType, TaxZone } from 'src/app/models/master-data.model';
 import { District, Division } from 'src/app/models/master-data.model';
 
 
@@ -44,5 +44,17 @@ export class MasterDataService extends BaseApiService {
     return this.get<BusinessCategory[]>(API_ENDPOINTS.MASTER_DATA.BUSINESS_CATEGORIES).pipe(
       catchError(() => of([]))
     );
+  }
+
+  getTaxZonesByDistrict(districtId: number): Observable<any[]> {
+    return this.get<any[]>(
+      API_ENDPOINTS.MASTER_DATA.TAX_ZONES_BY_DISTRICT(districtId)
+    ).pipe(catchError(() => of([])));
+  }
+
+  getTaxCirclesByZone(zoneId: number): Observable<any[]> {
+    return this.get<any[]>(
+      API_ENDPOINTS.MASTER_DATA.TAX_CIRCLES_BY_ZONE(zoneId)
+    ).pipe(catchError(() => of([])));
   }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { API_ENDPOINTS } from '../constants/api.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,11 @@ export class BaseApiService {
     return this.http.delete<T>(url).pipe(
       catchError(this.handleError)
     );
+  }
+
+  downloadTinCertificate(tinId: number): Observable<Blob> {
+    const url = API_ENDPOINTS.TINS.DOWNLOAD_CERT(tinId); 
+    return this.http.get(url, { responseType: 'blob' });
   }
 
   private handleError(error: any): Observable<never> {

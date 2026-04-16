@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Tin } from '../../../../models/tin.model';
 import { HttpClient } from '@angular/common/http';
@@ -6,12 +6,29 @@ import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { finalize, Subject, takeUntil } from 'rxjs';
 
+interface Division {
+  id: number;
+  name: string;
+}
+interface District {
+  id: number;
+  name: string;
+}
+interface TaxZone {
+  id: number;
+  name: string;
+}
+interface TaxCircle {
+  id: number;
+  name: string;
+}
+
 @Component({
   selector: 'app-tin-edit',
   templateUrl: './tin-edit.component.html',
   styleUrls: ['./tin-edit.component.css'],
 })
-export class TinEditComponent implements OnInit {
+export class TinEditComponent implements OnInit, OnDestroy {
   // ──────── Properties ──────────
 
   isLoading = true;
@@ -20,49 +37,27 @@ export class TinEditComponent implements OnInit {
 
   form: Partial<Tin> = {};
 
+  // IDs tracked separately for API calls
+  selectedDivisionId: number | null = null;
+  selectedDistrictId: number | null = null;
+  selectedZoneId: number | null = null;
+
+  // Dropdown Data Arrays
+  divisions: Division[] = [];
+  districts: District[] = [];
+  taxZones: TaxZone[] = [];
+  taxCircles: TaxCircle[] = [];
+
+  // Loading states
+  loadingDistricts = false;
+  loadingZones = false;
+  loadingCircles = false;
+
   private destroy$ = new Subject<void>();
 
   // ────────── Static Data ──────────────
   tinCategories = ['Individual', 'Company', 'Partnership', 'NGO', 'Government'];
   statuses = ['Active', 'Inactive', 'Pending', 'Suspended', 'Cancelled'];
-  divisions = [
-    'Dhaka',
-    'Chittagong',
-    'Rajshahi',
-    'Khulna',
-    'Barisal',
-    'Sylhet',
-    'Rangpur',
-    'Mymensingh',
-  ];
-  taxZones = ['Zone-1', 'Zone-2', 'Zone-3', 'Zone-4', 'Zone-5', 'Zone-6'];
-  taxCircles = [
-    'Circle-1',
-    'Circle-2',
-    'Circle-3',
-    'Circle-4',
-    'Circle-5',
-    'Circle-6',
-    'Circle-7',
-    'Circle-8',
-  ];
-
-  districts: Record<string, string[]> = {
-    Dhaka: ['Dhaka', 'Gazipur', 'Narayanganj', 'Tangail', 'Narsingdi'],
-    Chittagong: [
-      'Chittagong',
-      "Cox's Bazar",
-      'Comilla',
-      'Feni',
-      'Brahmanbaria',
-    ],
-    Rajshahi: ['Rajshahi', 'Bogra', 'Pabna', 'Sirajganj', 'Natore'],
-    Khulna: ['Khulna', 'Jessore', 'Satkhira', 'Bagerhat', 'Kushtia'],
-    Barisal: ['Barisal', 'Bhola', 'Patuakhali', 'Jhalokati', 'Pirojpur'],
-    Sylhet: ['Sylhet', 'Moulvibazar', 'Habiganj', 'Sunamganj'],
-    Rangpur: ['Rangpur', 'Dinajpur', 'Kurigram', 'Gaibandha', 'Lalmonirhat'],
-    Mymensingh: ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur'],
-  };
 
   // ─────────  Getter ───────────────
 
@@ -74,10 +69,6 @@ export class TinEditComponent implements OnInit {
     return ['Company', 'Partnership', 'NGO', 'Government'].includes(
       this.form.tinCategory ?? '',
     );
-  }
-
-  get availableDistricts(): string[] {
-    return this.districts[this.form.division ?? ''] || [];
   }
 
   // ─────────── Constructor ──────────────
@@ -100,7 +91,7 @@ export class TinEditComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  // ─────────── Initialization  ─────────────
+  // ─────────── Initialization  ─────────────
 
   private initializeTin(): void {
     const id = this.getValidTinId();
@@ -115,12 +106,10 @@ export class TinEditComponent implements OnInit {
   }
 
   private fetchTin(): void {
-    if (!this.tinId) return;
-
     this.isLoading = true;
 
     this.http
-      .get<Tin>(API_ENDPOINTS.TINS.GET(this.tinId))
+      .get<Tin>(API_ENDPOINTS.TINS.GET(this.tinId!))
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false)),
@@ -133,24 +122,173 @@ export class TinEditComponent implements OnInit {
 
   private handleFetchSuccess(data: Tin): void {
     this.form = { ...data };
+
+    // Formatting Dates for HTML input type="date"
+    if (this.form.dateOfBirth)
+      this.form.dateOfBirth = this.form.dateOfBirth.split('T')[0];
+    if (this.form.incorporationDate)
+      this.form.incorporationDate = this.form.incorporationDate.split('T')[0];
+    if (this.form.issuedDate)
+      this.form.issuedDate = this.form.issuedDate.split('T')[0];
+
+    // Initialize dropdowns chain based on fetched data
+    this.loadDivisionsForEdit();
   }
 
   private handleFetchError(error: unknown): void {
-    console.error('Error loading business data:', error);
+    console.error('Error loading TIN data:', error);
     this.toast.error('Failed to load TIN record. Please refresh or go back.');
   }
 
-  // ─────────── Events  ────────────────
-  onCancel(): void {
-    this.router.navigate(['/tin/view', this.tinId]);
+  // ─────────── Location Chain Loading (Edit Mode) ───────────
+
+  private loadDivisionsForEdit(): void {
+    this.http
+      .get<Division[]>(API_ENDPOINTS.MASTER_DATA.DIVISIONS)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (divs) => {
+          this.divisions = divs;
+          const matchedDiv = divs.find((d) => d.name === this.form.division);
+          if (matchedDiv) {
+            this.selectedDivisionId = matchedDiv.id;
+            this.loadDistrictsForEdit(matchedDiv.id);
+          }
+        },
+      });
   }
 
-  // ─────────── Validation  ────────────────
+  private loadDistrictsForEdit(divId: number): void {
+    this.loadingDistricts = true;
+    this.http
+      .get<District[]>(API_ENDPOINTS.MASTER_DATA.DISTRICTS_BY_DIVISION(divId))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingDistricts = false)),
+      )
+      .subscribe({
+        next: (dists) => {
+          this.districts = dists;
+          const matchedDist = dists.find((d) => d.name === this.form.district);
+          if (matchedDist) {
+            this.selectedDistrictId = matchedDist.id;
+            this.loadZonesForEdit(matchedDist.id);
+          }
+        },
+      });
+  }
+
+  private loadZonesForEdit(distId: number): void {
+    this.loadingZones = true;
+    this.http
+      .get<TaxZone[]>(API_ENDPOINTS.MASTER_DATA.TAX_ZONES_BY_DISTRICT(distId))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingZones = false)),
+      )
+      .subscribe({
+        next: (zones) => {
+          this.taxZones = zones;
+          const matchedZone = zones.find((z) => z.name === this.form.taxZone);
+          if (matchedZone) {
+            this.selectedZoneId = matchedZone.id;
+            this.loadCirclesForEdit(matchedZone.id);
+          }
+        },
+      });
+  }
+
+  private loadCirclesForEdit(zoneId: number): void {
+    this.loadingCircles = true;
+    this.http
+      .get<TaxCircle[]>(API_ENDPOINTS.MASTER_DATA.TAX_CIRCLES_BY_ZONE(zoneId))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingCircles = false)),
+      )
+      .subscribe({
+        next: (circles) => {
+          this.taxCircles = circles;
+        },
+      });
+  }
+
+  // ─────────── User Change Events ───────────
+
+  onDivisionChange(): void {
+    this.form.district = '';
+    this.form.taxZone = '';
+    this.form.taxCircle = '';
+    this.districts = [];
+    this.taxZones = [];
+    this.taxCircles = [];
+    this.selectedDistrictId = null;
+    this.selectedZoneId = null;
+
+    if (!this.selectedDivisionId) return;
+
+    // Set division name in form
+    this.form.division =
+      this.divisions.find((d) => d.id === this.selectedDivisionId)?.name || '';
+
+    this.loadingDistricts = true;
+    this.http
+      .get<District[]>(
+        API_ENDPOINTS.MASTER_DATA.DISTRICTS_BY_DIVISION(
+          this.selectedDivisionId,
+        ),
+      )
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingDistricts = false)),
+      )
+      .subscribe((data) => (this.districts = data));
+  }
+
+  onDistrictChange(): void {
+    this.form.taxZone = '';
+    this.form.taxCircle = '';
+    this.taxZones = [];
+    this.taxCircles = [];
+    this.selectedZoneId = null;
+
+    const district = this.districts.find((d) => d.name === this.form.district);
+    if (!district) return;
+
+    this.loadingZones = true;
+    this.http
+      .get<TaxZone[]>(
+        API_ENDPOINTS.MASTER_DATA.TAX_ZONES_BY_DISTRICT(district.id),
+      )
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingZones = false)),
+      )
+      .subscribe((data) => (this.taxZones = data));
+  }
+
+  onZoneChange(): void {
+    this.form.taxCircle = '';
+    this.taxCircles = [];
+
+    const zone = this.taxZones.find((z) => z.name === this.form.taxZone);
+    if (!zone) return;
+
+    this.loadingCircles = true;
+    this.http
+      .get<TaxCircle[]>(API_ENDPOINTS.MASTER_DATA.TAX_CIRCLES_BY_ZONE(zone.id))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingCircles = false)),
+      )
+      .subscribe((data) => (this.taxCircles = data));
+  }
+
+  // ─────────── Validation  ────────────────
 
   private getValidTinId(): number | null {
     const rawId = this.route.snapshot.paramMap.get('id');
     const parsedId = Number(rawId);
-
     return rawId && !isNaN(parsedId) && parsedId > 0 ? parsedId : null;
   }
 
@@ -168,31 +306,23 @@ export class TinEditComponent implements OnInit {
       this.form.taxCircle &&
       this.form.issuedDate &&
       (this.isIndividual ? this.form.nid : true) &&
-      (this.isIndividual ? this.form.passportNo : true) &&
       this.form.division &&
       this.form.district &&
       this.form.status
     );
   }
 
-  // ───────── Actions  ─────────────
+  // ───────── Actions  ─────────────
 
   onSubmit(): void {
     if (!this.isFormValid()) {
-      this.showValidationWarning();
-      return;
-    }
-
-    if (!this.tinId) {
-      this.handleInvalidId();
+      this.toast.warning(
+        'Please fill in all required fields with valid values.',
+      );
       return;
     }
 
     this.isSaving = true;
-    this.updateTin();
-  }
-
-  private updateTin(): void {
     this.http
       .put(API_ENDPOINTS.TINS.UPDATE(this.tinId!), this.form)
       .pipe(
@@ -200,22 +330,17 @@ export class TinEditComponent implements OnInit {
         finalize(() => (this.isSaving = false)),
       )
       .subscribe({
-        next: () => this.handleUpdateSuccess(),
-        error: (error) => this.handleUpdateError(error),
+        next: () => {
+          this.toast.success('TIN record updated successfully!');
+          this.router.navigate(['/tin/view', this.tinId]);
+        },
+        error: () => {
+          this.toast.error('Failed to update TIN record. Please try again.');
+        },
       });
   }
 
-  private handleUpdateSuccess(): void {
-    this.toast.success('TIN record updated successfully!');
-    setTimeout(() => this.router.navigate(['/tin']), 1500);
-  }
-
-  private handleUpdateError(error: unknown): void {
-    console.error('Error updating TIN record:', error);
-    this.toast.error('Failed to update TIN record. Please try again.');
-  }
-
-  private showValidationWarning(): void {
-    this.toast.warning('Please fill in all required fields with valid values.');
+  onCancel(): void {
+    this.router.navigate(['/tin/view', this.tinId]);
   }
 }

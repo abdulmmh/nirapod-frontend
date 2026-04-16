@@ -4,19 +4,13 @@
     <p>Manage all registered taxpayers from here.</p>
   </div>
 
-  <!-- Only roles that can create -->
-  
-  <a  *canDo="'create'"
-    routerLink="/taxpayers/create"
-    class="btn-add-primary desktop-add-btn"
-  >
+  <a *canDo="'create'" routerLink="/taxpayers/create" class="btn-add-primary desktop-add-btn">
     <i class="bi bi-plus-lg"></i> Add Taxpayer
   </a>
 </div>
 
 <div class="page-wrapper">
 
-  <!-- Search -->
   <div class="list-search-bar">
     <div class="search-field-row">
       <div class="search-field">
@@ -28,7 +22,6 @@
         />
       </div>
 
-      <!-- Export — only commissioner, auditor, admin -->
       <button *canDo="'export'" class="btn-export">
         <i class="bi bi-download"></i>
         <span>Export</span>
@@ -36,7 +29,6 @@
     </div>
   </div>
 
-  <!-- Desktop Table -->
   <div class="table-responsive desktop-table">
     <table class="data-table">
       <thead>
@@ -54,11 +46,15 @@
       <tbody>
         <tr *ngFor="let tp of filteredTaxpayers; let i = index">
           <td>{{ i + 1 }}</td>
-          <td><span class="tin-code">{{ tp.tinNumber }}</span></td>
+          <td>
+            <span class="tin-code" [ngStyle]="{'background': !tp.tinNumber ? '#f5f7fb' : '', 'color': !tp.tinNumber ? '#888' : ''}">
+              {{ tp.tinNumber || 'Not Assigned' }}
+            </span>
+          </td>
           <td>
             <div class="td-name">
-              <div class="td-avatar">{{ tp.fullName.charAt(0) }}</div>
-              <span>{{ tp.fullName }}</span>
+              <div class="td-avatar">{{ getDisplayName(tp).charAt(0) | uppercase }}</div>
+              <span>{{ getDisplayName(tp) }}</span>
             </div>
           </td>
           <td>{{ tp.email }}</td>
@@ -71,35 +67,17 @@
           </td>
           <td>
             <div class="action-btns">
-
-              <!-- View — all roles -->
               <button class="btn-view" (click)="viewTaxpayers(tp.id)">
                 <i class="bi bi-eye-fill"></i> View
               </button>
 
-              <!-- Edit — create/edit roles only -->
               <button *canDo="'edit'" class="btn-edit" (click)="editTaxpayers(tp.id)">
                 <i class="bi bi-pencil-fill"></i> Edit
               </button>
 
-              <!-- Delete — admin & commissioner only -->
-              <button
-                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
-                class="btn-delete"
-                (click)="confirmDelete(tp.id)"
-              >
+              <button *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(tp.id)">
                 <i class="bi bi-trash-fill"></i> Delete
               </button>
-
-            </div>
-          </td>
-        </tr>
-
-        <tr *ngIf="filteredTaxpayers.length === 0">
-          <td colspan="8">
-            <div class="empty-state">
-              <i class="bi bi-people"></i>
-              <p>No taxpayers found.</p>
             </div>
           </td>
         </tr>
@@ -107,16 +85,17 @@
     </table>
   </div>
 
-  <!-- Mobile Cards -->
-  <div class="mobile-cards" style="padding: 12px;">
+  <div class="mobile-cards">
     <div class="mobile-card" *ngFor="let tp of filteredTaxpayers">
-
+      
       <div class="mobile-card-header">
         <div class="mobile-card-title">
-          <div class="mobile-avatar">{{ tp.fullName.charAt(0) }}</div>
+          <div class="mobile-avatar">{{ getDisplayName(tp).charAt(0) | uppercase }}</div>
           <div>
-            <div class="mobile-name">{{ tp.fullName }}</div>
-            <div class="mobile-sub">{{ tp.tinNumber }}</div>
+            <div class="mobile-name">{{ getDisplayName(tp) }}</div>
+            <div class="mobile-sub" [ngStyle]="{'color': !tp.tinNumber ? '#888' : ''}">
+              {{ tp.tinNumber || 'Not Assigned' }}
+            </div>
           </div>
         </div>
         <span class="status-badge" [ngClass]="getStatusClass(tp.status)">
@@ -135,36 +114,22 @@
         </div>
         <div class="mobile-field">
           <label>Type</label>
-          <span>{{ tp.taxpayerType }}</span>
-        </div>
-        <div class="mobile-field">
-          <label>Registered</label>
-          <span>{{ tp.registrationDate }}</span>
+          <span>{{ tp.taxpayerType.typeName }}</span>
         </div>
       </div>
 
       <div class="mobile-card-actions">
-
-        <!-- View — all roles -->
-        <button class="btn-view">
+        <button class="btn-view" (click)="viewTaxpayers(tp.id)">
           <i class="bi bi-eye-fill"></i> View
         </button>
-
-        <!-- Edit — create/edit roles only -->
-        <button *canDo="'edit'" class="btn-edit">
+        <button *canDo="'edit'" class="btn-edit" (click)="editTaxpayers(tp.id)">
           <i class="bi bi-pencil-fill"></i> Edit
         </button>
-
-        <!-- Delete — admin & commissioner only -->
-        <button
-          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
-          class="btn-delete"
-          (click)="confirmDelete(tp.id)"
-        >
-          <i class="bi bi-trash-fill"></i> Delete
+        <button *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(tp.id)">
+          <i class="bi bi-trash-fill"></i>
         </button>
-
       </div>
+
     </div>
 
     <div class="empty-state" *ngIf="filteredTaxpayers.length === 0">
@@ -175,27 +140,19 @@
 
 </div>
 
-<!-- FAB — only roles that can create -->
-<button
-  *canDo="'create'"
-  class="fab-btn"
-  routerLink="/taxpayers/create"
-  title="Add Taxpayer"
->
+<button *canDo="'create'" class="fab-btn" routerLink="/taxpayers/create" title="Add Taxpayer">
   <i class="bi bi-plus-lg"></i>
 </button>
 
-
-<!-- FIX #3: Delete Confirmation Modal (replaces browser confirm()) -->
 <div class="modal-overlay" *ngIf="showDeleteModal">
   <div class="modal-card">
     <div class="modal-accent error"></div>
     <div class="modal-icon-wrap error">
       <i class="bi bi-trash-fill" style="color:#A32D2D; font-size:22px;"></i>
     </div>
-    <p class="modal-title">Delete Business?</p>
+    <p class="modal-title">Delete Taxpayer?</p>
     <p class="modal-msg">
-      This action cannot be undone. Are you sure you want to delete this business record?
+      This action cannot be undone. Are you sure you want to delete this taxpayer record?
     </p>
     <div class="modal-actions">
       <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>

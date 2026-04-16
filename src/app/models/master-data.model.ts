@@ -8,11 +8,23 @@ export interface District {
   divisionId: number;
 }
 
+export interface TaxZone {
+  id: number;
+  zoneName: string; // backend er sathe nam miliye nen
+}
+
+export interface TaxCircle {
+  id: number;
+  circleName: string; // backend er sathe nam miliye nen
+  taxZoneId?: number; // Jodi relation thake
+}
+
 //------------ Taxpayer related -------
 
 export interface TaxpayerType {
   id: number;
   typeName: string;
+  category: string
 }
 
 

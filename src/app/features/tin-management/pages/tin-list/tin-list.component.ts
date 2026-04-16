@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -9,22 +9,21 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-tin-list',
   templateUrl: './tin-list.component.html',
-  styleUrls: ['./tin-list.component.css']
+  styleUrls: ['./tin-list.component.css'],
 })
-export class TinListComponent implements OnInit {
-
+export class TinListComponent implements OnInit, OnDestroy {
   // ────────────────── Properties ──────────────────
 
   tins: Tin[] = [];
   searchTerm = '';
-  isLoading  = false;
+  isLoading = false;
 
   private destroy$ = new Subject<void>();
-  
+
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
 
-  // ──────────────Constructor  ───────────────────
+  // ────────────── Constructor ───────────────────
 
   constructor(
     private http: HttpClient,
@@ -32,10 +31,10 @@ export class TinListComponent implements OnInit {
     private toast: ToastService,
   ) {}
 
-  // ─────────────── Lifecycle  ───────────────────
+  // ─────────────── Lifecycle ───────────────────
 
   ngOnInit(): void {
-    this.fetchTines();
+    this.fetchTins(); // Typo fixed
   }
 
   ngOnDestroy(): void {
@@ -43,10 +42,9 @@ export class TinListComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  
-  // ───────────────── Data Fetching  ────────────────────────
+  // ───────────────── Data Fetching ────────────────────────
 
-  private fetchTines(): void {
+  private fetchTins(): void {
     this.isLoading = true;
 
     this.http
@@ -62,9 +60,8 @@ export class TinListComponent implements OnInit {
   }
 
   private handleFetchSuccess(data: Tin[]): void {
-    this.tins = data;
-
-    this.notifyIfEmpty(data);
+    this.tins = data || [];
+    this.notifyIfEmpty(this.tins);
   }
 
   private handleFetchError(error: unknown): void {
@@ -74,9 +71,7 @@ export class TinListComponent implements OnInit {
 
   private notifyIfEmpty(data: Tin[]): void {
     if (data.length === 0) {
-      this.toast.info(
-        'No Tines registered yet. Click "Register Tin" to add one.',
-      );
+      this.toast.info('No TIN records found. Click "Issue TIN" to add one.');
     }
   }
 
@@ -84,26 +79,29 @@ export class TinListComponent implements OnInit {
 
   get filteredTins(): Tin[] {
     if (!this.searchTerm.trim()) return this.tins;
-
     const term = this.searchTerm.toLowerCase();
-
-    return this.tins.filter((t) =>this.matchesSearch(t, term));
+    return this.tins.filter((t) => this.matchesSearch(t, term));
   }
 
   private matchesSearch(t: Tin, term: string): boolean {
-      return (
-      t.tinNumber.toLowerCase().includes(term)      ||
-      t.taxpayerName.toLowerCase().includes(term)   ||
-      t.tinCategory.toLowerCase().includes(term)    ||
-      t.taxZone.toLowerCase().includes(term)        ||
-      t.district.toLowerCase().includes(term)
+    // Null-safe search logic
+    const tinNo = t.tinNumber ? t.tinNumber.toLowerCase() : '';
+    const name = t.taxpayerName ? t.taxpayerName.toLowerCase() : '';
+    const category = t.tinCategory ? t.tinCategory.toLowerCase() : '';
+    const zone = t.taxZone ? t.taxZone.toLowerCase() : '';
+    const district = t.district ? t.district.toLowerCase() : '';
+
+    return (
+      tinNo.includes(term) ||
+      name.includes(term) ||
+      category.includes(term) ||
+      zone.includes(term) ||
+      district.includes(term)
     );
   }
 
+  // ──────────────── Delete Flow ─────────────────
 
-
-  // ──────────────── Delete Flow  ─────────────────
-    
   confirmDelete(id: number): void {
     this.pendingDeleteId = id;
     this.showDeleteModal = true;
@@ -115,21 +113,19 @@ export class TinListComponent implements OnInit {
 
   confirmDeleteExecute(): void {
     if (this.pendingDeleteId === null) return;
-
     const id = this.pendingDeleteId;
     this.resetDeleteState();
-
     this.deleteTin(id);
-  }    
-
+  }
 
   private deleteTin(id: number): void {
     this.isLoading = true;
 
     this.http
       .delete(API_ENDPOINTS.TINS.DELETE(id))
-      .pipe(takeUntil(this.destroy$),
-       finalize(() => (this.isLoading = false))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
       )
       .subscribe({
         next: () => this.handleDeleteSuccess(id),
@@ -138,14 +134,12 @@ export class TinListComponent implements OnInit {
   }
 
   private handleDeleteSuccess(id: number): void {
-    this.tins = this.tins.filter((b) => b.id !== id);
+    this.tins = this.tins.filter((t) => t.id !== id);
     this.toast.success('TIN record deleted successfully.');
-    this.resetDeleteState();
   }
 
   private handleDeleteError(): void {
     this.toast.error('Failed to delete TIN record. Please try again.');
-    this.resetDeleteState();
   }
 
   private resetDeleteState(): void {
@@ -153,43 +147,47 @@ export class TinListComponent implements OnInit {
     this.showDeleteModal = false;
   }
 
-  // ─────────────────  Navigation  ───────────────────────
-  
-  view(id: number): void { this.router.navigate(['/tin/view', id]); }
-  edit(id: number): void { this.router.navigate(['/tin/edit', id]); }
+  // ───────────────── Navigation ───────────────────────
 
+  view(id: number): void {
+    this.router.navigate(['/tin/view', id]);
+  }
+  edit(id: number): void {
+    this.router.navigate(['/tin/edit', id]);
+  }
 
-  // ────────────── UI Helpers  ─────────────────────────
+  // ────────────── UI Helpers ─────────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      'Active': 'status-active', 'Inactive': 'status-inactive',
-      'Pending': 'status-pending', 'Suspended': 'status-suspended',
-      'Cancelled': 'status-inactive'
+      Active: 'status-active',
+      Inactive: 'status-inactive',
+      Pending: 'status-pending',
+      Suspended: 'status-suspended',
+      Cancelled: 'status-inactive',
     };
     return map[s] ?? '';
   }
 
   getCategoryClass(c: string): string {
     const map: Record<string, string> = {
-      'Individual':  'cat-individual',
-      'Company':     'cat-company',
-      'Partnership': 'cat-partner',
-      'NGO':         'cat-ngo',
-      'Government':  'cat-govt'
+      Individual: 'cat-individual',
+      Company: 'cat-company',
+      Partnership: 'cat-partner',
+      NGO: 'cat-ngo',
+      Government: 'cat-govt',
     };
-    return map[c] ?? '';
+    return map[c] ?? 'cat-individual';
   }
 
   getCategoryIcon(c: string): string {
     const map: Record<string, string> = {
-      'Individual':  'bi bi-person-fill',
-      'Company':     'bi bi-building-fill',
-      'Partnership': 'bi bi-people-fill',
-      'NGO':         'bi bi-heart-fill',
-      'Government':  'bi bi-bank2'
+      Individual: 'bi bi-person-fill',
+      Company: 'bi bi-building-fill',
+      Partnership: 'bi bi-people-fill',
+      NGO: 'bi bi-heart-fill',
+      Government: 'bi bi-bank2',
     };
     return map[c] ?? 'bi bi-person-fill';
   }
 }
-

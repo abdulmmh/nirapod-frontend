@@ -34,11 +34,13 @@ export const API_ENDPOINTS = {
 
   // TIN Management
   TINS: {
-    LIST:   `${API_BASE_URL}/tin`,
-    CREATE: `${API_BASE_URL}/tin`,
-    UPDATE: (id: number) => `${API_BASE_URL}/tin/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/tin/${id}`,
-    GET:    (id: number) => `${API_BASE_URL}/tin/${id}`,
+    LIST:   `${API_BASE_URL}/tins`,
+    CREATE: `${API_BASE_URL}/tins`,
+    UPDATE: (id: number) => `${API_BASE_URL}/tins/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/tins/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/tins/${id}`,
+    BASE:   `${API_BASE_URL}/tins`,
+    DOWNLOAD_CERT: (id: number) => `${API_BASE_URL}/tins/${id}/certificate`
   },
 
   // VAT Registration

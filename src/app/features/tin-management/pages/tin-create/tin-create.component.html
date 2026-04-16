@@ -10,7 +10,6 @@
 
 <div class="form-card">
 
-  <!-- ── Section 0: Taxpayer Search ── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon search-icon">
@@ -25,11 +24,8 @@
     <div class="search-row">
       <div class="input-wrap search-input-wrap">
         <i class="bi bi-person-badge-fill input-icon"></i>
-        <input type="text" class="form-input"
-          placeholder="Enter NID number or taxpayer name..."
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="onSearchInput()"
-          (keyup.enter)="searchTaxpayer()"
+        <input type="text" class="form-input" placeholder="Enter NID number or taxpayer name..."
+          [(ngModel)]="searchQuery" (ngModelChange)="onSearchInput()" (keyup.enter)="searchTaxpayer()"
           [disabled]="isAutoFilled" />
         <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearSelectedTaxpayer()">
           <i class="bi bi-x-lg"></i>
@@ -45,9 +41,10 @@
       <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
         <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
         <div class="result-info">
-          <span class="result-name">{{ t.fullName }}</span>
+          <span class="result-name">{{ getDisplayName(t) }}</span>
           <span class="result-meta">
-            <span *ngIf="t.nid">NID: {{ t.nid }}</span>
+            <span *ngIf="t.taxpayerType.typeName === 'Company'" class="me-2 fw-bold text-primary">Company</span>
+            <span *ngIf="t.taxpayerType.typeName !== 'Company' && t.nid">NID: {{ t.nid }}</span>
             <span *ngIf="t.phone"> · {{ t.phone }}</span>
           </span>
         </div>
@@ -63,9 +60,11 @@
       <div class="selected-card-left">
         <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
         <div>
-          <p class="selected-name">{{ selectedTaxpayer.fullName }}</p>
+          <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
           <p class="selected-meta">
-            <span *ngIf="selectedTaxpayer.nid">NID: {{ selectedTaxpayer.nid }}</span>
+            <span *ngIf="selectedTaxpayer.taxpayerType.typeName === 'Company'" class="fw-bold me-1">Company</span>
+            <span *ngIf="selectedTaxpayer.taxpayerType.typeName !== 'Company' && selectedTaxpayer.nid">NID: {{
+              selectedTaxpayer.nid }}</span>
             <span *ngIf="selectedTaxpayer.phone"> · {{ selectedTaxpayer.phone }}</span>
           </p>
         </div>
@@ -76,7 +75,6 @@
 
   <div class="section-divider"></div>
 
-  <!-- ── Section 1: Taxpayer Information ── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon">
@@ -93,9 +91,7 @@
         <label class="form-label required">Taxpayer Name</label>
         <div class="input-wrap" [class.locked]="isAutoFilled">
           <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Full name or company name"
-            [(ngModel)]="form.taxpayerName"
+          <input type="text" class="form-input" placeholder="Full name or company name" [(ngModel)]="form.taxpayerName"
             [disabled]="isAutoFilled" />
           <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
         </div>
@@ -103,12 +99,13 @@
 
       <div class="form-group">
         <label class="form-label required">TIN Category</label>
-        <div class="input-wrap">
+        <div class="input-wrap" [class.locked]="isAutoFilled">
           <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.tinCategory">
+          <select class="form-input form-select" [(ngModel)]="form.tinCategory" [disabled]="isAutoFilled">
             <option value="">Select Category</option>
             <option *ngFor="let c of tinCategories" [value]="c">{{ c }}</option>
           </select>
+          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
         </div>
       </div>
 
@@ -120,14 +117,13 @@
         </div>
       </div>
 
-      <!-- Individual fields -->
       <ng-container *ngIf="isIndividual">
         <div class="form-group">
           <label class="form-label">National ID</label>
           <div class="input-wrap" [class.locked]="isAutoFilled && form.nid">
             <i class="bi bi-card-text input-icon"></i>
-            <input type="text" class="form-input" placeholder="13 digit NID"
-              [(ngModel)]="form.nid" [disabled]="isAutoFilled && !!form.nid" />
+            <input type="text" class="form-input" placeholder="10/13/17 digit NID" [(ngModel)]="form.nid"
+              [disabled]="isAutoFilled && !!form.nid" />
             <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled && form.nid"></i>
           </div>
         </div>
@@ -142,8 +138,8 @@
           <label class="form-label">Date of Birth</label>
           <div class="input-wrap" [class.locked]="isAutoFilled && form.dateOfBirth">
             <i class="bi bi-calendar3 input-icon"></i>
-            <input type="date" class="form-input"
-              [(ngModel)]="form.dateOfBirth" [disabled]="isAutoFilled && !!form.dateOfBirth" />
+            <input type="date" class="form-input" [(ngModel)]="form.dateOfBirth"
+              [disabled]="isAutoFilled && !!form.dateOfBirth" />
             <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled && form.dateOfBirth"></i>
           </div>
         </div>
@@ -151,9 +147,11 @@
 
       <div class="form-group" *ngIf="isCompany">
         <label class="form-label">Incorporation Date</label>
-        <div class="input-wrap">
+        <div class="input-wrap" [class.locked]="isAutoFilled && form.incorporationDate">
           <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.incorporationDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.incorporationDate"
+            [disabled]="isAutoFilled && !!form.incorporationDate" />
+          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled && form.incorporationDate"></i>
         </div>
       </div>
 
@@ -162,7 +160,6 @@
 
   <div class="section-divider"></div>
 
-  <!-- ── Section 2: Location → Zone → Circle (3-level cascade) ── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon orange">
@@ -175,29 +172,23 @@
     </div>
     <div class="form-grid">
 
-      <!-- Division -->
       <div class="form-group">
         <label class="form-label required">Division</label>
         <div class="input-wrap">
           <i class="bi bi-map-fill input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="selectedDivisionId"
-            (ngModelChange)="onDivisionChange()">
+          <select class="form-input form-select" [(ngModel)]="selectedDivisionId" (ngModelChange)="onDivisionChange()">
             <option [ngValue]="null">Select Division</option>
             <option *ngFor="let d of divisions" [ngValue]="d.id">{{ d.name }}</option>
           </select>
         </div>
       </div>
 
-      <!-- District — loads after division -->
       <div class="form-group">
         <label class="form-label required">District</label>
         <div class="input-wrap">
           <i class="bi bi-geo-fill input-icon"></i>
           <span *ngIf="loadingDistricts" class="spinner-border spinner-border-sm dropdown-spinner"></span>
-          <select class="form-input form-select"
-            [(ngModel)]="form.district"
-            (ngModelChange)="onDistrictChange()"
+          <select class="form-input form-select" [(ngModel)]="form.district" (ngModelChange)="onDistrictChange()"
             [disabled]="!selectedDivisionId || loadingDistricts">
             <option value="">Select District</option>
             <option *ngFor="let d of districts" [value]="d.name">{{ d.name }}</option>
@@ -205,18 +196,15 @@
         </div>
       </div>
 
-      <!-- Tax Zone — loads after district -->
       <div class="form-group">
         <label class="form-label required">Tax Zone</label>
         <div class="input-wrap">
           <i class="bi bi-grid-fill input-icon"></i>
           <span *ngIf="loadingZones" class="spinner-border spinner-border-sm dropdown-spinner"></span>
-          <select class="form-input form-select"
-            [(ngModel)]="form.taxZone"
-            (ngModelChange)="onZoneChange()"
+          <select class="form-input form-select" [(ngModel)]="form.taxZone" (ngModelChange)="onZoneChange()"
             [disabled]="!form.district || loadingZones">
             <option value="">Select Tax Zone</option>
-            <option *ngFor="let z of taxZones" [value]="z.name">{{ z.name }}</option>
+            <option *ngFor="let z of taxZones" [value]="z.zoneName">{{ z.zoneName }}</option>
           </select>
         </div>
         <span class="field-hint" *ngIf="form.district && taxZones.length === 0 && !loadingZones">
@@ -224,28 +212,25 @@
         </span>
       </div>
 
-      <!-- Tax Circle — loads after zone -->
       <div class="form-group">
         <label class="form-label required">Tax Circle</label>
         <div class="input-wrap">
           <i class="bi bi-circle-fill input-icon"></i>
           <span *ngIf="loadingCircles" class="spinner-border spinner-border-sm dropdown-spinner"></span>
-          <select class="form-input form-select"
-            [(ngModel)]="form.taxCircle"
+          <select class="form-input form-select" [(ngModel)]="form.taxCircle"
             [disabled]="!form.taxZone || loadingCircles">
             <option value="">Select Tax Circle</option>
-            <option *ngFor="let c of taxCircles" [value]="c.name">{{ c.name }}</option>
+            <option *ngFor="let c of taxCircles" [value]="c.circleName">{{ c.circleName }}</option>
           </select>
         </div>
       </div>
 
-      <!-- Contact fields -->
       <div class="form-group">
         <label class="form-label">Email</label>
         <div class="input-wrap" [class.locked]="isAutoFilled && form.email">
           <i class="bi bi-envelope-fill input-icon"></i>
-          <input type="email" class="form-input" placeholder="Enter email"
-            [(ngModel)]="form.email" [disabled]="isAutoFilled && !!form.email" />
+          <input type="email" class="form-input" placeholder="Enter email" [(ngModel)]="form.email"
+            [disabled]="isAutoFilled && !!form.email" />
           <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled && form.email"></i>
         </div>
       </div>
@@ -254,8 +239,8 @@
         <label class="form-label required">Phone</label>
         <div class="input-wrap" [class.locked]="isAutoFilled && form.phone">
           <i class="bi bi-telephone-fill input-icon"></i>
-          <input type="text" class="form-input" placeholder="01xxx-xxxxxx"
-            [(ngModel)]="form.phone" [disabled]="isAutoFilled && !!form.phone" />
+          <input type="text" class="form-input" placeholder="01xxx-xxxxxx" [(ngModel)]="form.phone"
+            [disabled]="isAutoFilled && !!form.phone" />
           <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled && form.phone"></i>
         </div>
       </div>
@@ -264,8 +249,8 @@
         <label class="form-label">Address</label>
         <div class="input-wrap" [class.locked]="isAutoFilled && form.address">
           <i class="bi bi-geo-alt-fill input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea" placeholder="Enter full address..."
-            [(ngModel)]="form.address" [disabled]="isAutoFilled && !!form.address" rows="2"></textarea>
+          <textarea class="form-input form-textarea" placeholder="Enter full address..." [(ngModel)]="form.address"
+            [disabled]="isAutoFilled && !!form.address" rows="2"></textarea>
           <i class="bi bi-lock-fill lock-icon textarea-lock" *ngIf="isAutoFilled && form.address"></i>
         </div>
       </div>
@@ -275,7 +260,6 @@
 
   <div class="section-divider"></div>
 
-  <!-- ── Section 3: Remarks ── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon purple">
@@ -291,14 +275,13 @@
         <label class="form-label">Remarks</label>
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea" placeholder="Optional remarks..."
-            [(ngModel)]="form.remarks" rows="2"></textarea>
+          <textarea class="form-input form-textarea" placeholder="Optional remarks..." [(ngModel)]="form.remarks"
+            rows="2"></textarea>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── Actions ── -->
   <div class="form-actions">
     <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
       <i class="bi bi-x-lg"></i> Cancel
