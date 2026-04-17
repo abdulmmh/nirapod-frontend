@@ -1,89 +1,85 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IncomeTaxReturn, ITRAction } from '../../../../models/income-tax-return.model';
+import { HttpClient } from '@angular/common/http';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { IncomeTaxReturn } from '../../../../models/income-tax-return.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Role } from '../../../../core/constants/roles.constants';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-income-tax-return-view',
   templateUrl: './income-tax-return-view.component.html',
   styleUrls: ['./income-tax-return-view.component.css']
 })
-export class IncomeTaxReturnViewComponent implements OnInit {
+export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
 
   itr: IncomeTaxReturn | null = null;
-  isLoading   = true;
-  isActing    = false;
-  actionMsg   = '';
-  actionError = '';
+  isLoading = true;
+  isActing = false;
+
   showActionModal = false;
-  currentAction   = '';
-  actionRemarks   = '';
+  currentAction = '';
+  actionRemarks = '';
+  actionError = '';
 
   Role = Role;
 
-  private fallbackData: IncomeTaxReturn[] = [
-    {
-      id: 1, returnNo: 'ITR-2024-00001', tinNumber: 'TIN-1001',
-      taxpayerName: 'Abdul Karim', itrCategory: 'Individual',
-      assessmentYear: '2024-25', incomeYear: '2023-24',
-      returnPeriod: 'Annual', grossIncome: 1200000, exemptIncome: 200000,
-      taxableIncome: 1000000, taxRate: 15, grossTax: 150000,
-      taxRebate: 10000, netTaxPayable: 140000, advanceTaxPaid: 50000,
-      withholdingTax: 30000, taxPaid: 60000, refundable: 0,
-      submissionDate: '2024-11-25', dueDate: '2024-11-30',
-      status: 'Accepted', submittedBy: 'Taxpayer',
-      verifiedBy: 'Tax Officer', remarks: '',
-      actionHistory: [
-        { action: 'Return Filed', performedBy: 'taxpayer_01', role: 'TAXPAYER', timestamp: '2024-11-25 10:00', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' },
-        { action: 'Review Started', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-11-26 09:00', remarks: 'All income sources verified', fromStatus: 'Submitted', toStatus: 'Under Review' },
-        { action: 'Return Accepted', performedBy: 'tax_comm_01', role: 'TAX_COMMISSIONER', timestamp: '2024-11-28 14:00', remarks: 'Return verified and accepted', fromStatus: 'Under Review', toStatus: 'Accepted' }
-      ]
-    },
-    {
-      id: 4, returnNo: 'ITR-2024-00004', tinNumber: 'TIN-1004',
-      taxpayerName: 'Karim Traders', itrCategory: 'Partnership',
-      assessmentYear: '2024-25', incomeYear: '2023-24',
-      returnPeriod: 'Annual', grossIncome: 2500000, exemptIncome: 0,
-      taxableIncome: 2500000, taxRate: 25, grossTax: 625000,
-      taxRebate: 0, netTaxPayable: 625000, advanceTaxPaid: 300000,
-      withholdingTax: 100000, taxPaid: 400000, refundable: 0,
-      submissionDate: '', dueDate: '2024-11-30',
-      status: 'Overdue', submittedBy: '',
-      verifiedBy: '', remarks: 'Not yet filed',
-      actionHistory: []
-    },
-    {
-      id: 5, returnNo: 'ITR-2024-00005', tinNumber: 'TIN-1005',
-      taxpayerName: 'BD Tech Solutions', itrCategory: 'Company',
-      assessmentYear: '2024-25', incomeYear: '2023-24',
-      returnPeriod: 'Annual', grossIncome: 6500000, exemptIncome: 0,
-      taxableIncome: 6500000, taxRate: 27.5, grossTax: 1787500,
-      taxRebate: 0, netTaxPayable: 1787500, advanceTaxPaid: 1200000,
-      withholdingTax: 300000, taxPaid: 1500000, refundable: 0,
-      submissionDate: '2024-11-20', dueDate: '2024-11-30',
-      status: 'Under Review', submittedBy: 'Tax Officer',
-      verifiedBy: '', remarks: 'Large company — needs detailed review',
-      actionHistory: [
-        { action: 'Return Filed', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-11-20 11:00', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' },
-        { action: 'Review Started', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-11-21 09:00', remarks: 'Large company — needs detailed review', fromStatus: 'Submitted', toStatus: 'Under Review' }
-      ]
-    },
-  ];
+  private destroy$ = new Subject<void>();
+
+  // ✅ Status Mapping (Single Source of Truth)
+  statusMap: Record<string, string> = {
+    'Submit': 'Submitted',
+    'Start Review': 'Under Review',
+    'Accept': 'Accepted',
+    'Reject': 'Rejected',
+    'Send Back': 'Send Back'
+  };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    public authService: AuthService
+    private http: HttpClient,
+    public authService: AuthService,
+    private toast: ToastService
   ) {}
+
+  // ───────────── Lifecycle ─────────────
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.itr = this.fallbackData.find(r => r.id === id) || this.fallbackData[0];
-    this.isLoading = false;
+    this.loadData(id);
   }
 
-  // ── Workflow Checks ──
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ───────────── Data Load ─────────────
+
+  private loadData(id: number): void {
+    this.isLoading = true;
+
+    this.http.get<IncomeTaxReturn>(API_ENDPOINTS.INCOME_TAX_RETURNS.GET(id))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false))
+      )
+      .subscribe({
+        next: (data) => {
+          this.itr = data;
+        },
+        error: () => {
+          this.toast.error('Failed to load income tax return.');
+          this.router.navigate(['/income-tax-returns']);
+        }
+      });
+  }
+
+  // ───────────── Workflow Permissions ─────────────
+
   canSubmit(): boolean {
     return this.itr?.status === 'Draft' || this.itr?.status === 'Send Back';
   }
@@ -100,9 +96,7 @@ export class IncomeTaxReturnViewComponent implements OnInit {
   }
 
   canReject(): boolean {
-    return this.itr?.status === 'Under Review' &&
-           (this.authService.hasRole(Role.TAX_COMMISSIONER) ||
-            this.authService.hasRole(Role.SUPER_ADMIN));
+    return this.canAccept();
   }
 
   canSendBack(): boolean {
@@ -111,77 +105,97 @@ export class IncomeTaxReturnViewComponent implements OnInit {
             this.authService.hasRole(Role.TAX_COMMISSIONER));
   }
 
+  // ───────────── Modal Control ─────────────
+
   openAction(action: string): void {
-    this.currentAction   = action;
-    this.actionRemarks   = '';
-    this.actionError     = '';
+    this.currentAction = action;
+    this.actionRemarks = '';
+    this.actionError = '';
     this.showActionModal = true;
   }
 
   closeModal(): void {
     this.showActionModal = false;
-    this.currentAction   = '';
-    this.actionRemarks   = '';
+    this.currentAction = '';
+    this.actionRemarks = '';
+    this.actionError = '';
   }
 
+  // ───────────── Action Handler  ─────────────
+
   confirmAction(): void {
-    if (!this.itr) return;
-    if ((this.currentAction === 'Reject' || this.currentAction === 'Send Back') &&
-        !this.actionRemarks.trim()) {
+    if (!this.itr || !this.currentAction) return;
+
+    // Validation
+    if (
+      (this.currentAction === 'Reject' || this.currentAction === 'Send Back') &&
+      !this.actionRemarks.trim()
+    ) {
       this.actionError = 'Remarks are required for this action.';
       return;
     }
 
-    this.isActing = true; this.actionError = '';
+    const newStatus = this.statusMap[this.currentAction];
 
-    const statusMap: Record<string, string> = {
-      'Submit': 'Submitted', 'Start Review': 'Under Review',
-      'Accept': 'Accepted',  'Reject': 'Rejected', 'Send Back': 'Send Back'
+    const payload = {
+      status: newStatus,
+      remarks: this.actionRemarks,
+      action: this.currentAction,
+
+      // ✅ Dynamic Auth Info
+      performedBy: this.authService.currentUser?.email ?? 'unknown',
+      role: this.authService.userRole ?? 'UNKNOWN'
     };
 
-    const actionLabelMap: Record<string, string> = {
-      'Submit': 'Return Submitted', 'Start Review': 'Review Started',
-      'Accept': 'Return Accepted',  'Reject': 'Return Rejected',
-      'Send Back': 'Sent Back for Correction'
-    };
+    this.isActing = true;
+    this.actionError = '';
 
-    setTimeout(() => {
-      const newStatus = statusMap[this.currentAction] as any;
-      const newAction: ITRAction = {
-        action:      actionLabelMap[this.currentAction],
-        performedBy: 'current_user',
-        role:        'TAX_OFFICER',
-        timestamp:   new Date().toLocaleString('en-BD'),
-        remarks:     this.actionRemarks,
-        fromStatus:  this.itr!.status,
-        toStatus:    newStatus
-      };
+    this.http.patch<IncomeTaxReturn>(
+      API_ENDPOINTS.INCOME_TAX_RETURNS.UPDATE_STATUS(this.itr.id),
+      payload
+    )
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => (this.isActing = false))
+    )
+    .subscribe({
+      next: (updatedData) => {
+        // ✅ Backend is source of truth
+        this.itr = updatedData;
 
-      this.itr!.status = newStatus;
-      if (!this.itr!.actionHistory) this.itr!.actionHistory = [];
-      this.itr!.actionHistory.push(newAction);
-
-      this.isActing        = false;
-      this.showActionModal = false;
-      this.actionMsg       = `Return ${this.currentAction}ed successfully!`;
-      setTimeout(() => this.actionMsg = '', 4000);
-    }, 800);
+        this.toast.success(`Return ${this.currentAction}ed successfully!`);
+        this.closeModal();
+      },
+      error: (err) => {
+        this.toast.error(
+          err?.error?.message || 'Failed to update status. Please try again.'
+        );
+      }
+    });
   }
+
+  // ───────────── UI Helpers ─────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      'Draft': 'status-draft', 'Submitted': 'status-pending',
-      'Under Review': 'status-review', 'Accepted': 'status-active',
-      'Rejected': 'status-suspended', 'Overdue': 'status-overdue',
-      'Amended': 'status-amended', 'Send Back': 'status-sendback'
+      'Draft': 'status-draft',
+      'Submitted': 'status-pending',
+      'Under Review': 'status-review',
+      'Accepted': 'status-active',
+      'Rejected': 'status-suspended',
+      'Overdue': 'status-overdue',
+      'Amended': 'status-amended',
+      'Send Back': 'status-sendback'
     };
     return map[s] ?? '';
   }
 
   getCategoryClass(c: string): string {
     const map: Record<string, string> = {
-      'Individual': 'cat-individual', 'Company': 'cat-company',
-      'Partnership': 'cat-partner', 'NGO': 'cat-ngo'
+      'Individual': 'cat-individual',
+      'Company': 'cat-company',
+      'Partnership': 'cat-partner',
+      'NGO': 'cat-ngo'
     };
     return map[c] ?? '';
   }
@@ -189,6 +203,7 @@ export class IncomeTaxReturnViewComponent implements OnInit {
   getActionIcon(action: string): string {
     const map: Record<string, string> = {
       'Return Filed': 'bi bi-send-fill',
+      'Return Submitted': 'bi bi-send-fill',
       'Review Started': 'bi bi-search',
       'Return Accepted': 'bi bi-check-circle-fill',
       'Return Rejected': 'bi bi-x-circle-fill',
@@ -199,13 +214,26 @@ export class IncomeTaxReturnViewComponent implements OnInit {
 
   getActionColor(toStatus: string): string {
     const map: Record<string, string> = {
-      'Submitted': 'tl-blue', 'Under Review': 'tl-purple',
-      'Accepted': 'tl-green', 'Rejected': 'tl-red', 'Send Back': 'tl-orange'
+      'Submitted': 'tl-blue',
+      'Under Review': 'tl-purple',
+      'Accepted': 'tl-green',
+      'Rejected': 'tl-red',
+      'Send Back': 'tl-orange'
     };
     return map[toStatus] ?? 'tl-gray';
   }
 
-  fmt(a: number): string { return `৳${a.toLocaleString()}`; }
-  onEdit(): void { this.router.navigate(['/income-tax-returns/edit', this.itr?.id]); }
-  onBack(): void { this.router.navigate(['/income-tax-returns']); }
+  fmt(a: number): string {
+    return `৳${a.toLocaleString()}`;
+  }
+
+  // ───────────── Navigation ─────────────
+
+  onEdit(): void {
+    this.router.navigate(['/income-tax-returns/edit', this.itr?.id]);
+  }
+
+  onBack(): void {
+    this.router.navigate(['/income-tax-returns']);
+  }
 }

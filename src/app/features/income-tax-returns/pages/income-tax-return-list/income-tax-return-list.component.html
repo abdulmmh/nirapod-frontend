@@ -59,8 +59,9 @@
           placeholder="Search by return no, TIN, taxpayer, category, year..."
           [(ngModel)]="searchTerm" />
       </div>
-      <button *canDo="'export'" class="btn-export">
-        <i class="bi bi-download"></i><span>Export</span>
+      <button class="btn btn-export" (click)="onExport()" [disabled]="isExporting">
+        <i class="bi" [ngClass]="isExporting ? 'bi-hourglass-split spin' : 'bi-file-earmark-excel'"></i> 
+        {{ isExporting ? 'Exporting...' : 'Export to CSV' }}
       </button>
     </div>
   </div>
@@ -153,7 +154,7 @@
                 <i class="bi bi-pencil-fill"></i> Edit
               </button>
               <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
-                class="btn-delete" (click)="delete(r.id)">
+                class="btn-delete" (click)="delete(r.id, r.returnNo)">
                 <i class="bi bi-trash-fill"></i>
               </button>
             </div>
@@ -218,7 +219,7 @@
           </button>
         </ng-container>
         <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
-          class="btn-delete" (click)="delete(r.id)">
+          class="btn-delete" (click)="delete(r.id, r.returnNo)">
           <i class="bi bi-trash-fill"></i>
         </button>
       </div>

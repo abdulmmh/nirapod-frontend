@@ -17,6 +17,7 @@ export class TinListComponent implements OnInit, OnDestroy {
   tins: Tin[] = [];
   searchTerm = '';
   isLoading = false;
+  isExporting = false;
 
   private destroy$ = new Subject<void>();
 
@@ -155,6 +156,38 @@ export class TinListComponent implements OnInit, OnDestroy {
   edit(id: number): void {
     this.router.navigate(['/tin/edit', id]);
   }
+
+
+
+
+  // ────────────── Actions ─────────────────────────
+
+  onExport(): void {
+    this.isExporting = true;
+    
+    this.http.get(API_ENDPOINTS.TINS.EXPORT, { responseType: 'blob' })
+        .subscribe({
+          next: (blob: Blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `TIN_List_Export_${new Date().toISOString().split('T')[0]}.csv`; 
+            document.body.appendChild(a);
+            a.click();
+            
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            this.isExporting = false;
+            this.toast.success('TIN data exported successfully!');
+          },
+          error: () => {
+            this.isExporting = false;
+            this.toast.error('Failed to export TIN data.');
+          }
+        });
+    }
+
 
   // ────────────── UI Helpers ─────────────────────────
 

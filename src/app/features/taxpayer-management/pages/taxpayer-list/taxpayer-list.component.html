@@ -21,10 +21,9 @@
           [(ngModel)]="searchTerm"
         />
       </div>
-
-      <button *canDo="'export'" class="btn-export">
-        <i class="bi bi-download"></i>
-        <span>Export</span>
+      <button *canDo="'export'" class="btn btn-export" (click)="onExport()" [disabled]="isExporting">
+        <i class="bi" [ngClass]="isExporting ? 'bi-hourglass-split spin' : 'bi-file-earmark-excel'"></i> 
+        {{ isExporting ? 'Exporting...' : 'Export to CSV' }}
       </button>
     </div>
   </div>

@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
+    EXPORT: `${API_BASE_URL}/taxpayers/export`,
   },
 
   // Business
@@ -39,6 +40,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/tins/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/tins/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/tins/${id}`,
+    EXPORT: `${API_BASE_URL}/tins/export`,
     BASE:   `${API_BASE_URL}/tins`,
     DOWNLOAD_CERT: (id: number) => `${API_BASE_URL}/tins/${id}/certificate`
   },
@@ -60,12 +62,15 @@ export const API_ENDPOINTS = {
     GET:    (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
   },
 
-  //Income Tax Return
+  // Income Tax Returns
   INCOME_TAX_RETURNS: {
     LIST:   `${API_BASE_URL}/income-tax-returns`,
     CREATE: `${API_BASE_URL}/income-tax-returns`,
     UPDATE: (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
-    GET:    (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
+    GET: (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
+    UPDATE_STATUS: (id: number) => `${API_BASE_URL}/income-tax-returns/${id}/status`,
+    EXPORT: `${API_BASE_URL}/income-tax-returns/export`,
   },
 
   // AIT (Advance Income Tax)

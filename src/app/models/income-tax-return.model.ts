@@ -38,10 +38,10 @@ export interface IncomeTaxReturn {
 export interface IncomeTaxReturnCreateRequest {
   tinNumber: string;
   taxpayerName: string;
-  itrCategory: string;
+  itrCategory: ITRCategory;
   assessmentYear: string;
   incomeYear: string;
-  returnPeriod: string;
+  returnPeriod: ITRPeriod;
   grossIncome: number;
   exemptIncome: number;
   taxRate: number;

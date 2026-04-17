@@ -16,6 +16,7 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   taxpayers: Taxpayer[] = [];
   searchTerm = '';
   isLoading = false;
+  isExporting = false;
 
   private destroy$ = new Subject<void>();
 
@@ -168,6 +169,35 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     if(id) this.router.navigate(['/taxpayers/edit', id]);
   }
 
+  // ─────────────────── Export Section ─────────────────────────
+ 
+  onExport(): void {
+    this.isExporting = true;
+    
+    this.http.get(API_ENDPOINTS.TAXPAYERS.EXPORT, { responseType: 'blob' })
+      .subscribe({
+        next: (blob: Blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Taxpayer_List_Export_${new Date().toISOString().split('T')[0]}.csv`; 
+          document.body.appendChild(a);
+          a.click();
+          
+          // Memory cleanup
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          
+          this.isExporting = false;
+          this.toast.success('Taxpayer data exported successfully!');
+        },
+        error: () => {
+          this.isExporting = false;
+          this.toast.error('Failed to export Taxpayer data.');
+        }
+      });
+  }
+ 
   // ─────────────────── UI Helpers ─────────────────────────
 
   getStatusClass(status: string): string {

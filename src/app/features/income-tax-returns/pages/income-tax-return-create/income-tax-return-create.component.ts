@@ -194,7 +194,12 @@ export class IncomeTaxReturnCreateComponent implements OnDestroy {
 
     this.isLoading = true;
 
-    this.http.post(API_ENDPOINTS.INCOME_TAX_RETURNS.CREATE, this.form)
+    const payload = {
+        ...this.form,
+        taxpayerId: this.selectedTaxpayer?.id 
+    };
+    
+    this.http.post(API_ENDPOINTS.INCOME_TAX_RETURNS.CREATE, payload)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
       .subscribe({
         next: () => {
