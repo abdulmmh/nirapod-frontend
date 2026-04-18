@@ -7,7 +7,79 @@
     <i class="bi bi-arrow-left"></i> Back to List
   </button>
 </div>
+
 <div class="form-card">
+
+  <!-- Section 0: Find Taxpayer -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon search-icon">
+        <i class="bi bi-search"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Find Taxpayer</h6>
+        <span class="section-sub">Search by TIN number, NID or name — details will auto-fill</span>
+      </div>
+    </div>
+
+    <div class="search-row">
+      <div class="input-wrap search-input-wrap">
+        <i class="bi bi-upc-scan input-icon"></i>
+        <input type="text" class="form-input"
+          placeholder="Enter TIN number, NID or taxpayer name..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchInput()"
+          (keyup.enter)="searchTaxpayer()"
+          [disabled]="isAutoFilled" />
+        <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearTaxpayer()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
+        <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
+        <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span> Searching...</span>
+      </button>
+    </div>
+
+    <!-- Search Results -->
+    <div class="search-results" *ngIf="showResults && searchResults.length > 0">
+      <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
+        <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
+        <div class="result-info">
+          <span class="result-name">{{ getDisplayName(t) }}</span>
+          <span class="result-meta">
+            <span *ngIf="t.tinNumber" class="me-2 fw-bold text-primary">TIN: {{ t.tinNumber }}</span>
+            <span *ngIf="!t.tinNumber" class="text-danger me-2">No TIN</span>
+            <span *ngIf="t.nid">NID: {{ t.nid }}</span>
+            <span *ngIf="t.phone"> · {{ t.phone }}</span>
+          </span>
+        </div>
+        <span class="result-badge">Select</span>
+      </div>
+    </div>
+
+    <!-- No Results -->
+    <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
+      <i class="bi bi-info-circle"></i> No taxpayer found. Check TIN, NID or name and try again.
+    </div>
+
+    <!-- Selected Card -->
+    <div class="selected-card" *ngIf="isAutoFilled && selectedTaxpayer">
+      <div class="selected-card-left">
+        <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
+        <div>
+          <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
+          <p class="selected-meta">
+            <span *ngIf="selectedTaxpayer.tinNumber">TIN: {{ selectedTaxpayer.tinNumber }}</span>
+            <span *ngIf="selectedTaxpayer.phone"> · {{ selectedTaxpayer.phone }}</span>
+          </p>
+        </div>
+      </div>
+      <div class="autofill-tag"><i class="bi bi-lightning-charge-fill"></i> Auto-filled</div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
 
   <!-- Section 1: Taxpayer Info -->
   <div class="form-section">
@@ -17,7 +89,7 @@
       </div>
       <div>
         <h6 class="section-title">Taxpayer Information</h6>
-        <span class="section-sub">TIN and taxpayer identification</span>
+        <span class="section-sub">TIN, name and payment type</span>
       </div>
     </div>
 
@@ -25,21 +97,25 @@
 
       <div class="form-group">
         <label class="form-label required">TIN Number</label>
-        <div class="input-wrap">
+        <div class="input-wrap" [class.locked]="isAutoFilled">
           <i class="bi bi-upc-scan input-icon"></i>
           <input type="text" class="form-input"
-            placeholder="e.g. TIN-1001"
-            [(ngModel)]="form.tinNumber" />
+            placeholder="e.g. TIN-000000001"
+            [(ngModel)]="form.tinNumber"
+            [disabled]="isAutoFilled" />
+          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label required">Taxpayer Name</label>
-        <div class="input-wrap">
+        <div class="input-wrap" [class.locked]="isAutoFilled">
           <i class="bi bi-person-fill input-icon"></i>
           <input type="text" class="form-input"
             placeholder="Enter taxpayer name"
-            [(ngModel)]="form.taxpayerName" />
+            [(ngModel)]="form.taxpayerName"
+            [disabled]="isAutoFilled" />
+          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
         </div>
       </div>
 
@@ -47,8 +123,7 @@
         <label class="form-label required">Payment Type</label>
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="form.paymentType">
+          <select class="form-input form-select" [(ngModel)]="form.paymentType">
             <option value="">Select Type</option>
             <option *ngFor="let t of paymentTypes" [value]="t">{{ t }}</option>
           </select>
@@ -60,7 +135,7 @@
         <div class="input-wrap">
           <i class="bi bi-file-earmark-text input-icon"></i>
           <input type="text" class="form-input"
-            placeholder="e.g. VAT-2024-00001"
+            placeholder="e.g. ITR-2025-26-XXXXXXXX"
             [(ngModel)]="form.returnNo" />
         </div>
       </div>
@@ -98,8 +173,7 @@
         <label class="form-label required">Payment Method</label>
         <div class="input-wrap">
           <i class="bi bi-wallet2 input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="form.paymentMethod">
+          <select class="form-input form-select" [(ngModel)]="form.paymentMethod">
             <option value="">Select Method</option>
             <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
           </select>
@@ -116,7 +190,6 @@
         </div>
       </div>
 
-      <!-- Cheque No — shown only for Cheque method -->
       <div class="form-group" *ngIf="showChequeField">
         <label class="form-label required">Cheque No.</label>
         <div class="input-wrap">
@@ -131,8 +204,7 @@
         <label class="form-label required">Payment Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.paymentDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.paymentDate" />
         </div>
       </div>
 
@@ -140,8 +212,7 @@
         <label class="form-label">Value Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.valueDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.valueDate" />
         </div>
       </div>
 
@@ -168,8 +239,7 @@
         <label class="form-label required">Bank Name</label>
         <div class="input-wrap">
           <i class="bi bi-bank input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="form.bankName">
+          <select class="form-input form-select" [(ngModel)]="form.bankName">
             <option value="">Select Bank</option>
             <option *ngFor="let b of banks" [value]="b">{{ b }}</option>
           </select>

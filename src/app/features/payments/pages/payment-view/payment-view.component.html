@@ -7,9 +7,10 @@
     <button class="btn-back" (click)="onBack()">
       <i class="bi bi-arrow-left"></i> Back
     </button>
-    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+    <div *canDo="'edit'">
+    <button *ngIf="canEdit()"  class="btn-edit-top" (click)="onEdit()">
       <i class="bi bi-pencil-fill"></i> Edit
-    </button>
+    </button></div>
   </div>
 </div>
 

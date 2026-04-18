@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { PaymentRoutingModule } from './payment-routing.module';
 
@@ -20,6 +20,7 @@ import { PaymentListComponent } from '../pages/payment-list/payment-list.compone
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     SharedModule,
     PaymentRoutingModule
   ]

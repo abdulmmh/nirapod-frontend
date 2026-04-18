@@ -15,16 +15,16 @@ import { ToastService } from '../../../../shared/toast/toast.service';
 })
 export class PaymentCreateComponent implements OnDestroy {
 
-  isLoading  = false;
+  isLoading = false;
   private destroy$ = new Subject<void>();
 
   // ── Taxpayer Search ──
-  searchQuery      = '';
-  isSearching      = false;
+  searchQuery       = '';
+  isSearching       = false;
   searchResults: Taxpayer[] = [];
   selectedTaxpayer: Taxpayer | null = null;
-  showResults      = false;
-  hasSearched      = false;
+  showResults       = false;
+  hasSearched       = false;
 
   // ── Dropdown Options ──
   paymentTypes   = ['VAT', 'Income Tax', 'Penalty', 'Other'];
@@ -114,11 +114,11 @@ export class PaymentCreateComponent implements OnDestroy {
       return;
     }
 
-    this.selectedTaxpayer    = taxpayer;
-    this.showResults         = false;
-    this.form.taxpayerId     = taxpayer.id;
-    this.form.tinNumber      = taxpayer.tinNumber || '';
-    this.form.taxpayerName   = this.getDisplayName(taxpayer);
+    this.selectedTaxpayer  = taxpayer;
+    this.showResults       = false;
+    this.form.taxpayerId   = taxpayer.id;
+    this.form.tinNumber    = taxpayer.tinNumber || '';
+    this.form.taxpayerName = this.getDisplayName(taxpayer);
 
     this.toast.success(`"${this.form.taxpayerName}" auto-filled.`);
   }
@@ -173,9 +173,14 @@ export class PaymentCreateComponent implements OnDestroy {
       });
   }
 
+  // Fix: inline reset state instead of calling clearTaxpayer() to avoid double toast
   onReset(): void {
-    this.form = this.getEmptyForm();
-    this.clearTaxpayer();
+    this.form             = this.getEmptyForm();
+    this.selectedTaxpayer = null;
+    this.searchQuery      = '';
+    this.searchResults    = [];
+    this.showResults      = false;
+    this.hasSearched      = false;
     this.toast.info('Form has been reset.');
   }
 
