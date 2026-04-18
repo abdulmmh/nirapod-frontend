@@ -7,6 +7,7 @@ import { IncomeTaxReturnViewComponent } from '../pages/income-tax-return-view/in
 import { IncomeTaxReturnEditComponent } from '../pages/income-tax-return-edit/income-tax-return-edit.component';
 import { IncomeTaxReturnListComponent } from '../pages/income-tax-return-list/income-tax-return-list.component';
 import { IncomeTaxReturnCreateComponent } from '../pages/income-tax-return-create/income-tax-return-create.component';
+import { It10bComponent } from '../pages/IT10B/it10b.component';
 
 const routes: Routes = [
   {
@@ -19,7 +20,7 @@ const routes: Routes = [
     path: 'create',
     component: IncomeTaxReturnCreateComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
   },
   {
     path: 'view/:id',
@@ -33,6 +34,13 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
   },
+  {
+    path: ':returnId/it10b',
+    component: It10bComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+  }
+
 ];
 
 @NgModule({

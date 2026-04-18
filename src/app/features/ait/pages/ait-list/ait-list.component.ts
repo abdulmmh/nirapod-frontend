@@ -9,32 +9,29 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-ait-list',
   templateUrl: './ait-list.component.html',
-  styleUrls: ['./ait-list.component.css']
+  styleUrls: ['./ait-list.component.css'],
 })
 export class AitListComponent implements OnInit {
-
-// ──────────────── States ────────────────
+  // ──────────────── States ────────────────
 
   records: Ait[] = [];
   searchTerm = '';
-  isLoading  = false;
+  isLoading = false;
 
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
 
   private destroy$ = new Subject<void>();
 
-
-// ──────────────Constructor  ───────────────────
+  // ──────────────Constructor  ───────────────────
 
   constructor(
     private http: HttpClient,
     private router: Router,
-    private toast: ToastService
+    private toast: ToastService,
   ) {}
 
-
-// ─────────────── Lifecycle  ───────────────────
+  // ─────────────── Lifecycle  ───────────────────
 
   ngOnInit(): void {
     this.fetchAits();
@@ -45,146 +42,155 @@ export class AitListComponent implements OnInit {
     this.destroy$.complete();
   }
 
-// ───────────────── Data Fetching  ────────────────────────
+  // ───────────────── Data Fetching  ────────────────────────
 
-private fetchAits(): void {
-  this.isLoading = true;
+  private fetchAits(): void {
+    this.isLoading = true;
 
-  this.http.get<Ait[]>(API_ENDPOINTS.AITS.LIST)
-    .pipe(takeUntil(this.destroy$),
-        finalize(() => (this.isLoading = false)))
-    .subscribe({
-      next: (data) => this.handleFetchSuccess(data),
-      error: (error) => this.handleFetchError(error)
-    });
-}
-
-private handleFetchSuccess(data: Ait[]): void {
-  this.records = data;
-}
-
-private handleFetchError(error: unknown): void {
-  console.error('Error loading AIT records', error);
-  this.toast.error('Failed to load AIT records');
-}
-
-private notifyIfEmpty(data: Ait[]): void {
-  if (data.length === 0) {
-    this.toast.info('No AIT records found. Click "Register AIT" to add one');
+    this.http
+      .get<Ait[]>(API_ENDPOINTS.AITS.LIST)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
+      .subscribe({
+        next: (data) => this.handleFetchSuccess(data),
+        error: (error) => this.handleFetchError(error),
+      });
   }
-}
 
-// ────────────────── Filtering ──────────────────────
+  private handleFetchSuccess(data: Ait[]): void {
+    this.records = data;
+  }
 
-get filtered(): Ait[] {
-  if (!this.searchTerm.trim()) return this.records;
-  const term = this.searchTerm.toLowerCase();
+  private handleFetchError(error: unknown): void {
+    console.error('Error loading AIT records', error);
+    this.toast.error('Failed to load AIT records');
+  }
 
+  private notifyIfEmpty(data: Ait[]): void {
+    if (data.length === 0) {
+      this.toast.info('No AIT records found. Click "Register AIT" to add one');
+    }
+  }
 
-  return this.records.filter((r) => this.matchesSearch(r, term));
-}
+  // ────────────────── Filtering ──────────────────────
 
-private matchesSearch(r: Ait, term: string): boolean {
-  return (
-    r.status.toLowerCase().includes(term)          ||
-    r.aitRef.toLowerCase().includes(term)          ||
-    r.taxpayerName.toLowerCase().includes(term)    ||
-    r.tinNumber.toLowerCase().includes(term)       ||
-    r.sourceType.toLowerCase().includes(term)      ||
-    r.deductedBy.toLowerCase().includes(term)
-  );
-}
+  get filtered(): Ait[] {
+    if (!this.searchTerm.trim()) return this.records;
+    const term = this.searchTerm.toLowerCase();
 
-// ────────────────── Delete Flow ──────────────────────
+    return this.records.filter((r) => this.matchesSearch(r, term));
+  }
 
-confirmDelete(id: number): void {
-  this.pendingDeleteId = id;
-  this.showDeleteModal = true;
-}
+  private matchesSearch(r: Ait, term: string): boolean {
+    return (
+      r.status.toLowerCase().includes(term) ||
+      r.aitRef.toLowerCase().includes(term) ||
+      r.taxpayerName.toLowerCase().includes(term) ||
+      r.tinNumber.toLowerCase().includes(term) ||
+      r.sourceType.toLowerCase().includes(term) ||
+      r.deductedBy.toLowerCase().includes(term)
+    );
+  }
 
-cancelDelete(): void {
-  this.pendingDeleteId = null;
-  this.showDeleteModal = false;
-}
+  // ────────────────── Delete Flow ──────────────────────
 
-confirmDeleteExecute(): void {
-  if (this.pendingDeleteId === null) return;
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
 
-  const id = this.pendingDeleteId;
-  this.resetDeleteState();
+  cancelDelete(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
+  }
 
-  this.deleteAit(id);
-}
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
 
-private deleteAit(id: number): void {
-  this.isLoading = true;
+    const id = this.pendingDeleteId;
+    this.resetDeleteState();
 
-  this.http.delete(API_ENDPOINTS.AITS.DELETE(id))
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => (this.isLoading = false))
-    )
-    .subscribe({
-      next: () => this.handleDeleteSuccess(),
-      error: () => this.handleDeleteError()
-    });
-}
+    this.deleteAit(id);
+  }
 
-private handleDeleteSuccess(): void {
-  this.records = this.records.filter(r => r.id !== this.pendingDeleteId);
-  this.toast.success('AIT record deleted successfully');
-  this.resetDeleteState();
-}
+  private deleteAit(id: number): void {
+    this.isLoading = true;
 
-private handleDeleteError(): void {
-  this.toast.error('Failed to delete AIT record');
-  this.resetDeleteState();
-}
+    this.http
+      .delete(API_ENDPOINTS.AITS.DELETE(id))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
+      .subscribe({
+        next: () => this.handleDeleteSuccess(),
+        error: () => this.handleDeleteError(),
+      });
+  }
 
-private resetDeleteState(): void {
-  this.pendingDeleteId = null;
-  this.showDeleteModal = false;
-}
+  private handleDeleteSuccess(): void {
+    this.records = this.records.filter((r) => r.id !== this.pendingDeleteId);
+    this.toast.success('AIT record deleted successfully');
+    this.resetDeleteState();
+  }
 
+  private handleDeleteError(): void {
+    this.toast.error('Failed to delete AIT record');
+    this.resetDeleteState();
+  }
 
-// ────────────────── Navigation ──────────────────────
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
+  }
 
-view(id: number): void { this.router.navigate(['/ait/view', id]); }
-edit(id: number): void { this.router.navigate(['/ait/edit', id]); }
+  // ────────────────── Navigation ──────────────────────
 
+  view(id: number): void {
+    this.router.navigate(['/ait/view', id]);
+  }
+  edit(id: number): void {
+    this.router.navigate(['/ait/edit', id]);
+  }
 
-// ────────────────── Helpers ──────────────────────
+  // ────────────────── Helpers ──────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      'Draft': 'status-draft', 'Deducted': 'status-pending',
-      'Deposited': 'status-active', 'Credited': 'status-credited',
-      'Disputed': 'status-suspended'
+      Draft: 'status-draft',
+      Deducted: 'status-pending',
+      Deposited: 'status-active',
+      Credited: 'status-credited',
+      Disputed: 'status-suspended',
     };
     return map[s] ?? '';
   }
 
   getSourceClass(s: string): string {
     const map: Record<string, string> = {
-      'Salary': 'src-salary', 'Import': 'src-import',
-      'Contract': 'src-contract', 'Interest': 'src-interest',
-      'Dividend': 'src-dividend', 'Commission': 'src-commission',
-      'Export': 'src-export'
+      Salary: 'src-salary',
+      Import: 'src-import',
+      Contract: 'src-contract',
+      Interest: 'src-interest',
+      Dividend: 'src-dividend',
+      Commission: 'src-commission',
+      Export: 'src-export',
     };
     return map[s] ?? '';
   }
 
   countByStatus(status: string): number {
-    return this.records.filter(r => r.status === status).length;
+    return this.records.filter((r) => r.status === status).length;
   }
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
-  get totalAIT(): number { return this.records.reduce((s, r) => s + r.aitAmount, 0); }
-
-
-
+  get totalAIT(): number {
+    return this.records.reduce((s, r) => s + r.aitAmount, 0);
+  }
 }

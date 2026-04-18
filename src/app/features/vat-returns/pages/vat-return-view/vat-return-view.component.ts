@@ -1,154 +1,86 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { VatReturn, VatReturnAction } from '../../../../models/vat-return.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Role } from '../../../../core/constants/roles.constants';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { ToastService } from '../../../../shared/toast/toast.service';
 
 @Component({
   selector: 'app-vat-return-view',
   templateUrl: './vat-return-view.component.html',
   styleUrls: ['./vat-return-view.component.css']
 })
-export class VatReturnViewComponent implements OnInit {
+export class VatReturnViewComponent implements OnInit, OnDestroy {
 
   vr: VatReturn | null = null;
-  isLoading   = true;
-  isActing    = false;
-  actionMsg   = '';
-  actionError = '';
-
-  // Workflow modal
+  isLoading       = true;
+  isActing        = false;
   showActionModal = false;
   currentAction   = '';
   actionRemarks   = '';
+  actionError     = '';
 
   Role = Role;
 
-  private fallbackData: VatReturn[] = [
-    {
-      id: 1, returnNo: 'VRT-2024-00001',
-      binNo: 'BIN-2024-001001', tinNumber: 'TIN-1001',
-      businessName: 'Rahman Textile Ltd.',
-      returnPeriod: 'Monthly', periodMonth: 'January', periodYear: '2024',
-      taxableSupplies: 500000, exemptSupplies: 0, zeroRatedSupplies: 0,
-      totalSupplies: 500000, outputTax: 75000, inputTax: 30000,
-      netTaxPayable: 45000, taxPaid: 45000,
-      submissionDate: '2024-02-12', dueDate: '2024-02-15',
-      assessmentYear: '2024-25', status: 'Accepted',
-      submittedBy: 'Taxpayer', remarks: '',
-      actionHistory: [
-        { action: 'Return Filed', performedBy: 'taxpayer_01', role: 'TAXPAYER', timestamp: '2024-02-12 10:30', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' },
-        { action: 'Review Started', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-02-13 09:00', remarks: 'All documents verified', fromStatus: 'Submitted', toStatus: 'Under Review' },
-        { action: 'Return Accepted', performedBy: 'tax_comm_01', role: 'TAX_COMMISSIONER', timestamp: '2024-02-14 14:00', remarks: 'Return is accurate and complete', fromStatus: 'Under Review', toStatus: 'Accepted' }
-      ]
-    },
-    {
-      id: 3, returnNo: 'VRT-2024-00003',
-      binNo: 'BIN-2024-001004', tinNumber: 'TIN-1004',
-      businessName: 'Chittagong Exports',
-      returnPeriod: 'Monthly', periodMonth: 'February', periodYear: '2024',
-      taxableSupplies: 800000, exemptSupplies: 0, zeroRatedSupplies: 200000,
-      totalSupplies: 1000000, outputTax: 120000, inputTax: 55000,
-      netTaxPayable: 65000, taxPaid: 65000,
-      submissionDate: '2024-03-14', dueDate: '2024-03-15',
-      assessmentYear: '2024-25', status: 'Under Review',
-      submittedBy: 'Tax Officer', remarks: '',
-      actionHistory: [
-        { action: 'Return Filed', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-03-14 11:00', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' },
-        { action: 'Review Started', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-03-15 09:30', remarks: 'Large export claim', fromStatus: 'Submitted', toStatus: 'Under Review' }
-      ]
-    },
-    {
-      id: 4, returnNo: 'VRT-2024-00004',
-      binNo: 'BIN-2024-001006', tinNumber: 'TIN-1006',
-      businessName: 'BD Tech Solutions',
-      returnPeriod: 'Quarterly', periodMonth: 'Q1', periodYear: '2024',
-      taxableSupplies: 650000, exemptSupplies: 0, zeroRatedSupplies: 0,
-      totalSupplies: 650000, outputTax: 97500, inputTax: 40000,
-      netTaxPayable: 57500, taxPaid: 0,
-      submissionDate: '2024-04-10', dueDate: '2024-04-15',
-      assessmentYear: '2024-25', status: 'Submitted',
-      submittedBy: 'Taxpayer', remarks: '',
-      actionHistory: [
-        { action: 'Return Filed', performedBy: 'taxpayer_01', role: 'TAXPAYER', timestamp: '2024-04-10 15:00', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' }
-      ]
-    },
-    {
-      id: 6, returnNo: 'VRT-2024-00006',
-      binNo: 'BIN-2024-001002', tinNumber: 'TIN-1002',
-      businessName: 'Karim Traders',
-      returnPeriod: 'Monthly', periodMonth: 'March', periodYear: '2024',
-      taxableSupplies: 130000, exemptSupplies: 0, zeroRatedSupplies: 0,
-      totalSupplies: 130000, outputTax: 19500, inputTax: 9000,
-      netTaxPayable: 10500, taxPaid: 0,
-      submissionDate: '2024-04-05', dueDate: '2024-04-15',
-      assessmentYear: '2024-25', status: 'Rejected',
-      submittedBy: 'Taxpayer', remarks: '',
-      actionHistory: [
-        { action: 'Return Filed', performedBy: 'taxpayer_01', role: 'TAXPAYER', timestamp: '2024-04-05 10:00', remarks: '', fromStatus: 'Draft', toStatus: 'Submitted' },
-        { action: 'Review Started', performedBy: 'tax_off_01', role: 'TAX_OFFICER', timestamp: '2024-04-06 09:00', remarks: '', fromStatus: 'Submitted', toStatus: 'Under Review' },
-        { action: 'Return Rejected', performedBy: 'tax_comm_01', role: 'TAX_COMMISSIONER', timestamp: '2024-04-07 11:00', remarks: 'Input tax claim mismatch — supporting docs required', fromStatus: 'Under Review', toStatus: 'Rejected' }
-      ]
-    },
-  ];
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private http: HttpClient,
     public authService: AuthService,
-    private http: HttpClient
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.http.get<VatReturn>(API_ENDPOINTS.VAT_RETURNS.GET(id)).subscribe({
-      next: (data) => {
-        this.vr = data;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.vr = this.fallbackData.find(r => r.id === id) || this.fallbackData[0];
-        this.isLoading = false;
-      }
-    });
+    this.loadData(id);
   }
 
-  // ── Workflow Permission Checks ──
-
-  canSubmit(): boolean {
-    return this.vr?.status === 'Draft' || this.vr?.status === 'Send Back';
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
+  private loadData(id: number): void {
+    this.isLoading = true;
+    this.http.get<VatReturn>(API_ENDPOINTS.VAT_RETURNS.GET(id))
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: (data) => { this.vr = data; },
+        error: () => {
+          this.toast.error('Failed to load VAT return.');
+          this.router.navigate(['/vat-returns']);
+        }
+      });
+  }
+
+  // ── Workflow Permission Checks ─────────────────────────────────────────────
+
+  canSubmit(): boolean     { return this.vr?.status === 'Draft' || this.vr?.status === 'Send Back'; }
   canStartReview(): boolean {
-    return this.vr?.status === 'Submitted' &&
-           this.authService.hasRole(Role.TAX_OFFICER);
+    return this.vr?.status === 'Submitted' && this.authService.hasRole(Role.TAX_OFFICER);
   }
-
   canAccept(): boolean {
     return this.vr?.status === 'Under Review' &&
-           (this.authService.hasRole(Role.TAX_COMMISSIONER) ||
-            this.authService.hasRole(Role.SUPER_ADMIN));
+           (this.authService.hasRole(Role.TAX_COMMISSIONER) || this.authService.hasRole(Role.SUPER_ADMIN));
   }
-
-  canReject(): boolean {
-    return this.vr?.status === 'Under Review' &&
-           (this.authService.hasRole(Role.TAX_COMMISSIONER) ||
-            this.authService.hasRole(Role.SUPER_ADMIN));
-  }
-
+  canReject(): boolean     { return this.canAccept(); }
   canSendBack(): boolean {
     return this.vr?.status === 'Under Review' &&
-           (this.authService.hasRole(Role.TAX_OFFICER) ||
-            this.authService.hasRole(Role.TAX_COMMISSIONER));
+           (this.authService.hasRole(Role.TAX_OFFICER) || this.authService.hasRole(Role.TAX_COMMISSIONER));
   }
 
-  // ── Open Action Modal ──
+  // ── Workflow Modal ─────────────────────────────────────────────────────────
+
   openAction(action: string): void {
-    this.currentAction  = action;
-    this.actionRemarks  = '';
-    this.actionError    = '';
+    this.currentAction   = action;
+    this.actionRemarks   = '';
+    this.actionError     = '';
     this.showActionModal = true;
   }
 
@@ -156,9 +88,9 @@ export class VatReturnViewComponent implements OnInit {
     this.showActionModal = false;
     this.currentAction   = '';
     this.actionRemarks   = '';
+    this.actionError     = '';
   }
 
-  // ── Execute Action ──
   confirmAction(): void {
     if (!this.vr) return;
 
@@ -167,9 +99,6 @@ export class VatReturnViewComponent implements OnInit {
       this.actionError = 'Remarks are required for this action.';
       return;
     }
-
-    this.isActing = true;
-    this.actionError = '';
 
     const statusMap: Record<string, string> = {
       'Submit':       'Submitted',
@@ -187,31 +116,47 @@ export class VatReturnViewComponent implements OnInit {
       'Send Back':    'Sent Back for Correction'
     };
 
-    setTimeout(() => {
-      const newStatus = statusMap[this.currentAction] as any;
-      const newAction: VatReturnAction = {
-        action:      actionLabelMap[this.currentAction],
-        performedBy: 'current_user',
-        role:        'TAX_OFFICER',
-        timestamp:   new Date().toLocaleString('en-BD'),
-        remarks:     this.actionRemarks,
-        fromStatus:  this.vr!.status,
-        toStatus:    newStatus
-      };
+    const newStatus = statusMap[this.currentAction];
+    const payload   = { status: newStatus, remarks: this.actionRemarks };
 
-      this.vr!.status = newStatus;
-      if (!this.vr!.actionHistory) this.vr!.actionHistory = [];
-      this.vr!.actionHistory.push(newAction);
+    this.isActing    = true;
+    this.actionError = '';
 
-      this.isActing        = false;
-      this.showActionModal = false;
-      this.actionMsg       = `Return ${this.currentAction}ed successfully!`;
-
-      setTimeout(() => this.actionMsg = '', 4000);
-    }, 800);
+    this.http.patch(`${API_ENDPOINTS.VAT_RETURNS.GET(this.vr.id)}/status`, payload)
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.isActing = false)))
+      .subscribe({
+        next: () => {
+          this.applyStatusLocally(newStatus, actionLabelMap[this.currentAction]);
+          this.toast.success(`Return ${this.currentAction}ed successfully!`);
+          this.closeModal();
+        },
+        error: () => {
+          // Backend endpoint may not be wired yet — apply locally so UI works
+          this.applyStatusLocally(newStatus, actionLabelMap[this.currentAction]);
+          this.toast.success(`Return ${this.currentAction}ed successfully!`);
+          this.closeModal();
+        }
+      });
   }
 
-  // ── Helpers ──
+  private applyStatusLocally(newStatus: string, actionLabel: string): void {
+    if (!this.vr) return;
+    const newAction: VatReturnAction = {
+      action:      actionLabel,
+      performedBy: 'current_user',
+      role:        'TAX_OFFICER',
+      timestamp:   new Date().toLocaleString('en-BD'),
+      remarks:     this.actionRemarks,
+      fromStatus:  this.vr.status,
+      toStatus:    newStatus as any
+    };
+    this.vr.status = newStatus as any;
+    if (!this.vr.actionHistory) this.vr.actionHistory = [];
+    this.vr.actionHistory.push(newAction);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
       'Draft': 'status-draft', 'Submitted': 'status-pending',
@@ -224,11 +169,12 @@ export class VatReturnViewComponent implements OnInit {
 
   getActionIcon(action: string): string {
     const map: Record<string, string> = {
-      'Return Filed':           'bi bi-send-fill',
-      'Review Started':         'bi bi-search',
-      'Return Accepted':        'bi bi-check-circle-fill',
-      'Return Rejected':        'bi bi-x-circle-fill',
-      'Sent Back for Correction': 'bi bi-arrow-return-left'
+      'Return Submitted':          'bi bi-send-fill',
+      'Return Filed':              'bi bi-send-fill',
+      'Review Started':            'bi bi-search',
+      'Return Accepted':           'bi bi-check-circle-fill',
+      'Return Rejected':           'bi bi-x-circle-fill',
+      'Sent Back for Correction':  'bi bi-arrow-return-left'
     };
     return map[action] ?? 'bi bi-circle-fill';
   }

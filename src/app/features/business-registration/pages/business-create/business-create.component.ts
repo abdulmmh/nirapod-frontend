@@ -9,6 +9,8 @@ import { BusinessCreateRequest, BusinessStatus } from 'src/app/models/business.m
 import { Taxpayer } from 'src/app/models/taxpayer.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { Division, District, BusinessType, BusinessCategory } from 'src/app/models/master-data.model';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { Role } from 'src/app/core/constants/roles.constants';
 
 @Component({
   selector: 'app-business-create',
@@ -45,12 +47,19 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     private toast:       ToastService,
     private masterData:  MasterDataService,
     private http:        HttpClient,
+    private authService: AuthService
   ) {}
 
   // ──────────────── Lifecycle ────────────────
 
   ngOnInit(): void {
+    if (this.authService.userRole === Role.TAXPAYER) {
+      this.loadOwnTaxpayerRecord();
+    }
     this.loadMasterData();
+  }
+  loadOwnTaxpayerRecord() {
+    throw new Error('Method not implemented.');
   }
 
   ngOnDestroy(): void {
@@ -85,14 +94,6 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
 
   // ──────────────── Taxpayer Search (TIN-style) ────────────────
 
-  onSearchInput(): void {
-    if (!this.searchQuery.trim()) {
-      this.searchResults = [];
-      this.showResults   = false;
-      this.hasSearched   = false;
-    }
-  }
-
   searchTaxpayer(): void {
     const q = this.searchQuery.trim();
     if (!q) { this.toast.warning('Enter TIN number or taxpayer name.'); return; }
@@ -123,12 +124,19 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
   }
 
   selectTaxpayer(taxpayer: Taxpayer): void {
+    const typeName = taxpayer.taxpayerType?.typeName?.toLowerCase() || '';
+
+  // Block company taxpayers — they are the business, no separate registration needed
+    if (typeName.includes('company')) {
+      this.toast.error(
+        'Company taxpayers cannot be linked to a separate Business Registration. ' +
+        'Proceed directly to VAT Registration.'
+      );
+      this.showResults = false;
+      return;
+    }
     this.selectedTaxpayer = taxpayer;
     this.showResults      = false;
-    // this.searchQuery      = taxpayer.fullName;
-
-    // Form auto-fill
-    // this.form.taxpayerId = taxpayer.id;
     this.form.tinNumber  = taxpayer.tinNumber || '';
     this.form.ownerName  = taxpayer.fullName  || '';
 
@@ -211,7 +219,6 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
       tinNumber:         this.form.tinNumber,
       ownerName:         this.form.ownerName,
       tradeLicenseNo:    this.form.tradeLicenseNo,
-      binNo:             this.form.binNo,
       incorporationDate: this.form.incorporationDate || null,
       registrationDate:  this.form.registrationDate,
       expiryDate:        this.form.expiryDate || null,
@@ -264,7 +271,6 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
       businessTypeId:     0,
       businessCategoryId: 0,
       tradeLicenseNo:     '',
-      binNo:              '',
       incorporationDate:  '',
       registrationDate:   new Date().toISOString().split('T')[0],
       expiryDate:         '',

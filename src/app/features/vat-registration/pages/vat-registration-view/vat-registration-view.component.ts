@@ -1,69 +1,60 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { VatRegistration } from '../../../../models/vat-registration.model';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { VatRegistration } from '../../../../models/vat-registration.model';
+import { ToastService } from '../../../../shared/toast/toast.service';
 
 @Component({
   selector: 'app-vat-registration-view',
   templateUrl: './vat-registration-view.component.html',
   styleUrls: ['./vat-registration-view.component.css']
 })
-export class VatRegistrationViewComponent implements OnInit {
+export class VatRegistrationViewComponent implements OnInit, OnDestroy {
 
   vat: VatRegistration | null = null;
   isLoading = true;
 
-  private fallback: VatRegistration[] = [
-    {
-      id: 1, binNo: 'BIN-2024-001001',
-      tinNumber: 'TIN-1001', businessName: 'Rahman Textile Ltd.',
-      ownerName: 'Abdul Rahman', vatCategory: 'Standard',
-      businessType: 'Private Limited', businessCategory: 'Manufacturing',
-      tradeLicenseNo: 'TL-44821',
-      registrationDate: '2024-01-10', effectiveDate: '2024-01-15',
-      expiryDate: '2025-01-15', annualTurnover: 5000000,
-      email: 'rahman@textile.com', phone: '01711-111111',
-      address: 'Mirpur DOHS, Dhaka', district: 'Dhaka', division: 'Dhaka',
-      vatZone: 'VAT Zone-1', vatCircle: 'Circle-5',
-      status: 'Active', remarks: ''
-    },
-    {
-      id: 2, binNo: 'BIN-2024-001002',
-      tinNumber: 'TIN-1002', businessName: 'Karim Traders',
-      ownerName: 'Karim Uddin', vatCategory: 'Standard',
-      businessType: 'Sole Proprietorship', businessCategory: 'Trading',
-      tradeLicenseNo: 'TL-55932',
-      registrationDate: '2024-01-15', effectiveDate: '2024-01-20',
-      expiryDate: '2025-01-20', annualTurnover: 1200000,
-      email: 'karim@traders.com', phone: '01822-222222',
-      address: 'Gulshan-1, Dhaka', district: 'Dhaka', division: 'Dhaka',
-      vatZone: 'VAT Zone-2', vatCircle: 'Circle-3',
-      status: 'Active', remarks: ''
-    },
-  ];
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.http.get<VatRegistration>(API_ENDPOINTS.VAT_REGISTRATIONS.GET(id)).subscribe({
-      next: data => { this.vat = data; this.isLoading = false; },
-      error: ()  => {
-        this.vat = this.fallback.find(v => v.id === id) || this.fallback[0];
-        this.isLoading = false;
-      }
-    });
+    this.loadData(id);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadData(id: number): void {
+    this.isLoading = true;
+    this.http.get<VatRegistration>(API_ENDPOINTS.VAT_REGISTRATIONS.GET(id))
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: (data) => { this.vat = data; },
+        error: () => {
+          this.toast.error('Failed to load VAT registration details.');
+          this.router.navigate(['/vat-registration']);
+        }
+      });
   }
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      'Active': 'status-active', 'Inactive': 'status-inactive',
-      'Pending': 'status-pending', 'Suspended': 'status-suspended',
+      'Active':    'status-active',
+      'Inactive':  'status-inactive',
+      'Pending':   'status-pending',
+      'Suspended': 'status-suspended',
       'Cancelled': 'status-inactive'
     };
     return map[s] ?? '';
@@ -85,6 +76,7 @@ export class VatRegistrationViewComponent implements OnInit {
   }
 
   formatCurrency(a: number): string { return `৳${a.toLocaleString()}`; }
+
   onEdit(): void { this.router.navigate(['/vat-registration/edit', this.vat?.id]); }
   onBack(): void { this.router.navigate(['/vat-registration']); }
 }

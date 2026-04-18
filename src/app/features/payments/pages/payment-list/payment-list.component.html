@@ -29,14 +29,6 @@
     </div>
   </div>
 
-  <!-- Error Message -->
-  <div class="alert alert-danger d-flex align-items-center gap-2 mb-3"
-       *ngIf="errorMsg && !isLoading">
-    <i class="bi bi-exclamation-triangle-fill"></i>
-    <span>{{ errorMsg }}</span>
-  </div>
-
-
   <!-- Loading -->
   <div class="loading-row" *ngIf="isLoading">
     <div class="spinner-border spinner-border-sm text-primary"></div>

@@ -1,64 +1,98 @@
 <div class="page-header">
   <div class="page-header-left">
     <h4>File VAT Return</h4>
-    <p>Submit a new VAT return for a business.</p>
+    <p>Submit a new VAT return for a registered business.</p>
   </div>
   <button class="btn-back" (click)="onCancel()">
     <i class="bi bi-arrow-left"></i> Back to List
   </button>
 </div>
 
-<div class="alert-success" *ngIf="successMsg">
-  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
-</div>
-<div class="alert-error" *ngIf="errorMsg">
-  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
-</div>
-
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 <div class="form-card">
 
-  <!-- Section 1: Business -->
+  <!-- ── Section 0: VAT Registration Search ────────────────────────────── -->
   <div class="form-section">
     <div class="section-header">
-      <div class="section-icon">
-        <i class="bi bi-building-fill"></i>
+      <div class="section-icon search-icon">
+        <i class="bi bi-search"></i>
       </div>
       <div>
-        <h6 class="section-title">Business Information</h6>
-        <span class="section-sub">BIN, TIN and business details</span>
+        <h6 class="section-title">Find VAT Registration</h6>
+        <span class="section-sub">Search by BIN number, TIN or business name — only Active registrations shown</span>
       </div>
     </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">BIN No.</label>
-        <div class="input-wrap">
-          <i class="bi bi-hash input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. BIN-2024-001001" [(ngModel)]="form.binNo" />
+
+    <div class="search-row">
+      <div class="input-wrap search-input-wrap">
+        <i class="bi bi-hash input-icon"></i>
+        <input type="text" class="form-input"
+          placeholder="Enter BIN number, TIN or business name..."
+          [(ngModel)]="searchQuery"
+          [ngModelOptions]="{standalone: true}"
+          (ngModelChange)="onSearchInput()"
+          (keyup.enter)="searchVatRegistration()"
+          [disabled]="isAutoFilled" />
+        <button type="button" *ngIf="isAutoFilled" class="clear-btn" (click)="clearSelectedRegistration()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <button type="button" class="btn-search"
+        (click)="searchVatRegistration()"
+        [disabled]="isSearching || isAutoFilled">
+        <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
+        <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span> Searching...</span>
+      </button>
+    </div>
+
+    <!-- Validation error if vatRegistrationId missing -->
+    <span class="field-error-msg"
+      *ngIf="ctrl('vatRegistrationId')?.errors?.['required'] && ctrl('vatRegistrationId')?.touched">
+      Please search and select a VAT registration.
+    </span>
+
+    <!-- Search Results -->
+    <div class="search-results" *ngIf="showResults && searchResults.length > 0">
+      <div class="result-item" *ngFor="let r of searchResults" (click)="selectRegistration(r)">
+        <div class="result-avatar"><i class="bi bi-receipt-cutoff"></i></div>
+        <div class="result-info">
+          <span class="result-name">{{ r.businessName }}</span>
+          <span class="result-meta">
+            <span class="fw-bold text-blue me-2">BIN: {{ r.binNo }}</span>
+            <span class="me-2">TIN: {{ r.tinNumber }}</span>
+            <span class="cat-pill">{{ r.vatCategory }}</span>
+          </span>
+        </div>
+        <span class="result-badge">Select</span>
+      </div>
+    </div>
+
+    <!-- No Results -->
+    <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
+      <i class="bi bi-info-circle"></i> No active VAT registration found. Check BIN, TIN or name and try again.
+    </div>
+
+    <!-- Selected Card -->
+    <div class="selected-card" *ngIf="isAutoFilled && selectedReg">
+      <div class="selected-card-left">
+        <div class="selected-avatar"><i class="bi bi-receipt-cutoff"></i></div>
+        <div>
+          <p class="selected-name">{{ selectedReg.businessName }}</p>
+          <p class="selected-meta">
+            BIN: {{ selectedReg.binNo }}
+            <span class="ms-2">TIN: {{ selectedReg.tinNumber }}</span>
+            <span class="ms-2 cat-pill">{{ selectedReg.vatCategory }}</span>
+            <span class="ms-2 zone-pill">{{ selectedReg.vatZone }}</span>
+          </p>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label required">TIN Number</label>
-        <div class="input-wrap">
-          <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
-        </div>
-      </div>
-      <div class="form-group full-width">
-        <label class="form-label required">Business Name</label>
-        <div class="input-wrap">
-          <i class="bi bi-building input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Enter business name" [(ngModel)]="form.businessName" />
-        </div>
-      </div>
+      <div class="autofill-tag"><i class="bi bi-lightning-charge-fill"></i> Selected</div>
     </div>
   </div>
 
   <div class="section-divider"></div>
 
-  <!-- Section 2: Return Period -->
+  <!-- ── Section 1: Return Period ──────────────────────────────────────── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon teal">
@@ -70,150 +104,178 @@
       </div>
     </div>
     <div class="form-grid">
+
       <div class="form-group">
         <label class="form-label required">Return Period</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.returnPeriod">
+          <select class="form-input form-select" formControlName="returnPeriod">
             <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
           </select>
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label required">Period</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-month input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.periodMonth">
+          <select class="form-input form-select" formControlName="periodMonth"
+            [class.is-invalid]="ctrl('periodMonth')?.invalid && ctrl('periodMonth')?.touched">
             <option value="">Select Period</option>
             <option *ngFor="let m of periodOptions" [value]="m">{{ m }}</option>
           </select>
         </div>
+        <span class="field-error-msg" *ngIf="ctrl('periodMonth')?.errors?.['required'] && ctrl('periodMonth')?.touched">
+          Period is required.
+        </span>
       </div>
+
       <div class="form-group">
         <label class="form-label required">Year</label>
         <div class="input-wrap">
           <i class="bi bi-calendar input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.periodYear">
+          <select class="form-input form-select" formControlName="periodYear">
             <option *ngFor="let y of years" [value]="y">{{ y }}</option>
           </select>
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Assessment Year</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-check input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
+          <select class="form-input form-select" formControlName="assessmentYear">
             <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
           </select>
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Submission Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.submissionDate" />
+          <input type="date" class="form-input" formControlName="submissionDate" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Due Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-x input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.dueDate" />
+          <input type="date" class="form-input" formControlName="dueDate" />
         </div>
       </div>
+
     </div>
   </div>
 
   <div class="section-divider"></div>
 
-  <!-- Section 3: Supplies -->
+  <!-- ── Section 2: Supplies & Tax ─────────────────────────────────────── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon purple">
         <i class="bi bi-table"></i>
       </div>
       <div>
-        <h6 class="section-title">Supplies & Tax Calculation</h6>
-        <span class="section-sub">Supply values and VAT computation</span>
+        <h6 class="section-title">Supplies &amp; Tax Calculation</h6>
+        <span class="section-sub">Supply values and VAT computation — net tax is auto-calculated</span>
       </div>
     </div>
     <div class="form-grid">
+
       <div class="form-group">
         <label class="form-label">Taxable Supplies (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-currency-dollar input-icon"></i>
           <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.taxableSupplies"
-            (ngModelChange)="autoCalcOutputTax()" />
+            formControlName="taxableSupplies"
+            (input)="autoCalcOutputTax()" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Exempt Supplies (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-currency-dollar input-icon"></i>
           <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.exemptSupplies" />
+            formControlName="exemptSupplies" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Zero Rated Supplies (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-currency-dollar input-icon"></i>
           <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.zeroRatedSupplies" />
+            formControlName="zeroRatedSupplies" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Output VAT @ 15% (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-percent input-icon"></i>
           <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.outputTax" />
+            formControlName="outputTax" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Input VAT Credit (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-arrow-down-circle input-icon"></i>
           <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.inputTax" />
+            formControlName="inputTax" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Tax Paid (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-cash-coin input-icon"></i>
           <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.taxPaid" />
+            formControlName="taxPaid" />
         </div>
       </div>
+
     </div>
 
-    <!-- Tax Summary -->
+    <!-- Real-time Tax Summary -->
     <div class="tax-summary">
       <div class="ts-row">
         <span class="ts-label">Total Supplies</span>
         <span class="ts-value">৳{{ totalSupplies.toLocaleString() }}</span>
       </div>
       <div class="ts-row">
-        <span class="ts-label">Output Tax</span>
-        <span class="ts-value output">৳{{ form.outputTax.toLocaleString() }}</span>
+        <span class="ts-label">Output VAT</span>
+        <span class="ts-value output">৳{{ (form.value.outputTax || 0).toLocaleString() }}</span>
       </div>
       <div class="ts-row">
-        <span class="ts-label">Input Tax Credit</span>
-        <span class="ts-value input">— ৳{{ form.inputTax.toLocaleString() }}</span>
+        <span class="ts-label">Less: Input VAT Credit</span>
+        <span class="ts-value credit">— ৳{{ (form.value.inputTax || 0).toLocaleString() }}</span>
       </div>
       <div class="ts-divider"></div>
       <div class="ts-row total-row">
         <span class="ts-label total">Net Tax Payable</span>
         <span class="ts-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
       </div>
+      <div class="ts-row" *ngIf="form.value.taxPaid > 0">
+        <span class="ts-label">Less: Tax Paid</span>
+        <span class="ts-value credit">— ৳{{ (form.value.taxPaid || 0).toLocaleString() }}</span>
+      </div>
+      <div class="ts-row balance-row" *ngIf="form.value.taxPaid > 0">
+        <span class="ts-label total">Balance Due</span>
+        <span class="ts-value" [class.due]="balanceDue > 0" [class.settled]="balanceDue === 0">
+          {{ balanceDue > 0 ? '৳' + balanceDue.toLocaleString() : '৳0 — Settled' }}
+        </span>
+      </div>
     </div>
   </div>
 
   <div class="section-divider"></div>
 
-  <!-- Section 4: Submission -->
+  <!-- ── Section 3: Submission ─────────────────────────────────────────── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon orange">
@@ -225,41 +287,43 @@
       </div>
     </div>
     <div class="form-grid">
+
       <div class="form-group">
         <label class="form-label">Submitted By</label>
         <div class="input-wrap">
           <i class="bi bi-person-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.submittedBy">
+          <select class="form-input form-select" formControlName="submittedBy">
             <option value="">Select</option>
             <option *ngFor="let s of submitters" [value]="s">{{ s }}</option>
           </select>
         </div>
       </div>
+
       <div class="form-group full-width">
         <label class="form-label">Remarks</label>
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
           <textarea class="form-input form-textarea"
-            placeholder="Optional remarks..."
-            [(ngModel)]="form.remarks" rows="2"></textarea>
+            placeholder="Optional remarks..." formControlName="remarks" rows="2"></textarea>
         </div>
       </div>
+
     </div>
   </div>
 
-  <!-- Actions -->
+  <!-- ── Actions ────────────────────────────────────────────────────────── -->
   <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+    <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
       <i class="bi bi-x-lg"></i> Cancel
     </button>
-    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+    <button type="button" class="btn-reset" (click)="onReset()" [disabled]="isLoading">
       <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isLoading || !isFormValid()">
+    <button type="submit" class="btn-submit" [disabled]="isLoading || form.invalid">
       <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> File Return</span>
       <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Filing...</span>
     </button>
   </div>
 
 </div>
+</form>

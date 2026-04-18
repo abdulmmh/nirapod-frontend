@@ -28,7 +28,7 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  // ✅ Status Mapping (Single Source of Truth)
+
   statusMap: Record<string, string> = {
     'Submit': 'Submitted',
     'Start Review': 'Under Review',
@@ -142,7 +142,6 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
       remarks: this.actionRemarks,
       action: this.currentAction,
 
-      // ✅ Dynamic Auth Info
       performedBy: this.authService.currentUser?.email ?? 'unknown',
       role: this.authService.userRole ?? 'UNKNOWN'
     };
@@ -160,7 +159,7 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
     )
     .subscribe({
       next: (updatedData) => {
-        // ✅ Backend is source of truth
+        
         this.itr = updatedData;
 
         this.toast.success(`Return ${this.currentAction}ed successfully!`);
@@ -223,8 +222,25 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
     return map[toStatus] ?? 'tl-gray';
   }
 
-  fmt(a: number): string {
-    return `৳${a.toLocaleString()}`;
+  // Computed getters — backend doesn't store these, they are derived from raw fields
+  get taxableIncome(): number {
+    return Math.max(0, (this.itr?.grossIncome || 0) - (this.itr?.exemptIncome || 0));
+  }
+
+  get netTaxPayable(): number {
+    return Math.max(0, (this.itr?.grossTax || 0) - (this.itr?.taxRebate || 0));
+  }
+
+  get refundable(): number {
+    const totalPaid = (this.itr?.advanceTaxPaid || 0)
+      + (this.itr?.withholdingTax || 0)
+      + (this.itr?.taxPaid || 0);
+    return Math.max(0, totalPaid - this.netTaxPayable);
+  }
+
+  // Null-safe currency formatter — guards against undefined fields
+  fmt(a: number | null | undefined): string {
+    return `৳${(a || 0).toLocaleString()}`;
   }
 
   // ───────────── Navigation ─────────────
@@ -236,4 +252,15 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
   onBack(): void {
     this.router.navigate(['/income-tax-returns']);
   }
+
+ 
+goToIT10B(): void {
+  if (this.itr && this.itr.id) {
+    this.router.navigate(['/income-tax-returns', this.itr.id, 'it10b'], { 
+      queryParams: { returnNo: this.itr.returnNo } 
+    });
+  }
+}
+
+
 }

@@ -52,7 +52,6 @@ export interface BusinessCreateRequest {
   businessCategoryId: number;  
   
   tradeLicenseNo: string;
-  binNo?: string;
   incorporationDate?: string;
   registrationDate: string;
   expiryDate?: string;

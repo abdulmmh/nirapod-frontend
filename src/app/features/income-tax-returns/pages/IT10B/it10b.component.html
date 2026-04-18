@@ -1,0 +1,255 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>IT-10B &mdash; Statement of Assets &amp; Liabilities</h4>
+    <p *ngIf="returnNo">Linked to Return: <strong>{{ returnNo }}</strong></p>
+    <p *ngIf="!returnNo">Return ID: <strong>#{{ returnId }}</strong></p>
+  </div>
+  <button class="btn-back" (click)="goBack()">
+    <i class="bi bi-arrow-left"></i> Back to Return
+  </button>
+</div>
+
+<!-- Loading State -->
+<div class="loading-state" *ngIf="isLoading">
+  <div class="spinner-border text-purple" role="status"></div>
+  <p>Loading statement&hellip;</p>
+</div>
+
+<ng-container *ngIf="!isLoading">
+
+  <!-- ── Sticky Net Wealth Summary Panel ─────────────────────────────────── -->
+  <div class="net-wealth-panel" [class.positive]="netWealth >= 0" [class.negative]="netWealth < 0">
+    <div class="nw-left">
+      <div class="nw-icon"><i class="bi bi-graph-up-arrow"></i></div>
+      <div>
+        <p class="nw-label">Real-Time Net Wealth</p>
+        <p class="nw-formula">Total Assets − Total Liabilities</p>
+      </div>
+    </div>
+    <div class="nw-right">
+      <div class="nw-breakdown">
+        <span class="nw-assets">Assets: {{ fmt(totalAssets) }}</span>
+        <span class="nw-sep">−</span>
+        <span class="nw-liab">Liabilities: {{ fmt(form.value.personalLiabilities || 0) }}</span>
+        <span class="nw-sep">=</span>
+      </div>
+      <div class="nw-amount" [class.amount-positive]="netWealth >= 0" [class.amount-negative]="netWealth < 0">
+        <span *ngIf="netWealth >= 0"><i class="bi bi-check-circle-fill me-1"></i>{{ fmt(netWealth) }}</span>
+        <span *ngIf="netWealth < 0"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ fmt(netWealth) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <div class="form-card">
+
+    <!-- ── Section 1: Assets ──────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon assets-icon">
+          <i class="bi bi-bank2"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Assets</h6>
+          <span class="section-sub">All properties, investments and balances owned by the taxpayer</span>
+        </div>
+        <div class="section-total-badge">
+          Total: {{ fmt(totalAssets) }}
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <!-- Non-Agricultural Property -->
+        <div class="form-group">
+          <label class="form-label required">
+            <i class="bi bi-house-fill field-icon"></i>
+            Non-Agricultural Property
+          </label>
+          <p class="field-hint">Land, house, apartment, commercial property</p>
+          <div class="input-wrap" [class.field-error]="ctrl('nonAgriculturalProperty')?.invalid && ctrl('nonAgriculturalProperty')?.touched">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <input type="number" class="form-input"
+              formControlName="nonAgriculturalProperty"
+              placeholder="0.00" min="0" step="0.01" />
+          </div>
+          <span class="validation-msg" *ngIf="ctrl('nonAgriculturalProperty')?.errors?.['min'] && ctrl('nonAgriculturalProperty')?.touched">
+            Value cannot be negative.
+          </span>
+        </div>
+
+        <!-- Agricultural Property -->
+        <div class="form-group">
+          <label class="form-label required">
+            <i class="bi bi-tree-fill field-icon"></i>
+            Agricultural Property 
+          </label>
+          <p class="field-hint">Farmland, orchards, agricultural plots</p>
+          <div class="input-wrap" [class.field-error]="ctrl('agriculturalProperty')?.invalid && ctrl('agriculturalProperty')?.touched">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <input type="number" class="form-input"
+              formControlName="agriculturalProperty"
+              placeholder="0.00" min="0" step="0.01" />
+          </div>
+          <span class="validation-msg" *ngIf="ctrl('agriculturalProperty')?.errors?.['min'] && ctrl('agriculturalProperty')?.touched">
+            Value cannot be negative.
+          </span>
+        </div>
+
+        <!-- Investments -->
+        <div class="form-group">
+          <label class="form-label required">
+            <i class="bi bi-graph-up field-icon"></i>
+            Investments
+          </label>
+          <p class="field-hint">Shares, savings certificates, FD, bonds</p>
+          <div class="input-wrap" [class.field-error]="ctrl('investments')?.invalid && ctrl('investments')?.touched">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <input type="number" class="form-input"
+              formControlName="investments"
+              placeholder="0.00" min="0" step="0.01" />
+          </div>
+          <span class="validation-msg" *ngIf="ctrl('investments')?.errors?.['min'] && ctrl('investments')?.touched">
+            Value cannot be negative.
+          </span>
+        </div>
+
+        <!-- Motor Vehicles -->
+        <div class="form-group">
+          <label class="form-label required">
+            <i class="bi bi-car-front-fill field-icon"></i>
+            Motor Vehicles 
+          </label>
+          <p class="field-hint">Cars, trucks, motorcycles, boats</p>
+          <div class="input-wrap" [class.field-error]="ctrl('motorVehicles')?.invalid && ctrl('motorVehicles')?.touched">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <input type="number" class="form-input"
+              formControlName="motorVehicles"
+              placeholder="0.00" min="0" step="0.01" />
+          </div>
+          <span class="validation-msg" *ngIf="ctrl('motorVehicles')?.errors?.['min'] && ctrl('motorVehicles')?.touched">
+            Value cannot be negative.
+          </span>
+        </div>
+
+        <!-- Bank Balances & Cash -->
+        <div class="form-group full-width">
+          <label class="form-label required">
+            <i class="bi bi-piggy-bank-fill field-icon"></i>
+            Bank Balances &amp; Cash in Hand 
+          </label>
+          <p class="field-hint">All bank accounts, savings, FDR balances and physical cash</p>
+          <div class="input-wrap" [class.field-error]="ctrl('bankBalances')?.invalid && ctrl('bankBalances')?.touched">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <input type="number" class="form-input"
+              formControlName="bankBalances"
+              placeholder="0.00" min="0" step="0.01" />
+          </div>
+          <span class="validation-msg" *ngIf="ctrl('bankBalances')?.errors?.['min'] && ctrl('bankBalances')?.touched">
+            Value cannot be negative.
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Assets subtotal bar -->
+      <div class="subtotal-bar assets-bar">
+        <i class="bi bi-calculator me-2"></i>
+        Total Assets : <strong>{{ fmt(totalAssets) }}</strong>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ── Section 2: Liabilities  ───────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon liab-icon">
+          <i class="bi bi-credit-card-2-back-fill"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Liabilities </h6>
+          <span class="section-sub">Outstanding loans, mortgages and other financial obligations</span>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <!-- Personal Liabilities -->
+        <div class="form-group full-width">
+          <label class="form-label required">
+            <i class="bi bi-bank field-icon red-icon"></i>
+            Personal Liabilities 
+          </label>
+          <p class="field-hint">Bank loans, home mortgage, car loan, personal debt</p>
+          <div class="input-wrap liab-input" [class.field-error]="ctrl('personalLiabilities')?.invalid && ctrl('personalLiabilities')?.touched">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <input type="number" class="form-input"
+              formControlName="personalLiabilities"
+              placeholder="0.00" min="0" step="0.01" />
+          </div>
+          <span class="validation-msg" *ngIf="ctrl('personalLiabilities')?.errors?.['min'] && ctrl('personalLiabilities')?.touched">
+            Value cannot be negative.
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Liabilities subtotal bar -->
+      <div class="subtotal-bar liab-bar">
+        <i class="bi bi-dash-circle me-2"></i>
+        Total Liabilities : <strong>{{ fmt(form.value.personalLiabilities || 0) }}</strong>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ── Net Wealth Footer Summary ───────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="wealth-summary-table">
+        <div class="ws-row">
+          <span class="ws-label">Total Assets</span>
+          <span class="ws-value assets-val">{{ fmt(totalAssets) }}</span>
+        </div>
+        <div class="ws-row">
+          <span class="ws-label">Less: Total Liabilities</span>
+          <span class="ws-value liab-val">{{ fmt(form.value.personalLiabilities || 0) }}</span>
+        </div>
+        <div class="ws-divider"></div>
+        <div class="ws-row ws-total-row">
+          <span class="ws-label bold">Net Wealth </span>
+          <span class="ws-value" [class.net-positive]="netWealth >= 0" [class.net-negative]="netWealth < 0">
+            {{ fmt(netWealth) }}
+          </span>
+        </div>
+        <div class="ws-note" *ngIf="netWealth < 0">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          Net wealth is negative — liabilities exceed total assets. Please review the figures.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Actions ──────────────────────────────────────────────────────────── -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="goBack()" [disabled]="isSaving">
+        <i class="bi bi-x-lg"></i> Cancel
+      </button>
+      <button type="button" class="btn-reset"  (click)="onReset()" [disabled]="isSaving">
+        <i class="bi bi-arrow-counterclockwise"></i> Reset
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="isSaving || form.invalid">
+        <span *ngIf="!isSaving">
+          <i class="bi bi-send-fill"></i>
+          {{ isEditMode ? 'Update Statement' : 'Submit Statement' }}
+        </span>
+        <span *ngIf="isSaving">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          {{ isEditMode ? 'Updating...' : 'Submitting...' }}
+        </span>
+      </button>
+    </div>
+
+  </div><!-- .form-card -->
+  </form>
+
+</ng-container>

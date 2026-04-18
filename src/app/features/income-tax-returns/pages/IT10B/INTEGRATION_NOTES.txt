@@ -1,0 +1,32 @@
+// ── ADD this block inside API_ENDPOINTS in api.constants.ts ──────────────────
+//
+//   IT10B: {
+//     CREATE:    `${API_BASE_URL}/it10b`,
+//     BY_RETURN: (returnId: number) => `${API_BASE_URL}/it10b/by-return/${returnId}`,
+//     GET:       (id: number)       => `${API_BASE_URL}/it10b/${id}`,
+//     UPDATE:    (id: number)       => `${API_BASE_URL}/it10b/${id}`,
+//     DELETE:    (id: number)       => `${API_BASE_URL}/it10b/${id}`,
+//   },
+//
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// ROUTE to add in your app-routing or income-tax-returns routing module:
+//
+//   {
+//     path: 'income-tax-returns/:returnId/it10b',
+//     component: It10bComponent
+//   }
+//
+// This lets the component read `returnId` via:
+//   this.route.snapshot.paramMap.get('returnId')
+//
+// And the ITR View page links to it with:
+//   this.router.navigate(['/income-tax-returns', itr.id, 'it10b'],
+//     { queryParams: { returnNo: itr.returnNo } });
+//
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// DECLARATIONS: Add It10bComponent to your IncomeTaxReturnsModule declarations[]
+// IMPORTS needed in that module: ReactiveFormsModule
+//
+// ─────────────────────────────────────────────────────────────────────────────

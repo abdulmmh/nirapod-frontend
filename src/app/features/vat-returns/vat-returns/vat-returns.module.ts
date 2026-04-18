@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { VatReturnsRoutingModule } from './vat-returns-routing.module';
 
@@ -21,6 +21,7 @@ import { VatReturnCreateComponent } from '../pages/vat-return-create/vat-return-
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     SharedModule,
     VatReturnsRoutingModule
   ]

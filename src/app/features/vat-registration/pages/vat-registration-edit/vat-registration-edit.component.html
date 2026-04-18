@@ -8,23 +8,18 @@
   </button>
 </div>
 
-<div class="alert-success" *ngIf="successMsg">
-  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
-</div>
-<div class="alert-error" *ngIf="errorMsg">
-  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
-</div>
 
 <div class="loading-overlay" *ngIf="isLoading">
   <div class="spinner-border text-success"></div>
 </div>
 
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 <div class="form-card" *ngIf="!isLoading">
 
   <div class="edit-banner">
     <i class="bi bi-pencil-square"></i>
-    Editing: <strong>{{ form.businessName }}</strong>
-    <span class="banner-bin">{{ form.binNo }}</span>
+    Editing: <strong>{{ businessName }}</strong>
+    <span class="banner-bin">{{ binNo }}</span>
   </div>
 
   <!-- Section 1: Business Identity -->
@@ -43,28 +38,28 @@
         <label class="form-label required">TIN Number</label>
         <div class="input-wrap">
           <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.tinNumber" />
+          <input type="text" class="form-input" formControlName="tinNumber" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label required">Business Name</label>
         <div class="input-wrap">
           <i class="bi bi-building input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.businessName" />
+          <input type="text" class="form-input" formControlName="businessName" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Owner Name</label>
         <div class="input-wrap">
           <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.ownerName" />
+          <input type="text" class="form-input" formControlName="ownerName" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label required">VAT Category</label>
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.vatCategory">
+          <select class="form-input form-select" formControlName="vatCategory">
             <option *ngFor="let c of vatCategories" [value]="c">{{ c }}</option>
           </select>
         </div>
@@ -73,8 +68,9 @@
         <label class="form-label">Business Type</label>
         <div class="input-wrap">
           <i class="bi bi-diagram-3-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.businessType">
-            <option *ngFor="let t of businessTypes" [value]="t">{{ t }}</option>
+          <select class="form-input form-select" formControlName="businessTypeId">
+            <option [value]="null">Select Type</option>
+            <option *ngFor="let t of businessTypes" [value]="t.id">{{ t.typeName }}</option>
           </select>
         </div>
       </div>
@@ -82,8 +78,9 @@
         <label class="form-label">Business Category</label>
         <div class="input-wrap">
           <i class="bi bi-grid-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.businessCategory">
-            <option *ngFor="let c of businessCategories" [value]="c">{{ c }}</option>
+          <select class="form-input form-select" formControlName="businessCategoryId">
+            <option [value]="null">Select Category</option>
+            <option *ngFor="let bc of businessCategories" [value]="bc.id">{{ bc.categoryName }}</option>
           </select>
         </div>
       </div>
@@ -91,14 +88,14 @@
         <label class="form-label">Trade License No.</label>
         <div class="input-wrap">
           <i class="bi bi-journal-text input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.tradeLicenseNo" />
+          <input type="text" class="form-input" formControlName="tradeLicenseNo" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Status</label>
         <div class="input-wrap">
           <i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.status">
+          <select class="form-input form-select" formControlName="status">
             <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
           </select>
         </div>
@@ -124,8 +121,9 @@
         <label class="form-label required">VAT Zone</label>
         <div class="input-wrap">
           <i class="bi bi-grid-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.vatZone">
-            <option *ngFor="let z of vatZones" [value]="z">{{ z }}</option>
+          <select class="form-input form-select" formControlName="vatZoneId" (change)="onZoneChange()" [attr.disabled]="!ctrl('districtId')?.value ? true : null">
+            <option [value]="null">{{ loadingZones ? 'Loading...' : 'Select Zone' }}</option>
+            <option *ngFor="let z of vatZones" [value]="z.id">{{ z.zoneName }}</option>
           </select>
         </div>
       </div>
@@ -133,8 +131,9 @@
         <label class="form-label required">VAT Circle</label>
         <div class="input-wrap">
           <i class="bi bi-circle-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.vatCircle">
-            <option *ngFor="let c of vatCircles" [value]="c">{{ c }}</option>
+          <select class="form-input form-select" formControlName="vatCircleId" [attr.disabled]="!ctrl('vatZoneId')?.value ? true : null">
+            <option [value]="null">{{ loadingCircles ? 'Loading...' : 'Select Circle' }}</option>
+            <option *ngFor="let vc of vatCircles" [value]="vc.id">{{ vc.circleName }}</option>
           </select>
         </div>
       </div>
@@ -142,28 +141,28 @@
         <label class="form-label">Registration Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.registrationDate" />
+          <input type="date" class="form-input" formControlName="registrationDate" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Effective Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.effectiveDate" />
+          <input type="date" class="form-input" formControlName="effectiveDate" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Expiry Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-x input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.expiryDate" />
+          <input type="date" class="form-input" formControlName="expiryDate" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Annual Turnover (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.annualTurnover" />
+          <input type="number" class="form-input" formControlName="annualTurnover" />
         </div>
       </div>
     </div>
@@ -187,22 +186,23 @@
         <label class="form-label">Email</label>
         <div class="input-wrap">
           <i class="bi bi-envelope-fill input-icon"></i>
-          <input type="email" class="form-input" [(ngModel)]="form.email" />
+          <input type="email" class="form-input" formControlName="email" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label required">Phone</label>
         <div class="input-wrap">
           <i class="bi bi-telephone-fill input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.phone" />
+          <input type="text" class="form-input" formControlName="phone" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Division</label>
         <div class="input-wrap">
           <i class="bi bi-map-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.division">
-            <option *ngFor="let d of divisions" [value]="d">{{ d }}</option>
+          <select class="form-input form-select" formControlName="divisionId" (change)="onDivisionChange()">
+            <option [value]="null">Select Division</option>
+            <option *ngFor="let d of divisions" [value]="d.id">{{ d.name }}</option>
           </select>
         </div>
       </div>
@@ -210,8 +210,9 @@
         <label class="form-label">District</label>
         <div class="input-wrap">
           <i class="bi bi-geo-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.district">
-            <option *ngFor="let d of availableDistricts" [value]="d">{{ d }}</option>
+          <select class="form-input form-select" formControlName="districtId" (change)="onDistrictChange()" [attr.disabled]="!ctrl('divisionId')?.value ? true : null">
+            <option [value]="null">{{ loadingDistricts ? 'Loading...' : 'Select District' }}</option>
+            <option *ngFor="let d of districts" [value]="d.id">{{ d.name }}</option>
           </select>
         </div>
       </div>
@@ -220,7 +221,7 @@
         <div class="input-wrap">
           <i class="bi bi-geo-alt-fill input-icon textarea-icon"></i>
           <textarea class="form-input form-textarea"
-            [(ngModel)]="form.address" rows="2"></textarea>
+            formControlName="address" rows="2"></textarea>
         </div>
       </div>
       <div class="form-group full-width">
@@ -228,7 +229,7 @@
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
           <textarea class="form-input form-textarea"
-            [(ngModel)]="form.remarks" rows="2"></textarea>
+            formControlName="remarks" rows="2"></textarea>
         </div>
       </div>
     </div>
@@ -239,11 +240,12 @@
     <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
       <i class="bi bi-x-lg"></i> Cancel
     </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isSaving || !isFormValid()">
+    <button class="btn-submit" type="submit"
+      [disabled]="isSaving || form.invalid">
       <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update VAT Registration</span>
       <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
     </button>
   </div>
 
 </div>
+</form>

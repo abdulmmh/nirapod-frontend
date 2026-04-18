@@ -59,6 +59,7 @@ export const API_ENDPOINTS = {
     LIST:   `${API_BASE_URL}/vat-returns`,
     CREATE: `${API_BASE_URL}/vat-returns`,
     UPDATE: (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
+      DELETE: (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
   },
 
@@ -73,6 +74,13 @@ export const API_ENDPOINTS = {
     EXPORT: `${API_BASE_URL}/income-tax-returns/export`,
   },
 
+  IT10B: {
+    CREATE:    `${API_BASE_URL}/it10b`,
+    BY_RETURN: (returnId: number) => `${API_BASE_URL}/it10b/by-return/${returnId}`,
+    GET:       (id: number)       => `${API_BASE_URL}/it10b/${id}`,
+    UPDATE:    (id: number)       => `${API_BASE_URL}/it10b/${id}`,
+    DELETE:    (id: number)       => `${API_BASE_URL}/it10b/${id}`,
+  },
   // AIT (Advance Income Tax)
   AITS: {
     LIST:   `${API_BASE_URL}/ait`,
@@ -93,11 +101,12 @@ export const API_ENDPOINTS = {
 
 
   // Payments
-  PAYMENTS: {
-    LIST:   `${API_BASE_URL}/payments`,
-    CREATE: `${API_BASE_URL}/payments`,
-    GET:    (id: number) => `${API_BASE_URL}/payments/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/payments/${id}`,
+    PAYMENTS: {
+    LIST:          `${API_BASE_URL}/payments`,
+    CREATE:        `${API_BASE_URL}/payments`,
+    GET:           (id: number) => `${API_BASE_URL}/payments/${id}`,
+    DELETE:        (id: number) => `${API_BASE_URL}/payments/${id}`,
+    UPDATE_STATUS: (id: number) => `${API_BASE_URL}/payments/${id}/status`,
   },
 
   // Notices & Notifications

@@ -2,7 +2,7 @@
 export type ITRCategory = 'Individual' | 'Company' | 'Partnership' | 'NGO';
 export type ITRPeriod   = 'Annual' | 'Quarterly';
 export type ITRStatus =
-  'Draft' | 'Submitted' | 'Under Review' |
+  'Draft' | 'Submitted'|
   'Accepted' | 'Rejected' | 'Overdue' |
   'Under Review' | 'Amended' | 'Send Back';
 
@@ -36,6 +36,7 @@ export interface IncomeTaxReturn {
 }
 
 export interface IncomeTaxReturnCreateRequest {
+  taxpayerId?: number;
   tinNumber: string;
   taxpayerName: string;
   itrCategory: ITRCategory;

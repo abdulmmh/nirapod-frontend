@@ -7,6 +7,7 @@ import { IncomeTaxReturnListComponent } from '../pages/income-tax-return-list/in
 import { IncomeTaxReturnCreateComponent } from '../pages/income-tax-return-create/income-tax-return-create.component';
 import { IncomeTaxReturnViewComponent } from '../pages/income-tax-return-view/income-tax-return-view.component';
 import { IncomeTaxReturnEditComponent } from '../pages/income-tax-return-edit/income-tax-return-edit.component';
+import { It10bComponent } from '../pages/IT10B/it10b.component';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { IncomeTaxReturnEditComponent } from '../pages/income-tax-return-edit/in
     IncomeTaxReturnListComponent,
     IncomeTaxReturnCreateComponent,
     IncomeTaxReturnViewComponent,
-    IncomeTaxReturnEditComponent
+    IncomeTaxReturnEditComponent,
+    It10bComponent
   ],
   imports: [
     CommonModule,

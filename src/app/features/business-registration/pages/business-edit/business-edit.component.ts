@@ -112,8 +112,6 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
 
   private handleFetchSuccess(data: Business): void {
 
-    // businessType & businessCategory come as objects from backend e.g. { id: 2, typeName: '...' }
-    // Extract id as string so [(ngModel)] matches [ngValue]="t.id.toString()" in the template
     const btRaw = (data as any).businessType;
     const bcRaw = (data as any).businessCategory;
 
@@ -184,8 +182,8 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
       this.form.businessName     &&
       this.form.tinNumber        &&
       this.form.ownerName        &&
-      this.form.businessType     &&   // string ID like "2"
-      this.form.businessCategory &&   // string ID like "3"
+      this.form.businessType     &&   
+      this.form.businessCategory &&   
       this.form.phone            &&
       this.form.divisionId       &&
       this.form.districtId       &&

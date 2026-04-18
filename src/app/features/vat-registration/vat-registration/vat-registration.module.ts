@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { VatRegistrationRoutingModule } from './vat-registration-routing.module';
 
@@ -20,6 +20,7 @@ import { VatRegistrationEditComponent } from '../pages/vat-registration-edit/vat
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     SharedModule,
     VatRegistrationRoutingModule
   ]

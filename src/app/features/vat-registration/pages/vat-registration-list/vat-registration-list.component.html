@@ -103,7 +103,7 @@
                 <i class="bi bi-pencil-fill"></i> Edit
               </button>
               <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
-                class="btn-delete" (click)="delete(v.id)">
+                class="btn-delete" (click)="delete(v.id, v.businessName)">
                 <i class="bi bi-trash-fill"></i>
               </button>
             </div>
@@ -155,7 +155,7 @@
       <div class="mobile-card-actions">
         <button class="btn-view" (click)="view(v.id)"><i class="bi bi-eye-fill"></i> View</button>
         <button *canDo="'edit'" class="btn-edit" (click)="edit(v.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
-        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(v.id)"><i class="bi bi-trash-fill"></i></button>
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(v.id, v.businessName)"><i class="bi bi-trash-fill"></i></button>
       </div>
     </div>
     <div class="empty-state" *ngIf="filtered.length === 0">

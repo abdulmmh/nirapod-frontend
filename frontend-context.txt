@@ -5168,7 +5168,7 @@ export class ImportDutyViewComponent implements OnInit {
   fmt(a: number): string {
     if (a === 0) return '৳0';
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   onEdit(): void { this.router.navigate(['/import-duty/edit', this.record?.id]); }
@@ -25897,7 +25897,7 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
   }
 
   fmt(a: number): string {
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   // ───────────── Navigation ─────────────
@@ -28671,7 +28671,7 @@ export class VatRegistrationListComponent implements OnInit {
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   view(id: number): void { this.router.navigate(['/vat-registration/view', id]); }
@@ -28774,7 +28774,7 @@ export class VatRegistrationViewComponent implements OnInit {
     return new Date(date) < new Date();
   }
 
-  formatCurrency(a: number): string { return `৳${a.toLocaleString()}`; }
+  formatCurrency(a: number): string { return `৳${a.toLocaleString('en-BD')}`; }
   onEdit(): void { this.router.navigate(['/vat-registration/edit', this.vat?.id]); }
   onBack(): void { this.router.navigate(['/vat-registration']); }
 }
@@ -31420,7 +31420,7 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit {
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   onRefresh(): void {
@@ -33325,7 +33325,7 @@ export class ImportDutyListComponent implements OnInit {
   formatCurrency(a: number): string {
     if (a === 0) return '৳0';
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   delete(id: number): void {
@@ -39375,7 +39375,7 @@ export class IncomeTaxReturnListComponent implements OnInit, OnDestroy {
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   view(id: number): void { this.router.navigate(['/income-tax-returns/view', id]); }
@@ -41304,7 +41304,7 @@ export class VatReturnListComponent implements OnInit {
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   view(id: number): void { this.router.navigate(['/vat-returns/view', id]); }
@@ -42244,7 +42244,7 @@ export class VatReturnViewComponent implements OnInit {
     return map[toStatus] ?? 'tl-gray';
   }
 
-  fmt(a: number): string { return `৳${a.toLocaleString()}`; }
+  fmt(a: number): string { return `৳${a.toLocaleString('en-BD')}`; }
   onEdit(): void { this.router.navigate(['/vat-returns/edit', this.vr?.id]); }
   onBack(): void { this.router.navigate(['/vat-returns']); }
 }
@@ -42660,7 +42660,7 @@ edit(id: number): void { this.router.navigate(['/ait/edit', id]); }
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   get totalAIT(): number { return this.records.reduce((s, r) => s + r.aitAmount, 0); }
@@ -51703,7 +51703,7 @@ export class ImportDutyViewComponent implements OnInit {
   fmt(a: number): string {
     if (a === 0) return '৳0';
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   onEdit(): void { this.router.navigate(['/import-duty/edit', this.record?.id]); }
@@ -72432,7 +72432,7 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
   }
 
   fmt(a: number): string {
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   // ───────────── Navigation ─────────────
@@ -75206,7 +75206,7 @@ export class VatRegistrationListComponent implements OnInit {
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   view(id: number): void { this.router.navigate(['/vat-registration/view', id]); }
@@ -75309,7 +75309,7 @@ export class VatRegistrationViewComponent implements OnInit {
     return new Date(date) < new Date();
   }
 
-  formatCurrency(a: number): string { return `৳${a.toLocaleString()}`; }
+  formatCurrency(a: number): string { return `৳${a.toLocaleString('en-BD')}`; }
   onEdit(): void { this.router.navigate(['/vat-registration/edit', this.vat?.id]); }
   onBack(): void { this.router.navigate(['/vat-registration']); }
 }
@@ -77955,7 +77955,7 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit {
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   onRefresh(): void {
@@ -79860,7 +79860,7 @@ export class ImportDutyListComponent implements OnInit {
   formatCurrency(a: number): string {
     if (a === 0) return '৳0';
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   delete(id: number): void {
@@ -85910,7 +85910,7 @@ export class IncomeTaxReturnListComponent implements OnInit, OnDestroy {
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   view(id: number): void { this.router.navigate(['/income-tax-returns/view', id]); }
@@ -87839,7 +87839,7 @@ export class VatReturnListComponent implements OnInit {
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   view(id: number): void { this.router.navigate(['/vat-returns/view', id]); }
@@ -88779,7 +88779,7 @@ export class VatReturnViewComponent implements OnInit {
     return map[toStatus] ?? 'tl-gray';
   }
 
-  fmt(a: number): string { return `৳${a.toLocaleString()}`; }
+  fmt(a: number): string { return `৳${a.toLocaleString('en-BD')}`; }
   onEdit(): void { this.router.navigate(['/vat-returns/edit', this.vr?.id]); }
   onBack(): void { this.router.navigate(['/vat-returns']); }
 }
@@ -89195,7 +89195,7 @@ edit(id: number): void { this.router.navigate(['/ait/edit', id]); }
 
   formatCurrency(a: number): string {
     if (a >= 100000) return `৳${(a / 100000).toFixed(2)}L`;
-    return `৳${a.toLocaleString()}`;
+    return `৳${a.toLocaleString('en-BD')}`;
   }
 
   get totalAIT(): number { return this.records.reduce((s, r) => s + r.aitAmount, 0); }

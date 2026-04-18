@@ -28,7 +28,6 @@
         <input type="text" class="form-input"
           placeholder="Enter TIN number or taxpayer name..."
           [(ngModel)]="searchQuery"
-          (ngModelChange)="onSearchInput()"
           (keyup.enter)="searchTaxpayer()"
           [disabled]="isAutoFilled" />
         <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearTaxpayer()">
@@ -175,7 +174,7 @@
     <div class="form-grid">
 
       <div class="form-group">
-        <label class="form-label">Trade License No.</label>
+        <label class="form-label required">Trade License No.</label>
         <div class="input-wrap">
           <i class="bi bi-journal-text input-icon"></i>
           <input type="text" class="form-input"
@@ -183,17 +182,6 @@
             [(ngModel)]="form.tradeLicenseNo" />
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">BIN No.</label>
-        <div class="input-wrap">
-          <i class="bi bi-hash input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. BIN-2024-001"
-            [(ngModel)]="form.binNo" />
-        </div>
-      </div>
-
       <div class="form-group">
         <label class="form-label">Incorporation Date</label>
         <div class="input-wrap">
@@ -211,7 +199,7 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">Expiry Date</label>
+        <label class="form-label">Trade License Expiry Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-x input-icon"></i>
           <input type="date" class="form-input" [(ngModel)]="form.expiryDate" />
