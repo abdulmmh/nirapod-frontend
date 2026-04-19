@@ -341,3 +341,17 @@ Business Registration মডিউলের ফিক্স: এখান থে
 আর্কিটেকচারাল সিদ্ধান্ত (Company vs Individual): কোম্পানি নিজেই যেহেতু একটি লিগ্যাল এনটিটি এবং ট্যাক্সপেয়ার, তাই কোম্পানির ক্ষেত্রে আলাদা Business Registration না করে সরাসরি VAT Registration-এ যাওয়াটাই রিয়েল-লাইফ NBR সিস্টেমের সাথে বেশি সামঞ্জস্যপূর্ণ।
 
 আমাদের Taxpayer মডিউলের বেস এখন একদম সলিড!
+
+
+
+এখন পুরো codebase ভালো করে পড়লাম। এটা `com.example` package এর project — আগেরটা `com.nirapod` ছিল, এগুলো আলাদা project।এখন সব কিছু পরিষ্কার বুঝলাম। পুরো codebase এর complete senior-level review দিচ্ছি।এখন সম্পূর্ণ review লিখছি।এখন সম্পূর্ণ analysis করে review তৈরি করছি।প্রতিটা issue expandable — ক্লিক করে details দেখো।
+
+**সংক্ষেপে সবচেয়ে জরুরি ৩টা:**
+
+প্রথমত, `useMockAuth: true` আজকেই `environment.prod.ts` তে `false` করো — এটা security hole, production এ গেলে যেকেউ SUPER_ADMIN হিসেবে login করতে পারবে।
+
+দ্বিতীয়ত, সব controller এ `void` return type বদলে `ResponseEntity<?>` করো — এখন error হলে frontend জানতেই পারে না।
+
+তৃতীয়ত, `TaxStructureController` ও `TaxpayerController` এর `update()` এ path variable `id` enforce করো, নাহলে body তে যে id আসবে সেটাই update হবে — URL এর id ignored।
+
+বাকিগুলো পর্যায়ক্রমে করা যাবে। `@ControllerAdvice` একটা ছোট class যোগ করলে সব error handling এক জায়গা থেকে handle হবে।

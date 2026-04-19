@@ -70,7 +70,7 @@
           <i class="bi bi-toggle-on input-icon"></i>
           <select class="form-input form-select"
             [(ngModel)]="form.status">
-            <option *ngFor="let s of editableStatuses" [value]="s">
+            <option *ngFor="let s of availableStatuses" [value]="s">
               {{ s }}
             </option>
           </select>

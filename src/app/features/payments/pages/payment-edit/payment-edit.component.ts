@@ -14,19 +14,12 @@ import { ToastService } from '../../../../shared/toast/toast.service';
 })
 export class PaymentEditComponent implements OnInit, OnDestroy {
 
-  payment: Payment | null = null;
-  isLoading = true;
-  isSaving  = false;
-  paymentId = 0;
+  payment:   Payment | null = null;
+  isLoading  = true;
+  isSaving   = false;
+  paymentId  = 0;
 
-  // Only these two fields are editable after creation
-  form: PaymentStatusUpdate = {
-    status:  '',
-    remarks: ''
-  };
-
-  // Completed payments cannot be changed — only Pending/Failed can be updated
-  editableStatuses = ['Pending', 'Completed', 'Failed', 'Cancelled'];
+  form: PaymentStatusUpdate = { status: null!, remarks: '' };
 
   private destroy$ = new Subject<void>();
 
@@ -53,13 +46,12 @@ export class PaymentEditComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (data) => {
-          this.payment    = data;
+          this.payment      = data;
           this.form.status  = data.status;
           this.form.remarks = data.remarks || '';
 
-          // Guard: redirect if already Completed
-          if (data.status === 'Completed') {
-            this.toast.warning('Completed payments cannot be edited.');
+          if (data.status === 'Completed' || data.status === 'Cancelled') {
+            this.toast.warning(`${data.status} payments cannot be edited.`);
             this.router.navigate(['/payments', 'view', this.paymentId]);
           }
         },
@@ -68,6 +60,19 @@ export class PaymentEditComponent implements OnInit, OnDestroy {
           this.router.navigate(['/payments']);
         }
       });
+  }
+
+  // Returns only valid next statuses based on the current status.
+  // Prevents illegal transitions (e.g. Failed → Completed directly).
+  get availableStatuses(): string[] {
+    switch (this.payment?.status) {
+      case 'Pending':
+        return ['Completed', 'Failed', 'Cancelled'];
+      case 'Failed':
+        return ['Pending', 'Cancelled'];
+      default:
+        return [];
+    }
   }
 
   isFormValid(): boolean {
@@ -82,7 +87,6 @@ export class PaymentEditComponent implements OnInit, OnDestroy {
 
     this.isSaving = true;
 
-    // PATCH /api/payments/{id}/status — only status and remarks
     this.http.patch(API_ENDPOINTS.PAYMENTS.UPDATE_STATUS(this.paymentId), this.form)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isSaving = false)))
       .subscribe({

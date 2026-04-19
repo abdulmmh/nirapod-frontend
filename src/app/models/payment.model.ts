@@ -45,6 +45,7 @@ export interface PaymentCreateRequest {
 
 // Used for PATCH /payments/{id}/status
 export interface PaymentStatusUpdate {
-  status:   string;
-  remarks?: string;
+  status:       PaymentStatus;
+  remarks?:     string;
+  processedBy?: string;  
 }

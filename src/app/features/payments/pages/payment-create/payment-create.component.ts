@@ -7,6 +7,8 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { PaymentCreateRequest } from '../../../../models/payment.model';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { Role } from 'src/app/core/constants/roles.constants';
 
 @Component({
   selector: 'app-payment-create',
@@ -40,12 +42,44 @@ export class PaymentCreateComponent implements OnDestroy {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private toast: ToastService
+    private toast: ToastService,
+    private authService: AuthService
   ) {}
+
+  ngOnInit(): void {
+    if (this.authService.userRole === Role.TAXPAYER) {
+      this.loadOwnTaxpayerRecord();
+    }
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+
+
+
+  // Load Initial Data
+
+
+  private loadOwnTaxpayerRecord(): void {
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) return;
+
+    const url = `${API_ENDPOINTS.TAXPAYERS.LIST}?search=${encodeURIComponent(currentUser.email)}`;
+    this.http.get<Taxpayer[]>(url)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data.length > 0) {
+            this.selectTaxpayer(data[0]);
+          } else {
+            this.toast.error('Your taxpayer profile was not found. Contact your tax officer.');
+          }
+        },
+        error: () => this.toast.error('Failed to load your profile. Please try again.')
+      });
   }
 
   // ── Getters ──
@@ -173,7 +207,7 @@ export class PaymentCreateComponent implements OnDestroy {
       });
   }
 
-  // Fix: inline reset state instead of calling clearTaxpayer() to avoid double toast
+  
   onReset(): void {
     this.form             = this.getEmptyForm();
     this.selectedTaxpayer = null;

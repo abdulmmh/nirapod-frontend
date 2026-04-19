@@ -7,10 +7,11 @@
     <button class="btn-back" (click)="onBack()">
       <i class="bi bi-arrow-left"></i> Back
     </button>
-    <div *canDo="'edit'">
-    <button *ngIf="canEdit()"  class="btn-edit-top" (click)="onEdit()">
-      <i class="bi bi-pencil-fill"></i> Edit
-    </button></div>
+    <ng-container *ngIf="canEdit()">
+      <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+    </ng-container>
   </div>
 </div>
 

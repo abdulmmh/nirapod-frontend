@@ -72,12 +72,12 @@ export class PaymentViewComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(amount: number): string {
-    return `৳${(amount || 0).toLocaleString()}`;
+    if (amount >= 100000) return `৳${(amount / 100000).toFixed(2)}L`;
+    return `৳${amount.toLocaleString()}`;
   }
 
-  // Completed payments have no edit
   canEdit(): boolean {
-    return this.payment?.status !== 'Completed';
+    return !!this.payment && this.payment.status !== 'Completed' && this.payment.status !== 'Cancelled';
   }
 
   onEdit(): void {
