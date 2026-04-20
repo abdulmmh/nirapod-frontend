@@ -1,104 +1,240 @@
-/* ── Fiscal Year Grid ── */
-.fy-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; padding:0; }
+.fy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
 
 .fy-card {
-  background:#fff; border-radius:14px; padding:24px;
-  box-shadow:0 2px 12px rgba(0,0,0,0.07);
-  border:2px solid #f0f4f8; position:relative; overflow:hidden;
-  transition:box-shadow 0.2s, transform 0.2s;
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  border: 2px solid #f0f4f8;
+  position: relative;
+  overflow: hidden;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
 }
-
-.fy-card:hover { box-shadow:0 6px 24px rgba(0,0,0,0.12); transform:translateY(-2px); }
-
+.fy-card:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
 .fy-card.current {
-  border-color:#1a3f8f;
-  background:linear-gradient(145deg,#fff,#f0f4ff);
+  border-color: #1a3f8f;
+  background: linear-gradient(145deg, #fff, #f0f4ff);
 }
-
 .fy-card.upcoming {
-  border-color:#1faa8b;
-  background:linear-gradient(145deg,#fff,#f0fff8);
+  border-color: #1faa8b;
+  background: linear-gradient(145deg, #fff, #f0fff8);
 }
-
 .fy-card.closed {
-  border-color:#e0e8f0;
-  opacity:0.8;
+  border-color: #e0e8f0;
+  opacity: 0.8;
 }
 
 /* Badges */
 .current-badge {
-  position:absolute; top:0; right:0;
-  background:linear-gradient(135deg,#1a3f8f,#2a5fd6);
-  color:#fff; font-size:11px; font-weight:700;
-  padding:4px 12px; border-radius:0 14px 0 10px;
-  display:flex; align-items:center; gap:4px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #1a3f8f, #2a5fd6);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 0 14px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
-
 .upcoming-badge {
-  position:absolute; top:0; right:0;
-  background:linear-gradient(135deg,#1faa8b,#17c69a);
-  color:#fff; font-size:11px; font-weight:700;
-  padding:4px 12px; border-radius:0 14px 0 10px;
-  display:flex; align-items:center; gap:4px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #1faa8b, #17c69a);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 0 14px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Year Name */
 .fy-year-name {
-  font-size:32px; font-weight:900; color:#1a2340;
-  margin-bottom:16px; margin-top:8px;
+  font-size: 32px;
+  font-weight: 900;
+  color: #1a2340;
+  margin-bottom: 16px;
+  margin-top: 8px;
   font-family: monospace;
 }
-
-.fy-card.current .fy-year-name { color:#1a3f8f; }
-.fy-card.upcoming .fy-year-name { color:#1faa8b; }
+.fy-card.current .fy-year-name {
+  color: #1a3f8f;
+}
+.fy-card.upcoming .fy-year-name {
+  color: #1faa8b;
+}
 
 /* Dates */
-.fy-dates { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
-.fy-date-item { display:flex; align-items:center; gap:8px; flex:1; }
-.fy-date-item i { font-size:16px; color:#1a3f8f; flex-shrink:0; }
-.fyd-label { display:block; font-size:10px; color:#888; font-weight:600; text-transform:uppercase; }
-.fyd-value { display:block; font-size:13px; font-weight:700; color:#1a2340; }
-.fy-date-arrow { color:#ccc; font-size:16px; flex-shrink:0; }
+.fy-dates {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.fy-date-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.fy-date-item i {
+  font-size: 16px;
+  color: #1a3f8f;
+  flex-shrink: 0;
+}
+.fyd-label {
+  display: block;
+  font-size: 10px;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.fyd-value {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a2340;
+}
+.fy-date-arrow {
+  color: #ccc;
+  font-size: 16px;
+  flex-shrink: 0;
+}
 
 /* Deadlines */
-.fy-deadlines { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; padding:14px; background:#f8fafc; border-radius:10px; }
-.fy-deadline-item { display:flex; align-items:center; gap:10px; }
-.fdl-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
-.fdl-icon.vat { background:#e6f7f3; color:#1faa8b; }
-.fdl-icon.it  { background:#f3eeff; color:#7c3aed; }
-.fdl-label { display:block; font-size:11px; color:#888; font-weight:500; }
-.fdl-value { display:block; font-size:13px; font-weight:700; color:#1a2340; }
+.fy-deadlines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+.fy-deadline-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fdl-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.fdl-icon.vat {
+  background: #e6f7f3;
+  color: #1faa8b;
+}
+.fdl-icon.it {
+  background: #e8eef9;
+  color: #1a3f8f;
+}
+.fdl-label {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  font-weight: 500;
+}
+.fdl-value {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a2340;
+}
 
 /* Footer */
-.fy-footer { display:flex; align-items:center; justify-content:space-between; }
-.status-upcoming { background:#e6f7f3; color:#1faa8b; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; display:inline-block; }
-
-.btn-set-current {
-  display:inline-flex; align-items:center; gap:5px;
-  background:#e8eef9; color:#1a3f8f;
-  border:none; padding:6px 14px; border-radius:8px;
-  font-size:12px; font-weight:600; cursor:pointer;
-  transition:background 0.2s;
+.fy-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-.btn-set-current:hover { background:#d0daf5; }
+.btn-set-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e8eef9;
+  color: #1a3f8f;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-set-current:hover {
+  background: #d0daf5;
+}
+.btn-fy-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e8eef9;
+  color: #1a3f8f;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-fy-edit:hover {
+  background: #d0daf5;
+}
 
 /* Add Card */
 .fy-add-card {
-  background:#f8fafc; border-radius:14px; padding:24px;
-  border:2px dashed #d0daf5; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:10px;
-  cursor:pointer; transition:all 0.2s; min-height:200px; color:#888;
-  text-decoration:none;
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 24px;
+  border: 2px dashed #d0daf5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 200px;
+  color: #888;
+  text-decoration: none;
 }
-.fy-add-card:hover { border-color:#1a3f8f; color:#1a3f8f; background:#f0f4ff; }
-.fy-add-card i { font-size:32px; }
-.fy-add-card span { font-size:14px; font-weight:600; }
+.fy-add-card:hover {
+  border-color: #1a3f8f;
+  color: #1a3f8f;
+  background: #f0f4ff;
+}
+.fy-add-card i {
+  font-size: 32px;
+}
+.fy-add-card span {
+  font-size: 14px;
+  font-weight: 600;
+}
 
-.loading-row { display:flex; align-items:center; gap:10px; padding:24px 20px; color:#888; font-size:13px; }
-
-@media (max-width:768px) { .fy-grid { grid-template-columns:1fr; } }
-
-
-
-.btn-fy-edit { display:inline-flex; align-items:center; gap:5px; background:#e8eef9; color:#1a3f8f; border:none; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.2s; }
-.btn-fy-edit:hover { background:#d0daf5; }
+@media (max-width: 768px) {
+  .fy-grid {
+    grid-template-columns: 1fr;
+  }
+}

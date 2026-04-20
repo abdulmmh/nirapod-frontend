@@ -1,80 +1,74 @@
-.alert-success { background:#e6f7f3; border:1px solid #b2dfdb; border-radius:10px; padding:12px 18px; color:#1faa8b; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; margin-bottom:16px; }
-.alert-error   { background:#fff0f0; border:1px solid #fcc; border-radius:10px; padding:12px 18px; color:#e74c3c; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+.section-icon.red {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+.section-icon.orange {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+}
+.section-icon.purple {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+}
+.field-hint.danger {
+  color: #e74c3c;
+  font-weight: 600;
+}
+.calc-field {
+  background: #fff0f0 !important;
+  color: #e74c3c !important;
+  font-weight: 700;
+  cursor: not-allowed;
+  border-color: #ffcccc !important;
+}
 
-.btn-back { display:inline-flex; align-items:center; gap:7px; background:#fff; border:1px solid #ffcccc; color:#e74c3c; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:background 0.2s; }
-.btn-back:hover { background:#fff0f0; }
-
-.form-card { background:#fff; border-radius:14px; box-shadow:0 2px 16px rgba(0,0,0,0.07); overflow:hidden; }
-.form-section { padding:24px 28px; }
-
-.section-header { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
-.section-icon { width:40px; height:40px; background:linear-gradient(135deg,#1a3f8f,#2a5fd6); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:17px; flex-shrink:0; }
-.section-icon.red    { background:linear-gradient(135deg,#e74c3c,#c0392b); }
-.section-icon.orange { background:linear-gradient(135deg,#f59e0b,#f97316); }
-.section-icon.purple { background:linear-gradient(135deg,#7c3aed,#a855f7); }
-
-.section-title { margin:0; font-size:14px; font-weight:700; color:#1a2340; }
-.section-sub   { font-size:12px; color:#999; }
-.section-divider { height:1px; background:#f0f4f8; margin:0 28px; }
-
-.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
-.form-group { display:flex; flex-direction:column; gap:6px; }
-.form-group.full-width { grid-column:1/-1; }
-
-.form-label { font-size:13px; font-weight:600; color:#444; }
-.form-label.required::after { content:' *'; color:#e74c3c; }
-.field-hint { font-size:11px; color:#e74c3c; font-weight:600; margin-top:2px; }
-
-.input-wrap { position:relative; display:flex; align-items:center; }
-.input-icon { position:absolute; left:12px; color:#aaa; font-size:14px; pointer-events:none; z-index:1; }
-.textarea-icon { top:12px; align-self:flex-start; }
-
-.form-input { width:100%; padding:10px 14px 10px 36px; border:1.5px solid #e0e8f0; border-radius:9px; font-size:13.5px; color:#333; background:#fafbfc; outline:none; transition:border-color 0.2s,box-shadow 0.2s; font-family:inherit; }
-.form-input:focus { border-color:#e74c3c; box-shadow:0 0 0 3px rgba(231,76,60,0.08); background:#fff; }
-.form-select { appearance:none; cursor:pointer; }
-.form-textarea { resize:vertical; min-height:90px; padding-top:10px; }
-
-.calc-field { background:#fff0f0 !important; color:#e74c3c !important; font-weight:700; cursor:not-allowed; border-color:#ffcccc !important; }
-
-/* ── Penalty Summary ── */
+/* Penalty Summary */
 .penalty-summary {
-  margin-top:20px; border:1.5px solid #ffcccc;
-  border-radius:12px; overflow:hidden;
+  margin-top: 20px;
+  border: 1.5px solid #ffcccc;
+  border-radius: 12px;
+  overflow: hidden;
 }
-
-.ps-row { display:flex; align-items:center; justify-content:space-between; padding:10px 18px; }
-.ps-label { font-size:13px; color:#666; font-weight:500; }
-.ps-value { font-size:14px; font-weight:700; }
-.ps-value.penalty  { color:#e74c3c; }
-.ps-value.interest { color:#f59e0b; }
-.ps-divider { height:1px; background:#ffcccc; margin:0; }
-
-.total-row { background:#fff0f0; padding:12px 18px; }
-.ps-label.total { font-size:14px; font-weight:700; color:#1a2340; }
-.ps-value.total { font-size:20px; font-weight:800; color:#e74c3c; }
-
-/* ── Form Actions ── */
-.form-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:20px 28px; background:#f8fafc; border-top:1px solid #f0f4f8; flex-wrap:wrap; }
-
-.btn-cancel { display:inline-flex; align-items:center; gap:6px; background:#fff; border:1.5px solid #e0e8f0; color:#666; padding:9px 20px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:background 0.2s; }
-.btn-cancel:hover { background:#f5f7fb; }
-
-.btn-reset { display:inline-flex; align-items:center; gap:6px; background:#fef3e2; border:1.5px solid #fde8c0; color:#f59e0b; padding:9px 20px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:background 0.2s; }
-.btn-reset:hover { background:#fde8c0; }
-
-.btn-submit { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#e74c3c,#c0392b); color:#fff; border:none; padding:10px 28px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; transition:box-shadow 0.2s,transform 0.2s; }
-.btn-submit:hover:not(:disabled) { box-shadow:0 4px 14px rgba(231,76,60,0.35); transform:translateY(-1px); }
-.btn-submit:disabled,.btn-cancel:disabled,.btn-reset:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-
-@media (max-width:768px) {
-  .form-section { padding:18px 16px; }
-  .section-divider { margin:0 16px; }
-  .form-grid { grid-template-columns:1fr; }
-  .form-actions { padding:16px; justify-content:stretch; }
-  .btn-cancel,.btn-reset,.btn-submit { flex:1; justify-content:center; }
+.ps-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
 }
-
-@media (max-width:480px) {
-  .form-actions { flex-direction:column; }
-  .btn-cancel,.btn-reset,.btn-submit { width:100%; }
+.ps-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+.ps-label.total {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a2340;
+}
+.ps-value {
+  font-size: 14px;
+  font-weight: 700;
+}
+.ps-value.penalty {
+  color: #e74c3c;
+}
+.ps-value.interest {
+  color: #f59e0b;
+}
+.ps-value.total {
+  font-size: 20px;
+  font-weight: 800;
+  color: #e74c3c;
+}
+.ps-divider {
+  height: 1px;
+  background: #ffcccc;
+}
+.total-row {
+  background: #fff0f0;
+  padding: 12px 18px;
+}
+/* Submit override — red is semantic */
+.btn-submit.danger {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+.btn-submit.danger:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(231, 76, 60, 0.35);
 }

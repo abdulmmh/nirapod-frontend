@@ -1,83 +1,51 @@
-.refund-code {
-  font-size: 12px; font-weight: 700;
-  color: #0891b2; background: #e0f2f9;
-  padding: 3px 8px; border-radius: 5px;
-  font-family: monospace; white-space: nowrap;
+/* Refund Type */
+.type-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 5px;
+  white-space: nowrap;
 }
-
-.td-name { display: flex; align-items: center; gap: 10px; }
-
-.td-avatar {
-  width: 32px; height: 32px;
-  background: linear-gradient(135deg, #0891b2, #06b6d4);
-  color: #fff; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; flex-shrink: 0;
+.type-vat {
+  background: #e6f7f3;
+  color: #1faa8b;
 }
-
-.td-title { display: block; font-size: 13px; font-weight: 600; color: #1a2340; white-space: nowrap; }
-.td-sub   { display: block; font-size: 11px; color: #999; margin-top: 1px; }
-
-.amount-cell { font-weight: 700; white-space: nowrap; }
-.claim-amount    { color: #1a2340; }
-.approved-amount { color: #1faa8b; }
-.paid-amount     { color: #1a3f8f; }
-
-/* ── Type Badges ── */
-.type-badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 5px; white-space: nowrap; }
-.type-vat    { background: #e6f7f3; color: #1faa8b; }
-.type-it     { background: #f3eeff; color: #7c3aed; }
-.type-excess { background: #fef3e2; color: #f59e0b; }
-.type-other  { background: #f0f4f8; color: #666; }
+.type-it {
+  background: #e8eef9;
+  color: #1a3f8f;
+}
+.type-excess {
+  background: #fef3e2;
+  color: #f59e0b;
+}
+.type-other {
+  background: #f0f4f8;
+  color: #666;
+}
 
 .method-badge {
-  font-size: 11px; font-weight: 600;
-  background: #f0f4f8; color: #555;
-  padding: 3px 8px; border-radius: 5px; white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  background: #f0f4f8;
+  color: #555;
+  padding: 3px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
 }
 
-/* ── Status ── */
-.status-approved {
-  background: #e0f2f9; color: #0891b2;
-  font-size: 11px; font-weight: 600;
-  padding: 3px 10px; border-radius: 12px; display: inline-block;
+.claim-amount {
+  color: #1a2340;
+  font-weight: 700;
+}
+.approved-amount {
+  color: #1faa8b;
+  font-weight: 700;
+}
+.paid-amount {
+  color: #1a3f8f;
+  font-weight: 700;
 }
 
-.action-btns { display: flex; gap: 5px; flex-wrap: nowrap; }
-
-/* ── Table ── */
-.table-responsive {
-  overflow-x: auto; -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin; scrollbar-color: #d0daf5 #f8fafc;
-}
-
-.table-responsive::-webkit-scrollbar { height: 6px; }
-.table-responsive::-webkit-scrollbar-track { background: #f8fafc; border-radius: 4px; }
-.table-responsive::-webkit-scrollbar-thumb { background: #d0daf5; border-radius: 4px; }
-.table-responsive::-webkit-scrollbar-thumb:hover { background: #0891b2; }
-
-.data-table { width: 100%; min-width: 1300px; border-collapse: collapse; font-size: 13px; }
-.data-table thead tr { background: #f8fafc; position: sticky; top: 0; z-index: 1; }
-.data-table th { padding: 11px 14px; text-align: left; font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #eef2f8; white-space: nowrap; }
-.data-table td { padding: 11px 14px; border-bottom: 1px solid #f5f7fb; color: #444; vertical-align: middle; white-space: nowrap; }
-.data-table tbody tr:hover { background: #f0fbff; }
-.data-table tbody tr:last-child td { border-bottom: none; }
-
-.search-field-row { display: flex; align-items: center; gap: 12px; }
-.search-field-row .search-field { flex: 1; }
-
-.btn-export {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: #e0f2f9; color: #0891b2;
-  border: 1px solid #bae6f5; padding: 9px 16px;
-  border-radius: 8px; font-size: 13px; font-weight: 600;
-  cursor: pointer; white-space: nowrap; transition: background 0.2s; flex-shrink: 0;
-}
-.btn-export:hover { background: #bae6f5; border-color: #0891b2; }
-
-.loading-row { display: flex; align-items: center; gap: 10px; padding: 24px 20px; color: #888; font-size: 13px; }
-
-@media (max-width: 480px) {
-  .btn-export span { display: none; }
-  .btn-export { padding: 9px 12px; }
+.data-table {
+  min-width: 1300px;
 }

@@ -1,0 +1,283 @@
+/* ═══════════════════════════════════════════════════════════════
+   NIRAPOD — GLOBAL FORM STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Alerts ── */
+.alert-success {
+  background: #e6f7f3; border: 1px solid #b2dfdb;
+  border-radius: 10px; padding: 12px 18px; color: #1faa8b;
+  font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+}
+.alert-error {
+  background: #fff0f0; border: 1px solid #fcc;
+  border-radius: 10px; padding: 12px 18px; color: #e74c3c;
+  font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+}
+
+/* ── Back Button (unified blue) ── */
+.btn-back {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #fff; border: 1px solid #d0daf5; color: #1a3f8f;
+  padding: 8px 16px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+}
+.btn-back:hover { background: #f0f4ff; }
+
+/* ── Form Card ── */
+.form-card {
+  background: #fff; border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07); overflow: hidden;
+}
+
+/* ── Form Section ── */
+.form-section { padding: 24px 28px; }
+
+.section-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+}
+
+/* Section Icon — default blue, override with modifier */
+.section-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #1a3f8f, #2a5fd6);
+  border-radius: 10px; display: flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 17px; flex-shrink: 0;
+}
+/* semantic icon modifiers — use only where meaning matters */
+.section-icon.green  { background: linear-gradient(135deg, #1faa8b, #17c69a); }
+.section-icon.amber  { background: linear-gradient(135deg, #f59e0b, #f97316); }
+.section-icon.red    { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.section-icon.cyan   { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+
+.section-title { margin: 0; font-size: 14px; font-weight: 700; color: #1a2340; }
+.section-sub   { font-size: 12px; color: #999; }
+
+.section-divider { height: 1px; background: #f0f4f8; margin: 0 28px; }
+
+/* ── Form Grid ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full-width { grid-column: 1 / -1; }
+
+/* ── Labels ── */
+.form-label { font-size: 13px; font-weight: 600; color: #444; }
+.form-label.required::after { content: ' *'; color: #e74c3c; }
+.optional    { font-size: 11px; color: #aaa; font-weight: 400; }
+.field-hint  { font-size: 11px; color: #888; margin-top: 4px; }
+.auto-label  {
+  font-size: 10px; font-weight: 600;
+  background: #e8eef9; color: #1a3f8f;
+  padding: 1px 6px; border-radius: 4px; margin-left: 4px;
+}
+
+/* ── Input Wrap ── */
+.input-wrap { position: relative; display: flex; align-items: center; }
+.input-icon {
+  position: absolute; left: 12px; color: #aaa;
+  font-size: 14px; pointer-events: none; z-index: 1;
+}
+.textarea-icon { top: 12px; align-self: flex-start; }
+
+/* ── Form Input (focus = blue always) ── */
+.form-input {
+  width: 100%; padding: 10px 14px 10px 36px;
+  border: 1.5px solid #e0e8f0; border-radius: 9px;
+  font-size: 13.5px; color: #333; background: #fafbfc;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+.form-input:focus {
+  border-color: #1a3f8f;
+  box-shadow: 0 0 0 3px rgba(26,63,143,0.08);
+  background: #fff;
+}
+.form-input:disabled { background: #f5f5f5; cursor: not-allowed; }
+.form-input.is-invalid { border-color: #e74c3c; }
+
+.form-select   { appearance: none; cursor: pointer; }
+.form-textarea { resize: vertical; min-height: 80px; padding-top: 10px; }
+
+/* Computed/Auto fields */
+.auto-field  { background: #f0f4f8 !important; color: #555 !important; cursor: not-allowed; border-color: #e0e8f0 !important; }
+.calc-field  { background: #f0f4f8 !important; color: #555 !important; cursor: not-allowed; border-color: #e0e8f0 !important; }
+
+/* Error messages */
+.field-error-msg { font-size: 11.5px; color: #e74c3c; font-weight: 600; margin-top: 2px; display: block; }
+.password-error  { font-size: 12px; color: #e74c3c; font-weight: 600; }
+
+/* ── Form Actions ── */
+.form-actions {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 10px; padding: 20px 28px;
+  background: #f8fafc; border-top: 1px solid #f0f4f8; flex-wrap: wrap;
+}
+.btn-cancel {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fff; border: 1.5px solid #e0e8f0; color: #666;
+  padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.2s;
+}
+.btn-cancel:hover { background: #f5f7fb; }
+
+.btn-reset {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fef3e2; border: 1.5px solid #fde8c0; color: #f59e0b;
+  padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.2s;
+}
+.btn-reset:hover { background: #fde8c0; }
+
+/* btn-submit: default blue — module can override with .btn-submit.danger etc */
+.btn-submit {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, #1a3f8f, #2a5fd6);
+  color: #fff; border: none; padding: 10px 28px;
+  border-radius: 8px; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: box-shadow 0.2s, transform 0.2s;
+}
+.btn-submit:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(26,63,143,0.35);
+  transform: translateY(-1px);
+}
+.btn-submit:disabled,
+.btn-cancel:disabled,
+.btn-reset:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── Taxpayer Search (shared — used in TIN, Business, VAT Return, ITR, Payment) ── */
+.search-row         { display: flex; gap: 10px; align-items: center; }
+.search-input-wrap  { flex: 1; }
+
+.btn-search {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, #1a3f8f, #2a5fd6);
+  color: #fff; border: none; padding: 10px 22px;
+  border-radius: 9px; font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
+}
+.btn-search:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.search-results {
+  margin-top: 8px; border: 1.5px solid #d0daf5;
+  border-radius: 10px; overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+.result-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; cursor: pointer;
+  transition: background 0.15s; border-bottom: 1px solid #f0f4f8;
+}
+.result-item:last-child { border-bottom: none; }
+.result-item:hover      { background: #f0f4ff; }
+
+.result-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #e8eef9; color: #1a3f8f;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.result-info { flex: 1; }
+.result-name { font-size: 13.5px; font-weight: 600; color: #1a2340; display: block; }
+.result-meta { font-size: 12px; color: #888; display: block; margin-top: 2px; }
+.result-badge {
+  font-size: 11px; font-weight: 600;
+  background: #e8eef9; color: #1a3f8f;
+  padding: 3px 10px; border-radius: 20px;
+}
+
+.no-result-note {
+  margin-top: 10px; padding: 10px 14px;
+  background: #fff8e1; border: 1px solid #ffe082;
+  border-radius: 8px; font-size: 12.5px; color: #b45309;
+  display: flex; align-items: center; gap: 7px;
+}
+
+/* ── Selected Taxpayer Card (green — confirms selection) ── */
+.selected-card {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 12px; padding: 12px 16px;
+  background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px;
+}
+.selected-card-left { display: flex; align-items: center; gap: 12px; }
+.selected-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: #dcfce7; color: #16a34a;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.selected-name { margin: 0; font-size: 13.5px; font-weight: 700; color: #14532d; }
+.selected-meta { margin: 2px 0 0; font-size: 12px; color: #16a34a; }
+.autofill-tag {
+  font-size: 11.5px; font-weight: 700;
+  background: #dcfce7; color: #16a34a;
+  padding: 4px 12px; border-radius: 20px;
+  display: flex; align-items: center; gap: 5px;
+}
+
+/* Locked auto-filled fields */
+.input-wrap.locked .form-input {
+  background: #f0fdf4; border-color: #86efac; color: #15803d;
+}
+.lock-icon {
+  position: absolute; right: 12px; color: #16a34a; font-size: 12px;
+}
+
+/* Clear button */
+.clear-btn {
+  position: absolute; right: 12px;
+  background: none; border: none; color: #aaa;
+  cursor: pointer; font-size: 13px; padding: 2px;
+  display: flex; align-items: center;
+}
+.clear-btn:hover { color: #e74c3c; }
+
+/* ── Status Preview ── */
+.status-preview {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; background: #f8fafc;
+  border: 1.5px solid #e0e8f0; border-radius: 9px; min-height: 44px;
+}
+.status-hint { font-size: 12px; color: #888; font-style: italic; }
+
+/* ── Toggle Switch ── */
+.toggle-section {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; padding: 16px; background: #f8fafc;
+  border-radius: 12px; border: 1.5px solid #e0e8f0;
+}
+.toggle-info  { flex: 1; }
+.ti-title     { font-size: 14px; font-weight: 700; color: #1a2340; margin-bottom: 4px; }
+.ti-desc      { font-size: 12px; color: #888; line-height: 1.5; }
+.toggle-wrap  { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.toggle-switch { position: relative; display: inline-block; width: 52px; height: 28px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background: #ccc; transition: 0.3s; border-radius: 28px;
+}
+.toggle-slider::before {
+  position: absolute; content: ""; height: 20px; width: 20px;
+  left: 4px; bottom: 4px; background: #fff; transition: 0.3s; border-radius: 50%;
+}
+input:checked + .toggle-slider { background: #1a3f8f; }
+input:checked + .toggle-slider::before { transform: translateX(24px); }
+.toggle-label    { font-size: 13px; font-weight: 600; color: #888; }
+.toggle-label.on { color: #1a3f8f; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .form-section    { padding: 18px 16px; }
+  .section-divider { margin: 0 16px; }
+  .form-grid       { grid-template-columns: 1fr; }
+  .form-actions    { padding: 16px; justify-content: stretch; }
+  .btn-cancel, .btn-reset, .btn-submit { flex: 1; justify-content: center; }
+  .search-row      { flex-direction: column; }
+  .btn-search      { width: 100%; justify-content: center; }
+  .selected-card   { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .toggle-section  { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 480px) {
+  .form-actions { flex-direction: column; }
+  .btn-cancel, .btn-reset, .btn-submit { width: 100%; }
+}

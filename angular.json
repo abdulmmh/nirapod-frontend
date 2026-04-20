@@ -27,7 +27,11 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/assets/css/styles-list.css",
+              "src/assets/css/styles-form.css",
+              "src/assets/css/styles-view.css",
+              "src/assets/css/styles-edit.css"
             ],
             "scripts": []
           },
@@ -94,7 +98,11 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/assets/css/styles-list.css",
+              "src/assets/css/styles-form.css",
+              "src/assets/css/styles-view.css",
+              "src/assets/css/styles-edit.css"
             ],
             "scripts": []
           }

@@ -33,24 +33,21 @@
         <label class="form-label required">TIN Number</label>
         <div class="input-wrap">
           <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
+          <input type="text" class="form-input" placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label required">Taxpayer Name</label>
         <div class="input-wrap">
           <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Enter taxpayer name" [(ngModel)]="form.taxpayerName" />
+          <input type="text" class="form-input" placeholder="Enter taxpayer name" [(ngModel)]="form.taxpayerName" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Return / Reference No.</label>
         <div class="input-wrap">
           <i class="bi bi-file-earmark-text input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. VAT-2024-00001" [(ngModel)]="form.returnNo" />
+          <input type="text" class="form-input" placeholder="e.g. VAT-2024-00001" [(ngModel)]="form.returnNo" />
         </div>
       </div>
       <div class="form-group">
@@ -102,8 +99,7 @@
         <label class="form-label required">Penalty Amount (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input"
-            placeholder="0" [(ngModel)]="form.penaltyAmount"
+          <input type="number" class="form-input" placeholder="0" [(ngModel)]="form.penaltyAmount"
             (ngModelChange)="onPenaltyChange()" />
         </div>
         <span class="field-hint" *ngIf="form.penaltyAmount > 0">
@@ -114,8 +110,7 @@
         <label class="form-label">Interest Amount (15%)</label>
         <div class="input-wrap">
           <i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input calc-field"
-            [value]="form.interestAmount" readonly />
+          <input type="number" class="form-input calc-field" [value]="form.interestAmount" readonly />
         </div>
       </div>
     </div>
@@ -156,17 +151,14 @@
         <label class="form-label">Issue Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.issueDate"
-            (ngModelChange)="setDefaultDueDate()" />
+          <input type="date" class="form-input" [(ngModel)]="form.issueDate" (ngModelChange)="setDefaultDueDate()" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label required">Due Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-x input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.dueDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.dueDate" />
         </div>
       </div>
       <div class="form-group full-width">
@@ -200,8 +192,7 @@
         <label class="form-label">Description</label>
         <div class="input-wrap">
           <i class="bi bi-file-text input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Describe the reason for this penalty..."
+          <textarea class="form-input form-textarea" placeholder="Describe the reason for this penalty..."
             [(ngModel)]="form.description" rows="3"></textarea>
         </div>
       </div>
@@ -209,9 +200,8 @@
         <label class="form-label">Remarks / Notes</label>
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Additional remarks..."
-            [(ngModel)]="form.remarks" rows="2"></textarea>
+          <textarea class="form-input form-textarea" placeholder="Additional remarks..." [(ngModel)]="form.remarks"
+            rows="2"></textarea>
         </div>
       </div>
     </div>
@@ -225,8 +215,7 @@
     <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
       <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isLoading || !isFormValid()">
+    <button class="btn-submit danger" (click)="onSubmit()" [disabled]="isLoading || !isFormValid()">
       <span *ngIf="!isLoading">
         <i class="bi bi-exclamation-triangle-fill"></i> Issue Penalty
       </span>

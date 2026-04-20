@@ -33,8 +33,7 @@
         <label class="form-label required">Taxpayer</label>
         <div class="input-wrap">
           <i class="bi bi-person-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.tinNumber"
-            (ngModelChange)="onTaxpayerChange()">
+          <select class="form-input form-select" [(ngModel)]="form.tinNumber" (ngModelChange)="onTaxpayerChange()">
             <option value="">Select Taxpayer</option>
             <option *ngFor="let tp of taxpayers" [value]="tp.tin">
               {{ tp.name }} — {{ tp.tin }}
@@ -46,8 +45,8 @@
         <label class="form-label">Business <span class="auto-label">Auto</span></label>
         <div class="input-wrap">
           <i class="bi bi-building input-icon"></i>
-          <input type="text" class="form-input auto-field"
-            [value]="form.businessName || 'Auto from taxpayer'" readonly />
+          <input type="text" class="form-input auto-field" [value]="form.businessName || 'Auto from taxpayer'"
+            readonly />
         </div>
       </div>
     </div>
@@ -71,8 +70,7 @@
         <label class="form-label required">Taxable Product</label>
         <div class="input-wrap">
           <i class="bi bi-box-seam input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.productId"
-            (ngModelChange)="onProductChange()">
+          <select class="form-input form-select" [(ngModel)]="form.productId" (ngModelChange)="onProductChange()">
             <option [value]="0">Select Product</option>
             <option *ngFor="let p of products" [value]="p.id">
               {{ p.name }} ({{ p.hsCode }})
@@ -84,16 +82,15 @@
         <label class="form-label">HS Code <span class="auto-label">Auto</span></label>
         <div class="input-wrap">
           <i class="bi bi-upc input-icon"></i>
-          <input type="text" class="form-input auto-field"
-            [value]="selectedProduct?.hsCode || 'Auto from product'" readonly />
+          <input type="text" class="form-input auto-field" [value]="selectedProduct?.hsCode || 'Auto from product'"
+            readonly />
         </div>
       </div>
       <div class="form-group full-width">
         <label class="form-label">Goods Description</label>
         <div class="input-wrap">
           <i class="bi bi-file-text input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Describe the goods being imported..."
+          <textarea class="form-input form-textarea" placeholder="Describe the goods being imported..."
             [(ngModel)]="form.goodsDescription" rows="2"></textarea>
         </div>
       </div>
@@ -128,16 +125,14 @@
         <label class="form-label required">CIF Value (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.cifValue" />
+          <input type="number" class="form-input" placeholder="0" [(ngModel)]="form.cifValue" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Duty Rate (%) <span class="auto-label">Auto</span></label>
         <div class="input-wrap">
           <i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input auto-field"
-            [value]="form.dutyRate" readonly />
+          <input type="number" class="form-input auto-field" [value]="form.dutyRate" readonly />
         </div>
       </div>
     </div>
@@ -192,8 +187,7 @@
         <label class="form-label">Bill of Lading / AWB</label>
         <div class="input-wrap">
           <i class="bi bi-file-earmark-text input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. BL-2024-44821" [(ngModel)]="form.billOfLading" />
+          <input type="text" class="form-input" placeholder="e.g. BL-2024-44821" [(ngModel)]="form.billOfLading" />
         </div>
       </div>
       <div class="form-group">
@@ -216,8 +210,8 @@
         <label class="form-label">Remarks</label>
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Optional remarks..." [(ngModel)]="form.remarks" rows="2"></textarea>
+          <textarea class="form-input form-textarea" placeholder="Optional remarks..." [(ngModel)]="form.remarks"
+            rows="2"></textarea>
         </div>
       </div>
     </div>
@@ -230,8 +224,7 @@
     <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
       <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isLoading || !isFormValid()">
+    <button class="btn-submit danger" (click)="onSubmit()" [disabled]="isLoading || !isFormValid()">
       <span *ngIf="!isLoading"><i class="bi bi-truck-front-fill"></i> Create Import Record</span>
       <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
     </button>
