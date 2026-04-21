@@ -19,16 +19,16 @@
 
 <ng-container *ngIf="!isLoading && taxpayer">
 
-  <div class="profile-header-card">
+  <div class="view-header-card blue">
     <div class="profile-avatar-wrap">
       <div class="profile-avatar">{{ getDisplayName(taxpayer).charAt(0) | uppercase }}</div>
       <div>
         <div class="profile-name">{{ getDisplayName(taxpayer) }}</div>
-        
+
         <div class="profile-tin" [ngStyle]="{'color': taxpayer.tinNumber ? 'rgba(255,255,255,0.75)' : '#fde8c0'}">
           {{ taxpayer.tinNumber || 'TIN Not Assigned' }}
         </div>
-        
+
         <div class="profile-meta">
           <span class="type-pill">{{ taxpayer.taxpayerType.typeName }}</span>
           <span class="status-badge" [ngClass]="getStatusClass(taxpayer.status)">
@@ -37,7 +37,7 @@
         </div>
       </div>
     </div>
-    <div class="profile-header-right">
+    <div class="view-header-right">
       <div class="profile-stat">
         <span class="ps-label">Registered Date</span>
         <span class="ps-value">{{ taxpayer.registrationDate | date:'mediumDate' }}</span>
@@ -53,15 +53,15 @@
         <span>{{ isCompany ? 'Company Details' : 'Personal Identity' }}</span>
       </div>
       <div class="detail-body">
-        
+
         <div class="detail-row">
           <span class="detail-label">TIN Number</span>
           <span class="detail-value">
-             <span class="code-badge" *ngIf="taxpayer.tinNumber">{{ taxpayer.tinNumber }}</span>
-             <span class="status-badge status-pending" *ngIf="!taxpayer.tinNumber">Not Assigned</span>
+            <span class="code-badge" *ngIf="taxpayer.tinNumber">{{ taxpayer.tinNumber }}</span>
+            <span class="status-badge status-pending" *ngIf="!taxpayer.tinNumber">Not Assigned</span>
           </span>
         </div>
-        
+
         <div class="detail-row">
           <span class="detail-label">Name</span>
           <span class="detail-value fw-bold">{{ getDisplayName(taxpayer) }}</span>
@@ -151,12 +151,13 @@
         <span>Address Details</span>
       </div>
       <div class="detail-body">
-        
+
         <div class="detail-row" *ngIf="taxpayer.presentAddress">
           <span class="detail-label">Present Address</span>
           <span class="detail-value address-val">
             {{ taxpayer.presentAddress.roadVillage ? taxpayer.presentAddress.roadVillage + ', ' : '' }}
-            {{ taxpayer.presentAddress.thana }}, {{ taxpayer.presentAddress.district }}, {{ taxpayer.presentAddress.division }}
+            {{ taxpayer.presentAddress.thana }}, {{ taxpayer.presentAddress.district }}, {{
+            taxpayer.presentAddress.division }}
           </span>
         </div>
 
@@ -164,7 +165,8 @@
           <span class="detail-label">Permanent Address</span>
           <span class="detail-value address-val">
             {{ taxpayer.permanentAddress.roadVillage ? taxpayer.permanentAddress.roadVillage + ', ' : '' }}
-            {{ taxpayer.permanentAddress.thana }}, {{ taxpayer.permanentAddress.district }}, {{ taxpayer.permanentAddress.division }}
+            {{ taxpayer.permanentAddress.thana }}, {{ taxpayer.permanentAddress.district }}, {{
+            taxpayer.permanentAddress.division }}
           </span>
         </div>
 

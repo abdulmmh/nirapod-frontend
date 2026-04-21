@@ -20,7 +20,7 @@
 <ng-container *ngIf="!isLoading && vat">
 
   <!-- Header Card -->
-  <div class="vat-header-card">
+  <div class="view-header-card">
     <div class="vat-header-left">
       <div class="vat-icon"><i class="bi bi-receipt-cutoff"></i></div>
       <div>
@@ -124,8 +124,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Expiry Date</span>
-          <span class="detail-value"
-            [class]="isExpired(vat.expiryDate) ? 'expiry-red' : ''">
+          <span class="detail-value" [class]="isExpired(vat.expiryDate) ? 'expiry-red' : ''">
             {{ vat.expiryDate || '—' }}
           </span>
         </div>

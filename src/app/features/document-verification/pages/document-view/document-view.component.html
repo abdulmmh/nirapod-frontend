@@ -20,7 +20,7 @@
 <ng-container *ngIf="!isLoading && document">
 
   <!-- Document Header Card -->
-  <div class="doc-header-card">
+  <div class="view-header-card">
     <div class="doc-header-left">
       <div class="doc-icon">
         <i [class]="getTypeIcon(document.documentType)"></i>
@@ -106,8 +106,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Expiry Date</span>
-          <span class="detail-value"
-            [class]="isExpired(document.expiryDate) ? 'expiry-expired' : ''">
+          <span class="detail-value" [class]="isExpired(document.expiryDate) ? 'expiry-expired' : ''">
             {{ document.expiryDate || '—' }}
           </span>
         </div>

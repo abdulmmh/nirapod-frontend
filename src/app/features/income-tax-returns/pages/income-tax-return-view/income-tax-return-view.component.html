@@ -5,7 +5,7 @@
   </div>
   <div class="header-actions">
     <button class="btn-back" (click)="onBack()"><i class="bi bi-arrow-left"></i> Back</button>
-    
+
     <ng-container *ngIf="itr?.status === 'Draft' || itr?.status === 'Send Back'">
       <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
         <i class="bi bi-pencil-fill"></i> Edit
@@ -28,7 +28,7 @@
 <ng-container *ngIf="!isLoading && itr">
 
   <!-- Header Card -->
-  <div class="itr-header-card">
+  <div class="view-header-card">
     <div class="itr-header-left">
       <div class="itr-icon"><i class="bi bi-receipt-cutoff"></i></div>
       <div>
@@ -54,17 +54,21 @@
   </div>
 
   <!-- ── WORKFLOW ACTION BAR ── -->
-  <div class="workflow-bar"
-    *ngIf="canSubmit() || canStartReview() || canAccept() || canReject() || canSendBack()">
+  <div class="workflow-bar" *ngIf="canSubmit() || canStartReview() || canAccept() || canReject() || canSendBack()">
     <div class="wb-title">
       <i class="bi bi-diagram-3-fill"></i> Workflow Actions
     </div>
     <div class="wb-actions">
-      <button class="wf-btn submit"    *ngIf="canSubmit()"       (click)="openAction('Submit')">       <i class="bi bi-send-fill"></i> Submit Return</button>
-      <button class="wf-btn review"    *ngIf="canStartReview()"  (click)="openAction('Start Review')"> <i class="bi bi-search"></i> Start Review</button>
-      <button class="wf-btn sendback"  *ngIf="canSendBack()"     (click)="openAction('Send Back')">    <i class="bi bi-arrow-return-left"></i> Send Back</button>
-      <button class="wf-btn accept"    *ngIf="canAccept()"       (click)="openAction('Accept')">       <i class="bi bi-check-circle-fill"></i> Accept</button>
-      <button class="wf-btn reject"    *ngIf="canReject()"       (click)="openAction('Reject')">       <i class="bi bi-x-circle-fill"></i> Reject</button>
+      <button class="wf-btn submit" *ngIf="canSubmit()" (click)="openAction('Submit')"> <i class="bi bi-send-fill"></i>
+        Submit Return</button>
+      <button class="wf-btn review" *ngIf="canStartReview()" (click)="openAction('Start Review')"> <i
+          class="bi bi-search"></i> Start Review</button>
+      <button class="wf-btn sendback" *ngIf="canSendBack()" (click)="openAction('Send Back')"> <i
+          class="bi bi-arrow-return-left"></i> Send Back</button>
+      <button class="wf-btn accept" *ngIf="canAccept()" (click)="openAction('Accept')"> <i
+          class="bi bi-check-circle-fill"></i> Accept</button>
+      <button class="wf-btn reject" *ngIf="canReject()" (click)="openAction('Reject')"> <i
+          class="bi bi-x-circle-fill"></i> Reject</button>
     </div>
   </div>
 
@@ -72,23 +76,28 @@
   <div class="tax-summary-row">
     <div class="ts-card">
       <div class="tsc-icon gross-in"><i class="bi bi-cash-stack"></i></div>
-      <div class="tsc-body"><span class="tsc-label">Gross Income</span><span class="tsc-value">{{ fmt(itr.grossIncome) }}</span></div>
+      <div class="tsc-body"><span class="tsc-label">Gross Income</span><span class="tsc-value">{{ fmt(itr.grossIncome)
+          }}</span></div>
     </div>
     <div class="ts-card">
       <div class="tsc-icon taxable"><i class="bi bi-calculator-fill"></i></div>
-      <div class="tsc-body"><span class="tsc-label">Taxable Income</span><span class="tsc-value taxable">{{ fmt(taxableIncome) }}</span></div>
+      <div class="tsc-body"><span class="tsc-label">Taxable Income</span><span class="tsc-value taxable">{{
+          fmt(taxableIncome) }}</span></div>
     </div>
     <div class="ts-card">
       <div class="tsc-icon gross-tax"><i class="bi bi-percent"></i></div>
-      <div class="tsc-body"><span class="tsc-label">Gross Tax ({{ itr.taxRate }}%)</span><span class="tsc-value gross-tax">{{ fmt(itr.grossTax) }}</span></div>
+      <div class="tsc-body"><span class="tsc-label">Gross Tax ({{ itr.taxRate }}%)</span><span
+          class="tsc-value gross-tax">{{ fmt(itr.grossTax) }}</span></div>
     </div>
     <div class="ts-card highlight">
       <div class="tsc-icon net"><i class="bi bi-arrow-right-circle-fill"></i></div>
-      <div class="tsc-body"><span class="tsc-label">Net Payable</span><span class="tsc-value net">{{ fmt(netTaxPayable) }}</span></div>
+      <div class="tsc-body"><span class="tsc-label">Net Payable</span><span class="tsc-value net">{{ fmt(netTaxPayable)
+          }}</span></div>
     </div>
     <div class="ts-card" *ngIf="refundable > 0">
       <div class="tsc-icon refund"><i class="bi bi-arrow-return-left"></i></div>
-      <div class="tsc-body"><span class="tsc-label">Refundable</span><span class="tsc-value refund">{{ fmt(refundable) }}</span></div>
+      <div class="tsc-body"><span class="tsc-label">Refundable</span><span class="tsc-value refund">{{ fmt(refundable)
+          }}</span></div>
     </div>
   </div>
 
@@ -101,23 +110,35 @@
       <div class="detail-card">
         <div class="detail-card-header"><i class="bi bi-person-badge-fill"></i><span>Taxpayer & Period</span></div>
         <div class="detail-body">
-          <div class="detail-row"><span class="detail-label">Return No.</span><span class="detail-value"><span class="code-badge">{{ itr.returnNo }}</span></span></div>
-          <div class="detail-row"><span class="detail-label">TIN No.</span><span class="detail-value"><span class="code-badge">{{ itr.tinNumber }}</span></span></div>
-          <div class="detail-row"><span class="detail-label">Taxpayer</span><span class="detail-value fw-bold">{{ itr.taxpayerName }}</span></div>
-          <div class="detail-row"><span class="detail-label">Category</span><span class="detail-value"><span class="cat-badge" [ngClass]="getCategoryClass(itr.itrCategory)">{{ itr.itrCategory }}</span></span></div>
-          <div class="detail-row"><span class="detail-label">Assessment Year</span><span class="detail-value fw-bold">{{ itr.assessmentYear }}</span></div>
-          <div class="detail-row"><span class="detail-label">Income Year</span><span class="detail-value">{{ itr.incomeYear }}</span></div>
+          <div class="detail-row"><span class="detail-label">Return No.</span><span class="detail-value"><span
+                class="code-badge">{{ itr.returnNo }}</span></span></div>
+          <div class="detail-row"><span class="detail-label">TIN No.</span><span class="detail-value"><span
+                class="code-badge">{{ itr.tinNumber }}</span></span></div>
+          <div class="detail-row"><span class="detail-label">Taxpayer</span><span class="detail-value fw-bold">{{
+              itr.taxpayerName }}</span></div>
+          <div class="detail-row"><span class="detail-label">Category</span><span class="detail-value"><span
+                class="cat-badge" [ngClass]="getCategoryClass(itr.itrCategory)">{{ itr.itrCategory }}</span></span>
+          </div>
+          <div class="detail-row"><span class="detail-label">Assessment Year</span><span class="detail-value fw-bold">{{
+              itr.assessmentYear }}</span></div>
+          <div class="detail-row"><span class="detail-label">Income Year</span><span class="detail-value">{{
+              itr.incomeYear }}</span></div>
         </div>
       </div>
 
       <div class="detail-card" style="margin-top:14px">
         <div class="detail-card-header"><i class="bi bi-calendar-check-fill"></i><span>Submission Details</span></div>
         <div class="detail-body">
-          <div class="detail-row"><span class="detail-label">Due Date</span><span class="detail-value">{{ itr.dueDate }}</span></div>
-          <div class="detail-row" *ngIf="itr.submissionDate"><span class="detail-label">Submitted On</span><span class="detail-value">{{ itr.submissionDate }}</span></div>
-          <div class="detail-row" *ngIf="itr.submittedBy"><span class="detail-label">Submitted By</span><span class="detail-value">{{ itr.submittedBy }}</span></div>
-          <div class="detail-row" *ngIf="itr.verifiedBy"><span class="detail-label">Verified By</span><span class="detail-value">{{ itr.verifiedBy }}</span></div>
-          <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge" [ngClass]="getStatusClass(itr.status)">{{ itr.status }}</span></span></div>
+          <div class="detail-row"><span class="detail-label">Due Date</span><span class="detail-value">{{ itr.dueDate
+              }}</span></div>
+          <div class="detail-row" *ngIf="itr.submissionDate"><span class="detail-label">Submitted On</span><span
+              class="detail-value">{{ itr.submissionDate }}</span></div>
+          <div class="detail-row" *ngIf="itr.submittedBy"><span class="detail-label">Submitted By</span><span
+              class="detail-value">{{ itr.submittedBy }}</span></div>
+          <div class="detail-row" *ngIf="itr.verifiedBy"><span class="detail-label">Verified By</span><span
+              class="detail-value">{{ itr.verifiedBy }}</span></div>
+          <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span
+                class="status-badge" [ngClass]="getStatusClass(itr.status)">{{ itr.status }}</span></span></div>
         </div>
       </div>
 
@@ -127,23 +148,35 @@
         <div class="breakdown-grid">
           <div class="breakdown-col">
             <div class="bc-title">Income</div>
-            <div class="detail-row"><span class="detail-label">Gross Income</span><span class="detail-value">{{ fmt(itr.grossIncome) }}</span></div>
-            <div class="detail-row"><span class="detail-label">Less: Exempt</span><span class="detail-value exempt">{{ fmt(itr.exemptIncome) }}</span></div>
-            <div class="detail-row highlight-row"><span class="detail-label fw-bold">Taxable Income</span><span class="detail-value fw-bold">{{ fmt(taxableIncome) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Gross Income</span><span class="detail-value">{{
+                fmt(itr.grossIncome) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Less: Exempt</span><span class="detail-value exempt">{{
+                fmt(itr.exemptIncome) }}</span></div>
+            <div class="detail-row highlight-row"><span class="detail-label fw-bold">Taxable Income</span><span
+                class="detail-value fw-bold">{{ fmt(taxableIncome) }}</span></div>
           </div>
           <div class="breakdown-col">
             <div class="bc-title">Tax</div>
-            <div class="detail-row"><span class="detail-label">Tax Rate</span><span class="detail-value">{{ itr.taxRate }}%</span></div>
-            <div class="detail-row"><span class="detail-label">Gross Tax</span><span class="detail-value tax-val">{{ fmt(itr.grossTax) }}</span></div>
-            <div class="detail-row"><span class="detail-label">Less: Rebate</span><span class="detail-value exempt">{{ fmt(itr.taxRebate) }}</span></div>
-            <div class="detail-row highlight-row"><span class="detail-label fw-bold">Net Payable</span><span class="detail-value fw-bold net-val">{{ fmt(netTaxPayable) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Tax Rate</span><span class="detail-value">{{ itr.taxRate
+                }}%</span></div>
+            <div class="detail-row"><span class="detail-label">Gross Tax</span><span class="detail-value tax-val">{{
+                fmt(itr.grossTax) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Less: Rebate</span><span class="detail-value exempt">{{
+                fmt(itr.taxRebate) }}</span></div>
+            <div class="detail-row highlight-row"><span class="detail-label fw-bold">Net Payable</span><span
+                class="detail-value fw-bold net-val">{{ fmt(netTaxPayable) }}</span></div>
           </div>
           <div class="breakdown-col">
             <div class="bc-title">Payment</div>
-            <div class="detail-row"><span class="detail-label">Advance Tax</span><span class="detail-value paid-val">{{ fmt(itr.advanceTaxPaid) }}</span></div>
-            <div class="detail-row"><span class="detail-label">Withholding</span><span class="detail-value paid-val">{{ fmt(itr.withholdingTax) }}</span></div>
-            <div class="detail-row"><span class="detail-label">Tax Paid</span><span class="detail-value paid-val">{{ fmt(itr.taxPaid) }}</span></div>
-            <div class="detail-row highlight-row" *ngIf="refundable > 0"><span class="detail-label fw-bold">Refundable</span><span class="detail-value fw-bold refund-val">{{ fmt(refundable) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Advance Tax</span><span class="detail-value paid-val">{{
+                fmt(itr.advanceTaxPaid) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Withholding</span><span class="detail-value paid-val">{{
+                fmt(itr.withholdingTax) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Tax Paid</span><span class="detail-value paid-val">{{
+                fmt(itr.taxPaid) }}</span></div>
+            <div class="detail-row highlight-row" *ngIf="refundable > 0"><span
+                class="detail-label fw-bold">Refundable</span><span class="detail-value fw-bold refund-val">{{
+                fmt(refundable) }}</span></div>
           </div>
         </div>
       </div>
@@ -160,9 +193,7 @@
         </div>
 
         <div class="timeline" *ngIf="itr.actionHistory && itr.actionHistory.length > 0">
-          <div class="tl-item"
-            *ngFor="let a of itr.actionHistory; let last = last"
-            [class.last]="last">
+          <div class="tl-item" *ngFor="let a of itr.actionHistory; let last = last" [class.last]="last">
             <div class="tl-dot" [ngClass]="getActionColor(a.toStatus)">
               <i [class]="getActionIcon(a.action)"></i>
             </div>
@@ -186,7 +217,8 @@
         </div>
 
         <div class="no-history" *ngIf="!itr.actionHistory || itr.actionHistory.length === 0">
-          <i class="bi bi-clock"></i><p>No action history yet</p>
+          <i class="bi bi-clock"></i>
+          <p>No action history yet</p>
         </div>
       </div>
     </div>
@@ -227,17 +259,20 @@
             currentAction === 'Accept'       ? 'Accepted'     :
             currentAction === 'Reject'       ? 'Rejected'     : 'Send Back'
           )">
-            {{ currentAction === 'Submit' ? 'Submitted' : currentAction === 'Start Review' ? 'Under Review' : currentAction === 'Accept' ? 'Accepted' : currentAction === 'Reject' ? 'Rejected' : 'Send Back' }}
+            {{ currentAction === 'Submit' ? 'Submitted' : currentAction === 'Start Review' ? 'Under Review' :
+            currentAction === 'Accept' ? 'Accepted' : currentAction === 'Reject' ? 'Rejected' : 'Send Back' }}
           </span>
         </div>
       </div>
       <div class="am-remarks-wrap">
-        <label class="am-label">Remarks <span class="required-star" *ngIf="currentAction === 'Reject' || currentAction === 'Send Back'">* Required</span></label>
+        <label class="am-label">Remarks <span class="required-star"
+            *ngIf="currentAction === 'Reject' || currentAction === 'Send Back'">* Required</span></label>
         <textarea class="am-remarks"
           [placeholder]="currentAction === 'Reject' ? 'Required — reason for rejection...' : currentAction === 'Send Back' ? 'Required — what needs correction...' : 'Optional remarks...'"
           [(ngModel)]="actionRemarks" rows="3">
         </textarea>
-        <div class="am-error" *ngIf="actionError"><i class="bi bi-exclamation-triangle-fill"></i> {{ actionError }}</div>
+        <div class="am-error" *ngIf="actionError"><i class="bi bi-exclamation-triangle-fill"></i> {{ actionError }}
+        </div>
       </div>
     </div>
     <div class="am-footer">

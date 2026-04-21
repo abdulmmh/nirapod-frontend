@@ -7,8 +7,10 @@
 </div>
 
 <div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
-<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
-<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border text-danger"></div></div>
+<div class="alert-error" *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-danger"></div>
+</div>
 
 <div class="form-card" *ngIf="!isLoading">
 
@@ -22,7 +24,9 @@
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon"><i class="bi bi-box-seam-fill"></i></div>
-      <div><h6 class="section-title">Goods & Valuation</h6><span class="section-sub">Product, origin and CIF value</span></div>
+      <div>
+        <h6 class="section-title">Goods & Valuation</h6><span class="section-sub">Product, origin and CIF value</span>
+      </div>
     </div>
     <div class="form-grid">
       <div class="form-group">
@@ -56,10 +60,12 @@
     <!-- Calc Summary -->
     <div class="calc-summary" *ngIf="form.cifValue > 0">
       <div class="cs-row"><span>CIF Value</span><span>৳{{ form.cifValue?.toLocaleString() }}</span></div>
-      <div class="cs-row"><span>Duty ({{ form.dutyRate }}%)</span><span class="duty">৳{{ dutyAmount.toLocaleString() }}</span></div>
+      <div class="cs-row"><span>Duty ({{ form.dutyRate }}%)</span><span class="duty">৳{{ dutyAmount.toLocaleString()
+          }}</span></div>
       <div class="cs-row"><span>VAT (15%)</span><span class="vat">৳{{ vatOnImport.toLocaleString() }}</span></div>
       <div class="cs-divider"></div>
-      <div class="cs-row total-row"><span class="bold">Total Payable</span><span class="total">৳{{ totalPayable.toLocaleString() }}</span></div>
+      <div class="cs-row total-row"><span class="bold">Total Payable</span><span class="total">৳{{
+          totalPayable.toLocaleString() }}</span></div>
     </div>
   </div>
 
@@ -69,7 +75,10 @@
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon red"><i class="bi bi-geo-alt-fill"></i></div>
-      <div><h6 class="section-title">Port, Shipping & Status</h6><span class="section-sub">Entry port, dates and current status</span></div>
+      <div>
+        <h6 class="section-title">Port, Shipping & Status</h6><span class="section-sub">Entry port, dates and current
+          status</span>
+      </div>
     </div>
     <div class="form-grid">
       <div class="form-group">
@@ -117,7 +126,7 @@
 
   <div class="form-actions">
     <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"><i class="bi bi-x-lg"></i> Cancel</button>
-    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
+    <button class="btn-submit danger" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
       <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update Import Record</span>
       <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
     </button>
