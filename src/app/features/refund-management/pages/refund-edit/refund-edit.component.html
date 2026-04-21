@@ -22,7 +22,7 @@
 
 <div class="form-card" *ngIf="!isLoading">
 
-  <div class="refund-banner">
+  <div class="edit-banner">
     <i class="bi bi-pencil-square"></i>
     Editing Refund: <strong>{{ form.refundNo }}</strong>
   </div>
@@ -221,8 +221,7 @@
         <label class="form-label">Remarks / Notes</label>
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            [(ngModel)]="form.remarks" rows="3"></textarea>
+          <textarea class="form-input form-textarea" [(ngModel)]="form.remarks" rows="3"></textarea>
         </div>
       </div>
     </div>
@@ -233,8 +232,7 @@
     <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
       <i class="bi bi-x-lg"></i> Cancel
     </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isSaving || !isFormValid()">
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
       <span *ngIf="!isSaving">
         <i class="bi bi-check-lg"></i> Update Refund
       </span>

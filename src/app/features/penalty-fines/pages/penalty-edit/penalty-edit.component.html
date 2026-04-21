@@ -22,7 +22,7 @@
 
 <div class="form-card" *ngIf="!isLoading">
 
-  <div class="penalty-banner">
+  <div class="edit-banner">
     <i class="bi bi-pencil-square"></i>
     Editing: <strong>{{ form.penaltyNo }}</strong>
   </div>
@@ -108,8 +108,7 @@
         <label class="form-label required">Penalty Amount (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input"
-            [(ngModel)]="form.penaltyAmount"
+          <input type="number" class="form-input" [(ngModel)]="form.penaltyAmount"
             (ngModelChange)="onPenaltyChange()" />
         </div>
       </div>
@@ -117,8 +116,7 @@
         <label class="form-label">Interest Amount (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input"
-            [(ngModel)]="form.interestAmount"
+          <input type="number" class="form-input" [(ngModel)]="form.interestAmount"
             (ngModelChange)="form.totalAmount = form.penaltyAmount + form.interestAmount" />
         </div>
       </div>
@@ -196,16 +194,14 @@
         <label class="form-label">Description</label>
         <div class="input-wrap">
           <i class="bi bi-file-text input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            [(ngModel)]="form.description" rows="3"></textarea>
+          <textarea class="form-input form-textarea" [(ngModel)]="form.description" rows="3"></textarea>
         </div>
       </div>
       <div class="form-group full-width">
         <label class="form-label">Remarks</label>
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            [(ngModel)]="form.remarks" rows="2"></textarea>
+          <textarea class="form-input form-textarea" [(ngModel)]="form.remarks" rows="2"></textarea>
         </div>
       </div>
     </div>
@@ -216,8 +212,7 @@
     <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
       <i class="bi bi-x-lg"></i> Cancel
     </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isSaving || !isFormValid()">
+    <button class="btn-submit danger" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
       <span *ngIf="!isSaving">
         <i class="bi bi-check-lg"></i> Update Penalty
       </span>

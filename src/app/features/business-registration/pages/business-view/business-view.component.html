@@ -20,7 +20,7 @@
 <ng-container *ngIf="!isLoading && business">
 
   <!-- Business Header Card -->
-  <div class="biz-header-card">
+  <div class="view-header-card">
     <div class="biz-header-left">
       <div class="biz-icon">
         <i [class]="getCategoryIcon(business.businessCategory)"></i>
@@ -119,8 +119,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Expiry</span>
-          <span class="detail-value"
-            [class]="isExpired(business.expiryDate!) ? 'expiry-red' : ''">
+          <span class="detail-value" [class]="isExpired(business.expiryDate!) ? 'expiry-red' : ''">
             {{ business.expiryDate || '—' }}
           </span>
         </div>

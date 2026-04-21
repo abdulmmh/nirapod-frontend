@@ -4,13 +4,12 @@
     <p>Full TIN record information.</p>
   </div>
   <div class="d-flex justify-content-end mb-3">
-    <button 
-      class="btn btn-outline-success d-flex align-items-center gap-2" 
-      (click)="onDownloadCertificate(tin!.id, tin!.tinNumber)"
-      [disabled]="isDownloading">
-      
-      <i class="bi" [ngClass]="isDownloading ? 'bi-arrow-repeat spinner-border spinner-border-sm' : 'bi-file-earmark-pdf-fill'"></i>
-      
+    <button class="btn btn-outline-success d-flex align-items-center gap-2"
+      (click)="onDownloadCertificate(tin!.id, tin!.tinNumber)" [disabled]="isDownloading">
+
+      <i class="bi"
+        [ngClass]="isDownloading ? 'bi-arrow-repeat spinner-border spinner-border-sm' : 'bi-file-earmark-pdf-fill'"></i>
+
       <span>{{ isDownloading ? 'Downloading...' : 'Download Certificate' }}</span>
     </button>
   </div>
@@ -30,7 +29,7 @@
 
 <ng-container *ngIf="!isLoading && tin">
 
-  <div class="tin-header-card">
+  <div class="view-header-card">
     <div class="tin-header-left">
       <div class="tin-icon">
         <i [class]="getCategoryIcon(tin.tinCategory)"></i>

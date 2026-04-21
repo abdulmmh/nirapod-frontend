@@ -17,7 +17,7 @@
 <div class="form-card" *ngIf="!isLoading && payment">
 
   <!-- TXN ID Banner -->
-  <div class="txn-banner">
+  <div class="edit-banner">
     <i class="bi bi-pencil-square"></i>
     Editing Transaction: <strong>{{ payment.transactionId }}</strong>
   </div>
@@ -40,8 +40,7 @@
         <label class="form-label">TIN Number</label>
         <div class="input-wrap">
           <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.tinNumber" readonly />
+          <input type="text" class="form-input" [value]="payment.tinNumber" readonly />
         </div>
       </div>
 
@@ -49,8 +48,7 @@
         <label class="form-label">Taxpayer Name</label>
         <div class="input-wrap">
           <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.taxpayerName" readonly />
+          <input type="text" class="form-input" [value]="payment.taxpayerName" readonly />
         </div>
       </div>
 
@@ -58,8 +56,7 @@
         <label class="form-label">Payment Type</label>
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.paymentType" readonly />
+          <input type="text" class="form-input" [value]="payment.paymentType" readonly />
         </div>
       </div>
 
@@ -68,8 +65,7 @@
         <label class="form-label required">Status</label>
         <div class="input-wrap">
           <i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="form.status">
+          <select class="form-input form-select" [(ngModel)]="form.status">
             <option *ngFor="let s of availableStatuses" [value]="s">
               {{ s }}
             </option>
@@ -81,8 +77,7 @@
         <label class="form-label">Return / Ref No.</label>
         <div class="input-wrap">
           <i class="bi bi-file-earmark-text input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.returnNo" readonly />
+          <input type="text" class="form-input" [value]="payment.returnNo" readonly />
         </div>
       </div>
 
@@ -109,8 +104,7 @@
         <label class="form-label">Amount (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input"
-            [value]="payment.amount" readonly />
+          <input type="number" class="form-input" [value]="payment.amount" readonly />
         </div>
       </div>
 
@@ -118,8 +112,7 @@
         <label class="form-label">Payment Method</label>
         <div class="input-wrap">
           <i class="bi bi-wallet2 input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.paymentMethod" readonly />
+          <input type="text" class="form-input" [value]="payment.paymentMethod" readonly />
         </div>
       </div>
 
@@ -127,8 +120,7 @@
         <label class="form-label">Reference No.</label>
         <div class="input-wrap">
           <i class="bi bi-hash input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.referenceNo" readonly />
+          <input type="text" class="form-input" [value]="payment.referenceNo" readonly />
         </div>
       </div>
 
@@ -136,8 +128,7 @@
         <label class="form-label">Cheque No.</label>
         <div class="input-wrap">
           <i class="bi bi-journal-text input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.chequeNo" readonly />
+          <input type="text" class="form-input" [value]="payment.chequeNo" readonly />
         </div>
       </div>
 
@@ -145,8 +136,7 @@
         <label class="form-label">Payment Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input"
-            [value]="payment.paymentDate | date:'yyyy-MM-dd'" readonly />
+          <input type="date" class="form-input" [value]="payment.paymentDate | date:'yyyy-MM-dd'" readonly />
         </div>
       </div>
 
@@ -154,8 +144,7 @@
         <label class="form-label">Value Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input"
-            [value]="payment.valueDate | date:'yyyy-MM-dd'" readonly />
+          <input type="date" class="form-input" [value]="payment.valueDate | date:'yyyy-MM-dd'" readonly />
         </div>
       </div>
 
@@ -182,8 +171,7 @@
         <label class="form-label">Bank Name</label>
         <div class="input-wrap">
           <i class="bi bi-bank input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.bankName" readonly />
+          <input type="text" class="form-input" [value]="payment.bankName" readonly />
         </div>
       </div>
 
@@ -191,8 +179,7 @@
         <label class="form-label">Branch</label>
         <div class="input-wrap">
           <i class="bi bi-geo-alt-fill input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.bankBranch" readonly />
+          <input type="text" class="form-input" [value]="payment.bankBranch" readonly />
         </div>
       </div>
 
@@ -200,8 +187,7 @@
         <label class="form-label">Account No.</label>
         <div class="input-wrap">
           <i class="bi bi-credit-card input-icon"></i>
-          <input type="text" class="form-input"
-            [value]="payment.accountNo" readonly />
+          <input type="text" class="form-input" [value]="payment.accountNo" readonly />
         </div>
       </div>
 
@@ -228,9 +214,7 @@
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
           <!-- ✅ Editable -->
-          <textarea class="form-input form-textarea"
-            [(ngModel)]="form.remarks"
-            rows="3"></textarea>
+          <textarea class="form-input form-textarea" [(ngModel)]="form.remarks" rows="3"></textarea>
         </div>
       </div>
     </div>
@@ -242,9 +226,7 @@
       <i class="bi bi-x-lg"></i> Cancel
     </button>
 
-    <button class="btn-submit"
-      (click)="onSubmit()"
-      [disabled]="isSaving || !isFormValid()">
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
 
       <span *ngIf="!isSaving">
         <i class="bi bi-check-lg"></i> Update Payment

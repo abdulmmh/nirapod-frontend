@@ -20,7 +20,7 @@
 <ng-container *ngIf="!isLoading && tax">
 
   <!-- Header Card -->
-  <div class="tax-header-card">
+  <div class="view-header-card">
     <div class="thc-left">
       <div class="thc-icon"><i class="bi bi-percent"></i></div>
       <div>
@@ -125,7 +125,7 @@
           <span class="detail-value" [ngClass]="{'expiry-red': isExpired(tax.expiryDate)}">
             {{ tax.expiryDate || 'No Expiry' }}
           </span>
-          
+
         </div>
         <div class="detail-row">
           <span class="detail-label">Created By</span>

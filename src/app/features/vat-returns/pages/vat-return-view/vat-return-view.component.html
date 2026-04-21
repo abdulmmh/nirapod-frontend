@@ -7,9 +7,7 @@
     <button class="btn-back" (click)="onBack()">
       <i class="bi bi-arrow-left"></i> Back
     </button>
-    <button *canDo="'edit'"
-      class="btn-edit-top"
-      [disabled]="vr?.status === 'Accepted' || vr?.status === 'Under Review'"
+    <button *canDo="'edit'" class="btn-edit-top" [disabled]="vr?.status === 'Accepted' || vr?.status === 'Under Review'"
       (click)="onEdit()">
       <i class="bi bi-pencil-fill"></i> Edit
     </button>
@@ -26,7 +24,7 @@
 <ng-container *ngIf="!isLoading && vr">
 
   <!-- Header Card -->
-  <div class="vr-header-card">
+  <div class="view-header-card">
     <div class="vr-header-left">
       <div class="vr-icon"><i class="bi bi-arrow-repeat"></i></div>
       <div>
@@ -60,41 +58,31 @@
     <div class="wb-actions">
 
       <!-- TAXPAYER: Submit -->
-      <button class="wf-btn submit"
-        *ngIf="canSubmit()"
-        (click)="openAction('Submit')">
+      <button class="wf-btn submit" *ngIf="canSubmit()" (click)="openAction('Submit')">
         <i class="bi bi-send-fill"></i>
         Submit Return
       </button>
 
       <!-- TAX_OFFICER: Start Review -->
-      <button class="wf-btn review"
-        *ngIf="canStartReview()"
-        (click)="openAction('Start Review')">
+      <button class="wf-btn review" *ngIf="canStartReview()" (click)="openAction('Start Review')">
         <i class="bi bi-search"></i>
         Start Review
       </button>
 
       <!-- TAX_OFFICER: Send Back -->
-      <button class="wf-btn sendback"
-        *ngIf="canSendBack()"
-        (click)="openAction('Send Back')">
+      <button class="wf-btn sendback" *ngIf="canSendBack()" (click)="openAction('Send Back')">
         <i class="bi bi-arrow-return-left"></i>
         Send Back
       </button>
 
       <!-- TAX_COMMISSIONER: Accept -->
-      <button class="wf-btn accept"
-        *ngIf="canAccept()"
-        (click)="openAction('Accept')">
+      <button class="wf-btn accept" *ngIf="canAccept()" (click)="openAction('Accept')">
         <i class="bi bi-check-circle-fill"></i>
         Accept Return
       </button>
 
       <!-- TAX_COMMISSIONER: Reject -->
-      <button class="wf-btn reject"
-        *ngIf="canReject()"
-        (click)="openAction('Reject')">
+      <button class="wf-btn reject" *ngIf="canReject()" (click)="openAction('Reject')">
         <i class="bi bi-x-circle-fill"></i>
         Reject Return
       </button>
@@ -269,9 +257,7 @@
     </div>
 
     <div class="timeline" *ngIf="vr.actionHistory && vr.actionHistory.length > 0">
-      <div class="tl-item"
-        *ngFor="let a of vr.actionHistory; let last = last"
-        [class.last]="last">
+      <div class="tl-item" *ngFor="let a of vr.actionHistory; let last = last" [class.last]="last">
         <div class="tl-dot" [ngClass]="getActionColor(a.toStatus)">
           <i [class]="getActionIcon(a.action)"></i>
         </div>
@@ -338,10 +324,10 @@
             currentAction === 'Reject'       ? 'Rejected'     : 'Send Back'
           )">
             {{
-              currentAction === 'Submit'       ? 'Submitted'    :
-              currentAction === 'Start Review' ? 'Under Review' :
-              currentAction === 'Accept'       ? 'Accepted'     :
-              currentAction === 'Reject'       ? 'Rejected'     : 'Send Back'
+            currentAction === 'Submit' ? 'Submitted' :
+            currentAction === 'Start Review' ? 'Under Review' :
+            currentAction === 'Accept' ? 'Accepted' :
+            currentAction === 'Reject' ? 'Rejected' : 'Send Back'
             }}
           </span>
         </div>
@@ -350,22 +336,17 @@
       <div class="am-remarks-wrap">
         <label class="am-label">
           Remarks
-          <span class="required-star"
-            *ngIf="currentAction === 'Reject' || currentAction === 'Send Back'">
+          <span class="required-star" *ngIf="currentAction === 'Reject' || currentAction === 'Send Back'">
             * Required
           </span>
         </label>
-        <textarea
-          class="am-remarks"
-          [placeholder]="
+        <textarea class="am-remarks" [placeholder]="
             currentAction === 'Accept'       ? 'Optional remarks...'                            :
             currentAction === 'Reject'       ? 'Required — reason for rejection...'             :
             currentAction === 'Send Back'    ? 'Required — what needs to be corrected...'       :
             currentAction === 'Start Review' ? 'Optional — any initial observations...'         :
                                                'Optional remarks...'
-          "
-          [(ngModel)]="actionRemarks"
-          rows="3">
+          " [(ngModel)]="actionRemarks" rows="3">
         </textarea>
         <div class="am-error" *ngIf="actionError">
           <i class="bi bi-exclamation-triangle-fill"></i> {{ actionError }}
