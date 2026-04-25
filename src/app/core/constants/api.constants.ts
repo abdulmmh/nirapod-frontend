@@ -30,6 +30,8 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/businesses/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/businesses/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/businesses/${id}`,
+    BY_TAXPAYER_VAT_STATUS: (taxpayerId: number) =>
+    `${API_BASE_URL}/businesses/by-taxpayer/${taxpayerId}/vat-status`,
   },
 
 
