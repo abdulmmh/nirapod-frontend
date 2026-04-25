@@ -1,0 +1,36 @@
+/* ═══════════════════════════════════════════════════════════════
+   NIRAPOD — EDIT PAGE ADDITIONS
+   styles.css-এ add করো (styles-form.css-এর নিচে)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Edit Banner (unified) ── */
+.edit-banner {
+  background: #e8eef9;
+  padding: 12px 28px;
+  border-bottom: 1px solid #d0daf5;
+  font-size: 13px; color: #555;
+  display: flex; align-items: center; gap: 8px;
+}
+.edit-banner i      { color: #1a3f8f; }
+.edit-banner strong { color: #1a3f8f; }
+.edit-banner .banner-code,
+.edit-banner .banner-sub,
+.edit-banner .banner-tin,
+.edit-banner .banner-bin,
+.edit-banner .banner-reg { font-family: monospace; font-size: 12px; color: #888; margin-left: 4px; }
+
+@media (max-width: 768px) { .edit-banner { padding: 10px 16px; } }
+
+/* ── Net Display Row (ITR edit) ── */
+.net-display-row {
+  margin-top: 20px; display: flex; align-items: center; gap: 12px;
+  padding: 16px 18px; background: #f0f4ff;
+  border: 1.5px solid #d0daf5; border-radius: 12px;
+}
+.nd-item           { flex: 1; }
+.nd-item.highlight { background: #e8eef9; padding: 10px 14px; border-radius: 8px; }
+.nd-label          { display: block; font-size: 12px; color: #888; font-weight: 500; margin-bottom: 4px; }
+.nd-value          { display: block; font-size: 18px; font-weight: 800; }
+.nd-value.taxable  { color: #1a2340; }
+.nd-value.net      { color: #1a3f8f; }
+.nd-arrow          { color: #a3b8e8; font-size: 20px; }

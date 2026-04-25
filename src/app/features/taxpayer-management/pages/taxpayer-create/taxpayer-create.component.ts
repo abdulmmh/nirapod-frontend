@@ -16,13 +16,13 @@ import { TaxpayerType } from 'src/app/models/master-data.model';
 export class TaxpayerCreateComponent implements OnInit, OnDestroy {
   taxpayerForm!: FormGroup;
   isLoading = false;
-  
+
   // Master Data Arrays
   taxpayerTypes: TaxpayerType[] = [];
   divisions: any[] = [];
   presentDistricts: any[] = [];
   permanentDistricts: any[] = [];
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -30,7 +30,7 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private router: Router,
     private toast: ToastService,
-    private masterData: MasterDataService
+    private masterData: MasterDataService,
   ) {}
 
   // ───────────── Lifecycle ─────────────
@@ -51,17 +51,21 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
   // ───────────── Form Initialization ─────────────
 
   private initForm(): void {
-    const addressGroup = () => this.fb.group({
-      division: ['', Validators.required],
-      district: ['', Validators.required],
-      thana: ['', Validators.required],
-      roadVillage: [''],
-    });
+    const addressGroup = () =>
+      this.fb.group({
+        division: ['', Validators.required],
+        district: ['', Validators.required],
+        thana: ['', Validators.required],
+        roadVillage: [''],
+      });
 
     this.taxpayerForm = this.fb.group({
       taxpayerType: [null, Validators.required],
-      registrationDate: [new Date().toISOString().split('T')[0], Validators.required],
-      
+      registrationDate: [
+        new Date().toISOString().split('T')[0],
+        Validators.required,
+      ],
+
       // Individual Fields
       fullName: [''],
       nid: [''],
@@ -72,7 +76,6 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
 
       // Company Fields
       companyName: [''],
-      companySubType: [''],
       incorporationDate: [''],
       tradeLicenseNo: [''],
       rjscNo: [''],
@@ -88,7 +91,7 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
       permanentAddress: addressGroup(),
       sameAsPermanent: [false],
 
-      status: ['Active', Validators.required]
+      status: ['Active', Validators.required],
     });
   }
 
@@ -96,56 +99,94 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
 
   private setupConditionalLogic(): void {
     // 1. Same As Permanent Address Logic
-    this.taxpayerForm.get('sameAsPermanent')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(isSame => {
+    this.taxpayerForm
+      .get('sameAsPermanent')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((isSame) => {
         const permanentGroup = this.taxpayerForm.get('permanentAddress');
         if (isSame) {
           permanentGroup?.disable();
-          permanentGroup?.patchValue(this.taxpayerForm.get('presentAddress')?.value);
+          permanentGroup?.patchValue(
+            this.taxpayerForm.get('presentAddress')?.value,
+          );
         } else {
           permanentGroup?.enable();
           permanentGroup?.reset();
         }
       });
 
-    this.taxpayerForm.get('presentAddress')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(val => {
+    this.taxpayerForm
+      .get('presentAddress')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((val) => {
         if (this.taxpayerForm.get('sameAsPermanent')?.value) {
-          this.taxpayerForm.get('permanentAddress')?.patchValue(val, { emitEvent: false });
+          this.taxpayerForm
+            .get('permanentAddress')
+            ?.patchValue(val, { emitEvent: false });
         }
       });
 
     // 2. Individual vs Company Logic (Updated with includes)
-    this.taxpayerForm.get('taxpayerType')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
+    this.taxpayerForm
+      .get('taxpayerType')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((type: TaxpayerType) => {
-
         const category = type?.category;
 
-        const isIndividual = category === 'INDIVIDUAL';
-        const isCompany = category === 'COMPANY';
+        const isIndividual = category === 'Individual';
+        const isCompanyOrOrg =
+          category === 'Business' || category === 'Organization';
+        const isBusiness = category === 'Business';
 
-        const individualControls = ['fullName', 'nid', 'fathersName', 'mothersName', 'dateOfBirth', 'profession'];
+        const individualControls = [
+          'fullName',
+          'nid',
+          'fathersName',
+          'mothersName',
+          'dateOfBirth',
+          'profession',
+        ];
         const companyControls = [
-          'companyName', 'companySubType', 'incorporationDate',
-          'tradeLicenseNo', 'rjscNo', 'natureOfBusiness',
-          'authorizedPersonName', 'authorizedPersonNid', 'authorizedPersonDesignation'
+          'companyName',
+          'natureOfBusiness',
+          'authorizedPersonName',
+          'authorizedPersonNid',
+          'authorizedPersonDesignation',
+        ];
+        const businessOnlyControls = [
+          'tradeLicenseNo',
+          'rjscNo',
+          'incorporationDate',
         ];
 
-        individualControls.forEach(ctrl => {
-          const control = this.taxpayerForm.get(ctrl);
-          if (isIndividual) control?.setValidators([Validators.required]);
-          else { control?.clearValidators(); control?.reset(); }
-          control?.updateValueAndValidity();
+        individualControls.forEach((ctrl) => {
+          const c = this.taxpayerForm.get(ctrl);
+          if (isIndividual) c?.setValidators([Validators.required]);
+          else {
+            c?.clearValidators();
+            c?.reset();
+          }
+          c?.updateValueAndValidity();
         });
 
-        companyControls.forEach(ctrl => {
-          const control = this.taxpayerForm.get(ctrl);
-          if (isCompany) control?.setValidators([Validators.required]);
-          else { control?.clearValidators(); control?.reset(); }
-          control?.updateValueAndValidity();
+        companyControls.forEach((ctrl) => {
+          const c = this.taxpayerForm.get(ctrl);
+          if (isCompanyOrOrg) c?.setValidators([Validators.required]);
+          else {
+            c?.clearValidators();
+            c?.reset();
+          }
+          c?.updateValueAndValidity();
+        });
+
+        businessOnlyControls.forEach((ctrl) => {
+          const c = this.taxpayerForm.get(ctrl);
+          if (isBusiness) c?.setValidators([Validators.required]);
+          else {
+            c?.clearValidators();
+            c?.reset();
+          }
+          c?.updateValueAndValidity();
         });
       });
   }
@@ -153,34 +194,38 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
   // ───────────── API Data Loading & Dropdown Logic ─────────────
 
   private loadTaxpayerTypes(): void {
-    this.masterData.getTaxpayerTypes()
+    this.masterData
+      .getTaxpayerTypes()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => this.taxpayerTypes = data,
-        error: () => this.toast.error('Failed to load taxpayer types.')
+        next: (data) => (this.taxpayerTypes = data),
+        error: () => this.toast.error('Failed to load taxpayer types.'),
       });
   }
 
   private loadDivisions(): void {
-    this.masterData.getDivisions()
+    this.masterData
+      .getDivisions()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => this.divisions = data,
-        error: () => this.toast.error('Failed to load divisions.')
+        next: (data) => (this.divisions = data),
+        error: () => this.toast.error('Failed to load divisions.'),
       });
   }
 
   private setupAddressDropdownLogic(): void {
     // Present Address Cascade
-    this.taxpayerForm.get('presentAddress.division')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(divName => {
-        const selectedDiv = this.divisions.find(d => d.name === divName);
+    this.taxpayerForm
+      .get('presentAddress.division')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((divName) => {
+        const selectedDiv = this.divisions.find((d) => d.name === divName);
         if (selectedDiv) {
-          this.masterData.getDistrictsByDivision(selectedDiv.id)
-            .subscribe(data => {
+          this.masterData
+            .getDistrictsByDivision(selectedDiv.id)
+            .subscribe((data) => {
               this.presentDistricts = data;
-              this.taxpayerForm.get('presentAddress.district')?.setValue(''); 
+              this.taxpayerForm.get('presentAddress.district')?.setValue('');
             });
         } else {
           this.presentDistricts = [];
@@ -188,13 +233,15 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
       });
 
     // Permanent Address Cascade
-    this.taxpayerForm.get('permanentAddress.division')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(divName => {
-        const selectedDiv = this.divisions.find(d => d.name === divName);
+    this.taxpayerForm
+      .get('permanentAddress.division')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((divName) => {
+        const selectedDiv = this.divisions.find((d) => d.name === divName);
         if (selectedDiv) {
-          this.masterData.getDistrictsByDivision(selectedDiv.id)
-            .subscribe(data => {
+          this.masterData
+            .getDistrictsByDivision(selectedDiv.id)
+            .subscribe((data) => {
               this.permanentDistricts = data;
               this.taxpayerForm.get('permanentAddress.district')?.setValue('');
             });
@@ -207,11 +254,26 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
   // ───────────── Getters for UI  ─────────────
 
   get isIndividual(): boolean {
-    return this.taxpayerForm.get('taxpayerType')?.value?.category === 'INDIVIDUAL';
+    return (
+      this.taxpayerForm.get('taxpayerType')?.value?.category === 'Individual'
+    );
   }
 
-  get isCompany(): boolean {
-    return this.taxpayerForm.get('taxpayerType')?.value?.category === 'COMPANY';
+  get isBusiness(): boolean {
+    return (
+      this.taxpayerForm.get('taxpayerType')?.value?.category === 'Business'
+    );
+  }
+
+  get isOrganization(): boolean {
+    return (
+      this.taxpayerForm.get('taxpayerType')?.value?.category === 'Organization'
+    );
+  }
+
+  get isCompanyOrOrg(): boolean {
+    const cat = this.taxpayerForm.get('taxpayerType')?.value?.category;
+    return cat === 'Business' || cat === 'Organization';
   }
 
   // ───────────── Actions ─────────────
@@ -226,10 +288,11 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const payload = this.taxpayerForm.getRawValue();
 
-    this.http.post(API_ENDPOINTS.TAXPAYERS.CREATE, payload)
+    this.http
+      .post(API_ENDPOINTS.TAXPAYERS.CREATE, payload)
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
+        finalize(() => (this.isLoading = false)),
       )
       .subscribe({
         next: () => {
@@ -239,12 +302,15 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
         error: (err) => {
           console.error(err);
           this.toast.error('Failed to create taxpayer.');
-        }
+        },
       });
   }
 
   onReset(): void {
-    this.taxpayerForm.reset({ status: 'Active', registrationDate: new Date().toISOString().split('T')[0] });
+    this.taxpayerForm.reset({
+      status: 'Active',
+      registrationDate: new Date().toISOString().split('T')[0],
+    });
     this.toast.info('Form reset.');
   }
 

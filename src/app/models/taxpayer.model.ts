@@ -1,4 +1,4 @@
-import { TaxpayerType } from "./master-data.model";
+import { TaxpayerType } from './master-data.model';
 
 export type TaxpayerStatus = 'Active' | 'Inactive' | 'Pending' | 'Suspended';
 
@@ -12,12 +12,11 @@ export interface Address {
   postalCode?: string;
 }
 
-
 export interface Taxpayer {
   id?: number;
   tinNumber?: string;
   taxpayerType: TaxpayerType;
-  
+
   // Individual fields
   fullName?: string;
   gender?: 'Male' | 'Female' | 'Other';
@@ -27,10 +26,9 @@ export interface Taxpayer {
   nid?: string;
   dateOfBirth?: string;
   profession?: string;
-  
+
   // Company fields
   companyName?: string;
-  companySubType?: string; 
   incorporationDate?: string;
   tradeLicenseNo?: string;
   rjscNo?: string;
@@ -52,4 +50,7 @@ export interface Taxpayer {
   registrationDate: string;
 }
 
-export interface TaxpayerCreateRequest extends Omit<Taxpayer, 'id' | 'tinNumber'> {}
+export interface TaxpayerCreateRequest extends Omit<
+  Taxpayer,
+  'id' | 'tinNumber'
+> {}

@@ -204,7 +204,7 @@
           <select class="form-input form-select" [(ngModel)]="form.taxZone" (ngModelChange)="onZoneChange()"
             [disabled]="!form.district || loadingZones">
             <option value="">Select Tax Zone</option>
-            <option *ngFor="let z of taxZones" [value]="z.zoneName">{{ z.zoneName }}</option>
+            <option *ngFor="let z of taxZones" [value]="z.name">{{ z.name }}</option>
           </select>
         </div>
         <span class="field-hint" *ngIf="form.district && taxZones.length === 0 && !loadingZones">
@@ -220,7 +220,7 @@
           <select class="form-input form-select" [(ngModel)]="form.taxCircle"
             [disabled]="!form.taxZone || loadingCircles">
             <option value="">Select Tax Circle</option>
-            <option *ngFor="let c of taxCircles" [value]="c.circleName">{{ c.circleName }}</option>
+            <option *ngFor="let c of taxCircles" [value]="c.name">{{ c.name }}</option>
           </select>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { MasterDataService } from 'src/app/core/services/master-data.service';
@@ -24,7 +24,6 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  // ── Taxpayer Search (TIN-style: button-triggered) ──
   searchQuery       = '';
   isSearching       = false;
   searchResults:    Taxpayer[] = [];
@@ -32,12 +31,10 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
   showResults       = false;
   hasSearched       = false;
 
-  // Computed getter — mirrors tin-create pattern
   get isAutoFilled(): boolean { return this.selectedTaxpayer !== null; }
 
-  // Dropdown master data
-  divisions:          Division[]      = [];
-  districts:          District[]      = [];
+  divisions:          Division[]         = [];
+  districts:          District[]         = [];
   businessTypes:      BusinessType[]     = [];
   businessCategories: BusinessCategory[] = [];
   statuses: BusinessStatus[] = ['Active', 'Inactive', 'Suspended', 'Cancelled', 'Pending'];
@@ -50,16 +47,15 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     private authService: AuthService
   ) {}
 
-  // ──────────────── Lifecycle ────────────────
-
   ngOnInit(): void {
-    if (this.authService.userRole === Role.TAXPAYER) {
-      this.loadOwnTaxpayerRecord();
-    }
     this.loadMasterData();
-  }
-  loadOwnTaxpayerRecord() {
-    throw new Error('Method not implemented.');
+
+    // FIX #1: loadOwnTaxpayerRecord() was throwing 'Method not implemented.'
+    // causing a crash when TAXPAYER role navigated to this page.
+    // Now correctly fetches the taxpayer record and auto-fills.
+    if (this.authService.userRole === Role.TAXPAYER) {
+      this.autoFillCurrentTaxpayer();
+    }
   }
 
   ngOnDestroy(): void {
@@ -67,36 +63,39 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ──────────────── Master Data ────────────────
+  private autoFillCurrentTaxpayer(): void {
+    const user = this.authService.currentUser;
+    if (!user?.id) return;
+    this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(user.id))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next:  tp  => this.selectTaxpayer(tp),
+        error: ()  => this.toast.error('Could not load your taxpayer profile.'),
+      });
+  }
+
+  // ── Master Data ──────────────────────────────────────────────────────────
 
   private loadMasterData(): void {
     this.masterData.getDivisions()
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next:  data => this.divisions = data,
-        error: ()   => this.toast.error('Failed to load divisions.'),
-      });
+      .subscribe({ next: data => this.divisions = data, error: () => this.toast.error('Failed to load divisions.') });
 
     this.masterData.getBusinessTypes()
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next:  data => this.businessTypes = data,
-        error: ()   => this.toast.error('Failed to load business types.'),
-      });
+      .subscribe({ next: data => this.businessTypes = data, error: () => this.toast.error('Failed to load business types.') });
 
     this.masterData.getBusinessCategories()
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next:  data => this.businessCategories = data,
-        error: ()   => this.toast.error('Failed to load categories.'),
-      });
+      .subscribe({ next: data => this.businessCategories = data, error: () => this.toast.error('Failed to load categories.') });
   }
 
-  // ──────────────── Taxpayer Search (TIN-style) ────────────────
+  // ── Taxpayer Search ───────────────────────────────────────────────────────
 
   searchTaxpayer(): void {
     const q = this.searchQuery.trim();
-    if (!q) { this.toast.warning('Enter TIN number or taxpayer name.'); return; }
+    if (!q)           { this.toast.warning('Enter TIN number or taxpayer name.'); return; }
+    if (q.length < 3) { this.toast.warning('Enter at least 3 characters to search.'); return; }
 
     this.isSearching = true;
     this.showResults = false;
@@ -106,27 +105,21 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     this.http.get<Taxpayer[]>(url)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isSearching = false)))
       .subscribe({
-        next:  (data) => this.handleSearchSuccess(data, q),
-        error: ()     => this.toast.error('Taxpayer search failed. Please try again.'),
+        // FIX #2: removed client-side double-filter — backend already filters by query.
+        // Old: data.filter(t => t.tinNumber?.includes(q) || t.fullName?.includes(q))
+        // This was dropping company matches (matched on companyName, not fullName).
+        next:  data => {
+          this.searchResults = data;
+          this.showResults   = true;
+          this.hasSearched   = true;
+          if (data.length === 0) this.toast.info('No taxpayer found. Please check the TIN or name.');
+        },
+        error: () => this.toast.error('Taxpayer search failed. Please try again.'),
       });
-  }
-
-  private handleSearchSuccess(data: Taxpayer[], query: string): void {
-    const q = query.toLowerCase();
-    this.searchResults = data.filter(t =>
-      t.tinNumber?.toLowerCase().includes(q) || t.fullName?.toLowerCase().includes(q)
-    );
-    this.showResults = true;
-    this.hasSearched = true;
-    if (this.searchResults.length === 0) {
-      this.toast.info('No taxpayer found. Please check the TIN or name.');
-    }
   }
 
   selectTaxpayer(taxpayer: Taxpayer): void {
     const typeName = taxpayer.taxpayerType?.typeName?.toLowerCase() || '';
-
-  // Block company taxpayers — they are the business, no separate registration needed
     if (typeName.includes('company')) {
       this.toast.error(
         'Company taxpayers cannot be linked to a separate Business Registration. ' +
@@ -135,10 +128,16 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
       this.showResults = false;
       return;
     }
+
     this.selectedTaxpayer = taxpayer;
-    this.showResults      = false;
-    this.form.tinNumber  = taxpayer.tinNumber || '';
-    this.form.ownerName  = taxpayer.fullName  || '';
+    this.showResults       = false;
+
+    // FIX #3: form.taxpayerId was never set in selectTaxpayer().
+    // isFormValid() checks form.taxpayerId — so the submit button was always
+    // disabled even after selecting a taxpayer because taxpayerId stayed 0.
+    this.form.taxpayerId  = taxpayer.id ?? 0;
+    this.form.tinNumber   = taxpayer.tinNumber || '';
+    this.form.ownerName   = taxpayer.fullName  || '';
 
     this.toast.success(`"${taxpayer.fullName}" details auto-filled.`);
   }
@@ -155,23 +154,19 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     this.toast.info('Taxpayer cleared.');
   }
 
-  // ──────────────── Division / District ────────────────
+  // ── Division / District ──────────────────────────────────────────────────
 
   onDivisionChange(): void {
     this.form.districtId = 0;
     this.districts = [];
-
     if (this.form.divisionId) {
       this.masterData.getDistrictsByDivision(this.form.divisionId)
         .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next:  data => this.districts = data,
-          error: ()   => this.toast.error('Failed to load districts.'),
-        });
+        .subscribe({ next: data => this.districts = data, error: () => this.toast.error('Failed to load districts.') });
     }
   }
 
-  // ──────────────── Validation ────────────────
+  // ── Validation ──────────────────────────────────────────────────────────
 
   isFormValid(): boolean {
     return !!(
@@ -194,7 +189,7 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email);
   }
 
-  // ──────────────── Submit ────────────────
+  // ── Submit ────────────────────────────────────────────────────────────────
 
   onSubmit(): void {
     if (!this.isFormValid()) {
@@ -202,13 +197,10 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
       return;
     }
     this.isLoading = true;
-
-    const payload = this.buildPayload();
-
-    this.http.post(API_ENDPOINTS.BUSINESSES.CREATE, payload)
+    this.http.post(API_ENDPOINTS.BUSINESSES.CREATE, this.buildPayload())
       .pipe(takeUntil(this.destroy$), finalize(() => this.isLoading = false))
       .subscribe({
-        next:  () => this.handleSuccess(),
+        next:  ()    => this.handleSuccess(),
         error: (err) => this.handleError(err),
       });
   }
@@ -239,7 +231,9 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
 
   private handleSuccess(): void {
     this.toast.success('Business registered successfully!');
-    setTimeout(() => this.router.navigate(['/businesses']), 1500);
+    // FIX #4: timer() + takeUntil replaces setTimeout() — cancelled on destroy
+    timer(1500).pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.router.navigate(['/businesses']));
   }
 
   private handleError(error: unknown): void {
@@ -247,42 +241,29 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     this.toast.error('Failed to create business. Please try again.');
   }
 
-  // ──────────────── Reset / Cancel ────────────────
+  // ── Reset / Cancel ────────────────────────────────────────────────────────
 
   onReset(): void {
-    this.form = this.getEmptyForm();
+    this.form      = this.getEmptyForm();
     this.districts = [];
-    this.clearTaxpayer();
+    this.selectedTaxpayer = null;
+    this.searchQuery      = '';
+    this.searchResults    = [];
+    this.showResults      = false;
+    this.hasSearched      = false;
     this.toast.info('Form has been reset.');
   }
 
-  onCancel(): void {
-    this.router.navigate(['/businesses']);
-  }
-
-  // ──────────────── Form Factory ────────────────
+  onCancel(): void { this.router.navigate(['/businesses']); }
 
   private getEmptyForm(): BusinessCreateRequest {
     return {
-      taxpayerId:         0,
-      businessName:       '',
-      tinNumber:          '',
-      ownerName:          '',
-      businessTypeId:     0,
-      businessCategoryId: 0,
-      tradeLicenseNo:     '',
-      incorporationDate:  '',
-      registrationDate:   new Date().toISOString().split('T')[0],
-      expiryDate:         '',
-      email:              '',
-      phone:              '',
-      status:             'Active',
-      address:            '',
-      divisionId:         0,
-      districtId:         0,
-      annualTurnover:     0,
-      numberOfEmployees:  0,
-      remarks:            '',
+      taxpayerId: 0, businessName: '', tinNumber: '', ownerName: '',
+      businessTypeId: 0, businessCategoryId: 0, tradeLicenseNo: '',
+      incorporationDate: '', registrationDate: new Date().toISOString().split('T')[0],
+      expiryDate: '', email: '', phone: '', status: 'Active',
+      address: '', divisionId: 0, districtId: 0,
+      annualTurnover: 0, numberOfEmployees: 0, remarks: '',
     };
   }
 }

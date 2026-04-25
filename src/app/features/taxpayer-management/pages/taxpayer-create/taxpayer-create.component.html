@@ -95,66 +95,60 @@
           </div>
         </ng-container>
 
-        <ng-container *ngIf="isCompany">
+        <!-- Both Business and Organization -->
+        <ng-container *ngIf="isCompanyOrOrg">
+
           <div class="form-group">
-            <label class="form-label required">Company Name</label>
+            <label class="form-label required">Organization / Company Name</label>
             <div class="input-wrap">
               <i class="bi bi-building input-icon"></i>
-              <input type="text" class="form-input" placeholder="Enter company name" formControlName="companyName" />
+              <input type="text" class="form-input" placeholder="Enter name" formControlName="companyName" />
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label required">Company Sub-Type</label>
-            <div class="input-wrap">
-              <i class="bi bi-diagram-3-fill input-icon"></i>
-              <select class="form-input form-select" formControlName="companySubType">
-                <option value="" disabled>Select Sub-Type</option>
-                <option value="Private Limited">Private Limited</option>
-                <option value="Public Limited">Public Limited</option>
-                <option value="Partnership">Partnership</option>
-                <option value="NGO">NGO</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label required">Trade License No</label>
-            <div class="input-wrap">
-              <i class="bi bi-file-earmark-text input-icon"></i>
-              <input type="text" class="form-input" placeholder="Trade license" formControlName="tradeLicenseNo" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label required">RJSC No</label>
-            <div class="input-wrap">
-              <i class="bi bi-file-earmark-medical input-icon"></i>
-              <input type="text" class="form-input" placeholder="RJSC number" formControlName="rjscNo" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label required">Incorporation Date</label>
-            <div class="input-wrap">
-              <i class="bi bi-calendar-check input-icon"></i>
-              <input type="date" class="form-input" formControlName="incorporationDate" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label required">Nature of Business</label>
+            <label class="form-label required">Nature of Business / Activity</label>
             <div class="input-wrap">
               <i class="bi bi-briefcase-fill input-icon"></i>
-              <input type="text" class="form-input" placeholder="e.g. IT, Garments" formControlName="natureOfBusiness" />
+              <input type="text" class="form-input" placeholder="e.g. IT, Garments, Charity"
+                formControlName="natureOfBusiness" />
             </div>
           </div>
 
+          <!-- Business-only fields -->
+          <ng-container *ngIf="isBusiness">
+            <div class="form-group">
+              <label class="form-label required">Trade License No</label>
+              <div class="input-wrap">
+                <i class="bi bi-file-earmark-text input-icon"></i>
+                <input type="text" class="form-input" placeholder="Trade license" formControlName="tradeLicenseNo" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required">RJSC No</label>
+              <div class="input-wrap">
+                <i class="bi bi-file-earmark-medical input-icon"></i>
+                <input type="text" class="form-input" placeholder="RJSC number" formControlName="rjscNo" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required">Incorporation Date</label>
+              <div class="input-wrap">
+                <i class="bi bi-calendar-check input-icon"></i>
+                <input type="date" class="form-input" formControlName="incorporationDate" />
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Auth person — all company/org types -->
           <div class="form-group">
             <label class="form-label required">Auth. Person Name</label>
             <div class="input-wrap">
               <i class="bi bi-person-check-fill input-icon"></i>
-              <input type="text" class="form-input" placeholder="Representative name" formControlName="authorizedPersonName" />
+              <input type="text" class="form-input" placeholder="Representative name"
+                formControlName="authorizedPersonName" />
             </div>
           </div>
 
@@ -162,7 +156,8 @@
             <label class="form-label required">Auth. Person NID</label>
             <div class="input-wrap">
               <i class="bi bi-card-text input-icon"></i>
-              <input type="text" class="form-input" placeholder="Representative NID" formControlName="authorizedPersonNid" />
+              <input type="text" class="form-input" placeholder="Representative NID"
+                formControlName="authorizedPersonNid" />
             </div>
           </div>
 
@@ -170,11 +165,11 @@
             <label class="form-label required">Designation</label>
             <div class="input-wrap">
               <i class="bi bi-person-vcard input-icon"></i>
-              <input type="text" class="form-input" placeholder="e.g. Managing Director" formControlName="authorizedPersonDesignation" />
+              <input type="text" class="form-input" placeholder="e.g. Managing Director"
+                formControlName="authorizedPersonDesignation" />
             </div>
           </div>
         </ng-container>
-
       </div>
     </div>
 
@@ -212,7 +207,7 @@
       <div class="mt-4" formGroupName="presentAddress">
         <p class="form-label fw-bold mb-2">Present / Registered Address</p>
         <div class="form-grid">
-          
+
           <div class="form-group">
             <div class="input-wrap">
               <i class="bi bi-map input-icon"></i>
@@ -250,7 +245,8 @@
       </div>
 
       <div class="mt-3 mb-3">
-        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #1a3f8f;">
+        <label
+          style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #1a3f8f;">
           <input type="checkbox" formControlName="sameAsPermanent" />
           Permanent Address is same as Present Address
         </label>
@@ -259,7 +255,7 @@
       <div formGroupName="permanentAddress" *ngIf="!taxpayerForm.get('sameAsPermanent')?.value">
         <p class="form-label fw-bold mb-2">Permanent Address</p>
         <div class="form-grid">
-          
+
           <div class="form-group">
             <div class="input-wrap">
               <i class="bi bi-map input-icon"></i>

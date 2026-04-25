@@ -66,7 +66,7 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
 
     this.taxpayerForm = this.fb.group({
       id: [null],
-      tinNumber: [''], // Just to keep the value for the banner
+      tinNumber: [''],
       taxpayerType: [null, Validators.required],
       registrationDate: ['', Validators.required],
 
@@ -80,7 +80,6 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
 
       // Company Fields
       companyName: [''],
-      companySubType: [''],
       incorporationDate: [''],
       tradeLicenseNo: [''],
       rjscNo: [''],
@@ -126,34 +125,66 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
       });
 
     // Individual vs Company Logic (Updated with includes)
-    this.taxpayerForm.get('taxpayerType')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
+    this.taxpayerForm
+      .get('taxpayerType')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((type: TaxpayerType) => {
-
         const category = type?.category;
 
-        const isIndividual = category === 'INDIVIDUAL';
-        const isCompany = category === 'COMPANY';
+        const isIndividual = category === 'Individual';
+        const isCompanyOrOrg =
+          category === 'Business' || category === 'Organization';
+        const isBusiness = category === 'Business';
 
-        const individualControls = ['fullName', 'nid', 'fathersName', 'mothersName', 'dateOfBirth', 'profession'];
+        const individualControls = [
+          'fullName',
+          'nid',
+          'fathersName',
+          'mothersName',
+          'dateOfBirth',
+          'profession',
+        ];
         const companyControls = [
-          'companyName', 'companySubType', 'incorporationDate',
-          'tradeLicenseNo', 'rjscNo', 'natureOfBusiness',
-          'authorizedPersonName', 'authorizedPersonNid', 'authorizedPersonDesignation'
+          'companyName',
+          'natureOfBusiness',
+          'authorizedPersonName',
+          'authorizedPersonNid',
+          'authorizedPersonDesignation',
+        ];
+        const businessOnlyControls = [
+          'tradeLicenseNo',
+          'rjscNo',
+          'incorporationDate',
         ];
 
-        individualControls.forEach(ctrl => {
-          const control = this.taxpayerForm.get(ctrl);
-          if (isIndividual) control?.setValidators([Validators.required]);
-          else { control?.clearValidators(); control?.reset(); }
-          control?.updateValueAndValidity();
+        individualControls.forEach((ctrl) => {
+          const c = this.taxpayerForm.get(ctrl);
+          if (isIndividual) c?.setValidators([Validators.required]);
+          else {
+            c?.clearValidators();
+            c?.reset();
+          }
+          c?.updateValueAndValidity();
         });
 
-        companyControls.forEach(ctrl => {
-          const control = this.taxpayerForm.get(ctrl);
-          if (isCompany) control?.setValidators([Validators.required]);
-          else { control?.clearValidators(); control?.reset(); }
-          control?.updateValueAndValidity();
+        companyControls.forEach((ctrl) => {
+          const c = this.taxpayerForm.get(ctrl);
+          if (isCompanyOrOrg) c?.setValidators([Validators.required]);
+          else {
+            c?.clearValidators();
+            c?.reset();
+          }
+          c?.updateValueAndValidity();
+        });
+
+        businessOnlyControls.forEach((ctrl) => {
+          const c = this.taxpayerForm.get(ctrl);
+          if (isBusiness) c?.setValidators([Validators.required]);
+          else {
+            c?.clearValidators();
+            c?.reset();
+          }
+          c?.updateValueAndValidity();
         });
       });
   }
@@ -276,11 +307,26 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
   // ───────────── Getters (Updated with includes) ─────────────
 
   get isIndividual(): boolean {
-    return this.taxpayerForm.get('taxpayerType')?.value?.category === 'INDIVIDUAL';
+    return (
+      this.taxpayerForm.get('taxpayerType')?.value?.category === 'Individual'
+    );
   }
 
-  get isCompany(): boolean {
-    return this.taxpayerForm.get('taxpayerType')?.value?.category === 'COMPANY';
+  get isBusiness(): boolean {
+    return (
+      this.taxpayerForm.get('taxpayerType')?.value?.category === 'Business'
+    );
+  }
+
+  get isOrganization(): boolean {
+    return (
+      this.taxpayerForm.get('taxpayerType')?.value?.category === 'Organization'
+    );
+  }
+
+  get isCompanyOrOrg(): boolean {
+    const cat = this.taxpayerForm.get('taxpayerType')?.value?.category;
+    return cat === 'Business' || cat === 'Organization';
   }
 
   // ─────────── Actions ──────────────
