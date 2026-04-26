@@ -130,11 +130,9 @@ export class VatReturnViewComponent implements OnInit, OnDestroy {
           this.toast.success(`Return ${this.currentAction}ed successfully!`);
           this.closeModal();
         },
-        error: () => {
-          // Backend endpoint may not be wired yet — apply locally so UI works
-          this.applyStatusLocally(newStatus, actionLabelMap[this.currentAction]);
-          this.toast.success(`Return ${this.currentAction}ed successfully!`);
-          this.closeModal();
+        error: (err) => {
+          this.isActing = false;
+          this.actionError = err?.error?.message || 'Action failed. Please try again.';
         }
       });
   }

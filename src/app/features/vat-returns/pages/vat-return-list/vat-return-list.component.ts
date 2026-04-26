@@ -110,10 +110,10 @@ export class VatReturnListComponent implements OnInit, OnDestroy {
     if (this.pendingDeleteId === null) return;
     const id = this.pendingDeleteId;
     this.resetDeleteState();
-    this.deleteBusiness(id);
+    this.deleteReturn(id);
   }
 
-  private deleteBusiness(id: number): void {
+  private deleteReturn(id: number): void {
     this.isLoading = true;
     this.http
       .delete(API_ENDPOINTS.VAT_RETURNS.DELETE(id))

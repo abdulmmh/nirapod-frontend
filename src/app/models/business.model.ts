@@ -76,18 +76,27 @@ export const BUSINESS_TYPE_MAP: Record<string, string> = {
   '6': 'Other',
 };
 
-// models/business.model.ts
+
 export interface BusinessVatStatus {
-  businessId:       number;
-  businessName:     string;
-  businessRegNo:    string;
-  tradeLicenseNo:   string;
-  ownerName:        string;
-  businessType:     string;
-  businessCategory: string;
-  phone:            string;
-  address:          string;
-  vatRegistered:    boolean;
-  binNo:            string | null;
-  vatStatus:        string | null;
+  id:                  number;
+  businessRegNo:       string;
+  businessName:        string;
+  ownerName:           string;
+  tradeLicenseNo:      string;
+  businessTypeId:      number | null;
+  businessTypeName:    string;
+  businessCategoryId:  number | null;
+  businessCategoryName: string;
+  divisionId:          number | null;
+  divisionName:        string;
+  districtId:          number | null;
+  districtName:        string;
+  email:               string;
+  phone:               string;
+  address:             string;
+  status:              string;
+  annualTurnover:      number;
+  vatRegistered:       boolean;
+  binNo:               string | null;
+  vatStatus:           string | null;
 }

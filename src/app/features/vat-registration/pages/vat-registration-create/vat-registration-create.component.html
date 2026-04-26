@@ -18,8 +18,8 @@
         <i class="bi bi-search"></i>
       </div>
       <div>
-        <h6 class="section-title">Find Taxpayer</h6>
-        <span class="section-sub">Search by TIN, NID or business name — details will auto-fill</span>
+        <h6 class="section-title">Step 1 — Find Taxpayer</h6>
+        <span class="section-sub">Search by TIN, NID or name</span>
       </div>
     </div>
 
@@ -27,7 +27,7 @@
       <div class="input-wrap search-input-wrap">
         <i class="bi bi-upc-scan input-icon"></i>
         <input type="text" class="form-input"
-          placeholder="Enter TIN number, NID or business name..."
+          placeholder="Enter TIN number, NID or taxpayer name..."
           [(ngModel)]="searchQuery"
           [ngModelOptions]="{standalone: true}"
           (ngModelChange)="onSearchInput()"
@@ -40,18 +40,20 @@
       <button type="button" class="btn-search" (click)="searchTaxpayer()"
         [disabled]="isSearching || isAutoFilled">
         <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
-        <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span> Searching...</span>
+        <span *ngIf="isSearching">
+          <span class="spinner-border spinner-border-sm"></span> Searching...
+        </span>
       </button>
     </div>
 
     <!-- Search Results -->
     <div class="search-results" *ngIf="showResults && searchResults.length > 0">
       <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
-        <div class="result-avatar"><i class="bi bi-building"></i></div>
+        <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
         <div class="result-info">
           <span class="result-name">{{ getDisplayName(t) }}</span>
           <span class="result-meta">
-            <span *ngIf="t.tinNumber" class="fw-bold text-teal me-2">TIN: {{ t.tinNumber }}</span>
+            <span *ngIf="t.tinNumber" class="fw-bold me-2">TIN: {{ t.tinNumber }}</span>
             <span *ngIf="t.phone"> · {{ t.phone }}</span>
           </span>
         </div>
@@ -61,13 +63,13 @@
 
     <!-- No Results -->
     <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
-      <i class="bi bi-info-circle"></i> No taxpayer found. Fill in TIN and details manually below.
+      <i class="bi bi-info-circle"></i> No taxpayer found. Check TIN, NID or name and try again.
     </div>
 
-    <!-- Selected Card -->
+    <!-- Selected Taxpayer Card -->
     <div class="selected-card" *ngIf="isAutoFilled && selectedTaxpayer">
       <div class="selected-card-left">
-        <div class="selected-avatar"><i class="bi bi-building-check"></i></div>
+        <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
         <div>
           <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
           <p class="selected-meta">
@@ -80,58 +82,162 @@
     </div>
   </div>
 
-  <div class="section-divider"></div>
+  <!-- ── Section 0.5: Business Picker ───────────────────────────────────── -->
+  <ng-container *ngIf="isAutoFilled">
+    <div class="section-divider"></div>
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i class="bi bi-building-fill"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Step 2 — Select Business</h6>
+          <span class="section-sub">Choose which business to register for VAT</span>
+        </div>
+      </div>
 
-  <!-- ── Section 1: Business Information ───────────────────────────────── -->
-  <div class="form-section">
+      <!-- Loading businesses -->
+      <div class="loading-row" *ngIf="loadingBusinesses">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+        <span>Loading businesses...</span>
+      </div>
+
+      <!-- No businesses found -->
+      <div class="no-result-note" *ngIf="!loadingBusinesses && businesses.length === 0">
+        <i class="bi bi-exclamation-triangle"></i>
+        This taxpayer has no registered businesses.
+        <a routerLink="/businesses/create" class="ms-1 fw-bold">Register a business first →</a>
+      </div>
+
+      <!-- Business list -->
+      <div class="business-picker" *ngIf="!loadingBusinesses && businesses.length > 0">
+        <div class="biz-row"
+          *ngFor="let b of businesses"
+          [class.biz-selected]="selectedBusiness?.id === b.id"
+          [class.biz-registered]="b.vatRegistered"
+          (click)="selectBusiness(b)">
+
+          <div class="biz-icon">
+            <i class="bi bi-building" *ngIf="!b.vatRegistered"></i>
+            <i class="bi bi-building-check" *ngIf="b.vatRegistered"></i>
+          </div>
+
+          <div class="biz-info">
+            <span class="biz-name">{{ b.businessName }}</span>
+            <span class="biz-meta">
+              <span class="code-sm me-2">{{ b.businessRegNo }}</span>
+              <span *ngIf="b.tradeLicenseNo">TL: {{ b.tradeLicenseNo }}</span>
+              <span *ngIf="b.businessTypeName"> · {{ b.businessTypeName }}</span>
+            </span>
+          </div>
+
+          <!-- Already VAT registered -->
+          <div class="biz-vat-status" *ngIf="b.vatRegistered">
+            <span class="bin-badge">
+              <i class="bi bi-check-circle-fill"></i> {{ b.binNo }}
+            </span>
+            <span class="status-badge" [ngClass]="getStatusClass(b.vatStatus)">
+              {{ b.vatStatus }}
+            </span>
+          </div>
+
+          <!-- Not yet registered -->
+          <div class="biz-vat-status" *ngIf="!b.vatRegistered">
+            <span class="no-bin-badge" [class.active]="selectedBusiness?.id === b.id">
+              <i class="bi bi-plus-circle" *ngIf="selectedBusiness?.id !== b.id"></i>
+              <i class="bi bi-check2-circle" *ngIf="selectedBusiness?.id === b.id"></i>
+              {{ selectedBusiness?.id === b.id ? 'Selected' : 'Register VAT' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="section-divider" *ngIf="selectedBusiness"></div>
+
+  <!-- ── Section 1: Business Information (auto-filled, mostly locked) ────── -->
+  <div class="form-section" *ngIf="selectedBusiness">
     <div class="section-header">
-      <div class="section-icon">
+      <div class="section-icon teal">
         <i class="bi bi-building-fill"></i>
       </div>
       <div>
-        <h6 class="section-title">Business Information</h6>
-        <span class="section-sub">Basic business and VAT details</span>
+        <h6 class="section-title">Business Details</h6>
+        <span class="section-sub">Auto-filled from business registration — locked fields cannot be edited here</span>
       </div>
     </div>
     <div class="form-grid">
 
+      <!-- TIN — locked -->
       <div class="form-group">
-        <label class="form-label required">TIN Number</label>
-        <div class="input-wrap" [class.locked]="isAutoFilled">
+        <label class="form-label required">TIN Number <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
           <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. TIN-1001" formControlName="tinNumber"
-            [class.is-invalid]="ctrl('tinNumber')?.invalid && ctrl('tinNumber')?.touched" />
-          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
+          <input type="text" class="form-input" formControlName="tinNumber" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
-        <span class="field-error-msg" *ngIf="ctrl('tinNumber')?.errors?.['required'] && ctrl('tinNumber')?.touched">
-          TIN number is required.
-        </span>
       </div>
 
+      <!-- Business Name — locked -->
       <div class="form-group">
-        <label class="form-label required">Business Name</label>
-        <div class="input-wrap">
+        <label class="form-label required">Business Name <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
           <i class="bi bi-building input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Enter business name" formControlName="businessName"
-            [class.is-invalid]="ctrl('businessName')?.invalid && ctrl('businessName')?.touched" />
+          <input type="text" class="form-input" formControlName="businessName" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
-        <span class="field-error-msg" *ngIf="ctrl('businessName')?.errors?.['required'] && ctrl('businessName')?.touched">
-          Business name is required.
-        </span>
       </div>
 
+      <!-- Owner Name — locked -->
       <div class="form-group">
-        <label class="form-label">Owner Name</label>
-        <div class="input-wrap" [class.locked]="isAutoFilled">
+        <label class="form-label">Owner Name <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
           <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Enter owner name" formControlName="ownerName" />
-          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
+          <input type="text" class="form-input" formControlName="ownerName" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
       </div>
 
+      <!-- Trade License — locked -->
+      <div class="form-group">
+        <label class="form-label">Trade License No. <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
+          <i class="bi bi-journal-text input-icon"></i>
+          <input type="text" class="form-input" formControlName="tradeLicenseNo" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
+        </div>
+      </div>
+
+      <!-- Business Type — locked -->
+      <div class="form-group">
+        <label class="form-label">Business Type <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
+          <i class="bi bi-diagram-3-fill input-icon"></i>
+          <select class="form-input form-select" formControlName="businessTypeId"
+            [attr.disabled]="true">
+            <option [value]="null">—</option>
+            <option *ngFor="let t of businessTypes" [value]="t.id">{{ t.typeName }}</option>
+          </select>
+          <i class="bi bi-lock-fill lock-icon"></i>
+        </div>
+      </div>
+
+      <!-- Business Category — locked -->
+      <div class="form-group">
+        <label class="form-label">Business Category <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
+          <i class="bi bi-grid-fill input-icon"></i>
+          <select class="form-input form-select" formControlName="businessCategoryId"
+            [attr.disabled]="true">
+            <option [value]="null">—</option>
+            <option *ngFor="let bc of businessCategories" [value]="bc.id">{{ bc.categoryName }}</option>
+          </select>
+          <i class="bi bi-lock-fill lock-icon"></i>
+        </div>
+      </div>
+
+      <!-- VAT Category — officer picks this, NOT auto -->
       <div class="form-group">
         <label class="form-label required">VAT Category</label>
         <div class="input-wrap">
@@ -142,76 +248,78 @@
             <option *ngFor="let c of vatCategories" [value]="c">{{ c }}</option>
           </select>
         </div>
-        <span class="field-error-msg" *ngIf="ctrl('vatCategory')?.errors?.['required'] && ctrl('vatCategory')?.touched">
+        <span class="field-error-msg"
+          *ngIf="ctrl('vatCategory')?.errors?.['required'] && ctrl('vatCategory')?.touched">
           VAT category is required.
         </span>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Business Type</label>
-        <div class="input-wrap">
-          <i class="bi bi-diagram-3-fill input-icon"></i>
-          <select class="form-input form-select" formControlName="businessTypeId">
-            <option [value]="null">Select Type</option>
-            <option *ngFor="let t of businessTypes" [value]="t.id">{{ t.typeName }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Business Category</label>
-        <div class="input-wrap">
-          <i class="bi bi-grid-fill input-icon"></i>
-          <select class="form-input form-select" formControlName="businessCategoryId">
-            <option [value]="null">Select Category</option>
-            <option *ngFor="let bc of businessCategories" [value]="bc.id">{{ bc.categoryName }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Trade License No.</label>
-        <div class="input-wrap">
-          <i class="bi bi-journal-text input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. TL-44821" formControlName="tradeLicenseNo" />
-        </div>
       </div>
 
     </div>
   </div>
 
-  <div class="section-divider"></div>
+  <div class="section-divider" *ngIf="selectedBusiness"></div>
 
   <!-- ── Section 2: VAT Authority & Dates ──────────────────────────────── -->
-  <div class="form-section">
+  <div class="form-section" *ngIf="selectedBusiness">
     <div class="section-header">
-      <div class="section-icon teal">
+      <div class="section-icon">
         <i class="bi bi-receipt-cutoff"></i>
       </div>
       <div>
         <h6 class="section-title">VAT Authority &amp; Dates</h6>
-        <span class="section-sub">Zone, circle and registration dates</span>
+        <span class="section-sub">Select tax jurisdiction — zone loads from district</span>
       </div>
     </div>
     <div class="form-grid">
 
+      <!-- Division — locked (from business) -->
+      <div class="form-group">
+        <label class="form-label">Division <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
+          <i class="bi bi-map-fill input-icon"></i>
+          <select class="form-input form-select" formControlName="divisionId"
+            [attr.disabled]="true">
+            <option [value]="null">—</option>
+            <option *ngFor="let d of divisions" [value]="d.id">{{ d.name }}</option>
+          </select>
+          <i class="bi bi-lock-fill lock-icon"></i>
+        </div>
+      </div>
+
+      <!-- District — locked (from business) -->
+      <div class="form-group">
+        <label class="form-label">District <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
+          <i class="bi bi-geo-fill input-icon"></i>
+          <select class="form-input form-select" formControlName="districtId"
+            [attr.disabled]="true">
+            <option [value]="null">{{ loadingDistricts ? 'Loading...' : '—' }}</option>
+            <option *ngFor="let d of districts" [value]="d.id">{{ d.name }}</option>
+          </select>
+          <i class="bi bi-lock-fill lock-icon"></i>
+        </div>
+      </div>
+
+      <!-- VAT Zone — officer picks -->
       <div class="form-group">
         <label class="form-label required">VAT Zone</label>
         <div class="input-wrap">
           <i class="bi bi-grid-fill input-icon"></i>
           <select class="form-input form-select" formControlName="vatZoneId"
-            [attr.disabled]="!ctrl('districtId')?.value ? true : null"
             [class.is-invalid]="ctrl('vatZoneId')?.invalid && ctrl('vatZoneId')?.touched">
-            <option [value]="null">{{ loadingZones ? 'Loading...' : 'Select Zone' }}</option>
+            <option [value]="null">
+              {{ loadingZones ? 'Loading zones...' : vatZones.length === 0 ? 'No zones — select district first' : 'Select Zone' }}
+            </option>
             <option *ngFor="let z of vatZones" [value]="z.id">{{ z.zoneName }}</option>
           </select>
         </div>
-        <span class="field-error-msg" *ngIf="ctrl('vatZoneId')?.errors?.['required'] && ctrl('vatZoneId')?.touched">
+        <span class="field-error-msg"
+          *ngIf="ctrl('vatZoneId')?.errors?.['required'] && ctrl('vatZoneId')?.touched">
           VAT zone is required.
         </span>
       </div>
 
+      <!-- VAT Circle — officer picks -->
       <div class="form-group">
         <label class="form-label required">VAT Circle</label>
         <div class="input-wrap">
@@ -219,11 +327,14 @@
           <select class="form-input form-select" formControlName="vatCircleId"
             [attr.disabled]="!ctrl('vatZoneId')?.value ? true : null"
             [class.is-invalid]="ctrl('vatCircleId')?.invalid && ctrl('vatCircleId')?.touched">
-            <option [value]="null">{{ loadingCircles ? 'Loading...' : 'Select Circle' }}</option>
+            <option [value]="null">
+              {{ loadingCircles ? 'Loading circles...' : 'Select Circle' }}
+            </option>
             <option *ngFor="let vc of vatCircles" [value]="vc.id">{{ vc.circleName }}</option>
           </select>
         </div>
-        <span class="field-error-msg" *ngIf="ctrl('vatCircleId')?.errors?.['required'] && ctrl('vatCircleId')?.touched">
+        <span class="field-error-msg"
+          *ngIf="ctrl('vatCircleId')?.errors?.['required'] && ctrl('vatCircleId')?.touched">
           VAT circle is required.
         </span>
       </div>
@@ -252,91 +363,66 @@
         </div>
       </div>
 
+      <!-- Annual Turnover — locked (from business) -->
       <div class="form-group">
-        <label class="form-label">Annual Turnover (৳)</label>
-        <div class="input-wrap">
+        <label class="form-label">Annual Turnover (৳) <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
           <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" placeholder="0" formControlName="annualTurnover" />
+          <input type="number" class="form-input" formControlName="annualTurnover" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
       </div>
 
     </div>
   </div>
 
-  <div class="section-divider"></div>
+  <div class="section-divider" *ngIf="selectedBusiness"></div>
 
   <!-- ── Section 3: Contact & Location ─────────────────────────────────── -->
-  <div class="form-section">
+  <div class="form-section" *ngIf="selectedBusiness">
     <div class="section-header">
       <div class="section-icon orange">
         <i class="bi bi-geo-alt-fill"></i>
       </div>
       <div>
         <h6 class="section-title">Contact &amp; Location</h6>
-        <span class="section-sub">Contact details and address</span>
+        <span class="section-sub">Auto-filled from business record</span>
       </div>
     </div>
     <div class="form-grid">
 
+      <!-- Email — locked -->
       <div class="form-group">
-        <label class="form-label">Email</label>
-        <div class="input-wrap">
+        <label class="form-label">Email <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
           <i class="bi bi-envelope-fill input-icon"></i>
-          <input type="email" class="form-input"
-            placeholder="business@example.com" formControlName="email"
-            [class.is-invalid]="ctrl('email')?.errors?.['email'] && ctrl('email')?.touched" />
+          <input type="email" class="form-input" formControlName="email" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
-        <span class="field-error-msg" *ngIf="ctrl('email')?.errors?.['email'] && ctrl('email')?.touched">
-          Enter a valid email address.
-        </span>
       </div>
 
+      <!-- Phone — locked -->
       <div class="form-group">
-        <label class="form-label required">Phone</label>
-        <div class="input-wrap">
+        <label class="form-label required">Phone <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
           <i class="bi bi-telephone-fill input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="01xxx-xxxxxx" formControlName="phone"
-            [class.is-invalid]="ctrl('phone')?.invalid && ctrl('phone')?.touched" />
-        </div>
-        <span class="field-error-msg" *ngIf="ctrl('phone')?.errors?.['required'] && ctrl('phone')?.touched">
-          Phone number is required.
-        </span>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Division</label>
-        <div class="input-wrap">
-          <i class="bi bi-map-fill input-icon"></i>
-          <select class="form-input form-select" formControlName="divisionId">
-            <option [value]="null">Select Division</option>
-            <option *ngFor="let d of divisions" [value]="d.id">{{ d.name }}</option>
-          </select>
+          <input type="text" class="form-input" formControlName="phone" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">District</label>
-        <div class="input-wrap">
-          <i class="bi bi-geo-fill input-icon"></i>
-          <select class="form-input form-select" formControlName="districtId"
-            [attr.disabled]="!ctrl('divisionId')?.value ? true : null">
-            <option [value]="null">{{ loadingDistricts ? 'Loading...' : 'Select District' }}</option>
-            <option *ngFor="let d of districts" [value]="d.id">{{ d.name }}</option>
-          </select>
-        </div>
-      </div>
-
+      <!-- Address — locked -->
       <div class="form-group full-width">
-        <label class="form-label">Address</label>
-        <div class="input-wrap">
+        <label class="form-label">Address <span class="auto-label">Auto</span></label>
+        <div class="input-wrap locked">
           <i class="bi bi-geo-alt-fill input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Enter full address..."
-            formControlName="address" rows="2"></textarea>
+          <textarea class="form-input form-textarea" formControlName="address"
+            rows="2" readonly></textarea>
+          <i class="bi bi-lock-fill lock-icon" style="top: 12px; align-self: flex-start;"></i>
         </div>
       </div>
 
+      <!-- Remarks — officer can add notes -->
       <div class="form-group full-width">
         <label class="form-label">Remarks</label>
         <div class="input-wrap">
@@ -358,9 +444,14 @@
     <button type="button" class="btn-reset" (click)="onReset()" [disabled]="isLoading">
       <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
-    <button type="submit" class="btn-submit" [disabled]="isLoading || form.invalid">
-      <span *ngIf="!isLoading"><i class="bi bi-receipt-cutoff"></i> Register VAT</span>
-      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Registering...</span>
+    <button type="submit" class="btn-submit"
+      [disabled]="isLoading || form.invalid || !selectedBusiness">
+      <span *ngIf="!isLoading">
+        <i class="bi bi-receipt-cutoff"></i> Register VAT
+      </span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>Registering...
+      </span>
     </button>
   </div>
 

@@ -9,52 +9,59 @@ import { Taxpayer } from '../../../../models/taxpayer.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
 import { MasterDataService } from '../../../../core/services/master-data.service';
 import {
-  Division, District, BusinessType, BusinessCategory
+  Division,
+  District,
+  BusinessType,
+  BusinessCategory,
 } from '../../../../models/master-data.model';
+import { BusinessVatStatus } from 'src/app/models/business.model';
 
 @Component({
   selector: 'app-vat-registration-create',
   templateUrl: './vat-registration-create.component.html',
-  styleUrls: ['./vat-registration-create.component.css']
+  styleUrls: ['./vat-registration-create.component.css'],
 })
 export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
-
   form!: FormGroup;
   isLoading = false;
   private destroy$ = new Subject<void>();
 
   // ── Taxpayer Search ──────────────────────────────────────────────────────
-  searchQuery   = '';
-  isSearching   = false;
+  searchQuery = '';
+  isSearching = false;
   searchResults: Taxpayer[] = [];
   selectedTaxpayer: Taxpayer | null = null;
-  showResults   = false;
-  hasSearched   = false;
+  showResults = false;
+  hasSearched = false;
+  businesses: BusinessVatStatus[] = [];
+  selectedBusiness: BusinessVatStatus | null = null;
+  loadingBusinesses = false;
+  showBusinessStep = false;
 
   // ── Static dropdowns ─────────────────────────────────────────────────────
   vatCategories = ['Standard', 'Zero Rated', 'Exempt', 'Special'];
 
   // ── Dynamic dropdowns (from MasterDataService) ───────────────────────────
-  divisions:          Division[]         = [];
-  districts:          District[]         = [];
-  businessTypes:      BusinessType[]     = [];
+  divisions: Division[] = [];
+  districts: District[] = [];
+  businessTypes: BusinessType[] = [];
   businessCategories: BusinessCategory[] = [];
 
   // VAT Zone & Circle — loaded by district/zone chain
-  vatZones:   any[] = [];
+  vatZones: any[] = [];
   vatCircles: any[] = [];
 
   // Loading states for cascading dropdowns
-  loadingDistricts  = false;
-  loadingZones      = false;
-  loadingCircles    = false;
+  loadingDistricts = false;
+  loadingZones = false;
+  loadingCircles = false;
 
   constructor(
-    private fb:             FormBuilder,
-    private http:           HttpClient,
-    private router:         Router,
-    private toast:          ToastService,
-    private masterData:     MasterDataService
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
+    private masterData: MasterDataService,
   ) {}
 
   ngOnInit(): void {
@@ -72,97 +79,120 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
 
   private buildForm(): void {
     this.form = this.fb.group({
-      taxpayerId:       [null],
-      tinNumber:        ['', Validators.required],
-      businessName:     ['', Validators.required],
-      ownerName:        [''],
-      vatCategory:      ['', Validators.required],
-      businessTypeId:   [null],
-      businessCategoryId:[null],
-      tradeLicenseNo:   [''],
-      divisionId:       [null],
-      districtId:       [null],
-      vatZoneId:        [null, Validators.required],
-      vatCircleId:      [null, Validators.required],
+      taxpayerId: [null],
+      tinNumber: ['', Validators.required],
+      businessName: ['', Validators.required],
+      ownerName: [''],
+      vatCategory: ['', Validators.required],
+      businessTypeId: [null],
+      businessCategoryId: [null],
+      tradeLicenseNo: [''],
+      divisionId: [null],
+      districtId: [null],
+      vatZoneId: [null, Validators.required],
+      vatCircleId: [null, Validators.required],
       registrationDate: [new Date().toISOString().split('T')[0]],
-      effectiveDate:    [''],
-      expiryDate:       [''],
-      annualTurnover:   [0],
-      email:            ['', Validators.email],
-      phone:            ['', Validators.required],
-      address:          [''],
-      remarks:          ['']
+      effectiveDate: [''],
+      expiryDate: [''],
+      annualTurnover: [0],
+      email: ['', Validators.email],
+      phone: ['', Validators.required],
+      address: [''],
+      remarks: [''],
     });
   }
 
-  ctrl(name: string) { return this.form.get(name); }
+  ctrl(name: string) {
+    return this.form.get(name);
+  }
 
   // ── Load all static/initial dropdowns ────────────────────────────────────
 
   private loadStaticDropdowns(): void {
-    this.masterData.getDivisions()
+    this.masterData
+      .getDivisions()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => this.divisions = data);
+      .subscribe((data) => (this.divisions = data));
 
-    this.masterData.getBusinessTypes()
+    this.masterData
+      .getBusinessTypes()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => this.businessTypes = data);
+      .subscribe((data) => (this.businessTypes = data));
 
-    this.masterData.getBusinessCategories()
+    this.masterData
+      .getBusinessCategories()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => this.businessCategories = data);
+      .subscribe((data) => (this.businessCategories = data));
   }
 
   // ── Cascade Listeners: Division → District → Zone → Circle ───────────────
 
   private setupCascadeListeners(): void {
-
     // Division change → load Districts, reset downstream
-    this.form.get('divisionId')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(divisionId => {
-        this.districts  = [];
-        this.vatZones   = [];
+    this.form
+      .get('divisionId')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((divisionId) => {
+        this.districts = [];
+        this.vatZones = [];
         this.vatCircles = [];
-        this.form.patchValue({ districtId: null, vatZoneId: null, vatCircleId: null });
+        this.form.patchValue({
+          districtId: null,
+          vatZoneId: null,
+          vatCircleId: null,
+        });
 
         if (!divisionId) return;
 
         this.loadingDistricts = true;
-        this.masterData.getDistrictsByDivision(divisionId)
-          .pipe(takeUntil(this.destroy$), finalize(() => this.loadingDistricts = false))
-          .subscribe(data => this.districts = data);
+        this.masterData
+          .getDistrictsByDivision(divisionId)
+          .pipe(
+            takeUntil(this.destroy$),
+            finalize(() => (this.loadingDistricts = false)),
+          )
+          .subscribe((data) => (this.districts = data));
       });
 
     // District change → load Tax Zones, reset downstream
-    this.form.get('districtId')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(districtId => {
-        this.vatZones   = [];
+    this.form
+      .get('districtId')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((districtId) => {
+        this.vatZones = [];
         this.vatCircles = [];
         this.form.patchValue({ vatZoneId: null, vatCircleId: null });
 
         if (!districtId) return;
 
         this.loadingZones = true;
-        this.masterData.getTaxZonesByDistrict(districtId)
-          .pipe(takeUntil(this.destroy$), finalize(() => this.loadingZones = false))
-          .subscribe(data => this.vatZones = data);
+        this.masterData
+          .getTaxZonesByDistrict(districtId)
+          .pipe(
+            takeUntil(this.destroy$),
+            finalize(() => (this.loadingZones = false)),
+          )
+          .subscribe((data) => (this.vatZones = data));
       });
 
     // Zone change → load Tax Circles
-    this.form.get('vatZoneId')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(zoneId => {
+    this.form
+      .get('vatZoneId')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((zoneId) => {
         this.vatCircles = [];
         this.form.patchValue({ vatCircleId: null });
 
         if (!zoneId) return;
 
         this.loadingCircles = true;
-        this.masterData.getTaxCirclesByZone(zoneId)
-          .pipe(takeUntil(this.destroy$), finalize(() => this.loadingCircles = false))
-          .subscribe(data => this.vatCircles = data);
+        this.masterData
+          .getTaxCirclesByZone(zoneId)
+          .pipe(
+            takeUntil(this.destroy$),
+            finalize(() => (this.loadingCircles = false)),
+          )
+          .subscribe((data) => (this.vatCircles = data));
       });
   }
 
@@ -171,72 +201,183 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   getDisplayName(tp: Taxpayer | null): string {
     if (!tp) return '';
     const type = tp.taxpayerType?.typeName?.toLowerCase() || '';
-    return type.includes('company') ? (tp.companyName || 'Unknown') : (tp.fullName || 'Unknown');
+    return type.includes('company')
+      ? tp.companyName || 'Unknown'
+      : tp.fullName || 'Unknown';
   }
 
   onSearchInput(): void {
     if (!this.searchQuery.trim()) {
       this.searchResults = [];
-      this.showResults   = false;
-      this.hasSearched   = false;
+      this.showResults = false;
+      this.hasSearched = false;
     }
   }
 
   searchTaxpayer(): void {
     const q = this.searchQuery.trim();
-    if (!q) { this.toast.warning('Enter a TIN number, NID or business name to search.'); return; }
-    if (q.length < 3) { this.toast.warning('Enter at least 3 characters to search.'); return; }
+    if (!q) {
+      this.toast.warning('Enter a TIN number, NID or business name to search.');
+      return;
+    }
+    if (q.length < 3) {
+      this.toast.warning('Enter at least 3 characters to search.');
+      return;
+    }
 
     this.isSearching = true;
     this.showResults = false;
     this.hasSearched = false;
 
-    this.http.get<Taxpayer[]>(`${API_ENDPOINTS.TAXPAYERS.LIST}?search=${encodeURIComponent(q)}`)
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.isSearching = false)))
+    this.http
+      .get<Taxpayer[]>(
+        `${API_ENDPOINTS.TAXPAYERS.LIST}?search=${encodeURIComponent(q)}`,
+      )
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isSearching = false)),
+      )
       .subscribe({
         next: (data) => {
           this.searchResults = data;
-          this.showResults   = true;
-          this.hasSearched   = true;
-          if (data.length === 0) this.toast.info('No taxpayer found. Fill in TIN and details manually.');
+          this.showResults = true;
+          this.hasSearched = true;
+          if (data.length === 0)
+            this.toast.info(
+              'No taxpayer found. Fill in TIN and details manually.',
+            );
         },
-        error: () => this.toast.error('Search failed. Please try again.')
+        error: () => this.toast.error('Search failed. Please try again.'),
       });
   }
 
   selectTaxpayer(tp: Taxpayer): void {
     this.selectedTaxpayer = tp;
-    this.showResults      = false;
+    this.showResults = false;
     const name = this.getDisplayName(tp);
 
     this.form.patchValue({
-      taxpayerId:   tp.id,
-      tinNumber:    tp.tinNumber || '',
-      ownerName:    name,
-      businessName: tp.companyName || ''
+      taxpayerId: tp.id,
+      tinNumber: tp.tinNumber || '',
+      ownerName: name,
+      businessName: tp.companyName || '',
     });
 
     this.form.get('taxpayerId')?.disable();
     this.form.get('tinNumber')?.disable();
 
-    this.toast.success(`"${name}" auto-filled. Complete the VAT details to continue.`);
+    this.toast.success(
+      `"${name}" auto-filled. Complete the VAT details to continue.`,
+    );
+
+    this.selectedTaxpayer = tp;
+    this.loadBusinesses(tp.id!);
+  }
+
+  private loadBusinesses(taxpayerId: number): void {
+    this.loadingBusinesses = true;
+    this.showBusinessStep = true;
+    this.selectedBusiness = null;
+
+    const url = API_ENDPOINTS.BUSINESSES.BY_TAXPAYER_VAT_STATUS(taxpayerId);
+    this.http
+      .get<BusinessVatStatus[]>(url)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingBusinesses = false)),
+      )
+      .subscribe({
+        next: (data) => {
+          this.businesses = data;
+          if (data.length === 0) {
+            this.toast.warning(
+              'This taxpayer has no registered businesses. Register a business first.',
+            );
+          }
+        },
+        error: () =>
+          this.toast.error('Failed to load businesses for this taxpayer.'),
+      });
+  }
+
+  selectBusiness(b: BusinessVatStatus): void {
+    if (b.vatRegistered) {
+      this.toast.error(
+        `"${b.businessName}" is already VAT registered. BIN: ${b.binNo}`
+      );
+      return;
+    }
+
+    this.selectedBusiness = b;
+
+    // Step 1 — patch all fields that come directly from the business record
+    this.form.patchValue({
+      businessId:        b.id,
+      businessName:      b.businessName,
+      ownerName:         b.ownerName,
+      tradeLicenseNo:    b.tradeLicenseNo,
+      email:             b.email  || '',
+      phone:             b.phone  || '',
+      address:           b.address || '',
+      annualTurnover:    b.annualTurnover || 0,
+      businessTypeId:    b.businessTypeId,
+      businessCategoryId: b.businessCategoryId,
+    });
+
+    // Step 2 — restore division → district → zone cascade
+    // Each step loads the next dropdown's data, then patches the value
+    if (b.divisionId) {
+      this.form.patchValue({ divisionId: b.divisionId });
+
+      this.loadingDistricts = true;
+      this.masterData.getDistrictsByDivision(b.divisionId)
+        .pipe(takeUntil(this.destroy$), finalize(() => this.loadingDistricts = false))
+        .subscribe(districts => {
+          this.districts = districts;
+
+          if (b.districtId) {
+            this.form.patchValue({ districtId: b.districtId });
+
+            // Loading zones is optional at this point — officer still picks zone/circle
+            this.loadingZones = true;
+            this.masterData.getTaxZonesByDistrict(b.districtId)
+              .pipe(takeUntil(this.destroy$), finalize(() => this.loadingZones = false))
+              .subscribe(zones => {
+                this.vatZones = zones;
+                // Zone and Circle are NOT pre-selected — they are VAT-specific
+                // and the officer must choose them consciously
+              });
+          }
+        });
+    }
+
+    this.toast.success(
+      `"${b.businessName}" details auto-filled. Select VAT Zone and Circle to continue.`
+    );
   }
 
   clearSelectedTaxpayer(silent = false): void {
     this.selectedTaxpayer = null;
-    this.searchQuery      = '';
-    this.searchResults    = [];
-    this.showResults      = false;
-    this.hasSearched      = false;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.showResults = false;
+    this.hasSearched = false;
 
     this.form.get('taxpayerId')?.enable();
     this.form.get('tinNumber')?.enable();
-    this.form.patchValue({ taxpayerId: null, tinNumber: '', ownerName: '', businessName: '' });
+    this.form.patchValue({
+      taxpayerId: null,
+      tinNumber: '',
+      ownerName: '',
+      businessName: '',
+    });
 
     if (!silent) this.toast.info('Taxpayer cleared.');
   }
 
-  get isAutoFilled(): boolean { return this.selectedTaxpayer !== null; }
+  get isAutoFilled(): boolean {
+    return this.selectedTaxpayer !== null;
+  }
 
   // ── Submit ────────────────────────────────────────────────────────────────
 
@@ -250,8 +391,12 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const payload = this.form.getRawValue();
 
-    this.http.post(API_ENDPOINTS.VAT_REGISTRATIONS.CREATE, payload)
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
+    this.http
+      .post(API_ENDPOINTS.VAT_REGISTRATIONS.CREATE, payload)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
       .subscribe({
         next: () => {
           this.toast.success('VAT Registration submitted successfully!');
@@ -259,29 +404,50 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           if (err?.status === 409) {
-            this.toast.error(err.error?.message || 'A VAT registration already exists for this TIN.');
+            this.toast.error(
+              err.error?.message ||
+                'A VAT registration already exists for this TIN.',
+            );
           } else if (err?.status === 400) {
-            this.toast.error(err.error?.message || 'Invalid data. Please check all fields.');
+            this.toast.error(
+              err.error?.message || 'Invalid data. Please check all fields.',
+            );
           } else {
-            this.toast.error('Failed to submit VAT registration. Please try again.');
+            this.toast.error(
+              'Failed to submit VAT registration. Please try again.',
+            );
           }
-        }
+        },
       });
+  }
+
+  getStatusClass(s: string | null): string {
+    if (!s) return '';
+    const map: Record<string, string> = {
+      Active: 'status-active',
+      Inactive: 'status-inactive',
+      Pending: 'status-pending',
+      Suspended: 'status-suspended',
+      Cancelled: 'status-inactive',
+    };
+    return map[s] ?? '';
   }
 
   onReset(): void {
     this.clearSelectedTaxpayer(true);
-    this.districts  = [];
-    this.vatZones   = [];
+    this.districts = [];
+    this.vatZones = [];
     this.vatCircles = [];
     this.form.reset({
       registrationDate: new Date().toISOString().split('T')[0],
-      annualTurnover: 0
+      annualTurnover: 0,
     });
     this.form.get('taxpayerId')?.enable();
     this.form.get('tinNumber')?.enable();
     this.toast.info('Form has been reset.');
   }
 
-  onCancel(): void { this.router.navigate(['/vat-registration']); }
+  onCancel(): void {
+    this.router.navigate(['/vat-registration']);
+  }
 }

@@ -140,3 +140,119 @@
 .select-badge.active {
   background: #1a3f8f; color: #fff;
 }
+
+/* ── Business Picker ─────────────────────────────────────────────────────── */
+
+.business-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.biz-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1.5px solid #e0e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #fafbfc;
+}
+
+.biz-row:hover:not(.biz-registered) {
+  border-color: #1a3f8f;
+  background: #f0f4ff;
+}
+
+.biz-row.biz-registered {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: #f8fafc;
+}
+
+.biz-row.biz-selected {
+  border-color: #1faa8b;
+  background: #f0fdf4;
+}
+
+.biz-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #e8eef9;
+  color: #1a3f8f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.biz-row.biz-selected .biz-icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.biz-row.biz-registered .biz-icon {
+  background: #e6f7f3;
+  color: #1faa8b;
+}
+
+.biz-info {
+  flex: 1;
+}
+
+.biz-name {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1a2340;
+}
+
+.biz-meta {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.biz-vat-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.bin-badge {
+  font-size: 12px;
+  font-weight: 700;
+  background: #e6f7f3;
+  color: #1faa8b;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.no-bin-badge {
+  font-size: 11px;
+  font-weight: 600;
+  background: #e8eef9;
+  color: #1a3f8f;
+  padding: 4px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.no-bin-badge.active {
+  background: #dcfce7;
+  color: #16a34a;
+}

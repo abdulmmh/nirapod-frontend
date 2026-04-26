@@ -71,7 +71,7 @@ export class VatReturnEditComponent implements OnInit, OnDestroy {
       inputTax:          [0, Validators.min(0)],
       taxPaid:           [0, Validators.min(0)],
       submittedBy:       [''],
-      statuses:     ['Draft'],
+      status:     ['Draft'],
       remarks:           ['']
     });
   }
