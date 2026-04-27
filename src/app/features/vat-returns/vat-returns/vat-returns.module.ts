@@ -4,10 +4,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { VatReturnsRoutingModule } from './vat-returns-routing.module';
 
-import { VatReturnListComponent } from '../pages/vat-return-list/vat-return-list.component';
-import { VatReturnEditComponent } from '../pages/vat-return-edit/vat-return-edit.component';
-import { VatReturnViewComponent } from '../pages/vat-return-view/vat-return-view.component';
+import { VatReturnListComponent }   from '../pages/vat-return-list/vat-return-list.component';
 import { VatReturnCreateComponent } from '../pages/vat-return-create/vat-return-create.component';
+import { VatReturnEditComponent }   from '../pages/vat-return-edit/vat-return-edit.component';
+import { VatReturnViewComponent }   from '../pages/vat-return-view/vat-return-view.component';
+import { VatRegistrationPickerComponent } from '../Components/vat-registration-picker/vat-registration-picker.component';
 
 
 @NgModule({
@@ -15,15 +16,15 @@ import { VatReturnCreateComponent } from '../pages/vat-return-create/vat-return-
     VatReturnListComponent,
     VatReturnCreateComponent,
     VatReturnViewComponent,
-    VatReturnEditComponent
-
+    VatReturnEditComponent,
+    VatRegistrationPickerComponent,   
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
-    VatReturnsRoutingModule
-  ]
+    VatReturnsRoutingModule,
+  ],
 })
-export class VatReturnsModule { }
+export class VatReturnsModule {}

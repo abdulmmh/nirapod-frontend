@@ -46,3 +46,13 @@
 .vhs-value.refund {
   color: #a5f3fc;
 }
+
+.view-header-card {
+  background: linear-gradient(135deg, #1a3f8f, #2a5fd6);
+  border-radius: 14px; padding: 24px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px; color: #fff;
+  flex-wrap: wrap; gap: 16px;
+  box-shadow: 0 4px 20px rgba(26,63,143,0.3);
+}

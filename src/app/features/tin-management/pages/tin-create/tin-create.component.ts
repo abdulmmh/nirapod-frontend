@@ -6,7 +6,12 @@ import { TinCreateRequest } from '../../../../models/tin.model';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { District, Division, TaxCircle, TaxZone } from 'src/app/models/master-data.model';
+import {
+  District,
+  Division,
+  TaxCircle,
+  TaxZone,
+} from 'src/app/models/master-data.model';
 
 @Component({
   selector: 'app-tin-create',
@@ -14,38 +19,37 @@ import { District, Division, TaxCircle, TaxZone } from 'src/app/models/master-da
   styleUrls: ['./tin-create.component.css'],
 })
 export class TinCreateComponent implements OnDestroy {
-
   isLoading = false;
   form: TinCreateRequest = this.getEmptyForm();
 
   selectedDivisionId: number | null = null;
   selectedDistrictId: number | null = null;
-  selectedZoneId:     number | null = null;
+  selectedZoneId: number | null = null;
 
-  searchQuery       = '';
-  isSearching       = false;
-  searchResults:    Taxpayer[] = [];
+  searchQuery = '';
+  isSearching = false;
+  searchResults: Taxpayer[] = [];
   selectedTaxpayer: Taxpayer | null = null;
-  showResults       = false;
-  hasSearched       = false;
+  showResults = false;
+  hasSearched = false;
 
-  divisions:  Division[]  = [];
-  districts:  District[]  = [];
-  taxZones:   TaxZone[]   = [];
+  divisions: Division[] = [];
+  districts: District[] = [];
+  taxZones: TaxZone[] = [];
   taxCircles: TaxCircle[] = [];
 
   loadingDistricts = false;
-  loadingZones     = false;
-  loadingCircles   = false;
+  loadingZones = false;
+  loadingCircles = false;
 
   tinCategories = ['Individual', 'Company', 'Partnership', 'NGO', 'Government'];
 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private http:   HttpClient,
+    private http: HttpClient,
     private router: Router,
-    private toast:  ToastService,
+    private toast: ToastService,
   ) {
     this.loadDivisions();
   }
@@ -55,72 +59,96 @@ export class TinCreateComponent implements OnDestroy {
     this.destroy$.complete();
   }
 
-  get isIndividual(): boolean { return this.form.tinCategory === 'Individual'; }
-  get isCompany():    boolean { return ['Company', 'Partnership', 'NGO', 'Government'].includes(this.form.tinCategory); }
-  get isAutoFilled(): boolean { return this.selectedTaxpayer !== null; }
+  get isIndividual(): boolean {
+    return this.form.tinCategory === 'Individual';
+  }
+  get isCompany(): boolean {
+    return ['Company', 'Partnership', 'NGO', 'Government'].includes(
+      this.form.tinCategory,
+    );
+  }
+  get isAutoFilled(): boolean {
+    return this.selectedTaxpayer !== null;
+  }
 
   getDisplayName(tp: Taxpayer | null): string {
     if (!tp) return '';
     const type = tp.taxpayerType?.typeName?.toLowerCase() || '';
     return type.includes('company')
-      ? (tp.companyName || 'Unknown Company')
-      : (tp.fullName   || 'Unknown Individual');
+      ? tp.companyName || 'Unknown Company'
+      : tp.fullName || 'Unknown Individual';
   }
 
   // ── Division Loader ──────────────────────────────────────────────────────
 
   private loadDivisions(): void {
-    this.http.get<Division[]>(API_ENDPOINTS.MASTER_DATA.DIVISIONS)
+    this.http
+      .get<Division[]>(API_ENDPOINTS.MASTER_DATA.DIVISIONS)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next:  data => (this.divisions = data),
-        error: ()   => this.toast.error('Could not load divisions.'),
+        next: (data) => (this.divisions = data),
+        error: () => this.toast.error('Could not load divisions.'),
       });
   }
 
   // ── Cascade: Division → District → Zone → Circle ─────────────────────────
 
   onDivisionChange(): void {
-    this.form.district  = '';
-    this.form.taxZone   = '';
+    this.form.district = '';
+    this.form.taxZone = '';
     this.form.taxCircle = '';
-    this.districts      = [];
-    this.taxZones       = [];
-    this.taxCircles     = [];
+    this.districts = [];
+    this.taxZones = [];
+    this.taxCircles = [];
     this.selectedDistrictId = null;
-    this.selectedZoneId     = null;
+    this.selectedZoneId = null;
 
     if (!this.selectedDivisionId) return;
 
     this.loadingDistricts = true;
-    this.http.get<District[]>(API_ENDPOINTS.MASTER_DATA.DISTRICTS_BY_DIVISION(this.selectedDivisionId))
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.loadingDistricts = false)))
+    this.http
+      .get<District[]>(
+        API_ENDPOINTS.MASTER_DATA.DISTRICTS_BY_DIVISION(
+          this.selectedDivisionId,
+        ),
+      )
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingDistricts = false)),
+      )
       .subscribe({
-        next:  data => (this.districts = data),
-        error: ()   => this.toast.error('Could not load districts.'),
+        next: (data) => (this.districts = data),
+        error: () => this.toast.error('Could not load districts.'),
       });
   }
 
   onDistrictChange(): void {
-    this.form.taxZone   = '';
+    this.form.taxZone = '';
     this.form.taxCircle = '';
-    this.taxZones       = [];
-    this.taxCircles     = [];
+    this.taxZones = [];
+    this.taxCircles = [];
     this.selectedZoneId = null;
 
-    const district = this.districts.find(d => d.name === this.form.district);
+    const district = this.districts.find((d) => d.name === this.form.district);
     if (!district) return;
 
     this.selectedDistrictId = district.id;
-    this.form.division = this.divisions.find(d => d.id === this.selectedDivisionId)?.name || '';
+    this.form.division =
+      this.divisions.find((d) => d.id === this.selectedDivisionId)?.name || '';
 
     this.loadingZones = true;
-    this.http.get<TaxZone[]>(API_ENDPOINTS.MASTER_DATA.TAX_ZONES_BY_DISTRICT(district.id))
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.loadingZones = false)))
+    this.http
+      .get<TaxZone[]>(
+        API_ENDPOINTS.MASTER_DATA.TAX_ZONES_BY_DISTRICT(district.id),
+      )
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingZones = false)),
+      )
       .subscribe({
-        next: data => {
+        next: (data) => {
           // FIX: filter zones where name is null/empty (backend data quality guard)
-          this.taxZones = data.filter(z => !!z.name);
+          this.taxZones = data.filter((z) => !!z.name);
           if (this.taxZones.length === 0)
             this.toast.info('No tax zones found for this district.');
         },
@@ -130,20 +158,24 @@ export class TinCreateComponent implements OnDestroy {
 
   onZoneChange(): void {
     this.form.taxCircle = '';
-    this.taxCircles     = [];
+    this.taxCircles = [];
 
-    // FIX: DB field is 'name', was 'zoneName' — zone.name was always undefined
-    const zone = this.taxZones.find(z => z.name === this.form.taxZone);
+    // FIX: DB field is 'name', was 'name' — zone.name was always undefined
+    const zone = this.taxZones.find((z) => z.name === this.form.taxZone);
     if (!zone) return;
 
     this.selectedZoneId = zone.id;
 
     this.loadingCircles = true;
-    this.http.get<TaxCircle[]>(API_ENDPOINTS.MASTER_DATA.TAX_CIRCLES_BY_ZONE(zone.id))
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.loadingCircles = false)))
+    this.http
+      .get<TaxCircle[]>(API_ENDPOINTS.MASTER_DATA.TAX_CIRCLES_BY_ZONE(zone.id))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loadingCircles = false)),
+      )
       .subscribe({
-        next:  data => (this.taxCircles = data.filter(c => !!c.name)),
-        error: ()   => this.toast.error('Could not load tax circles.'),
+        next: (data) => (this.taxCircles = data.filter((c) => !!c.name)),
+        error: () => this.toast.error('Could not load tax circles.'),
       });
   }
 
@@ -152,30 +184,42 @@ export class TinCreateComponent implements OnDestroy {
   onSearchInput(): void {
     if (!this.searchQuery.trim()) {
       this.searchResults = [];
-      this.showResults   = false;
-      this.hasSearched   = false;
+      this.showResults = false;
+      this.hasSearched = false;
     }
   }
 
   searchTaxpayer(): void {
     const q = this.searchQuery.trim();
-    if (!q)           { this.toast.warning('Enter NID number, name, or TIN to search.'); return; }
-    if (q.length < 3) { this.toast.warning('Enter at least 3 characters to search.'); return; }
+    if (!q) {
+      this.toast.warning('Enter NID number, name, or TIN to search.');
+      return;
+    }
+    if (q.length < 3) {
+      this.toast.warning('Enter at least 3 characters to search.');
+      return;
+    }
 
     this.isSearching = true;
     this.showResults = false;
     this.hasSearched = false;
 
     const url = `${API_ENDPOINTS.TAXPAYERS.LIST}?search=${encodeURIComponent(q)}`;
-    this.http.get<Taxpayer[]>(url)
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.isSearching = false)))
+    this.http
+      .get<Taxpayer[]>(url)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isSearching = false)),
+      )
       .subscribe({
-        next: data => {
+        next: (data) => {
           this.searchResults = data;
-          this.showResults   = true;
-          this.hasSearched   = true;
+          this.showResults = true;
+          this.hasSearched = true;
           if (data.length === 0)
-            this.toast.info('No taxpayer found. Check the NID, name, or TIN and try again.');
+            this.toast.info(
+              'No taxpayer found. Check the NID, name, or TIN and try again.',
+            );
         },
         error: () => this.toast.error('Search failed. Please try again.'),
       });
@@ -184,95 +228,107 @@ export class TinCreateComponent implements OnDestroy {
   selectTaxpayer(taxpayer: Taxpayer): void {
     if (taxpayer.tinNumber) {
       this.toast.error(
-        `This taxpayer already has TIN: ${taxpayer.tinNumber}. A second TIN cannot be issued.`
+        `This taxpayer already has TIN: ${taxpayer.tinNumber}. A second TIN cannot be issued.`,
       );
       this.showResults = false;
       return;
     }
 
     this.selectedTaxpayer = taxpayer;
-    this.showResults       = false;
+    this.showResults = false;
 
-    const isComp = taxpayer.taxpayerType?.typeName?.toLowerCase().includes('company') ?? false;
+    const isComp =
+      taxpayer.taxpayerType?.typeName?.toLowerCase().includes('company') ??
+      false;
 
-    this.form.tinCategory  = isComp ? 'Company' : 'Individual';
+    this.form.tinCategory = isComp ? 'Company' : 'Individual';
     this.form.taxpayerName = this.getDisplayName(taxpayer);
-    this.form.email        = taxpayer.email || '';
-    this.form.phone        = taxpayer.phone || '';
+    this.form.email = taxpayer.email || '';
+    this.form.phone = taxpayer.phone || '';
 
     if (isComp) {
-      this.form.incorporationDate = taxpayer.incorporationDate?.toString().split('T')[0] ?? '';
-      this.form.nid               = taxpayer.authorizedPersonNid || '';
+      this.form.incorporationDate =
+        taxpayer.incorporationDate?.toString().split('T')[0] ?? '';
+      this.form.nid = taxpayer.authorizedPersonNid || '';
     } else {
-      this.form.dateOfBirth = taxpayer.dateOfBirth?.toString().split('T')[0] ?? '';
-      this.form.nid         = taxpayer.nid || '';
+      this.form.dateOfBirth =
+        taxpayer.dateOfBirth?.toString().split('T')[0] ?? '';
+      this.form.nid = taxpayer.nid || '';
     }
 
     // Address auto-fill cascade
     const addr = taxpayer.presentAddress;
     if (addr) {
       this.form.address = [addr.houseNo, addr.roadVillage, addr.thana]
-        .filter(Boolean).join(', ');
+        .filter(Boolean)
+        .join(', ');
 
       if (addr.division && this.divisions.length > 0) {
         const matchedDiv = this.divisions.find(
-          d => d.name.toLowerCase() === addr.division.toLowerCase()
+          (d) => d.name.toLowerCase() === addr.division.toLowerCase(),
         );
         if (matchedDiv) {
           this.selectedDivisionId = matchedDiv.id;
-          this.loadingDistricts   = true;
+          this.loadingDistricts = true;
 
-          this.http.get<District[]>(
-            API_ENDPOINTS.MASTER_DATA.DISTRICTS_BY_DIVISION(matchedDiv.id)
-          )
-          .pipe(takeUntil(this.destroy$), finalize(() => (this.loadingDistricts = false)))
-          .subscribe({
-            next: districtsData => {
-              this.districts = districtsData;
-              const matchedDist = districtsData.find(
-                d => d.name.toLowerCase() === addr.district?.toLowerCase()
-              );
-              if (matchedDist) {
-                this.form.district = matchedDist.name;
-                this.onDistrictChange();
-                // NOTE: Zone & Circle cannot be auto-filled from taxpayer address —
-                // taxpayer record doesn't store taxZone/taxCircle. User must select manually.
-              }
-            },
-            error: () => this.toast.error('Could not restore district from address.'),
-          });
+          this.http
+            .get<District[]>(
+              API_ENDPOINTS.MASTER_DATA.DISTRICTS_BY_DIVISION(matchedDiv.id),
+            )
+            .pipe(
+              takeUntil(this.destroy$),
+              finalize(() => (this.loadingDistricts = false)),
+            )
+            .subscribe({
+              next: (districtsData) => {
+                this.districts = districtsData;
+                const matchedDist = districtsData.find(
+                  (d) => d.name.toLowerCase() === addr.district?.toLowerCase(),
+                );
+                if (matchedDist) {
+                  this.form.district = matchedDist.name;
+                  this.onDistrictChange();
+                  // NOTE: Zone & Circle cannot be auto-filled from taxpayer address —
+                  // taxpayer record doesn't store taxZone/taxCircle. User must select manually.
+                }
+              },
+              error: () =>
+                this.toast.error('Could not restore district from address.'),
+            });
         }
       }
     }
 
-    this.toast.success(`"${this.form.taxpayerName}" auto-filled. Select Tax Zone and Circle to continue.`);
+    this.toast.success(
+      `"${this.form.taxpayerName}" auto-filled. Select Tax Zone and Circle to continue.`,
+    );
   }
 
   clearSelectedTaxpayer(): void {
-    this.selectedTaxpayer   = null;
-    this.searchQuery        = '';
-    this.searchResults      = [];
-    this.showResults        = false;
-    this.hasSearched        = false;
-    this.form               = this.getEmptyForm();
+    this.selectedTaxpayer = null;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.showResults = false;
+    this.hasSearched = false;
+    this.form = this.getEmptyForm();
     this.selectedDivisionId = null;
     this.selectedDistrictId = null;
-    this.selectedZoneId     = null;
-    this.districts          = [];
-    this.taxZones           = [];
-    this.taxCircles         = [];
+    this.selectedZoneId = null;
+    this.districts = [];
+    this.taxZones = [];
+    this.taxCircles = [];
   }
 
   isFormValid(): boolean {
     return !!(
       this.form.taxpayerName &&
-      this.form.tinCategory  &&
-      this.form.phone        &&
-      this.form.taxZone      &&
-      this.form.taxCircle    &&
-      this.form.issuedDate   &&
-      this.form.division     &&
-      this.form.district     &&
+      this.form.tinCategory &&
+      this.form.phone &&
+      this.form.taxZone &&
+      this.form.taxCircle &&
+      this.form.issuedDate &&
+      this.form.division &&
+      this.form.district &&
       (this.isIndividual ? this.form.nid || this.form.passportNo : true)
     );
   }
@@ -283,22 +339,26 @@ export class TinCreateComponent implements OnDestroy {
       return;
     }
     this.isLoading = true;
-    const payload  = { ...this.form, taxpayerId: this.selectedTaxpayer?.id };
+    const payload = { ...this.form, taxpayerId: this.selectedTaxpayer?.id };
 
-    this.http.post(API_ENDPOINTS.TINS.CREATE, payload)
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
+    this.http
+      .post(API_ENDPOINTS.TINS.CREATE, payload)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
       .subscribe({
         next: () => {
           this.toast.success('TIN issued successfully!');
-          timer(1500).pipe(takeUntil(this.destroy$))
+          timer(1500)
+            .pipe(takeUntil(this.destroy$))
             .subscribe(() => this.router.navigate(['/tin']));
         },
-        error: err => {
-          const msg = err.status === 409
-            ? (err.error?.message || 'This taxpayer already has a TIN.')
-            : 'Failed to issue TIN. Please try again.';
-          this.toast.error(msg);
-        },
+        error: (err) => {
+            if (err?.status === 400) {
+              this.toast.error(err.error?.message || 'Invalid data. Please check all fields.');
+            }
+          },
       });
   }
 
@@ -307,14 +367,27 @@ export class TinCreateComponent implements OnDestroy {
     this.toast.info('Form has been reset.');
   }
 
-  onCancel(): void { this.router.navigate(['/tin']); }
+  onCancel(): void {
+    this.router.navigate(['/tin']);
+  }
 
   private getEmptyForm(): TinCreateRequest {
     return {
-      taxpayerName: '', tinCategory: '', nid: '', passportNo: '',
-      dateOfBirth: '', incorporationDate: '', email: '', phone: '',
-      address: '', district: '', division: '', taxZone: '', taxCircle: '',
-      issuedDate: new Date().toISOString().split('T')[0], remarks: '',
+      taxpayerName: '',
+      tinCategory: '',
+      nid: '',
+      passportNo: '',
+      dateOfBirth: '',
+      incorporationDate: '',
+      email: '',
+      phone: '',
+      address: '',
+      district: '',
+      division: '',
+      taxZone: '',
+      taxCircle: '',
+      issuedDate: new Date().toISOString().split('T')[0],
+      remarks: '',
     };
   }
 }

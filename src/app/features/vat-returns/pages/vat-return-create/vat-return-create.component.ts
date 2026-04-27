@@ -1,48 +1,115 @@
-import { Component, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
+
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { VatRegistration } from '../../../../models/vat-registration.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
 
-@Component({
-  selector: 'app-vat-return-create',
-  templateUrl: './vat-return-create.component.html',
-  styleUrls: ['./vat-return-create.component.css']
-})
-export class VatReturnCreateComponent implements OnDestroy {
+// ── VAT-rate map ───────────────────────────────────────────────────────────────
+// Centralises the rate logic so it is easy to update when BD VAT law changes.
+// 'Standard' → 15 %  (core rate under the VAT & SD Act 2012)
+// 'Zero Rated' → 0 %  (exports, specified goods)
+// 'Exempt'    → 0 %  (basic necessities, healthcare, etc.)
+// 'Special'   → 5 %  (truncated rates — e.g. restaurants, construction)
+const VAT_RATES: Record<string, number> = {
+  'Standard'   : 0.15,
+  'Zero Rated' : 0.00,
+  'Exempt'     : 0.00,
+  'Special'    : 0.05,
+};
 
-  form!: FormGroup;
+// ── Return-period enum alignment ───────────────────────────────────────────────
+// Maps exactly to the Spring Boot VatReturn.returnPeriod column.
+// The backend stores plain strings ('Monthly', 'Quarterly', 'Annually') — no Java
+// @Enumerated needed, but these must match perfectly to pass server-side validation.
+export type ReturnPeriod = 'Monthly' | 'Quarterly' | 'Annually';
+
+// ── Custom validator: submissionDate must not precede the start of the filing period
+function submissionNotBeforePeriodValidator(): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const form = group as FormGroup;
+    const submissionDate: string = form.get('submissionDate')?.value;
+    const periodMonth   : string = form.get('periodMonth')?.value;
+    const periodYear    : string = form.get('periodYear')?.value;
+    const returnPeriod  : ReturnPeriod = form.get('returnPeriod')?.value;
+
+    if (!submissionDate || !periodMonth || !periodYear) return null;
+
+    // Derive the first day of the filing period
+    let periodStart: Date;
+
+    if (returnPeriod === 'Quarterly') {
+      const quarterMap: Record<string, number> = { Q1: 0, Q2: 3, Q3: 6, Q4: 9 };
+      const month = quarterMap[periodMonth] ?? 0;
+      periodStart = new Date(Number(periodYear), month, 1);
+    } else {
+      // Monthly or Annually — periodMonth is a month name
+      const monthNames = [
+        'January','February','March','April','May','June',
+        'July','August','September','October','November','December',
+      ];
+      const monthIdx = monthNames.indexOf(periodMonth);
+      const month    = monthIdx >= 0 ? monthIdx : 0;
+      periodStart    = new Date(Number(periodYear), month, 1);
+    }
+
+    const submission = new Date(submissionDate);
+
+    // submissionDate must be ≥ the first day of the period
+    if (submission < periodStart) {
+      return { submissionBeforePeriod: true };
+    }
+    return null;
+  };
+}
+
+@Component({
+  selector   : 'app-vat-return-create',
+  templateUrl: './vat-return-create.component.html',
+  styleUrls  : ['./vat-return-create.component.css'],
+})
+export class VatReturnCreateComponent implements OnInit, OnDestroy {
+
+  form!    : FormGroup;
   isLoading = false;
+
+  // ── Selected registration (received from picker child) ────────────────────
+  selectedReg: VatRegistration | null = null;
+
+  // ── Dropdown data ─────────────────────────────────────────────────────────
+  readonly returnPeriods  : ReturnPeriod[] = ['Monthly', 'Quarterly', 'Annually'];
+  readonly months         = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December',
+  ];
+  readonly quarters       = ['Q1','Q2','Q3','Q4'];
+  readonly years          = ['2025','2024','2023','2022','2021'];
+  readonly assessmentYears= ['2025-26','2024-25','2023-24','2022-23'];
+  readonly submitters     = ['Taxpayer','Tax Officer','Data Entry Operator','Tax Commissioner'];
+
   private destroy$ = new Subject<void>();
 
-  // ── VAT Registration Search ──────────────────────────────────────────────
-  searchQuery          = '';
-  isSearching          = false;
-  searchResults: VatRegistration[] = [];
-  selectedReg: VatRegistration | null = null;
-  showResults          = false;
-  hasSearched          = false;
-
-  // ── Dropdown Data ────────────────────────────────────────────────────────
-  returnPeriods   = ['Monthly', 'Quarterly', 'Annually'];
-  months          = ['January','February','March','April','May','June',
-                     'July','August','September','October','November','December'];
-  quarters        = ['Q1','Q2','Q3','Q4'];
-  years           = ['2025','2024','2023','2022','2021'];
-  assessmentYears = ['2025-26','2024-25','2023-24','2022-23'];
-  submitters      = ['Taxpayer','Tax Officer','Data Entry Operator','Tax Commissioner'];
-
   constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
+    private fb    : FormBuilder,
+    private http  : HttpClient,
     private router: Router,
-    private toast: ToastService
-  ) {
+    private toast : ToastService,
+  ) {}
+
+  ngOnInit(): void {
     this.buildForm();
+    this.wireValueChanges();
   }
 
   ngOnDestroy(): void {
@@ -50,123 +117,123 @@ export class VatReturnCreateComponent implements OnDestroy {
     this.destroy$.complete();
   }
 
-  // ── Form ─────────────────────────────────────────────────────────────────
+  // ── Form construction ─────────────────────────────────────────────────────
 
   private buildForm(): void {
-    this.form = this.fb.group({
-      vatRegistrationId: [null, Validators.required],
-      returnPeriod:      ['Monthly', Validators.required],
-      periodMonth:       ['', Validators.required],
-      periodYear:        ['2025', Validators.required],
-      assessmentYear:    ['2025-26'],
-      submissionDate:    [new Date().toISOString().split('T')[0]],
-      dueDate:           [''],
-      taxableSupplies:   [0, Validators.min(0)],
-      exemptSupplies:    [0, Validators.min(0)],
-      zeroRatedSupplies: [0, Validators.min(0)],
-      outputTax:         [0, Validators.min(0)],
-      inputTax:          [0, Validators.min(0)],
-      taxPaid:           [0, Validators.min(0)],
-      submittedBy:       [''],
-      remarks:           ['']
-    });
+    this.form = this.fb.group(
+      {
+        vatRegistrationId: [null, Validators.required],
+        returnPeriod     : ['Monthly'                      , Validators.required],
+        periodMonth      : [''                             , Validators.required],
+        periodYear       : ['2025'                         , Validators.required],
+        assessmentYear   : ['2025-26'],
+        submissionDate   : [new Date().toISOString().split('T')[0]],
+        dueDate          : [''],
+        taxableSupplies  : [0, Validators.min(0)],
+        exemptSupplies   : [0, Validators.min(0)],
+        zeroRatedSupplies: [0, Validators.min(0)],
+        outputTax        : [{ value: 0, disabled: true }],   // always auto-calculated
+        inputTax         : [0, Validators.min(0)],
+        taxPaid          : [0, Validators.min(0)],
+        submittedBy      : [''],
+        remarks          : [''],
+      },
+      { validators: submissionNotBeforePeriodValidator() }
+    );
   }
 
-  ctrl(name: string) { return this.form.get(name); }
+  /**
+   * Reactive wiring:
+   *  1. taxableSupplies → auto-recalculate outputTax using the selected reg's vatCategory rate
+   *  2. returnPeriod   → reset periodMonth when period type changes (months ↔ quarters)
+   */
+  private wireValueChanges(): void {
+    // 1. Output tax auto-calculation via valueChanges (replaces the (input) binding)
+    this.form.get('taxableSupplies')!
+      .valueChanges
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((taxable: number) => this.recalcOutputTax(taxable ?? 0));
 
-  get isAutoFilled(): boolean { return this.selectedReg !== null; }
+    // 2. Reset periodMonth when the filer switches between Monthly/Quarterly/Annually
+    this.form.get('returnPeriod')!
+      .valueChanges
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => this.form.patchValue({ periodMonth: '' }, { emitEvent: false }));
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  ctrl(name: string) { return this.form.get(name); }
 
   get periodOptions(): string[] {
     return this.ctrl('returnPeriod')?.value === 'Quarterly' ? this.quarters : this.months;
   }
 
-  // Real-time calculations (display only — backend recalculates before save)
+  // ── Computed display values (real-time; backend always recalculates on save) ──
+
   get totalSupplies(): number {
-    const v = this.form.value;
+    const v = this.form.getRawValue();
     return (v.taxableSupplies || 0) + (v.exemptSupplies || 0) + (v.zeroRatedSupplies || 0);
   }
 
   get netTaxPayable(): number {
-    const v = this.form.value;
+    const v = this.form.getRawValue();
     return Math.max(0, (v.outputTax || 0) - (v.inputTax || 0));
   }
 
   get balanceDue(): number {
-    return Math.max(0, this.netTaxPayable - (this.form.value.taxPaid || 0));
+    return Math.max(0, this.netTaxPayable - (this.form.getRawValue().taxPaid || 0));
   }
 
-  autoCalcOutputTax(): void {
-    const taxable = this.ctrl('taxableSupplies')?.value || 0;
-    this.form.patchValue({ outputTax: Math.round(taxable * 0.15) });
+  /** Returns the effective VAT rate (0–1) based on the selected registration's category. */
+  get effectiveVatRate(): number {
+    return this.selectedReg ? (VAT_RATES[this.selectedReg.vatCategory] ?? 0.15) : 0.15;
   }
 
-  // ── VAT Registration Search ───────────────────────────────────────────────
-
-  onSearchInput(): void {
-    if (!this.searchQuery.trim()) {
-      this.searchResults = [];
-      this.showResults   = false;
-      this.hasSearched   = false;
-    }
+  /** Display string, e.g. "15%" or "5%". */
+  get effectiveVatRateLabel(): string {
+    return `${(this.effectiveVatRate * 100).toFixed(0)}%`;
   }
 
-  searchVatRegistration(): void {
-    const q = this.searchQuery.trim();
-    if (!q) { this.toast.warning('Enter a BIN number, TIN or business name to search.'); return; }
-    if (q.length < 3) { this.toast.warning('Enter at least 3 characters to search.'); return; }
-
-    this.isSearching = true;
-    this.showResults = false;
-    this.hasSearched = false;
-
-    this.http.get<VatRegistration[]>(`${API_ENDPOINTS.VAT_REGISTRATIONS.LIST}?search=${encodeURIComponent(q)}`)
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.isSearching = false)))
-      .subscribe({
-        next: (data) => {
-          // Only show Active registrations — cannot file a return for Suspended/Cancelled
-          this.searchResults = data.filter(r => r.status === 'Active');
-          this.showResults   = true;
-          this.hasSearched   = true;
-          if (this.searchResults.length === 0) {
-            this.toast.info('No active VAT registration found. Only Active registrations can file returns.');
-          }
-        },
-        error: () => this.toast.error('Search failed. Please try again.')
-      });
+  private recalcOutputTax(taxable: number): void {
+    const computed = Math.round(taxable * this.effectiveVatRate);
+    this.form.get('outputTax')!.setValue(computed, { emitEvent: false });
   }
 
-  selectRegistration(reg: VatRegistration): void {
+  // ── Picker child events ───────────────────────────────────────────────────
+
+  onRegistrationSelected(reg: VatRegistration): void {
     this.selectedReg = reg;
-    this.showResults = false;
-
     this.form.patchValue({ vatRegistrationId: reg.id });
-    this.form.get('vatRegistrationId')?.disable();
+    this.form.get('vatRegistrationId')!.disable();
 
-    this.toast.success(`"${reg.businessName}" selected. Fill in the return details below.`);
+    // Re-run output-tax calculation with the newly-known VAT rate
+    this.recalcOutputTax(this.form.get('taxableSupplies')!.value ?? 0);
   }
 
-  clearSelectedRegistration(): void {
-    this.selectedReg  = null;
-    this.searchQuery  = '';
-    this.searchResults = [];
-    this.showResults  = false;
-    this.hasSearched  = false;
-    this.form.get('vatRegistrationId')?.enable();
-    this.form.patchValue({ vatRegistrationId: null });
-    this.toast.info('Registration cleared. Search again to select a business.');
+  onRegistrationCleared(): void {
+    this.selectedReg = null;
+    this.form.get('vatRegistrationId')!.enable();
+    this.form.patchValue({ vatRegistrationId: null, outputTax: 0 });
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────
 
   onSubmit(): void {
+    this.form.markAllAsTouched();
+
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.toast.warning('Please fill in all required fields.');
+      if (this.form.errors?.['submissionBeforePeriod']) {
+        this.toast.warning('Submission date cannot be earlier than the start of the filing period.');
+      } else {
+        this.toast.warning('Please fill in all required fields.');
+      }
       return;
     }
 
     this.isLoading = true;
-    const payload = this.form.getRawValue(); // getRawValue includes disabled vatRegistrationId
+    // getRawValue() includes disabled controls (vatRegistrationId, outputTax)
+    const payload = this.form.getRawValue();
 
     this.http.post(API_ENDPOINTS.VAT_RETURNS.CREATE, payload)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
@@ -175,27 +242,34 @@ export class VatReturnCreateComponent implements OnDestroy {
           this.toast.success('VAT Return filed successfully!');
           setTimeout(() => this.router.navigate(['/vat-returns']), 1500);
         },
+        // 409 Conflict and generic errors are handled by the global HttpInterceptor.
+        // This subscriber only needs to react to validation errors (400) that carry
+        // a human-readable message from the backend.
         error: (err) => {
-          if (err?.status === 409) {
-            this.toast.error(err.error?.message || 'A return for this BIN and period already exists.');
-          } else if (err?.status === 400) {
+          if (err?.status === 400) {
             this.toast.error(err.error?.message || 'Invalid data. Please check all fields.');
-          } else {
-            this.toast.error('Failed to file VAT return. Please try again.');
           }
-        }
+          // All other statuses (409, 500, etc.) → global interceptor shows the toast.
+        },
       });
   }
 
+  // ── Reset / Cancel ────────────────────────────────────────────────────────
+
   onReset(): void {
-    this.clearSelectedRegistration();
+    this.selectedReg = null;
+    this.form.get('vatRegistrationId')!.enable();
     this.form.reset({
-      returnPeriod:    'Monthly',
-      periodYear:      '2025',
-      assessmentYear:  '2025-26',
-      submissionDate:  new Date().toISOString().split('T')[0],
-      taxableSupplies: 0, exemptSupplies: 0, zeroRatedSupplies: 0,
-      outputTax: 0, inputTax: 0, taxPaid: 0
+      returnPeriod     : 'Monthly',
+      periodYear       : '2025',
+      assessmentYear   : '2025-26',
+      submissionDate   : new Date().toISOString().split('T')[0],
+      taxableSupplies  : 0,
+      exemptSupplies   : 0,
+      zeroRatedSupplies: 0,
+      outputTax        : 0,
+      inputTax         : 0,
+      taxPaid          : 0,
     });
     this.toast.info('Form has been reset.');
   }

@@ -1,0 +1,96 @@
+<!-- ── Search Row ──────────────────────────────────────────────────────── -->
+<div class="search-row">
+  <div class="input-wrap search-input-wrap">
+    <i class="bi bi-upc-scan input-icon"></i>
+    <input
+      type="text"
+      class="form-input"
+      placeholder="Enter TIN number, NID or taxpayer name…"
+      [(ngModel)]="searchQuery"
+      [ngModelOptions]="{ standalone: true }"
+      (ngModelChange)="onInputChange()"
+      (keyup.enter)="onSearch()"
+      [disabled]="isLocked"
+    />
+    <button
+      *ngIf="isLocked"
+      type="button"
+      class="clear-btn"
+      title="Clear selection"
+      (click)="onClear()"
+    >
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <button
+    type="button"
+    class="btn-search"
+    (click)="onSearch()"
+    [disabled]="isSearching || isLocked"
+  >
+    <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
+    <span *ngIf="isSearching">
+      <span class="spinner-border spinner-border-sm"></span> Searching…
+    </span>
+  </button>
+</div>
+
+<!-- ── Search Results ─────────────────────────────────────────────────── -->
+<div class="search-results" *ngIf="showResults && searchResults.length > 0">
+  <div
+    class="result-item"
+    *ngFor="let tp of searchResults"
+    (click)="onSelect(tp)"
+    [class.disabled]="isIneligible(tp)"
+    [title]="isIneligible(tp) ? 'Taxpayer is suspended and cannot be registered for VAT.' : ''"
+  >
+    <div class="result-avatar">
+      <i class="bi bi-person-fill"></i>
+    </div>
+    <div class="result-info">
+      <span class="result-name">{{ getDisplayName(tp) }}</span>
+      <span class="result-meta">
+        <span *ngIf="tp.tinNumber" class="fw-bold me-2">TIN: {{ tp.tinNumber }}</span>
+        <span *ngIf="tp.phone"> · {{ tp.phone }}</span>
+        <span
+          *ngIf="isIneligible(tp)"
+          class="ms-2"
+          style="color:#e74c3c;font-weight:700"
+        >⚠ Suspended</span>
+      </span>
+    </div>
+    <span class="result-badge" *ngIf="!isIneligible(tp)">Select</span>
+    <span
+      class="result-badge"
+      *ngIf="isIneligible(tp)"
+      style="background:#fff0f0;color:#e74c3c"
+    >Ineligible</span>
+  </div>
+</div>
+
+<!-- ── No Results ─────────────────────────────────────────────────────── -->
+<div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
+  <i class="bi bi-info-circle"></i>
+  No taxpayer found. Try a different TIN, NID, or name.
+</div>
+
+<!-- ── Selected Taxpayer Card ─────────────────────────────────────────── -->
+<div class="selected-card" *ngIf="selectedTaxpayer">
+  <div class="selected-card-left">
+    <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
+    <div>
+      <p class="selected-name">{{ displayName }}</p>
+      <p class="selected-meta">
+        <span *ngIf="selectedTaxpayer.tinNumber">TIN: {{ selectedTaxpayer.tinNumber }}</span>
+        <span *ngIf="selectedTaxpayer.phone"> · {{ selectedTaxpayer.phone }}</span>
+        <span class="ms-2" style="font-size:11px;opacity:0.8">
+          — {{ selectedTaxpayer.taxpayerType?.typeName }}
+        </span>
+      </p>
+    </div>
+  </div>
+  <div class="autofill-tag">
+    <i class="bi bi-lightning-charge-fill"></i> Selected
+  </div>
+</div>

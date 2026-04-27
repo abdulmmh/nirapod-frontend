@@ -1,0 +1,99 @@
+<!-- ─────────────────────────────────────────────────────────────────────────
+     STATE A: Nothing selected yet  →  show search bar + results / no-result note
+     STATE B: A registration is selected  →  show only the selected card + Change btn
+     ──────────────────────────────────────────────────────────────────────── -->
+
+<div class="picker-section">
+
+  <div class="section-header">
+    <div class="section-icon search-icon">
+      <i class="bi bi-search"></i>
+    </div>
+    <div>
+      <h6 class="section-title">Find VAT Registration</h6>
+      <span class="section-sub">
+        Search by BIN number, TIN or business name — only Active registrations shown
+      </span>
+    </div>
+  </div>
+
+  <!-- ── STATE A: Search UI ── -->
+  <ng-container *ngIf="!isSelected">
+
+    <div class="search-row">
+      <div class="input-wrap search-input-wrap">
+        <i class="bi bi-hash input-icon"></i>
+        <input
+          type="text"
+          class="form-input"
+          placeholder="Enter BIN number, TIN or business name..."
+          [(ngModel)]="searchQuery"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="onSearchInput()"
+          (keyup.enter)="search()" />
+      </div>
+
+      <button type="button" class="btn-search"
+        (click)="search()"
+        [disabled]="isSearching">
+        <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
+        <span *ngIf="isSearching">
+          <span class="spinner-border spinner-border-sm"></span> Searching...
+        </span>
+      </button>
+    </div>
+
+    <!-- Results list -->
+    <div class="search-results" *ngIf="searchResults.length > 0">
+      <div class="result-item" *ngFor="let r of searchResults" (click)="select(r)">
+        <div class="result-avatar"><i class="bi bi-receipt-cutoff"></i></div>
+        <div class="result-info">
+          <span class="result-name">{{ r.businessName }}</span>
+          <span class="result-meta">
+            <span class="fw-bold text-blue me-2">BIN: {{ r.binNo }}</span>
+            <span class="me-2">TIN: {{ r.tinNumber }}</span>
+            <span class="cat-pill">{{ r.vatCategory }}</span>
+          </span>
+        </div>
+        <span class="result-badge">Select</span>
+      </div>
+    </div>
+
+    <!-- No-result note -->
+    <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
+      <i class="bi bi-info-circle"></i>
+      No active VAT registration found. Check BIN, TIN or name and try again.
+    </div>
+
+  </ng-container>
+
+  <!-- ── STATE B: Selected card ── -->
+  <ng-container *ngIf="isSelected && selectedReg">
+
+    <div class="selected-card">
+      <div class="selected-card-left">
+        <div class="selected-avatar"><i class="bi bi-receipt-cutoff"></i></div>
+        <div>
+          <p class="selected-name">{{ selectedReg.businessName }}</p>
+          <p class="selected-meta">
+            BIN: {{ selectedReg.binNo }}
+            <span class="ms-2">TIN: {{ selectedReg.tinNumber }}</span>
+            <span class="ms-2 cat-pill">{{ selectedReg.vatCategory }}</span>
+            <span class="ms-2 zone-pill">{{ selectedReg.vatZone }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="selected-card-right">
+        <div class="autofill-tag">
+          <i class="bi bi-lightning-charge-fill"></i> Selected
+        </div>
+        <button type="button" class="btn-change" (click)="clear()">
+          <i class="bi bi-arrow-repeat"></i> Change
+        </button>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

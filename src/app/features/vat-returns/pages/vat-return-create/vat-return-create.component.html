@@ -11,88 +11,23 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 <div class="form-card">
 
-  <!-- ── Section 0: VAT Registration Search ────────────────────────────── -->
+  <!-- ── Section 0: VAT Registration Picker (child component) ────────────── -->
   <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon search-icon">
-        <i class="bi bi-search"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Find VAT Registration</h6>
-        <span class="section-sub">Search by BIN number, TIN or business name — only Active registrations shown</span>
-      </div>
-    </div>
+    <app-vat-registration-picker
+      (registrationSelected)="onRegistrationSelected($event)"
+      (registrationCleared)="onRegistrationCleared()">
+    </app-vat-registration-picker>
 
-    <div class="search-row">
-      <div class="input-wrap search-input-wrap">
-        <i class="bi bi-hash input-icon"></i>
-        <input type="text" class="form-input"
-          placeholder="Enter BIN number, TIN or business name..."
-          [(ngModel)]="searchQuery"
-          [ngModelOptions]="{standalone: true}"
-          (ngModelChange)="onSearchInput()"
-          (keyup.enter)="searchVatRegistration()"
-          [disabled]="isAutoFilled" />
-        <button type="button" *ngIf="isAutoFilled" class="clear-btn" (click)="clearSelectedRegistration()">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-      <button type="button" class="btn-search"
-        (click)="searchVatRegistration()"
-        [disabled]="isSearching || isAutoFilled">
-        <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
-        <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span> Searching...</span>
-      </button>
-    </div>
-
-    <!-- Validation error if vatRegistrationId missing -->
+    <!-- Validation error shown only after touch (e.g. user tried submitting) -->
     <span class="field-error-msg"
       *ngIf="ctrl('vatRegistrationId')?.errors?.['required'] && ctrl('vatRegistrationId')?.touched">
       Please search and select a VAT registration.
     </span>
-
-    <!-- Search Results -->
-    <div class="search-results" *ngIf="showResults && searchResults.length > 0">
-      <div class="result-item" *ngFor="let r of searchResults" (click)="selectRegistration(r)">
-        <div class="result-avatar"><i class="bi bi-receipt-cutoff"></i></div>
-        <div class="result-info">
-          <span class="result-name">{{ r.businessName }}</span>
-          <span class="result-meta">
-            <span class="fw-bold text-blue me-2">BIN: {{ r.binNo }}</span>
-            <span class="me-2">TIN: {{ r.tinNumber }}</span>
-            <span class="cat-pill">{{ r.vatCategory }}</span>
-          </span>
-        </div>
-        <span class="result-badge">Select</span>
-      </div>
-    </div>
-
-    <!-- No Results -->
-    <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
-      <i class="bi bi-info-circle"></i> No active VAT registration found. Check BIN, TIN or name and try again.
-    </div>
-
-    <!-- Selected Card -->
-    <div class="selected-card" *ngIf="isAutoFilled && selectedReg">
-      <div class="selected-card-left">
-        <div class="selected-avatar"><i class="bi bi-receipt-cutoff"></i></div>
-        <div>
-          <p class="selected-name">{{ selectedReg.businessName }}</p>
-          <p class="selected-meta">
-            BIN: {{ selectedReg.binNo }}
-            <span class="ms-2">TIN: {{ selectedReg.tinNumber }}</span>
-            <span class="ms-2 cat-pill">{{ selectedReg.vatCategory }}</span>
-            <span class="ms-2 zone-pill">{{ selectedReg.vatZone }}</span>
-          </p>
-        </div>
-      </div>
-      <div class="autofill-tag"><i class="bi bi-lightning-charge-fill"></i> Selected</div>
-    </div>
   </div>
 
   <div class="section-divider"></div>
 
-  <!-- ── Section 1: Return Period ──────────────────────────────────────── -->
+  <!-- ── Section 1: Return Period ────────────────────────────────────────── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon teal">
@@ -103,6 +38,7 @@
         <span class="section-sub">Filing period and assessment year</span>
       </div>
     </div>
+
     <div class="form-grid">
 
       <div class="form-group">
@@ -125,7 +61,8 @@
             <option *ngFor="let m of periodOptions" [value]="m">{{ m }}</option>
           </select>
         </div>
-        <span class="field-error-msg" *ngIf="ctrl('periodMonth')?.errors?.['required'] && ctrl('periodMonth')?.touched">
+        <span class="field-error-msg"
+          *ngIf="ctrl('periodMonth')?.errors?.['required'] && ctrl('periodMonth')?.touched">
           Period is required.
         </span>
       </div>
@@ -154,8 +91,14 @@
         <label class="form-label">Submission Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input" formControlName="submissionDate" />
+          <input type="date" class="form-input" formControlName="submissionDate"
+            [class.is-invalid]="form.errors?.['submissionBeforePeriod'] && ctrl('submissionDate')?.touched" />
         </div>
+        <!-- Cross-field validator error surfaced here -->
+        <span class="field-error-msg"
+          *ngIf="form.errors?.['submissionBeforePeriod'] && ctrl('submissionDate')?.touched">
+          Submission date cannot be before the start of the filing period.
+        </span>
       </div>
 
       <div class="form-group">
@@ -171,7 +114,7 @@
 
   <div class="section-divider"></div>
 
-  <!-- ── Section 2: Supplies & Tax ─────────────────────────────────────── -->
+  <!-- ── Section 2: Supplies & Tax Calculation (2-column layout) ─────────── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon purple">
@@ -179,103 +122,128 @@
       </div>
       <div>
         <h6 class="section-title">Supplies &amp; Tax Calculation</h6>
-        <span class="section-sub">Supply values and VAT computation — net tax is auto-calculated</span>
-      </div>
-    </div>
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label class="form-label">Taxable Supplies (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            formControlName="taxableSupplies"
-            (input)="autoCalcOutputTax()" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Exempt Supplies (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            formControlName="exemptSupplies" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Zero Rated Supplies (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            formControlName="zeroRatedSupplies" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Output VAT @ 15% (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            formControlName="outputTax" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Input VAT Credit (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-arrow-down-circle input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            formControlName="inputTax" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Tax Paid (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-cash-coin input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            formControlName="taxPaid" />
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Real-time Tax Summary -->
-    <div class="tax-summary">
-      <div class="ts-row">
-        <span class="ts-label">Total Supplies</span>
-        <span class="ts-value">৳{{ totalSupplies.toLocaleString() }}</span>
-      </div>
-      <div class="ts-row">
-        <span class="ts-label">Output VAT</span>
-        <span class="ts-value output">৳{{ (form.value.outputTax || 0).toLocaleString() }}</span>
-      </div>
-      <div class="ts-row">
-        <span class="ts-label">Less: Input VAT Credit</span>
-        <span class="ts-value credit">— ৳{{ (form.value.inputTax || 0).toLocaleString() }}</span>
-      </div>
-      <div class="ts-divider"></div>
-      <div class="ts-row total-row">
-        <span class="ts-label total">Net Tax Payable</span>
-        <span class="ts-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
-      </div>
-      <div class="ts-row" *ngIf="form.value.taxPaid > 0">
-        <span class="ts-label">Less: Tax Paid</span>
-        <span class="ts-value credit">— ৳{{ (form.value.taxPaid || 0).toLocaleString() }}</span>
-      </div>
-      <div class="ts-row balance-row" *ngIf="form.value.taxPaid > 0">
-        <span class="ts-label total">Balance Due</span>
-        <span class="ts-value" [class.due]="balanceDue > 0" [class.settled]="balanceDue === 0">
-          {{ balanceDue > 0 ? '৳' + balanceDue.toLocaleString() : '৳0 — Settled' }}
+        <span class="section-sub">
+          Output VAT auto-calculated at
+          <strong>{{ effectiveVatRateLabel }}</strong>
+          ({{ selectedReg?.vatCategory || 'Standard' }} rate) — net tax recalculated on every change
         </span>
       </div>
     </div>
+
+    <!-- 2-column layout: Supplies | VAT Computation -->
+    <div class="supplies-tax-grid">
+
+      <!-- LEFT column: Supply amounts -->
+      <div class="supply-col">
+        <p class="col-heading"><i class="bi bi-box-seam-fill me-1"></i> Supply Amounts</p>
+
+        <div class="form-group">
+          <label class="form-label">Taxable Supplies (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <!-- No (input) binding — valueChanges handles recalculation reactively -->
+            <input type="number" class="form-input" placeholder="0"
+              formControlName="taxableSupplies" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Exempt Supplies (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <input type="number" class="form-input" placeholder="0"
+              formControlName="exemptSupplies" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Zero Rated Supplies (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <input type="number" class="form-input" placeholder="0"
+              formControlName="zeroRatedSupplies" />
+          </div>
+        </div>
+
+        <div class="total-supplies-chip">
+          <span>Total Supplies</span>
+          <span class="chip-value">৳{{ totalSupplies.toLocaleString() }}</span>
+        </div>
+      </div>
+
+      <!-- RIGHT column: VAT computation -->
+      <div class="vat-col">
+        <p class="col-heading"><i class="bi bi-percent me-1"></i> VAT Computation</p>
+
+        <div class="form-group">
+          <label class="form-label">
+            Output VAT @ {{ effectiveVatRateLabel }} (৳)
+            <span class="auto-badge">Auto</span>
+          </label>
+          <div class="input-wrap">
+            <i class="bi bi-percent input-icon"></i>
+            <!-- disabled in form — read-only display, value set by valueChanges logic -->
+            <input type="number" class="form-input form-input-readonly" placeholder="0"
+              formControlName="outputTax" readonly />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Input VAT Credit (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-arrow-down-circle input-icon"></i>
+            <input type="number" class="form-input" placeholder="0"
+              formControlName="inputTax" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tax Paid (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-cash-coin input-icon"></i>
+            <input type="number" class="form-input" placeholder="0"
+              formControlName="taxPaid" />
+          </div>
+        </div>
+
+        <!-- Real-time summary panel embedded in the right column -->
+        <div class="tax-summary">
+          <div class="ts-row">
+            <span class="ts-label">Output VAT</span>
+            <span class="ts-value output">৳{{ (form.getRawValue().outputTax || 0).toLocaleString() }}</span>
+          </div>
+          <div class="ts-row">
+            <span class="ts-label">Less: Input VAT Credit</span>
+            <span class="ts-value credit">— ৳{{ (form.value.inputTax || 0).toLocaleString() }}</span>
+          </div>
+          <div class="ts-divider"></div>
+          <div class="ts-row total-row">
+            <span class="ts-label total">Net Tax Payable</span>
+            <span class="ts-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
+          </div>
+          <ng-container *ngIf="form.value.taxPaid > 0">
+            <div class="ts-row">
+              <span class="ts-label">Less: Tax Paid</span>
+              <span class="ts-value credit">— ৳{{ (form.value.taxPaid || 0).toLocaleString() }}</span>
+            </div>
+            <div class="ts-row balance-row">
+              <span class="ts-label total">Balance Due</span>
+              <span class="ts-value"
+                [class.due]="balanceDue > 0"
+                [class.settled]="balanceDue === 0">
+                {{ balanceDue > 0 ? '৳' + balanceDue.toLocaleString() : '৳0 — Settled' }}
+              </span>
+            </div>
+          </ng-container>
+        </div>
+
+      </div><!-- /vat-col -->
+    </div><!-- /supplies-tax-grid -->
   </div>
 
   <div class="section-divider"></div>
 
-  <!-- ── Section 3: Submission ─────────────────────────────────────────── -->
+  <!-- ── Section 3: Submission Details ───────────────────────────────────── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon orange">
@@ -286,6 +254,7 @@
         <span class="section-sub">Who is filing this return</span>
       </div>
     </div>
+
     <div class="form-grid">
 
       <div class="form-group">
@@ -311,7 +280,7 @@
     </div>
   </div>
 
-  <!-- ── Actions ────────────────────────────────────────────────────────── -->
+  <!-- ── Actions ──────────────────────────────────────────────────────────── -->
   <div class="form-actions">
     <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
       <i class="bi bi-x-lg"></i> Cancel
@@ -321,7 +290,9 @@
     </button>
     <button type="submit" class="btn-submit" [disabled]="isLoading || form.invalid">
       <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> File Return</span>
-      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Filing...</span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>Filing...
+      </span>
     </button>
   </div>
 

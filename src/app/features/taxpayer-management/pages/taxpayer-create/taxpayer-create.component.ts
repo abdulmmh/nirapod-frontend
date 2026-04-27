@@ -223,6 +223,7 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
         if (selectedDiv) {
           this.masterData
             .getDistrictsByDivision(selectedDiv.id)
+            .pipe(takeUntil(this.destroy$))           // ← add this
             .subscribe((data) => {
               this.presentDistricts = data;
               this.taxpayerForm.get('presentAddress.district')?.setValue('');

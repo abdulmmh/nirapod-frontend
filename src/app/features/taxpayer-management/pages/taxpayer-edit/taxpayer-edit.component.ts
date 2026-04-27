@@ -281,7 +281,7 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
         (d) => d.name === data.presentAddress.division,
       );
       if (div) {
-        this.masterData.getDistrictsByDivision(div.id).subscribe((dists) => {
+        this.masterData.getDistrictsByDivision(div.id).pipe(takeUntil(this.destroy$)).subscribe((dists) => {
           this.presentDistricts = dists;
           this.taxpayerForm
             .get('presentAddress.district')

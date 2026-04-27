@@ -1,35 +1,87 @@
-.section-icon.teal {
-  background: linear-gradient(135deg, #1faa8b, #17c69a);
+/* ────────────────────────────────────────────────────────────────────────────
+   vat-return-create.component.css  — ADDITIONS
+   (Append to the existing file; the original tax-summary rules remain intact)
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Section icon colour variants */
+.section-icon.teal   { background: linear-gradient(135deg, #1faa8b, #17c69a); }
+.section-icon.purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.section-icon.orange { background: linear-gradient(135deg, #f59e0b, #f97316); }
+
+/* ── 2-column Supplies / VAT grid ─────────────────────────────────────────── */
+.supplies-tax-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 16px;
 }
-.section-icon.purple {
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
+
+@media (max-width: 768px) {
+  .supplies-tax-grid {
+    grid-template-columns: 1fr;
+  }
 }
-.section-icon.orange {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
+
+.supply-col,
+.vat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
-.cat-pill {
+
+.col-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a2340;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e8eef9;
+}
+
+/* Total supplies summary chip at the bottom of the supply column */
+.total-supplies-chip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 10px 14px;
   background: #e8eef9;
-  color: #1a3f8f;
-  font-size: 11px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
+  color: #1a2340;
 }
-.zone-pill {
-  background: #e6f7f3;
-  color: #1faa8b;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-.text-blue {
+
+.chip-value {
+  font-size: 15px;
+  font-weight: 800;
   color: #1a3f8f;
 }
 
-/* VAT Tax Summary Box */
+/* Read-only output tax field */
+.form-input-readonly {
+  background: #f4f6fb !important;
+  color: #1a3f8f;
+  font-weight: 700;
+  cursor: not-allowed;
+}
+
+/* "Auto" badge next to the output-tax label */
+.auto-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #d4edda;
+  color: #155724;
+  vertical-align: middle;
+}
+
+/* ── Tax Summary (inside VAT column) ─────────────────────────────────────── */
 .tax-summary {
-  margin-top: 20px;
+  margin-top: 16px;
   border: 1.5px solid #d0daf5;
   border-radius: 12px;
   overflow: hidden;
@@ -40,52 +92,25 @@
   justify-content: space-between;
   padding: 10px 18px;
 }
-.ts-label {
-  font-size: 13px;
-  color: #666;
-  font-weight: 500;
+.ts-label         { font-size: 13px; color: #666; font-weight: 500; }
+.ts-label.total   { font-size: 14px; font-weight: 700; color: #1a2340; }
+.ts-value         { font-size: 14px; font-weight: 700; }
+.ts-value.output  { color: #e74c3c; }
+.ts-value.credit  { color: #1faa8b; }
+.ts-value.total   { font-size: 18px; font-weight: 800; color: #1a3f8f; }
+.ts-value.due     { color: #e74c3c; font-size: 18px; font-weight: 800; }
+.ts-value.settled { color: #1faa8b; font-size: 15px; font-weight: 700; }
+.ts-divider       { height: 1px; background: #d0daf5; }
+.total-row        { background: #e8eef9; padding: 12px 18px; }
+.balance-row      { background: #fff8e1; }
+
+/* ── Pill styles (shared) ─────────────────────────────────────────────────── */
+.cat-pill {
+  background: #e8eef9; color: #1a3f8f;
+  font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
 }
-.ts-label.total {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a2340;
+.zone-pill {
+  background: #e6f7f3; color: #1faa8b;
+  font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
 }
-.ts-value {
-  font-size: 14px;
-  font-weight: 700;
-}
-.ts-value.output {
-  color: #e74c3c;
-}
-.ts-value.input {
-  color: #1faa8b;
-}
-.ts-value.credit {
-  color: #1faa8b;
-}
-.ts-value.total {
-  font-size: 20px;
-  font-weight: 800;
-  color: #1a3f8f;
-}
-.ts-value.due {
-  color: #e74c3c;
-  font-size: 20px;
-  font-weight: 800;
-}
-.ts-value.settled {
-  color: #1faa8b;
-  font-size: 16px;
-  font-weight: 700;
-}
-.ts-divider {
-  height: 1px;
-  background: #d0daf5;
-}
-.total-row {
-  background: #e8eef9;
-  padding: 12px 18px;
-}
-.balance-row {
-  background: #fff8e1;
-}
+.text-blue { color: #1a3f8f; }

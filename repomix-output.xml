@@ -28791,12 +28791,12 @@ export interface District {
 
 export interface TaxZone {
   id: number;
-  zoneName: string; // backend er sathe nam miliye nen
+  name: string; // backend er sathe nam miliye nen
 }
 
 export interface TaxCircle {
   id: number;
-  circleName: string; // backend er sathe nam miliye nen
+  name: string; // backend er sathe nam miliye nen
   taxZoneId?: number; // Jodi relation thake
 }
 
@@ -43218,7 +43218,7 @@ export class TaxableProductListComponent implements OnInit {
           <select class="form-input form-select" [(ngModel)]="form.taxZone" (ngModelChange)="onZoneChange()"
             [disabled]="!form.district || loadingZones">
             <option value="">Select Tax Zone</option>
-            <option *ngFor="let z of taxZones" [value]="z.zoneName">{{ z.zoneName }}</option>
+            <option *ngFor="let z of taxZones" [value]="z.name">{{ z.name }}</option>
           </select>
         </div>
         <span class="field-hint" *ngIf="form.district && taxZones.length === 0 && !loadingZones">
@@ -43234,7 +43234,7 @@ export class TaxableProductListComponent implements OnInit {
           <select class="form-input form-select" [(ngModel)]="form.taxCircle"
             [disabled]="!form.taxZone || loadingCircles">
             <option value="">Select Tax Circle</option>
-            <option *ngFor="let c of taxCircles" [value]="c.circleName">{{ c.circleName }}</option>
+            <option *ngFor="let c of taxCircles" [value]="c.name">{{ c.name }}</option>
           </select>
         </div>
       </div>
@@ -45548,7 +45548,7 @@ export class TinCreateComponent implements OnDestroy {
     this.form.taxCircle = '';
     this.taxCircles = [];
 
-    const zone = this.taxZones.find((z) => z.zoneName === this.form.taxZone);
+    const zone = this.taxZones.find((z) => z.name === this.form.taxZone);
     if (!zone) return;
 
     this.selectedZoneId = zone.id;

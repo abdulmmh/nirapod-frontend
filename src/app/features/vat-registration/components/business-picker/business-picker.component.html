@@ -1,0 +1,63 @@
+<!-- ── Loading ─────────────────────────────────────────────────────────── -->
+<div class="loading-row" *ngIf="loading" style="display:flex;align-items:center;gap:10px;padding:12px 0;">
+  <div class="spinner-border spinner-border-sm text-primary"></div>
+  <span style="font-size:13px;color:#888;">Loading businesses…</span>
+</div>
+
+<!-- ── No businesses ──────────────────────────────────────────────────── -->
+<div class="no-result-note" *ngIf="!loading && businesses.length === 0">
+  <i class="bi bi-exclamation-triangle"></i>
+  This taxpayer has no registered businesses.
+  <a routerLink="/businesses/create" class="ms-1 fw-bold">Register a business first →</a>
+</div>
+
+<!-- ── Business list ──────────────────────────────────────────────────── -->
+<div class="business-picker" *ngIf="!loading && businesses.length > 0">
+  <div
+    class="biz-row"
+    *ngFor="let b of businesses"
+    [class.biz-selected]="selected?.id === b.id"
+    [class.biz-registered]="b.vatRegistered"
+    (click)="onSelect(b)"
+    [title]="b.vatRegistered ? 'Already VAT registered — BIN: ' + b.binNo : 'Click to select'"
+  >
+    <!-- Icon -->
+    <div class="biz-icon">
+      <i class="bi bi-building-check" *ngIf="b.vatRegistered"></i>
+      <i class="bi bi-building" *ngIf="!b.vatRegistered"></i>
+    </div>
+
+    <!-- Info -->
+    <div class="biz-info">
+      <span class="biz-name">{{ b.businessName }}</span>
+      <span class="biz-meta">
+        <span class="code-sm me-2">{{ b.businessRegNo }}</span>
+        <span *ngIf="b.tradeLicenseNo">TL: {{ b.tradeLicenseNo }}</span>
+        <span *ngIf="b.businessTypeName"> · {{ b.businessTypeName }}</span>
+        <span *ngIf="b.districtName"> · {{ b.districtName }}</span>
+      </span>
+    </div>
+
+    <!-- VAT status badge -->
+    <div class="biz-vat-status">
+      <!-- Already registered -->
+      <ng-container *ngIf="b.vatRegistered">
+        <span class="bin-badge">
+          <i class="bi bi-check-circle-fill"></i> {{ b.binNo }}
+        </span>
+        <span class="status-badge" [ngClass]="getStatusClass(b.vatStatus)">
+          {{ b.vatStatus }}
+        </span>
+      </ng-container>
+
+      <!-- Not yet registered -->
+      <ng-container *ngIf="!b.vatRegistered">
+        <span class="no-bin-badge" [class.active]="selected?.id === b.id">
+          <i class="bi bi-plus-circle" *ngIf="selected?.id !== b.id"></i>
+          <i class="bi bi-check2-circle" *ngIf="selected?.id === b.id"></i>
+          {{ selected?.id === b.id ? 'Selected' : 'Register VAT' }}
+        </span>
+      </ng-container>
+    </div>
+  </div>
+</div>
