@@ -37,7 +37,13 @@ export class VatReturnViewComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const rawId   = this.route.snapshot.paramMap.get('id');
+    const id      = Number(rawId);
+    if (!rawId || isNaN(id) || id <= 0) {
+      this.toast.error('Invalid VAT return ID.');
+      this.router.navigate(['/vat-returns']);
+      return;
+    }
     this.loadData(id);
   }
 
@@ -55,8 +61,8 @@ export class VatReturnViewComponent implements OnInit, OnDestroy {
         error: () => {
           this.toast.error('Failed to load VAT return.');
           this.router.navigate(['/vat-returns']);
-        }
-      });
+      }
+    });
   }
 
   // ── Workflow Permission Checks ─────────────────────────────────────────────
@@ -141,8 +147,8 @@ export class VatReturnViewComponent implements OnInit, OnDestroy {
     if (!this.vr) return;
     const newAction: VatReturnAction = {
       action:      actionLabel,
-      performedBy: 'current_user',
-      role:        'TAX_OFFICER',
+      performedBy: this.authService.currentUser?.fullName ?? 'Unknown',
+      role:        this.authService.userRole,
       timestamp:   new Date().toLocaleString('en-BD'),
       remarks:     this.actionRemarks,
       fromStatus:  this.vr.status,

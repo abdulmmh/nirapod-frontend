@@ -49,9 +49,6 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadMasterData();
 
-    // FIX #1: loadOwnTaxpayerRecord() was throwing 'Method not implemented.'
-    // causing a crash when TAXPAYER role navigated to this page.
-    // Now correctly fetches the taxpayer record and auto-fills.
     if (this.authService.userRole === Role.TAXPAYER) {
       this.autoFillCurrentTaxpayer();
     }
@@ -104,9 +101,6 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     this.http.get<Taxpayer[]>(url)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isSearching = false)))
       .subscribe({
-        // FIX #2: removed client-side double-filter — backend already filters by query.
-        // Old: data.filter(t => t.tinNumber?.includes(q) || t.fullName?.includes(q))
-        // This was dropping company matches (matched on companyName, not fullName).
         next:  data => {
           this.searchResults = data;
           this.showResults   = true;
@@ -131,9 +125,6 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     this.selectedTaxpayer = taxpayer;
     this.showResults       = false;
 
-    // FIX #3: form.taxpayerId was never set in selectTaxpayer().
-    // isFormValid() checks form.taxpayerId — so the submit button was always
-    // disabled even after selecting a taxpayer because taxpayerId stayed 0.
     this.form.taxpayerId  = taxpayer.id ?? 0;
     this.form.tinNumber   = taxpayer.tinNumber || '';
     this.form.ownerName   = taxpayer.fullName  || '';
@@ -230,7 +221,6 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
 
   private handleSuccess(): void {
     this.toast.success('Business registered successfully!');
-    // FIX #4: timer() + takeUntil replaces setTimeout() — cancelled on destroy
     timer(1500).pipe(takeUntil(this.destroy$))
       .subscribe(() => this.router.navigate(['/businesses']));
   }

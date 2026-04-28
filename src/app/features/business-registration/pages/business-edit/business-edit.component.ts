@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
 import { Business } from '../../../../models/business.model';
@@ -238,7 +238,8 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
 
   private handleUpdateSuccess(): void {
     this.toast.success('Business updated successfully!');
-    setTimeout(() => this.router.navigate(['/businesses']), 1500);
+    timer(1500).pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.router.navigate(['/businesses']));
   }
 
   private handleUpdateError(error: unknown): void {

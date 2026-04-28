@@ -18,10 +18,12 @@
 <div class="form-card" *ngIf="!isLoading">
 
   <div class="edit-banner">
-    <i class="bi bi-pencil-square"></i>
-    Editing: <strong>{{ returnNo }}</strong>
-    <span class="banner-sub">{{ businessName }}</span>
+  <i class="bi bi-building-fill"></i>
+  <div>
+    <span class="fw-bold">{{ businessName }}</span>
+    <span class="banner-sub">BIN: {{ binNo }} · TIN: {{ tinNumber }}</span>
   </div>
+</div>
 
   <!-- Section 1: Business -->
   <div class="form-section">

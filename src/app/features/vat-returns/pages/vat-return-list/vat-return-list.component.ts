@@ -56,12 +56,12 @@ export class VatReturnListComponent implements OnInit, OnDestroy {
     return this.returns.filter(r => {
       const q = this.searchTerm.toLowerCase();
       const matchSearch = !q ||
-        r.returnNo.toLowerCase().includes(q)      ||
-        r.businessName.toLowerCase().includes(q)  ||
-        r.tinNumber.toLowerCase().includes(q)     ||
-        r.binNo.toLowerCase().includes(q)         ||
-        r.periodMonth.toLowerCase().includes(q)   ||
-        r.periodYear.toLowerCase().includes(q);
+        (r.returnNo     ?? '').toLowerCase().includes(q) ||
+        (r.businessName ?? '').toLowerCase().includes(q) ||
+        (r.tinNumber    ?? '').toLowerCase().includes(q) ||
+        (r.binNo        ?? '').toLowerCase().includes(q) ||
+        (r.periodMonth  ?? '').toLowerCase().includes(q) ||
+        (r.periodYear   ?? '').toLowerCase().includes(q);
       const matchStatus = !this.filterStatus || r.status === this.filterStatus;
       return matchSearch && matchStatus;
     });

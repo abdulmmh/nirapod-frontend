@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { VatReturn, VatReturnStatus } from '../../../../models/vat-return.model';
@@ -18,6 +18,8 @@ export class VatReturnEditComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   isLoading   = true;
   isSaving    = false;
+  binNo = '';
+  tinNumber = '';
   vatId       = 0;
   returnNo    = '';
   businessName = '';
@@ -102,6 +104,8 @@ export class VatReturnEditComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.returnNo    = data.returnNo;
           this.businessName = data.businessName;
+          this.binNo = data.binNo;
+          this.tinNumber = data.tinNumber;
           this.form.patchValue({
             returnPeriod:      data.returnPeriod,
             periodMonth:       data.periodMonth,
@@ -147,12 +151,11 @@ export class VatReturnEditComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('VAT Return updated successfully!');
-          setTimeout(() => this.router.navigate(['/vat-returns/view', this.vatId]), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.router.navigate(['/vat-returns/view', this.vatId]));
         },
         error: (err) => {
-          if (err?.status === 409) {
-            this.toast.error(err.error?.message || 'Conflict: duplicate period detected.');
-          } else if (err?.status === 400) {
+           if (err?.status === 400) {
             this.toast.error(err.error?.message || 'Invalid data. Please check all fields.');
           } else {
             this.toast.error('Failed to update VAT return. Please try again.');
