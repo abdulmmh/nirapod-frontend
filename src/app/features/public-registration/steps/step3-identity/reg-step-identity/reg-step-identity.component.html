@@ -1,0 +1,188 @@
+<div class="step-body">
+
+  <!-- ── INDIVIDUAL ─────────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="isIndividual">
+    <div class="step-intro">
+      <h3 class="step-heading">Verify your National ID</h3>
+      <p class="step-sub">
+        Your NID is the anchor of your tax identity. A unique TIN will be
+        auto-generated and permanently linked to your NID.
+      </p>
+    </div>
+
+    <div class="nid-info-banner">
+      <i class="bi bi-info-circle-fill"></i>
+      <span>
+        Each NID can only be linked to <strong>one TIN</strong>.
+        If you already have a TIN, log in using your existing credentials instead.
+      </span>
+    </div>
+
+    <form [formGroup]="form" novalidate>
+      <div class="form-grid">
+
+        <div class="form-group full-width">
+          <label class="form-label required">National ID Number (NID)</label>
+          <div class="input-wrap" [class.input-error]="ctrl('nid')?.invalid && ctrl('nid')?.touched">
+            <i class="bi bi-credit-card-2-front-fill input-icon"></i>
+            <input type="text" class="form-input" placeholder="10 or 17 digit NID number"
+              formControlName="nid" maxlength="17" />
+          </div>
+          <span class="field-error" *ngIf="ctrl('nid')?.errors?.['required'] && ctrl('nid')?.touched">
+            NID number is required.
+          </span>
+          <span class="field-error" *ngIf="ctrl('nid')?.errors?.['pattern'] && ctrl('nid')?.touched">
+            NID must be exactly 10 or 17 digits.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Date of Birth</label>
+          <div class="input-wrap" [class.input-error]="ctrl('dateOfBirth')?.invalid && ctrl('dateOfBirth')?.touched">
+            <i class="bi bi-calendar-fill input-icon"></i>
+            <input type="date" class="form-input" formControlName="dateOfBirth"
+              [max]="maxDob" />
+          </div>
+          <span class="field-error" *ngIf="ctrl('dateOfBirth')?.errors?.['required'] && ctrl('dateOfBirth')?.touched">
+            Date of birth is required.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Gender</label>
+          <div class="input-wrap" [class.input-error]="ctrl('gender')?.invalid && ctrl('gender')?.touched">
+            <i class="bi bi-gender-ambiguous input-icon"></i>
+            <select class="form-input form-select" formControlName="gender">
+              <option value="">Select gender</option>
+              <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+            </select>
+          </div>
+          <span class="field-error" *ngIf="ctrl('gender')?.errors?.['required'] && ctrl('gender')?.touched">
+            Gender is required.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Profession <span class="optional-label">(Optional)</span></label>
+          <div class="input-wrap">
+            <i class="bi bi-briefcase-fill input-icon"></i>
+            <select class="form-input form-select" formControlName="profession">
+              <option value="">Select profession</option>
+              <option *ngFor="let p of professions" [value]="p">{{ p }}</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </ng-container>
+
+  <!-- ── COMPANY ──────────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="!isIndividual">
+    <div class="step-intro">
+      <h3 class="step-heading">Company Registration Details</h3>
+      <p class="step-sub">
+        Your RJSC registration number is the anchor of your corporate tax identity.
+        A unique TIN will be auto-generated and linked to your company.
+      </p>
+    </div>
+
+    <div class="nid-info-banner company">
+      <i class="bi bi-info-circle-fill"></i>
+      <span>
+        Each RJSC number can only be linked to <strong>one TIN</strong>.
+        If your company already has a TIN, use the existing login credentials.
+      </span>
+    </div>
+
+    <form [formGroup]="form" novalidate>
+      <div class="form-grid">
+
+        <div class="form-group full-width">
+          <label class="form-label required">Company Name</label>
+          <div class="input-wrap" [class.input-error]="ctrl('companyName')?.invalid && ctrl('companyName')?.touched">
+            <i class="bi bi-building-fill input-icon"></i>
+            <input type="text" class="form-input" placeholder="Registered company name (as per RJSC)"
+              formControlName="companyName" />
+          </div>
+          <span class="field-error" *ngIf="ctrl('companyName')?.errors?.['required'] && ctrl('companyName')?.touched">
+            Company name is required.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">RJSC Registration Number</label>
+          <div class="input-wrap" [class.input-error]="ctrl('rjscNo')?.invalid && ctrl('rjscNo')?.touched">
+            <i class="bi bi-file-earmark-text-fill input-icon"></i>
+            <input type="text" class="form-input" placeholder="e.g. C-12345/2020"
+              formControlName="rjscNo" />
+          </div>
+          <span class="field-error" *ngIf="ctrl('rjscNo')?.errors?.['required'] && ctrl('rjscNo')?.touched">
+            RJSC registration number is required.
+          </span>
+          <span class="field-error" *ngIf="ctrl('rjscNo')?.errors?.['pattern'] && ctrl('rjscNo')?.touched">
+            Enter a valid RJSC number (6-20 characters, alphanumeric).
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Incorporation Date</label>
+          <div class="input-wrap" [class.input-error]="ctrl('incorporationDate')?.invalid && ctrl('incorporationDate')?.touched">
+            <i class="bi bi-calendar-fill input-icon"></i>
+            <input type="date" class="form-input" formControlName="incorporationDate" />
+          </div>
+          <span class="field-error" *ngIf="ctrl('incorporationDate')?.errors?.['required'] && ctrl('incorporationDate')?.touched">
+            Incorporation date is required.
+          </span>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Nature of Business <span class="optional-label">(Optional)</span></label>
+          <div class="input-wrap">
+            <i class="bi bi-briefcase-fill input-icon"></i>
+            <input type="text" class="form-input" placeholder="e.g. Manufacturing, Trading, Services"
+              formControlName="natureOfBusiness" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Authorized Person Name</label>
+          <div class="input-wrap" [class.input-error]="ctrl('authorizedPersonName')?.invalid && ctrl('authorizedPersonName')?.touched">
+            <i class="bi bi-person-badge-fill input-icon"></i>
+            <input type="text" class="form-input" placeholder="Director / MD / Authorized representative"
+              formControlName="authorizedPersonName" />
+          </div>
+          <span class="field-error" *ngIf="ctrl('authorizedPersonName')?.errors?.['required'] && ctrl('authorizedPersonName')?.touched">
+            Authorized person name is required.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Authorized Person NID</label>
+          <div class="input-wrap" [class.input-error]="ctrl('authorizedPersonNid')?.invalid && ctrl('authorizedPersonNid')?.touched">
+            <i class="bi bi-credit-card-2-front-fill input-icon"></i>
+            <input type="text" class="form-input" placeholder="10 or 17 digit NID"
+              formControlName="authorizedPersonNid" maxlength="17" />
+          </div>
+          <span class="field-error" *ngIf="ctrl('authorizedPersonNid')?.errors?.['required'] && ctrl('authorizedPersonNid')?.touched">
+            Authorized person NID is required.
+          </span>
+          <span class="field-error" *ngIf="ctrl('authorizedPersonNid')?.errors?.['pattern'] && ctrl('authorizedPersonNid')?.touched">
+            NID must be exactly 10 or 17 digits.
+          </span>
+        </div>
+
+      </div>
+    </form>
+  </ng-container>
+
+  <div class="step-actions">
+    <button type="button" class="btn-back" (click)="back.emit()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button type="button" class="btn-next" (click)="onNext()">
+      Review <i class="bi bi-arrow-right"></i>
+    </button>
+  </div>
+
+</div>

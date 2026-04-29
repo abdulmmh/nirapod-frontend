@@ -1,0 +1,66 @@
+<div class="success-body">
+
+  <div class="success-icon-ring">
+    <div class="success-icon">
+      <i class="bi bi-check-lg"></i>
+    </div>
+  </div>
+
+  <h3 class="success-title">Registration Successful!</h3>
+  <p class="success-sub">
+    Welcome to the Nirapod Tax Portal, <strong>{{ response.fullName }}</strong>.
+    Your account has been created and your TIN has been issued.
+  </p>
+
+  <!-- TIN Certificate Preview -->
+  <div class="tin-card">
+    <div class="tin-card-header">
+      <i class="bi bi-bank2"></i>
+      <span>Government of Bangladesh — NBR</span>
+    </div>
+    <div class="tin-card-body">
+      <span class="tin-label">Tax Identification Number (TIN)</span>
+      <span class="tin-number">{{ response.tinNumber }}</span>
+      <div class="tin-meta">
+        <span><i class="bi bi-person-fill"></i> {{ response.fullName }}</span>
+        <span><i class="bi bi-tag-fill"></i> {{ response.accountType }}</span>
+      </div>
+    </div>
+    <div class="tin-card-footer">
+      Keep this number safe. You will need it for all tax filings.
+    </div>
+  </div>
+
+  <!-- Next steps -->
+  <div class="next-steps">
+    <p class="ns-title"><i class="bi bi-map-fill"></i> Your Next Steps</p>
+    <div class="ns-grid">
+      <div class="ns-item">
+        <span class="ns-num">1</span>
+        <div>
+          <strong>Log In</strong>
+          <p>Use your email and password to access your portal dashboard.</p>
+        </div>
+      </div>
+      <div class="ns-item">
+        <span class="ns-num">2</span>
+        <div>
+          <strong>Complete Your Profile</strong>
+          <p>Add your address and complete taxpayer details for accurate filings.</p>
+        </div>
+      </div>
+      <div class="ns-item">
+        <span class="ns-num">3</span>
+        <div>
+          <strong>File Your Returns</strong>
+          <p>Submit VAT or income tax returns directly from your dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-go-login" (click)="goToLogin()">
+    <i class="bi bi-box-arrow-in-right"></i> Go to Login
+  </button>
+
+</div>

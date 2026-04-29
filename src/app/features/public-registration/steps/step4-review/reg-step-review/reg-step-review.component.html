@@ -1,0 +1,98 @@
+<div class="step-body">
+
+  <div class="step-intro">
+    <h3 class="step-heading">Review your details</h3>
+    <p class="step-sub">Please confirm everything below before submitting. Go back to correct any mistakes.</p>
+  </div>
+
+  <div class="review-grid">
+
+    <!-- Account Type -->
+    <div class="review-card">
+      <div class="review-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Account Type</span>
+      </div>
+      <div class="review-row">
+        <span class="review-label">Type</span>
+        <span class="review-value type-pill" [class.individual]="isIndividual" [class.company]="!isIndividual">
+          <i [class]="isIndividual ? 'bi bi-person-fill' : 'bi bi-building-fill'"></i>
+          {{ state.accountType }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Credentials -->
+    <div class="review-card">
+      <div class="review-card-header">
+        <i class="bi bi-lock-fill"></i>
+        <span>Account Credentials</span>
+      </div>
+      <div class="review-row"><span class="review-label">Full Name</span><span class="review-value fw-bold">{{ state.fullName }}</span></div>
+      <div class="review-row"><span class="review-label">Email</span><span class="review-value">{{ state.email }}</span></div>
+      <div class="review-row"><span class="review-label">Phone</span><span class="review-value">{{ state.phone }}</span></div>
+      <div class="review-row"><span class="review-label">Password</span><span class="review-value pass-mask">{{ maskedPassword }}</span></div>
+    </div>
+
+    <!-- Identity — Individual -->
+    <div class="review-card" *ngIf="isIndividual">
+      <div class="review-card-header">
+        <i class="bi bi-credit-card-2-front-fill"></i>
+        <span>Identity (Individual)</span>
+      </div>
+      <div class="review-row"><span class="review-label">NID Number</span><span class="review-value code-badge">{{ state.nid }}</span></div>
+      <div class="review-row"><span class="review-label">Date of Birth</span><span class="review-value">{{ state.dateOfBirth }}</span></div>
+      <div class="review-row"><span class="review-label">Gender</span><span class="review-value">{{ state.gender }}</span></div>
+      <div class="review-row" *ngIf="state.profession">
+        <span class="review-label">Profession</span>
+        <span class="review-value">{{ state.profession }}</span>
+      </div>
+    </div>
+
+    <!-- Identity — Company -->
+    <div class="review-card" *ngIf="!isIndividual">
+      <div class="review-card-header">
+        <i class="bi bi-building-fill"></i>
+        <span>Identity (Company)</span>
+      </div>
+      <div class="review-row"><span class="review-label">Company Name</span><span class="review-value fw-bold">{{ state.companyName }}</span></div>
+      <div class="review-row"><span class="review-label">RJSC No.</span><span class="review-value code-badge">{{ state.rjscNo }}</span></div>
+      <div class="review-row"><span class="review-label">Incorporation Date</span><span class="review-value">{{ state.incorporationDate }}</span></div>
+      <div class="review-row" *ngIf="state.natureOfBusiness">
+        <span class="review-label">Nature of Business</span>
+        <span class="review-value">{{ state.natureOfBusiness }}</span>
+      </div>
+      <div class="review-row"><span class="review-label">Authorized Person</span><span class="review-value">{{ state.authorizedPersonName }}</span></div>
+      <div class="review-row"><span class="review-label">Authorized NID</span><span class="review-value code-badge">{{ state.authorizedPersonNid }}</span></div>
+    </div>
+
+  </div>
+
+  <!-- What happens next -->
+  <div class="submit-info-box">
+    <div class="sib-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+    <div>
+      <p class="sib-title">What happens when you submit?</p>
+      <ul class="sib-list">
+        <li><i class="bi bi-check-circle-fill"></i> Your portal account is created with TAXPAYER access</li>
+        <li><i class="bi bi-check-circle-fill"></i> A unique TIN is auto-generated and linked to your NID / RJSC</li>
+        <li><i class="bi bi-check-circle-fill"></i> You are immediately redirected to the login page</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button type="button" class="btn-back" (click)="back.emit()" [disabled]="isSubmitting">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button type="button" class="btn-submit" (click)="submit.emit()" [disabled]="isSubmitting">
+      <span *ngIf="!isSubmitting">
+        <i class="bi bi-send-fill"></i> Submit Registration
+      </span>
+      <span *ngIf="isSubmitting">
+        <span class="spinner-border spinner-border-sm me-2"></span> Registering...
+      </span>
+    </button>
+  </div>
+
+</div>

@@ -1,0 +1,12 @@
+/* reg-step-account-type.component.css
+   Shared layout (.step-body, .step-heading, .step-sub, .step-actions,
+   .btn-next) all live in register.component.css — only step-specific
+   rules live here. */
+
+/* The account-card grid and card styles are declared in register.component.css
+   since they are large blocks. Nothing extra is needed for Step 1 beyond
+   ensuring the Continue button is centred when no Back button exists. */
+
+.step-actions {
+  justify-content: flex-end;
+}

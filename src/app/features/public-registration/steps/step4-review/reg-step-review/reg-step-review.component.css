@@ -1,0 +1,17 @@
+/* reg-step-review.component.css
+   Shared review card styles (.review-grid, .review-card, .review-card-header,
+   .review-row, .review-label, .review-value, .code-badge, .type-pill,
+   .submit-info-box, .btn-back, .btn-submit) all live in register.component.css.
+   Only review-step-specific overrides here. */
+
+/* The review step is read-only — no inputs, no focus states needed.
+   Tighten the gap between the review grid and the submit info box. */
+.review-grid {
+  margin-bottom: 4px;
+}
+
+/* Highlight the submit button more prominently since it is the final action */
+.btn-submit {
+  min-width: 180px;
+  justify-content: center;
+}

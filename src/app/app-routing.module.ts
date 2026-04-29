@@ -13,7 +13,14 @@ const routes: Routes = [
   // ── Public ──
   { path: 'auth/login', component: LoginComponent },
   { path: 'unauthorized', redirectTo: 'dashboard' },
-
+  
+  // Public Registration
+      { path: 'register', 
+        loadChildren: () =>
+          import('./features/public-registration/public-registration/public-registration.module')
+            .then(m => m.PublicRegistrationModule) 
+  },
+  
   // ── Protected Layout ──
   {
     path: '',

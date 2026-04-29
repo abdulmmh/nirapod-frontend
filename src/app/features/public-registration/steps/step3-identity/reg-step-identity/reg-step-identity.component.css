@@ -1,0 +1,22 @@
+/* reg-step-identity.component.css
+   Shared form styles live in register.component.css.
+   Only identity-step-specific rules here. */
+
+/* NID/RJSC info banner — shared rule in register.component.css,
+   but we need the banner to sit flush under the step-intro with a
+   tighter gap since it acts as a section note, not a form field. */
+.nid-info-banner {
+  margin-top: -6px;
+}
+
+/* For the company form the grid should stack the full-width company name
+   above the two-column RJSC / date row naturally — no override needed
+   since .full-width already handles that via grid-column: 1/-1.
+   This comment is intentional documentation. */
+
+/* Date input — remove the default calendar icon on some browsers to keep
+   the icon consistent with our custom .input-icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.4;
+  cursor: pointer;
+}

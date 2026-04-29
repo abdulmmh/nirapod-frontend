@@ -1,0 +1,70 @@
+<div class="step-body">
+
+  <div class="step-intro">
+    <h3 class="step-heading">Who are you registering as?</h3>
+    <p class="step-sub">Select the account type that matches your tax identity. This cannot be changed after registration.</p>
+  </div>
+
+  <div class="account-type-grid">
+
+    <!-- Individual -->
+    <button type="button"
+      class="account-card"
+      [class.selected]="state.accountType === 'Individual'"
+      (click)="select('Individual')">
+      <div class="ac-icon individual">
+        <i class="bi bi-person-fill"></i>
+      </div>
+      <div class="ac-body">
+        <span class="ac-title">Individual</span>
+        <span class="ac-desc">
+          For citizens registering as a personal taxpayer.
+          Requires National ID (NID).
+        </span>
+        <ul class="ac-points">
+          <li><i class="bi bi-check-circle-fill"></i> Personal income tax</li>
+          <li><i class="bi bi-check-circle-fill"></i> Individual VAT filing</li>
+          <li><i class="bi bi-check-circle-fill"></i> TIN auto-generated via NID</li>
+        </ul>
+      </div>
+      <div class="ac-select-badge" *ngIf="state.accountType === 'Individual'">
+        <i class="bi bi-check-lg"></i> Selected
+      </div>
+    </button>
+
+    <!-- Company -->
+    <button type="button"
+      class="account-card"
+      [class.selected]="state.accountType === 'Company'"
+      (click)="select('Company')">
+      <div class="ac-icon company">
+        <i class="bi bi-building-fill"></i>
+      </div>
+      <div class="ac-body">
+        <span class="ac-title">Company</span>
+        <span class="ac-desc">
+          For businesses registered with RJSC.
+          Requires company registration number.
+        </span>
+        <ul class="ac-points">
+          <li><i class="bi bi-check-circle-fill"></i> Corporate tax filing</li>
+          <li><i class="bi bi-check-circle-fill"></i> Business VAT registration</li>
+          <li><i class="bi bi-check-circle-fill"></i> TIN auto-generated via RJSC</li>
+        </ul>
+      </div>
+      <div class="ac-select-badge" *ngIf="state.accountType === 'Company'">
+        <i class="bi bi-check-lg"></i> Selected
+      </div>
+    </button>
+
+  </div>
+
+  <div class="step-actions">
+    <button type="button" class="btn-next"
+      [disabled]="!state.accountType"
+      (click)="select(state.accountType!)">
+      Continue <i class="bi bi-arrow-right"></i>
+    </button>
+  </div>
+
+</div>

@@ -51,7 +51,6 @@ import { SettingsHomeComponent } from './features/system-settings/pages/settings
     ReportsHomeComponent,
     SettingsHomeComponent,
 
-
   ],
   imports: [
     BrowserModule,

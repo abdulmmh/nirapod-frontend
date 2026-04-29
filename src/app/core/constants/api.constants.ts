@@ -4,6 +4,7 @@ export const API_BASE_URL = 'http://localhost:8080/api';
 
 export const API_ENDPOINTS = {
 
+
   // Dashboard
   DASHBOARD: {
     STATS:           `${API_BASE_URL}/dashboard/stats`,
@@ -166,6 +167,7 @@ export const API_ENDPOINTS = {
     LOGIN:   `${API_BASE_URL}/auth/login`,
     LOGOUT:  `${API_BASE_URL}/auth/logout`,
     PROFILE: `${API_BASE_URL}/auth/profile`,
+    REGISTER: `${API_BASE_URL}/public/register`,
   },
 
   // TaxStructures
