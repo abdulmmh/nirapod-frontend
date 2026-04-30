@@ -72,6 +72,7 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
       fathersName: [''],
       mothersName: [''],
       dateOfBirth: [''],
+      gender: [''],  
       profession: [''],
 
       // Company Fields
@@ -144,6 +145,7 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
           'fathersName',
           'mothersName',
           'dateOfBirth',
+          'gender', 
           'profession',
         ];
         const companyControls = [

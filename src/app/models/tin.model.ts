@@ -19,6 +19,7 @@ export interface Tin {
   nid: string;
   passportNo: string;
   dateOfBirth: string;
+  gender: string; 
   incorporationDate: string;
   email: string;
   phone: string;
@@ -39,6 +40,7 @@ export interface TinCreateRequest {
   nid: string;
   passportNo: string;
   dateOfBirth: string;
+  gender: string; 
   incorporationDate: string;
   email: string;
   phone: string;

@@ -30,14 +30,14 @@ export class RegStepIdentityComponent implements OnInit {
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
-    if (this.state.accountType === 'Individual') {
+    if (this.state.accountCategory === 'Individual') {
       this.buildIndividualForm();
     } else {
       this.buildCompanyForm();
     }
   }
 
-  get isIndividual(): boolean { return this.state.accountType === 'Individual'; }
+  get isIndividual(): boolean { return this.state.accountCategory === 'Individual'; }
   ctrl(name: string) { return this.form.get(name); }
 
   private buildIndividualForm(): void {

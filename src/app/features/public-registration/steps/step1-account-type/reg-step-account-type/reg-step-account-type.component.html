@@ -1,68 +1,55 @@
 <div class="step-body">
 
   <div class="step-intro">
-    <h3 class="step-heading">Who are you registering as?</h3>
-    <p class="step-sub">Select the account type that matches your tax identity. This cannot be changed after registration.</p>
+    <h3 class="step-heading">What type of taxpayer are you?</h3>
+    <p class="step-sub">First select a category, then your specific taxpayer type.</p>
   </div>
 
-  <div class="account-type-grid">
-
-    <!-- Individual -->
-    <button type="button"
-      class="account-card"
-      [class.selected]="state.accountType === 'Individual'"
-      (click)="select('Individual')">
-      <div class="ac-icon individual">
-        <i class="bi bi-person-fill"></i>
-      </div>
-      <div class="ac-body">
-        <span class="ac-title">Individual</span>
-        <span class="ac-desc">
-          For citizens registering as a personal taxpayer.
-          Requires National ID (NID).
-        </span>
-        <ul class="ac-points">
-          <li><i class="bi bi-check-circle-fill"></i> Personal income tax</li>
-          <li><i class="bi bi-check-circle-fill"></i> Individual VAT filing</li>
-          <li><i class="bi bi-check-circle-fill"></i> TIN auto-generated via NID</li>
-        </ul>
-      </div>
-      <div class="ac-select-badge" *ngIf="state.accountType === 'Individual'">
-        <i class="bi bi-check-lg"></i> Selected
-      </div>
-    </button>
-
-    <!-- Company -->
-    <button type="button"
-      class="account-card"
-      [class.selected]="state.accountType === 'Company'"
-      (click)="select('Company')">
-      <div class="ac-icon company">
-        <i class="bi bi-building-fill"></i>
-      </div>
-      <div class="ac-body">
-        <span class="ac-title">Company</span>
-        <span class="ac-desc">
-          For businesses registered with RJSC.
-          Requires company registration number.
-        </span>
-        <ul class="ac-points">
-          <li><i class="bi bi-check-circle-fill"></i> Corporate tax filing</li>
-          <li><i class="bi bi-check-circle-fill"></i> Business VAT registration</li>
-          <li><i class="bi bi-check-circle-fill"></i> TIN auto-generated via RJSC</li>
-        </ul>
-      </div>
-      <div class="ac-select-badge" *ngIf="state.accountType === 'Company'">
-        <i class="bi bi-check-lg"></i> Selected
-      </div>
-    </button>
-
+  <!-- Loading -->
+  <div class="type-loading" *ngIf="isLoading">
+    <span class="spinner-border spinner-border-sm"></span> Loading taxpayer types...
   </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- Step 1A: Category Selection -->
+    <div class="category-label">Step 1 — Select Category</div>
+    <div class="category-grid">
+      <button type="button" class="category-card"
+        *ngFor="let cat of categories"
+        [class.selected]="selectedCategory === cat"
+        (click)="selectCategory(cat)">
+        <div class="cat-icon" [ngClass]="categoryMeta[cat].color">
+          <i [class]="'bi ' + categoryMeta[cat].icon"></i>
+        </div>
+        <div class="cat-body">
+          <span class="cat-title">{{ cat }}</span>
+          <span class="cat-desc">{{ categoryMeta[cat].desc }}</span>
+        </div>
+        <i class="bi bi-check-circle-fill cat-check" *ngIf="selectedCategory === cat"></i>
+      </button>
+    </div>
+
+    <!-- Step 1B: Type Selection — only shows after category selected -->
+    <ng-container *ngIf="selectedCategory && filteredTypes.length > 0">
+      <div class="category-label mt">Step 2 — Select Taxpayer Type</div>
+      <div class="type-grid">
+        <button type="button" class="type-card"
+          *ngFor="let t of filteredTypes"
+          [class.selected]="selectedTypeId === t.id"
+          (click)="selectType(t)">
+          <i class="bi bi-check-circle-fill type-check" *ngIf="selectedTypeId === t.id"></i>
+          <span class="type-name">{{ t.typeName }}</span>
+        </button>
+      </div>
+    </ng-container>
+
+  </ng-container>
 
   <div class="step-actions">
     <button type="button" class="btn-next"
-      [disabled]="!state.accountType"
-      (click)="select(state.accountType!)">
+      [disabled]="!canProceed"
+      (click)="onNext()">
       Continue <i class="bi bi-arrow-right"></i>
     </button>
   </div>

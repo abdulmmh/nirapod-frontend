@@ -19,7 +19,7 @@ const routes: Routes = [
         path: 'create',
         component: VatReturnCreateComponent,
         canActivate: [AuthGuard],
-        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
       },
       {
         path: 'view/:id',
@@ -31,7 +31,7 @@ const routes: Routes = [
         path: 'edit/:id',
         component: VatReturnEditComponent,
         canActivate: [AuthGuard],
-        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
       }
 ];
 

@@ -76,6 +76,7 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
       fathersName: [''],
       mothersName: [''],
       dateOfBirth: [''],
+      gender: [''],
       profession: [''],
 
       // Company Fields
@@ -142,6 +143,7 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
           'fathersName',
           'mothersName',
           'dateOfBirth',
+          'gender',
           'profession',
         ];
         const companyControls = [
@@ -266,6 +268,7 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
       ...data,
       taxpayerType: matchedType,
       dateOfBirth: data.dateOfBirth ? data.dateOfBirth.split('T')[0] : '',
+      gender: data.gender || '',
       incorporationDate: data.incorporationDate
         ? data.incorporationDate.split('T')[0]
         : '',

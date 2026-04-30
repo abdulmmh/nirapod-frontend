@@ -5,7 +5,7 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 import {
-  AccountType,
+  AccountCategory,
   emptyState,
   RegistrationResponse,
   RegistrationState,
@@ -49,8 +49,8 @@ export class RegisterComponent implements OnDestroy {
 
   // ── Step event handlers ───────────────────────────────────────────────────
 
-  onStep1Next(accountType: AccountType): void {
-    this.state.accountType = accountType;
+  onStep1Next(partial: Partial<RegistrationState>): void {
+    this.state = { ...this.state, ...partial };
     this.currentStep = 2;
   }
 
@@ -74,28 +74,29 @@ export class RegisterComponent implements OnDestroy {
     this.isSubmitting = true;
 
     const payload: UserRegistrationRequest = {
-      accountType: this.state.accountType!,
-      fullName: this.state.fullName,
-      email: this.state.email,
-      phone: this.state.phone,
-      password: this.state.password,
+      taxpayerTypeId:  this.state.taxpayerTypeId!,      
+      accountCategory: this.state.accountCategory!,
 
-      // Individual-specific
-      ...(this.state.accountType === 'Individual' && {
-        nid: this.state.nid,
+      fullName:  this.state.fullName,
+      email:     this.state.email,
+      phone:     this.state.phone,
+      password:  this.state.password,
+
+      ...(this.state.accountCategory === 'Individual' && {
+        nid:         this.state.nid,
         dateOfBirth: this.state.dateOfBirth,
-        gender: this.state.gender,
-        profession: this.state.profession || undefined,
+        gender:      this.state.gender,
+        profession:  this.state.profession || undefined,
       }),
 
-      // Company-specific
-      ...(this.state.accountType === 'Company' && {
-        companyName: this.state.companyName,
-        rjscNo: this.state.rjscNo,
-        incorporationDate: this.state.incorporationDate,
-        natureOfBusiness: this.state.natureOfBusiness || undefined,
+      ...((this.state.accountCategory === 'Business' ||
+          this.state.accountCategory === 'Organization') && {
+        companyName:          this.state.companyName,
+        rjscNo:               this.state.rjscNo || undefined,  // Govt org-এ optional
+        incorporationDate:    this.state.incorporationDate,
+        natureOfBusiness:     this.state.natureOfBusiness || undefined,
         authorizedPersonName: this.state.authorizedPersonName,
-        authorizedPersonNid: this.state.authorizedPersonNid,
+        authorizedPersonNid:  this.state.authorizedPersonNid,
       }),
     };
 

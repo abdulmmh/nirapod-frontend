@@ -12,7 +12,7 @@ export class RegStepReviewComponent {
   @Output() submit = new EventEmitter<void>();
   @Output() back   = new EventEmitter<void>();
 
-  get isIndividual(): boolean { return this.state.accountType === 'Individual'; }
+  get isIndividual(): boolean { return this.state.accountCategory === 'Individual'; }
 
   // Mask password display
   get maskedPassword(): string { return '•'.repeat(this.state.password.length); }

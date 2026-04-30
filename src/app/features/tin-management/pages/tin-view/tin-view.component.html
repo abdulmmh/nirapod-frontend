@@ -91,6 +91,10 @@
           <span class="detail-label">Date of Birth</span>
           <span class="detail-value">{{ tin.dateOfBirth | date:'mediumDate' }}</span>
         </div>
+        <div class="detail-row" *ngIf="tin.gender">
+          <span class="detail-label">Gender</span>
+          <span class="detail-value">{{ tin.gender }}</span>
+        </div>
         <div class="detail-row" *ngIf="tin.incorporationDate">
           <span class="detail-label">Incorporation Date</span>
           <span class="detail-value">{{ tin.incorporationDate | date:'mediumDate' }}</span>

@@ -253,6 +253,7 @@ export class TinCreateComponent implements OnDestroy {
     } else {
       this.form.dateOfBirth =
         taxpayer.dateOfBirth?.toString().split('T')[0] ?? '';
+      this.form.gender      = taxpayer.gender ?? ''; 
       this.form.nid = taxpayer.nid || '';
     }
 
@@ -378,6 +379,7 @@ export class TinCreateComponent implements OnDestroy {
       nid: '',
       passportNo: '',
       dateOfBirth: '',
+      gender: '',
       incorporationDate: '',
       email: '',
       phone: '',
