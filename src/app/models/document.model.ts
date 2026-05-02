@@ -5,8 +5,9 @@ export type DocumentCategory = 'Taxpayer' | 'Business' | 'Return' | 'Payment' | 
 export interface Document {
   id: number;
   documentNo: string;
-  tinNumber: string;
-  taxpayerName: string;
+  taxpayerId: number;
+  taxpayerName: string;   // read-only — resolved from server
+  tinNumber: string;      // read-only — resolved from server
   documentType: DocumentType;
   documentCategory: DocumentCategory;
   documentTitle: string;
@@ -22,8 +23,7 @@ export interface Document {
 }
 
 export interface DocumentCreateRequest {
-  tinNumber: string;
-  taxpayerName: string;
+  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
   documentType: string;
   documentCategory: string;
   documentTitle: string;

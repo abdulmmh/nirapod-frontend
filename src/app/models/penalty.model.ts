@@ -5,8 +5,9 @@ export type PenaltySeverity = 'Low' | 'Medium' | 'High' | 'Critical';
 export interface Penalty {
   id: number;
   penaltyNo: string;
-  tinNumber: string;
-  taxpayerName: string;
+  taxpayerId: number;
+  taxpayerName: string;   // read-only — resolved from server
+  tinNumber: string;      // read-only — resolved from server
   penaltyType: PenaltyType;
   severity: PenaltySeverity;
   penaltyAmount: number;
@@ -26,8 +27,7 @@ export interface Penalty {
 }
 
 export interface PenaltyCreateRequest {
-  tinNumber: string;
-  taxpayerName: string;
+  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
   penaltyType: string;
   severity: string;
   penaltyAmount: number;

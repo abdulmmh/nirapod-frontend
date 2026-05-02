@@ -299,7 +299,6 @@ export class TinEditComponent implements OnInit, OnDestroy {
 
   isFormValid(): boolean {
     return !!(
-      this.form.taxpayerName &&
       this.form.tinCategory &&
       this.form.phone &&
       this.form.taxZone &&

@@ -18,7 +18,7 @@ export class NoticeViewComponent implements OnInit {
 
   private fallback: Notice[] = [
     {
-      id: 1, noticeNo: 'NOT-2024-00001',
+      taxpayerId: 0, id: 1, noticeNo: 'NOT-2024-00001',
       subject: 'VAT Return Due Reminder — January 2024',
       body: 'Dear Taxpayer, your VAT return for January 2024 is due by February 15, 2024. Please submit your return to avoid penalties.',
       noticeType: 'Reminder', priority: 'High',
@@ -30,7 +30,7 @@ export class NoticeViewComponent implements OnInit {
       attachmentName: '', status: 'Read'
     },
     {
-      id: 2, noticeNo: 'NOT-2024-00002',
+      taxpayerId: 0, id: 2, noticeNo: 'NOT-2024-00002',
       subject: 'Penalty Notice — Late Filing',
       body: 'This notice is issued for late filing of VAT return. A penalty of BDT 25,000 has been imposed. Please pay within 30 days.',
       noticeType: 'Penalty Notice', priority: 'Urgent',

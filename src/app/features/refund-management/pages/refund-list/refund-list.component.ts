@@ -17,7 +17,7 @@ export class RefundListComponent implements OnInit {
 
   private fallback: Refund[] = [
     {
-      id: 1, refundNo: 'RFD-2024-00001',
+      taxpayerId: 0, id: 1, refundNo: 'RFD-2024-00001',
       tinNumber: 'TIN-1001', taxpayerName: 'Rahman Textile Ltd.',
       refundType: 'VAT Refund', refundMethod: 'Bank Transfer',
       claimAmount: 90000, approvedAmount: 85000, paidAmount: 85000,
@@ -30,7 +30,7 @@ export class RefundListComponent implements OnInit {
       approvedBy: 'Tax Commissioner', remarks: ''
     },
     {
-      id: 2, refundNo: 'RFD-2024-00002',
+      taxpayerId: 0, id: 2, refundNo: 'RFD-2024-00002',
       tinNumber: 'TIN-1002', taxpayerName: 'Karim Traders',
       refundType: 'Income Tax Refund', refundMethod: 'Bank Transfer',
       claimAmount: 25000, approvedAmount: 25000, paidAmount: 0,
@@ -43,7 +43,7 @@ export class RefundListComponent implements OnInit {
       approvedBy: 'Tax Commissioner', remarks: 'Payment scheduled'
     },
     {
-      id: 3, refundNo: 'RFD-2024-00003',
+      taxpayerId: 0, id: 3, refundNo: 'RFD-2024-00003',
       tinNumber: 'TIN-1003', taxpayerName: 'Dhaka Pharma Co.',
       refundType: 'Excess Payment', refundMethod: 'Cheque',
       claimAmount: 150000, approvedAmount: 0, paidAmount: 0,
@@ -56,7 +56,7 @@ export class RefundListComponent implements OnInit {
       approvedBy: '', remarks: 'Awaiting verification'
     },
     {
-      id: 4, refundNo: 'RFD-2024-00004',
+      taxpayerId: 0, id: 4, refundNo: 'RFD-2024-00004',
       tinNumber: 'TIN-1004', taxpayerName: 'Chittagong Exports',
       refundType: 'VAT Refund', refundMethod: 'Adjustment',
       claimAmount: 45000, approvedAmount: 40000, paidAmount: 0,
@@ -68,7 +68,7 @@ export class RefundListComponent implements OnInit {
       approvedBy: 'Tax Commissioner', remarks: 'Adjustment against next period'
     },
     {
-      id: 5, refundNo: 'RFD-2024-00005',
+      taxpayerId: 0, id: 5, refundNo: 'RFD-2024-00005',
       tinNumber: 'TIN-1005', taxpayerName: 'Sylhet Tea House',
       refundType: 'Income Tax Refund', refundMethod: 'Bank Transfer',
       claimAmount: 18000, approvedAmount: 0, paidAmount: 0,
@@ -81,7 +81,7 @@ export class RefundListComponent implements OnInit {
       approvedBy: '', remarks: 'Insufficient documentation'
     },
     {
-      id: 6, refundNo: 'RFD-2024-00006',
+      taxpayerId: 0, id: 6, refundNo: 'RFD-2024-00006',
       tinNumber: 'TIN-1006', taxpayerName: 'BD Tech Solutions',
       refundType: 'VAT Refund', refundMethod: 'Bank Transfer',
       claimAmount: 62000, approvedAmount: 62000, paidAmount: 0,

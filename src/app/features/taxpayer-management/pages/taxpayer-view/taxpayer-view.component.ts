@@ -9,16 +9,15 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-taxpayer-view',
   templateUrl: './taxpayer-view.component.html',
-  styleUrls: ['./taxpayer-view.component.css']
+  styleUrls: ['./taxpayer-view.component.css'],
 })
 export class TaxpayerViewComponent implements OnInit, OnDestroy {
-
   // ────────────────── Properties ──────────────────────
 
   taxpayer: Taxpayer | null = null;
   isLoading = true;
   taxpayerId: number | null = null;
-  
+
   private destroy$ = new Subject<void>();
 
   // ──────────────────── Constructor ───────────────────────
@@ -27,7 +26,7 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private toast: ToastService
+    private toast: ToastService,
   ) {}
 
   // ────────────────────── Lifecycle ──────────────────────
@@ -76,7 +75,7 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
       .get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(this.taxpayerId))
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => (this.isLoading = false))
+        finalize(() => (this.isLoading = false)),
       )
       .subscribe({
         next: (data) => this.handleFetchSuccess(data),
@@ -96,24 +95,23 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
   // ───────────────────── Helper Methods ────────────────────────
 
   getDisplayName(taxpayer: any): string {
-    const typeName = taxpayer?.taxpayerType?.typeName?.toLowerCase() || '';
-    
-    if (typeName.includes('company')) {
+    const category = taxpayer?.taxpayerType?.category?.toLowerCase() || '';
+
+    if (category === 'business' || category === 'organization') {
       return taxpayer.companyName || 'Unknown Company';
-    } 
-    else {
-      return taxpayer.fullName || 'Unknown Individual'; 
+    } else {
+      return taxpayer.fullName || 'Unknown Individual';
     }
   }
 
   get isCompany(): boolean {
-    const typeName = this.taxpayer?.taxpayerType?.typeName?.toLowerCase() || '';
-    return typeName.includes('company');
+    const category = this.taxpayer?.taxpayerType?.category?.toLowerCase() || '';
+    return category === 'business' || category === 'organization';
   }
 
   get isIndividual(): boolean {
-    const typeName = this.taxpayer?.taxpayerType?.typeName?.toLowerCase() || '';
-    return typeName.includes('individual');
+    const category = this.taxpayer?.taxpayerType?.category?.toLowerCase() || '';
+    return category === 'individual';
   }
 
   // ───────────────────── Navigation ────────────────────────
@@ -131,10 +129,10 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
 
   getStatusClass(status: string): string {
     const map: Record<string, string> = {
-      'Active': 'status-active', 
-      'Inactive': 'status-inactive',
-      'Pending': 'status-pending', 
-      'Suspended': 'status-suspended'
+      Active: 'status-active',
+      Inactive: 'status-inactive',
+      Pending: 'status-pending',
+      Suspended: 'status-suspended',
     };
     return map[status] ?? '';
   }

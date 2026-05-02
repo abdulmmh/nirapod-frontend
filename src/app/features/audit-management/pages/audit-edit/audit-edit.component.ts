@@ -123,8 +123,6 @@ export class AuditEditComponent implements OnInit {
 
   isFormValid(): boolean {
     return !!(
-      this.form.tinNumber &&
-      this.form.taxpayerName &&
       this.form.auditType &&
       this.form.priority &&
       this.form.scheduledDate &&

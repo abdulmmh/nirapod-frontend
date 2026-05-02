@@ -24,7 +24,7 @@ export class NoticeListComponent implements OnInit {
 
   private fallback: Notice[] = [
     {
-      id: 1, noticeNo: 'NOT-2024-00001',
+      taxpayerId: 0, id: 1, noticeNo: 'NOT-2024-00001',
       subject: 'VAT Return Due Reminder — January 2024',
       body: 'Dear Taxpayer, your VAT return for January 2024 is due by February 15, 2024. Please submit your return to avoid penalties.',
       noticeType: 'Reminder', priority: 'High',
@@ -36,7 +36,7 @@ export class NoticeListComponent implements OnInit {
       attachmentName: '', status: 'Read'
     },
     {
-      id: 2, noticeNo: 'NOT-2024-00002',
+      taxpayerId: 0, id: 2, noticeNo: 'NOT-2024-00002',
       subject: 'Penalty Notice — Late Filing',
       body: 'This notice is issued for late filing of VAT return. A penalty of BDT 25,000 has been imposed. Please pay within 30 days.',
       noticeType: 'Penalty Notice', priority: 'Urgent',
@@ -48,7 +48,7 @@ export class NoticeListComponent implements OnInit {
       attachmentName: 'penalty_notice.pdf', status: 'Unread'
     },
     {
-      id: 3, noticeNo: 'NOT-2024-00003',
+      taxpayerId: 0, id: 3, noticeNo: 'NOT-2024-00003',
       subject: 'Audit Scheduled — Full Audit Notice',
       body: 'Your account has been selected for a full audit. Please prepare all relevant documents for the audit scheduled on March 15, 2024.',
       noticeType: 'Audit Notice', priority: 'High',
@@ -60,7 +60,7 @@ export class NoticeListComponent implements OnInit {
       attachmentName: 'audit_schedule.pdf', status: 'Responded'
     },
     {
-      id: 4, noticeNo: 'NOT-2024-00004',
+      taxpayerId: 0, id: 4, noticeNo: 'NOT-2024-00004',
       subject: 'Income Tax Filing Deadline — FY 2023-24',
       body: 'This is a reminder that the income tax return filing deadline for FY 2023-24 is November 30, 2024. Please file your return on time.',
       noticeType: 'Tax Due', priority: 'Normal',
@@ -72,7 +72,7 @@ export class NoticeListComponent implements OnInit {
       attachmentName: '', status: 'Unread'
     },
     {
-      id: 5, noticeNo: 'NOT-2024-00005',
+      taxpayerId: 0, id: 5, noticeNo: 'NOT-2024-00005',
       subject: 'Refund Approved — VAT Refund Processed',
       body: 'Your VAT refund claim of BDT 85,000 has been approved and will be transferred to your account within 7 working days.',
       noticeType: 'Refund Update', priority: 'Normal',
@@ -84,7 +84,7 @@ export class NoticeListComponent implements OnInit {
       attachmentName: '', status: 'Read'
     },
     {
-      id: 6, noticeNo: 'NOT-2024-00006',
+      taxpayerId: 0, id: 6, noticeNo: 'NOT-2024-00006',
       subject: 'System Maintenance — Portal Downtime Notice',
       body: 'The NBR tax portal will be under maintenance on April 10, 2024 from 2:00 AM to 6:00 AM. Please plan accordingly.',
       noticeType: 'System', priority: 'Low',
@@ -96,7 +96,7 @@ export class NoticeListComponent implements OnInit {
       attachmentName: '', status: 'Read'
     },
     {
-      id: 7, noticeNo: 'NOT-2024-00007',
+      taxpayerId: 0, id: 7, noticeNo: 'NOT-2024-00007',
       subject: 'Compliance Notice — Record Keeping Requirements',
       body: 'All registered businesses are required to maintain proper VAT records for a minimum of 5 years as per NBR regulations.',
       noticeType: 'Compliance', priority: 'Normal',

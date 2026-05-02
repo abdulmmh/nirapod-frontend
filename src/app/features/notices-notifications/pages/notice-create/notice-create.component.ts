@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { Taxpayer } from '../../../../models/taxpayer.model';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { NoticeCreateRequest } from '../../../../models/notice.model';
@@ -12,6 +14,14 @@ import { NoticeCreateRequest } from '../../../../models/notice.model';
 export class NoticeCreateComponent {
 
   isLoading  = false;
+
+  // Taxpayer search
+  searchQuery = '';
+  isSearching = false;
+  searchResults: Taxpayer[] = [];
+  selectedTaxpayer: Taxpayer | null = null;
+  showResults = false;
+  private destroy$ = new Subject<void>();
   successMsg = '';
   errorMsg   = '';
 
@@ -26,8 +36,7 @@ export class NoticeCreateComponent {
     noticeType:     '',
     priority:       'Normal',
     targetType:     'All Taxpayers',
-    tinNumber:      '',
-    taxpayerName:   '',
+    taxpayerId:     null,
     issuedBy:       '',
     issuedDate:     new Date().toISOString().split('T')[0],
     dueDate:        '',
@@ -77,7 +86,7 @@ export class NoticeCreateComponent {
     this.form = {
       subject: '', body: '', noticeType: '',
       priority: 'Normal', targetType: 'All Taxpayers',
-      tinNumber: '', taxpayerName: '', issuedBy: '',
+      taxpayerId: null, issuedBy: '',
       issuedDate: new Date().toISOString().split('T')[0],
       dueDate: '', attachmentName: ''
     };
@@ -85,4 +94,35 @@ export class NoticeCreateComponent {
   }
 
   onCancel(): void { this.router.navigate(['/notices']); }
+
+  // ── Taxpayer Search ──────────────────────────────────────────────────────
+  searchTaxpayer(): void {
+    const q = this.searchQuery.trim();
+    if (!q || q.length < 3) { return; }
+    this.isSearching = true;
+    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q))
+      .pipe(takeUntil(this.destroy$), finalize(() => this.isSearching = false))
+      .subscribe({ next: d => { this.searchResults = d; this.showResults = true; }, error: () => {} });
+  }
+
+  selectTaxpayer(t: Taxpayer): void {
+    this.selectedTaxpayer = t;
+    this.form.taxpayerId = t.id ?? null;
+    this.showResults = false;
+  }
+
+  clearTaxpayer(): void {
+    this.selectedTaxpayer = null;
+    this.form.taxpayerId = null;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.showResults = false;
+  }
+
+  getDisplayName(t: Taxpayer): string {
+    return t.taxpayerType?.typeName?.toLowerCase().includes('company')
+      ? (t.companyName || '') : (t.fullName || '');
+  }
+
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 }

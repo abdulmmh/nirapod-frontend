@@ -1,12 +1,13 @@
-export type RefundStatus   = 'Pending' | 'Approved' | 'Rejected' | 'Processing' | 'Completed' | 'Cancelled';
-export type RefundType     = 'VAT Refund' | 'Income Tax Refund' | 'Excess Payment' | 'Other';
-export type RefundMethod   = 'Bank Transfer' | 'Cheque' | 'Adjustment';
+export type RefundStatus = 'Pending' | 'Approved' | 'Rejected' | 'Processing' | 'Completed' | 'Cancelled';
+export type RefundType   = 'VAT Refund' | 'Income Tax Refund' | 'Excess Payment' | 'Other';
+export type RefundMethod = 'Bank Transfer' | 'Cheque' | 'Adjustment';
 
 export interface Refund {
   id: number;
   refundNo: string;
-  tinNumber: string;
-  taxpayerName: string;
+  taxpayerId: number;
+  taxpayerName: string;   // read-only — resolved from server
+  tinNumber: string;      // read-only — resolved from server
   refundType: RefundType;
   refundMethod: RefundMethod;
   claimAmount: number;
@@ -27,8 +28,7 @@ export interface Refund {
 }
 
 export interface RefundCreateRequest {
-  tinNumber: string;
-  taxpayerName: string;
+  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
   refundType: string;
   refundMethod: string;
   claimAmount: number;

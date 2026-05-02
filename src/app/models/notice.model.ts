@@ -6,13 +6,14 @@ export type NoticeTarget   = 'All Taxpayers' | 'Specific Taxpayer' | 'Tax Office
 export interface Notice {
   id: number;
   noticeNo: string;
+  taxpayerId: number;
+  taxpayerName: string;   // read-only — resolved from server
+  tinNumber: string;      // read-only — resolved from server
   subject: string;
   body: string;
   noticeType: NoticeType;
   priority: NoticePriority;
   targetType: NoticeTarget;
-  tinNumber: string;
-  taxpayerName: string;
   issuedBy: string;
   issuedDate: string;
   dueDate: string;
@@ -24,13 +25,12 @@ export interface Notice {
 }
 
 export interface NoticeCreateRequest {
+  taxpayerId: number | null;  // FK — required when targetType = 'Specific Taxpayer'
   subject: string;
   body: string;
   noticeType: string;
   priority: string;
   targetType: string;
-  tinNumber: string;
-  taxpayerName: string;
   issuedBy: string;
   issuedDate: string;
   dueDate: string;

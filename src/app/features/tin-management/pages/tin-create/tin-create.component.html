@@ -89,12 +89,15 @@
 
       <div class="form-group full-width">
         <label class="form-label required">Taxpayer Name</label>
-        <div class="input-wrap" [class.locked]="isAutoFilled">
+        <div class="input-wrap locked">
           <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input" placeholder="Full name or company name" [(ngModel)]="form.taxpayerName"
-            [disabled]="isAutoFilled" />
-          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
+          <input type="text" class="form-input"
+            [value]="selectedTaxpayer ? getDisplayName(selectedTaxpayer) : ''"
+            placeholder="Auto-filled from taxpayer search above"
+            readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
+        <span class="field-hint" *ngIf="!selectedTaxpayer">Search and select a taxpayer above first.</span>
       </div>
 
       <div class="form-group">

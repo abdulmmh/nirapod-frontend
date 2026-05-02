@@ -70,7 +70,6 @@ export class PenaltyEditComponent implements OnInit {
 
   isFormValid(): boolean {
     return !!(
-      this.form.tinNumber && this.form.taxpayerName &&
       this.form.penaltyType && this.form.severity &&
       this.form.penaltyAmount > 0 && this.form.issuedBy
     );

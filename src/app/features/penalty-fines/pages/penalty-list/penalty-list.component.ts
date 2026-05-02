@@ -17,7 +17,7 @@ export class PenaltyListComponent implements OnInit {
 
   private fallback: Penalty[] = [
     {
-      id: 1, penaltyNo: 'PEN-2024-00001',
+      taxpayerId: 0, id: 1, penaltyNo: 'PEN-2024-00001',
       tinNumber: 'TIN-1001', taxpayerName: 'Rahman Textile Ltd.',
       penaltyType: 'Late Filing', severity: 'Medium',
       penaltyAmount: 25000, interestAmount: 3750, totalAmount: 28750,
@@ -31,7 +31,7 @@ export class PenaltyListComponent implements OnInit {
       remarks: ''
     },
     {
-      id: 2, penaltyNo: 'PEN-2024-00002',
+      taxpayerId: 0, id: 2, penaltyNo: 'PEN-2024-00002',
       tinNumber: 'TIN-1002', taxpayerName: 'Karim Traders',
       penaltyType: 'Late Payment', severity: 'Low',
       penaltyAmount: 12000, interestAmount: 1800, totalAmount: 13800,
@@ -45,7 +45,7 @@ export class PenaltyListComponent implements OnInit {
       remarks: 'Payment due April 5'
     },
     {
-      id: 3, penaltyNo: 'PEN-2024-00003',
+      taxpayerId: 0, id: 3, penaltyNo: 'PEN-2024-00003',
       tinNumber: 'TIN-1003', taxpayerName: 'Dhaka Pharma Co.',
       penaltyType: 'Non-Compliance', severity: 'High',
       penaltyAmount: 150000, interestAmount: 22500, totalAmount: 172500,
@@ -59,7 +59,7 @@ export class PenaltyListComponent implements OnInit {
       remarks: 'Legal notice served'
     },
     {
-      id: 4, penaltyNo: 'PEN-2024-00004',
+      taxpayerId: 0, id: 4, penaltyNo: 'PEN-2024-00004',
       tinNumber: 'TIN-1004', taxpayerName: 'Chittagong Exports',
       penaltyType: 'Underpayment', severity: 'Medium',
       penaltyAmount: 45000, interestAmount: 6750, totalAmount: 51750,
@@ -73,7 +73,7 @@ export class PenaltyListComponent implements OnInit {
       remarks: 'Appeal filed on Mar 20'
     },
     {
-      id: 5, penaltyNo: 'PEN-2024-00005',
+      taxpayerId: 0, id: 5, penaltyNo: 'PEN-2024-00005',
       tinNumber: 'TIN-1005', taxpayerName: 'Sylhet Tea House',
       penaltyType: 'Fraud', severity: 'Critical',
       penaltyAmount: 500000, interestAmount: 75000, totalAmount: 575000,
@@ -87,7 +87,7 @@ export class PenaltyListComponent implements OnInit {
       remarks: 'Case referred to legal department'
     },
     {
-      id: 6, penaltyNo: 'PEN-2024-00006',
+      taxpayerId: 0, id: 6, penaltyNo: 'PEN-2024-00006',
       tinNumber: 'TIN-1006', taxpayerName: 'BD Tech Solutions',
       penaltyType: 'Late Filing', severity: 'Low',
       penaltyAmount: 8000, interestAmount: 1200, totalAmount: 9200,

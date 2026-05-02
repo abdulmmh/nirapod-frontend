@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { Taxpayer } from '../../../../models/taxpayer.model';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { PenaltyCreateRequest } from '../../../../models/penalty.model';
@@ -12,6 +14,14 @@ import { PenaltyCreateRequest } from '../../../../models/penalty.model';
 export class PenaltyCreateComponent {
 
   isLoading  = false;
+
+  // Taxpayer search
+  searchQuery = '';
+  isSearching = false;
+  searchResults: Taxpayer[] = [];
+  selectedTaxpayer: Taxpayer | null = null;
+  showResults = false;
+  private destroy$ = new Subject<void>();
   successMsg = '';
   errorMsg   = '';
 
@@ -24,8 +34,7 @@ export class PenaltyCreateComponent {
   ];
 
   form: PenaltyCreateRequest = {
-    tinNumber:      '',
-    taxpayerName:   '',
+    taxpayerId:     null,
     penaltyType:    '',
     severity:       'Medium',
     penaltyAmount:  0,
@@ -59,8 +68,7 @@ export class PenaltyCreateComponent {
 
   isFormValid(): boolean {
     return !!(
-      this.form.tinNumber     &&
-      this.form.taxpayerName  &&
+      this.selectedTaxpayer !== null &&
       this.form.penaltyType   &&
       this.form.severity      &&
       this.form.penaltyAmount > 0 &&
@@ -99,7 +107,7 @@ export class PenaltyCreateComponent {
 
   onReset(): void {
     this.form = {
-      tinNumber: '', taxpayerName: '', penaltyType: '',
+      taxpayerId: null, penaltyType: '',
       severity: 'Medium', penaltyAmount: 0, interestAmount: 0,
       returnNo: '', assessmentYear: '2024-25',
       issueDate: new Date().toISOString().split('T')[0],
@@ -115,4 +123,35 @@ export class PenaltyCreateComponent {
     if (val >= 100000) return `৳${(val / 100000).toFixed(2)}L`;
     return `৳${val.toLocaleString()}`;
   }
+
+  // ── Taxpayer Search ──────────────────────────────────────────────────────
+  searchTaxpayer(): void {
+    const q = this.searchQuery.trim();
+    if (!q || q.length < 3) { return; }
+    this.isSearching = true;
+    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q))
+      .pipe(takeUntil(this.destroy$), finalize(() => this.isSearching = false))
+      .subscribe({ next: d => { this.searchResults = d; this.showResults = true; }, error: () => {} });
+  }
+
+  selectTaxpayer(t: Taxpayer): void {
+    this.selectedTaxpayer = t;
+    this.form.taxpayerId = t.id ?? null;
+    this.showResults = false;
+  }
+
+  clearTaxpayer(): void {
+    this.selectedTaxpayer = null;
+    this.form.taxpayerId = null;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.showResults = false;
+  }
+
+  getDisplayName(t: Taxpayer): string {
+    return t.taxpayerType?.typeName?.toLowerCase().includes('company')
+      ? (t.companyName || '') : (t.fullName || '');
+  }
+
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 }

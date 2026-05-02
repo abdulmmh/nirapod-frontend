@@ -16,7 +16,7 @@ export class RefundViewComponent implements OnInit {
 
   private fallback: Refund[] = [
     {
-      id: 1, refundNo: 'RFD-2024-00001',
+      taxpayerId: 0, id: 1, refundNo: 'RFD-2024-00001',
       tinNumber: 'TIN-1001', taxpayerName: 'Rahman Textile Ltd.',
       refundType: 'VAT Refund', refundMethod: 'Bank Transfer',
       claimAmount: 90000, approvedAmount: 85000, paidAmount: 85000,

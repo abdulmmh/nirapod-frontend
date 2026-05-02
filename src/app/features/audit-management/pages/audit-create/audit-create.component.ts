@@ -1,11 +1,10 @@
 import { Component, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { AuditCreateRequest } from '../../../../models/audit.model';
+import { Taxpayer } from '../../../../models/taxpayer.model';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
@@ -18,9 +17,16 @@ export class AuditCreateComponent implements OnDestroy {
   // ──────────────── State ────────────────
   isLoading = false;
 
+  // Taxpayer search
+  searchQuery = '';
+  isSearching = false;
+  searchResults: Taxpayer[] = [];
+  selectedTaxpayer: Taxpayer | null = null;
+  showResults = false;
+  private destroy$ = new Subject<void>();
+
   form: AuditCreateRequest = this.createEmptyForm();
 
-  private destroy$ = new Subject<void>();
 
   // ──────────────── Static Data ────────────────
   readonly auditTypes = [
@@ -69,11 +75,40 @@ export class AuditCreateComponent implements OnDestroy {
     this.destroy$.complete();
   }
 
+  // ── Taxpayer Search ──────────────────────────────────────────────────────
+  searchTaxpayer(): void {
+    const q = this.searchQuery.trim();
+    if (!q || q.length < 3) { this.toast.warning('Enter at least 3 characters.'); return; }
+    this.isSearching = true;
+    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q))
+      .pipe(takeUntil(this.destroy$), finalize(() => this.isSearching = false))
+      .subscribe({ next: d => { this.searchResults = d; this.showResults = true; }, error: () => this.toast.error('Search failed.') });
+  }
+
+  selectTaxpayer(t: Taxpayer): void {
+    this.selectedTaxpayer = t;
+    this.form.taxpayerId = t.id ?? null;
+    this.showResults = false;
+    const name = t.taxpayerType?.typeName?.toLowerCase().includes('company') ? t.companyName : t.fullName;
+    this.toast.success(`Taxpayer "${name}" selected.`);
+  }
+
+  clearTaxpayer(): void {
+    this.selectedTaxpayer = null;
+    this.form.taxpayerId = null;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.showResults = false;
+  }
+
+  getDisplayName(t: Taxpayer): string {
+    return t.taxpayerType?.typeName?.toLowerCase().includes('company') ? (t.companyName || '') : (t.fullName || '');
+  }
+
   // ──────────────── Form Factory  ────────────────
   private createEmptyForm(): AuditCreateRequest {
     return {
-      tinNumber: '',
-      taxpayerName: '',
+      taxpayerId: null,
       auditType: '',
       priority: 'Medium',
       assessmentYear: '2024-25',
@@ -98,8 +133,7 @@ export class AuditCreateComponent implements OnDestroy {
 
   private hasRequiredFields(): boolean {
     return !!(
-      this.form.tinNumber &&
-      this.form.taxpayerName &&
+      this.selectedTaxpayer !== null &&
       this.form.auditType &&
       this.form.priority &&
       this.form.scheduledDate &&

@@ -98,8 +98,6 @@ export class DocumentEditComponent implements OnInit {
 
   isFormValid(): boolean {
     return !!(
-      this.form.tinNumber &&
-      this.form.taxpayerName &&
       this.form.documentType &&
       this.form.documentCategory &&
       this.form.documentTitle &&

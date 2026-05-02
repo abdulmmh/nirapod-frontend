@@ -5,8 +5,9 @@ export type AuditPriority = 'Low' | 'Medium' | 'High' | 'Critical';
 export interface Audit {
   id: number;
   auditNo: string;
-  tinNumber: string;
-  taxpayerName: string;
+  taxpayerId: number;
+  taxpayerName: string;   // read-only — resolved from server
+  tinNumber: string;      // read-only — resolved from server
   auditType: AuditType;
   priority: AuditPriority;
   assessmentYear: string;
@@ -24,8 +25,7 @@ export interface Audit {
 }
 
 export interface AuditCreateRequest {
-  tinNumber: string;
-  taxpayerName: string;
+  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
   auditType: string;
   priority: string;
   assessmentYear: string;

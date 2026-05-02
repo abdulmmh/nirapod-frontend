@@ -70,8 +70,6 @@ export class RefundEditComponent implements OnInit {
 
   isFormValid(): boolean {
     return !!(
-      this.form.tinNumber    &&
-      this.form.taxpayerName &&
       this.form.refundType   &&
       this.form.refundMethod &&
       this.form.claimAmount > 0

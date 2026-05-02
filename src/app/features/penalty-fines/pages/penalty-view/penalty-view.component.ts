@@ -16,7 +16,7 @@ export class PenaltyViewComponent implements OnInit {
 
   private fallback: Penalty[] = [
     {
-      id: 1, penaltyNo: 'PEN-2024-00001',
+      taxpayerId: 0, id: 1, penaltyNo: 'PEN-2024-00001',
       tinNumber: 'TIN-1001', taxpayerName: 'Rahman Textile Ltd.',
       penaltyType: 'Late Filing', severity: 'Medium',
       penaltyAmount: 25000, interestAmount: 3750, totalAmount: 28750,

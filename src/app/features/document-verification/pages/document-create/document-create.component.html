@@ -15,32 +15,63 @@
 
 <div class="form-card">
 
-  <!-- Section 1: Taxpayer -->
+  <!-- Taxpayer Search (replaces raw tinNumber/taxpayerName inputs) -->
   <div class="form-section">
     <div class="section-header">
-      <div class="section-icon">
-        <i class="bi bi-person-badge-fill"></i>
-      </div>
+      <div class="section-icon"><i class="bi bi-person-badge-fill"></i></div>
       <div>
-        <h6 class="section-title">Taxpayer Information</h6>
-        <span class="section-sub">TIN and taxpayer identification</span>
+        <h6 class="section-title">Taxpayer</h6>
+        <span class="section-sub">Search and select the taxpayer</span>
       </div>
     </div>
     <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">TIN Number</label>
-        <div class="input-wrap">
-          <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. TIN-1001" [(ngModel)]="form.tinNumber" />
+      <div class="form-group full-width">
+        <label class="form-label required">Find Taxpayer</label>
+        <div class="search-row">
+          <div class="input-wrap search-input-wrap">
+            <i class="bi bi-search input-icon"></i>
+            <input type="text" class="form-input"
+              placeholder="Enter NID, name or TIN..."
+              [(ngModel)]="searchQuery"
+              [disabled]="selectedTaxpayer !== null"
+              (keyup.enter)="searchTaxpayer()" />
+            <button *ngIf="selectedTaxpayer" class="clear-btn" (click)="clearTaxpayer()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <button class="btn-search" (click)="searchTaxpayer()"
+            [disabled]="isSearching || selectedTaxpayer !== null">
+            <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
+            <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span></span>
+          </button>
         </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">Taxpayer Name</label>
-        <div class="input-wrap">
-          <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Enter taxpayer name" [(ngModel)]="form.taxpayerName" />
+        <!-- Results -->
+        <div class="search-results" *ngIf="showResults && searchResults.length > 0">
+          <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
+            <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="result-info">
+              <span class="result-name">{{ getDisplayName(t) }}</span>
+              <span class="result-meta">
+                <span *ngIf="t.nid">NID: {{ t.nid }}</span>
+                <span *ngIf="t.phone"> · {{ t.phone }}</span>
+              </span>
+            </div>
+            <span class="result-badge">Select</span>
+          </div>
+        </div>
+        <!-- Selected -->
+        <div class="selected-card" *ngIf="selectedTaxpayer">
+          <div class="selected-card-left">
+            <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
+            <div>
+              <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
+              <p class="selected-meta">
+                <span *ngIf="selectedTaxpayer.nid">NID: {{ selectedTaxpayer.nid }}</span>
+                <span *ngIf="selectedTaxpayer.tinNumber"> · TIN: {{ selectedTaxpayer.tinNumber }}</span>
+              </p>
+            </div>
+          </div>
+          <div class="autofill-tag"><i class="bi bi-check-circle-fill"></i> Selected</div>
         </div>
       </div>
     </div>

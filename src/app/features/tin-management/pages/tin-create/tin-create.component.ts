@@ -242,7 +242,6 @@ export class TinCreateComponent implements OnDestroy {
       false;
 
     this.form.tinCategory = isComp ? 'Company' : 'Individual';
-    this.form.taxpayerName = this.getDisplayName(taxpayer);
     this.form.email = taxpayer.email || '';
     this.form.phone = taxpayer.phone || '';
 
@@ -301,7 +300,7 @@ export class TinCreateComponent implements OnDestroy {
     }
 
     this.toast.success(
-      `"${this.form.taxpayerName}" auto-filled. Select Tax Zone and Circle to continue.`,
+      `"${this.getDisplayName(this.selectedTaxpayer!)}" auto-filled. Select Tax Zone and Circle to continue.`,
     );
   }
 
@@ -322,7 +321,7 @@ export class TinCreateComponent implements OnDestroy {
 
   isFormValid(): boolean {
     return !!(
-      this.form.taxpayerName &&
+      this.selectedTaxpayer !== null &&
       this.form.tinCategory &&
       this.form.phone &&
       this.form.taxZone &&
@@ -340,7 +339,7 @@ export class TinCreateComponent implements OnDestroy {
       return;
     }
     this.isLoading = true;
-    const payload = { ...this.form, taxpayerId: this.selectedTaxpayer?.id };
+    const payload = { ...this.form, taxpayerId: this.selectedTaxpayer?.id ?? null };
 
     this.http
       .post(API_ENDPOINTS.TINS.CREATE, payload)
@@ -374,7 +373,7 @@ export class TinCreateComponent implements OnDestroy {
 
   private getEmptyForm(): TinCreateRequest {
     return {
-      taxpayerName: '',
+      taxpayerId: null,
       tinCategory: '',
       nid: '',
       passportNo: '',
