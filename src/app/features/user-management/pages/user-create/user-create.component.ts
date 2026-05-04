@@ -5,42 +5,71 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-user-create',
   templateUrl: './user-create.component.html',
-  styleUrls: ['./user-create.component.css']
+  styleUrls: ['./user-create.component.css'],
 })
 export class UserCreateComponent {
-
-  private readonly toast = inject(ToastService);
-
-  isLoading  = false;
+  isLoading = false;
   successMsg = '';
-  errorMsg   = '';
+  errorMsg = '';
 
-  roles = ['TAX_COMMISSIONER', 'TAX_OFFICER', 'AUDITOR', 'DATA_ENTRY_OPERATOR', 'TAXPAYER'];
-  departments = ['IT Administration', 'Tax Commission', 'VAT Division', 'Income Tax Division', 'Audit Division', 'Data Management', 'External'];
+  roles = [
+    'TAX_COMMISSIONER',
+    'TAX_OFFICER',
+    'AUDITOR',
+    'DATA_ENTRY_OPERATOR',
+    'TAXPAYER',
+  ];
+  departments = [
+    'IT Administration',
+    'Tax Commission',
+    'VAT Division',
+    'Income Tax Division',
+    'Audit Division',
+    'Data Management',
+    'External',
+  ];
   statuses = ['Active', 'Inactive'];
 
   form = {
-    fullName: '', username: '', email: '', password: '',
-    confirmPassword: '', role: '', department: '', status: 'Active'
+    fullName: '',
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: '',
+    department: '',
+    status: 'Active',
   };
 
   get passwordMismatch(): boolean {
-    return !!(this.form.password && this.form.confirmPassword &&
-              this.form.password !== this.form.confirmPassword);
+    return !!(
+      this.form.password &&
+      this.form.confirmPassword &&
+      this.form.password !== this.form.confirmPassword
+    );
   }
 
   isFormValid(): boolean {
-    return !!(this.form.fullName && this.form.username &&
-              this.form.email && this.form.password &&
-              this.form.role && !this.passwordMismatch);
+    return !!(
+      this.form.fullName &&
+      this.form.username &&
+      this.form.email &&
+      this.form.password &&
+      this.form.role &&
+      !this.passwordMismatch
+    );
   }
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private toast: ToastService) {}
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields correctly.';
-      this.toast.error('Please fill in all required fields correctly.'); return; }
-    this.isLoading = true; this.errorMsg = '';
+    if (!this.isFormValid()) {
+      this.errorMsg = 'Please fill in all required fields correctly.';
+      this.toast.error('Please fill in all required fields correctly.');
+      return;
+    }
+    this.isLoading = true;
+    this.errorMsg = '';
     setTimeout(() => {
       this.isLoading = false;
       this.successMsg = 'User created successfully!';
@@ -50,9 +79,21 @@ export class UserCreateComponent {
   }
 
   onReset(): void {
-    this.form = { fullName: '', username: '', email: '', password: '', confirmPassword: '', role: '', department: '', status: 'Active' };
-    this.errorMsg = ''; this.successMsg = '';
+    this.form = {
+      fullName: '',
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      role: '',
+      department: '',
+      status: 'Active',
+    };
+    this.errorMsg = '';
+    this.successMsg = '';
   }
 
-  onCancel(): void { this.router.navigate(['/users']); }
+  onCancel(): void {
+    this.router.navigate(['/users']);
+  }
 }

@@ -1,10 +1,21 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  inject,
+} from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
-import { AccountCategory, RegistrationState } from '../../../../../models/registration.model';
+import {
+  AccountCategory,
+  RegistrationState,
+} from '../../../../../models/registration.model';
 import { API_ENDPOINTS } from '../../../../../core/constants/api.constants';
 
 interface TaxpayerType {
@@ -19,34 +30,50 @@ interface TaxpayerType {
   styleUrls: ['./reg-step-account-type.component.css'],
 })
 export class RegStepAccountTypeComponent implements OnInit, OnDestroy {
-
-  private readonly toast = inject(ToastService);
-
-  @Input()  state!: RegistrationState;
+  @Input() state!: RegistrationState;
   @Output() next = new EventEmitter<Partial<RegistrationState>>();
 
-  allTypes    : TaxpayerType[] = [];
-  isLoading   = false;
+  allTypes: TaxpayerType[] = [];
+  isLoading = false;
 
-  selectedCategory : AccountCategory | null = null;
-  selectedTypeId   : number | null = null;
+  selectedCategory: AccountCategory | null = null;
+  selectedTypeId: number | null = null;
 
-  readonly categories: AccountCategory[] = ['Individual', 'Business', 'Organization'];
+  readonly categories: AccountCategory[] = [
+    'Individual',
+    'Business',
+    'Organization',
+  ];
 
-  readonly categoryMeta: Record<AccountCategory, { icon: string; desc: string; color: string }> = {
-    Individual  : { icon: 'bi-person-fill',   desc: 'Personal taxpayer — requires NID',        color: 'blue'   },
-    Business    : { icon: 'bi-shop-window',   desc: 'Business entity — requires RJSC number',  color: 'green'  },
-    Organization: { icon: 'bi-building-fill', desc: 'NGO, Govt body or Foreign entity',        color: 'purple' },
+  readonly categoryMeta: Record<
+    AccountCategory,
+    { icon: string; desc: string; color: string }
+  > = {
+    Individual: {
+      icon: 'bi-person-fill',
+      desc: 'Personal taxpayer — requires NID',
+      color: 'blue',
+    },
+    Business: {
+      icon: 'bi-shop-window',
+      desc: 'Business entity — requires RJSC number',
+      color: 'green',
+    },
+    Organization: {
+      icon: 'bi-building-fill',
+      desc: 'NGO, Govt body or Foreign entity',
+      color: 'purple',
+    },
   };
 
   private destroy$ = new Subject<void>();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private toast: ToastService) {}
 
   ngOnInit(): void {
     // Restore state if user navigated back from step 2
     this.selectedCategory = this.state.accountCategory;
-    this.selectedTypeId   = this.state.taxpayerTypeId;
+    this.selectedTypeId = this.state.taxpayerTypeId;
     this.loadTypes();
   }
 
@@ -57,11 +84,15 @@ export class RegStepAccountTypeComponent implements OnInit, OnDestroy {
 
   loadTypes(): void {
     this.isLoading = true;
-    this.http.get<TaxpayerType[]>(API_ENDPOINTS.MASTER_DATA.TAXPAYER_TYPES)
-      .pipe(takeUntil(this.destroy$), finalize(() => this.isLoading = false))
+    this.http
+      .get<TaxpayerType[]>(API_ENDPOINTS.MASTER_DATA.TAXPAYER_TYPES)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
       .subscribe({
-        next : data  => this.allTypes = data,
-        error: _err  => {
+        next: (data) => (this.allTypes = data),
+        error: (_err) => {
           this.toast.error('Failed to load taxpayer types. Please try again.');
         },
       });
@@ -69,7 +100,7 @@ export class RegStepAccountTypeComponent implements OnInit, OnDestroy {
 
   get filteredTypes(): TaxpayerType[] {
     if (!this.selectedCategory) return [];
-    return this.allTypes.filter(t => t.category === this.selectedCategory);
+    return this.allTypes.filter((t) => t.category === this.selectedCategory);
   }
 
   get canProceed(): boolean {
@@ -78,7 +109,7 @@ export class RegStepAccountTypeComponent implements OnInit, OnDestroy {
 
   selectCategory(cat: AccountCategory): void {
     this.selectedCategory = cat;
-    this.selectedTypeId   = null;   // reset when category changes
+    this.selectedTypeId = null; // reset when category changes
   }
 
   selectType(type: TaxpayerType): void {
@@ -87,13 +118,15 @@ export class RegStepAccountTypeComponent implements OnInit, OnDestroy {
 
   onNext(): void {
     if (!this.canProceed) {
-      this.toast.warning('Please select an account category and taxpayer type.');
+      this.toast.warning(
+        'Please select an account category and taxpayer type.',
+      );
       return;
     }
-    const selected = this.allTypes.find(t => t.id === this.selectedTypeId)!;
+    const selected = this.allTypes.find((t) => t.id === this.selectedTypeId)!;
     this.next.emit({
-      accountCategory : this.selectedCategory!,
-      taxpayerTypeId  : this.selectedTypeId!,
+      accountCategory: this.selectedCategory!,
+      taxpayerTypeId: this.selectedTypeId!,
       taxpayerTypeName: selected.typeName,
     });
   }

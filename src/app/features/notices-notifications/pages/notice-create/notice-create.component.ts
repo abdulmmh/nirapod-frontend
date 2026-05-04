@@ -10,13 +10,10 @@ import { NoticeCreateRequest } from '../../../../models/notice.model';
 @Component({
   selector: 'app-notice-create',
   templateUrl: './notice-create.component.html',
-  styleUrls: ['./notice-create.component.css']
+  styleUrls: ['./notice-create.component.css'],
 })
 export class NoticeCreateComponent {
-
-  private readonly toast = inject(ToastService);
-
-  isLoading  = false;
+  isLoading = false;
 
   // Taxpayer search
   searchQuery = '';
@@ -26,24 +23,45 @@ export class NoticeCreateComponent {
   showResults = false;
   private destroy$ = new Subject<void>();
   successMsg = '';
-  errorMsg   = '';
+  errorMsg = '';
 
-  noticeTypes  = ['General', 'Tax Due', 'Audit Notice', 'Penalty Notice', 'Compliance', 'Refund Update', 'System', 'Reminder'];
-  priorities   = ['Low', 'Normal', 'High', 'Urgent'];
-  targetTypes  = ['All Taxpayers', 'Specific Taxpayer', 'Tax Officers', 'Auditors', 'All Users'];
-  officers     = ['Tax Officer', 'Senior Tax Officer', 'Tax Commissioner', 'NBR', 'System Admin'];
+  noticeTypes = [
+    'General',
+    'Tax Due',
+    'Audit Notice',
+    'Penalty Notice',
+    'Compliance',
+    'Refund Update',
+    'System',
+    'Reminder',
+  ];
+  priorities = ['Low', 'Normal', 'High', 'Urgent'];
+  targetTypes = [
+    'All Taxpayers',
+    'Specific Taxpayer',
+    'Tax Officers',
+    'Auditors',
+    'All Users',
+  ];
+  officers = [
+    'Tax Officer',
+    'Senior Tax Officer',
+    'Tax Commissioner',
+    'NBR',
+    'System Admin',
+  ];
 
   form: NoticeCreateRequest = {
-    subject:        '',
-    body:           '',
-    noticeType:     '',
-    priority:       'Normal',
-    targetType:     'All Taxpayers',
-    taxpayerId:     null,
-    issuedBy:       '',
-    issuedDate:     new Date().toISOString().split('T')[0],
-    dueDate:        '',
-    attachmentName: ''
+    subject: '',
+    body: '',
+    noticeType: '',
+    priority: 'Normal',
+    targetType: 'All Taxpayers',
+    taxpayerId: null,
+    issuedBy: '',
+    issuedDate: new Date().toISOString().split('T')[0],
+    dueDate: '',
+    attachmentName: '',
   };
 
   get showTaxpayerFields(): boolean {
@@ -52,14 +70,18 @@ export class NoticeCreateComponent {
 
   isFormValid(): boolean {
     return !!(
-      this.form.subject    &&
-      this.form.body       &&
+      this.form.subject &&
+      this.form.body &&
       this.form.noticeType &&
       this.form.issuedBy
     );
   }
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
+  ) {}
 
   onSubmit(): void {
     if (!this.isFormValid()) {
@@ -68,47 +90,69 @@ export class NoticeCreateComponent {
       return;
     }
 
-    this.isLoading  = true;
-    this.errorMsg   = '';
+    this.isLoading = true;
+    this.errorMsg = '';
     this.successMsg = '';
 
     this.http.post(API_ENDPOINTS.NOTICES.CREATE, this.form).subscribe({
       next: () => {
-        this.isLoading  = false;
+        this.isLoading = false;
         this.successMsg = 'Notice sent successfully!';
-      this.toast.success('Notice sent successfully!');
+        this.toast.success('Notice sent successfully!');
         setTimeout(() => this.router.navigate(['/notices']), 1500);
       },
       error: () => {
-        this.isLoading  = false;
+        this.isLoading = false;
         this.successMsg = '';
-        this.errorMsg   = 'Failed to send notice. Please try again.';
-      this.toast.error('Failed to send notice. Please try again.');
-      }
+        this.errorMsg = 'Failed to send notice. Please try again.';
+        this.toast.error('Failed to send notice. Please try again.');
+      },
     });
   }
 
   onReset(): void {
     this.form = {
-      subject: '', body: '', noticeType: '',
-      priority: 'Normal', targetType: 'All Taxpayers',
-      taxpayerId: null, issuedBy: '',
+      subject: '',
+      body: '',
+      noticeType: '',
+      priority: 'Normal',
+      targetType: 'All Taxpayers',
+      taxpayerId: null,
+      issuedBy: '',
       issuedDate: new Date().toISOString().split('T')[0],
-      dueDate: '', attachmentName: ''
+      dueDate: '',
+      attachmentName: '',
     };
-    this.errorMsg = ''; this.successMsg = '';
+    this.errorMsg = '';
+    this.successMsg = '';
   }
 
-  onCancel(): void { this.router.navigate(['/notices']); }
+  onCancel(): void {
+    this.router.navigate(['/notices']);
+  }
 
   // ── Taxpayer Search ──────────────────────────────────────────────────────
   searchTaxpayer(): void {
     const q = this.searchQuery.trim();
-    if (!q || q.length < 3) { return; }
+    if (!q || q.length < 3) {
+      return;
+    }
     this.isSearching = true;
-    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q))
-      .pipe(takeUntil(this.destroy$), finalize(() => this.isSearching = false))
-      .subscribe({ next: d => { this.searchResults = d; this.showResults = true; }, error: () => {} });
+    this.http
+      .get<Taxpayer[]>(
+        API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q),
+      )
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isSearching = false)),
+      )
+      .subscribe({
+        next: (d) => {
+          this.searchResults = d;
+          this.showResults = true;
+        },
+        error: () => {},
+      });
   }
 
   selectTaxpayer(t: Taxpayer): void {
@@ -127,8 +171,12 @@ export class NoticeCreateComponent {
 
   getDisplayName(t: Taxpayer): string {
     return t.taxpayerType?.typeName?.toLowerCase().includes('company')
-      ? (t.companyName || '') : (t.fullName || '');
+      ? t.companyName || ''
+      : t.fullName || '';
   }
 
-  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

@@ -6,18 +6,20 @@ import { finalize, takeUntil } from 'rxjs/operators';
 
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { MasterDataService } from 'src/app/core/services/master-data.service';
-import { ImportDuty, ImportDutyTaxPreview, ImportDutyUpdateRequest } from '../../../../models/import-duty.model';
+import {
+  ImportDuty,
+  ImportDutyTaxPreview,
+  ImportDutyUpdateRequest,
+} from '../../../../models/import-duty.model';
 import { TaxableProduct } from '../../../../models/taxable-product.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-import-duty-edit',
   templateUrl: './import-duty-edit.component.html',
-  styleUrls: ['./import-duty-edit.component.css']
+  styleUrls: ['./import-duty-edit.component.css'],
 })
 export class ImportDutyEditComponent implements OnInit, OnDestroy {
-
-  private readonly toast = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
 
   isLoading = true;
@@ -48,6 +50,7 @@ export class ImportDutyEditComponent implements OnInit, OnDestroy {
     private router: Router,
     private http: HttpClient,
     private masterData: MasterDataService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -81,11 +84,15 @@ export class ImportDutyEditComponent implements OnInit, OnDestroy {
 
   private loadRecordAndMasterData(): void {
     forkJoin({
-      record: this.http.get<ImportDuty>(API_ENDPOINTS.IMPORT_DUTIES.GET(this.recordId)),
+      record: this.http.get<ImportDuty>(
+        API_ENDPOINTS.IMPORT_DUTIES.GET(this.recordId),
+      ),
       ports: this.masterData.getImportPorts(),
       countries: this.masterData.getImportCountries(),
       statuses: this.masterData.getImportDutyStatuses(),
-      products: this.http.get<TaxableProduct[]>(API_ENDPOINTS.TAXABLE_PRODUCTS.LIST),
+      products: this.http.get<TaxableProduct[]>(
+        API_ENDPOINTS.TAXABLE_PRODUCTS.LIST,
+      ),
     })
       .pipe(
         takeUntil(this.destroy$),
@@ -96,9 +103,14 @@ export class ImportDutyEditComponent implements OnInit, OnDestroy {
           this.ports = this.toNameList(data.ports);
           this.countries = this.toNameList(data.countries);
           this.statuses = this.toNameList(data.statuses);
-          this.products = data.products.filter((product) => product.status !== 'Inactive');
+          this.products = data.products.filter(
+            (product) => product.status !== 'Inactive',
+          );
           this.patchForm(data.record);
-          this.selectedProduct = this.products.find((item) => item.id === Number(this.form.productId)) || null;
+          this.selectedProduct =
+            this.products.find(
+              (item) => item.id === Number(this.form.productId),
+            ) || null;
           this.taxPreview = this.previewFromRecord(data.record);
         },
         error: () => {
@@ -151,12 +163,18 @@ export class ImportDutyEditComponent implements OnInit, OnDestroy {
 
   private toNameList(items: any[]): string[] {
     return (items || [])
-      .map((item) => typeof item === 'string' ? item : item?.name || item?.label || item?.value || item?.status)
+      .map((item) =>
+        typeof item === 'string'
+          ? item
+          : item?.name || item?.label || item?.value || item?.status,
+      )
       .filter((item): item is string => !!item);
   }
 
   onProductChange(): void {
-    this.selectedProduct = this.products.find((item) => item.id === Number(this.form.productId)) || null;
+    this.selectedProduct =
+      this.products.find((item) => item.id === Number(this.form.productId)) ||
+      null;
     this.calculatePreview();
   }
 
@@ -166,17 +184,22 @@ export class ImportDutyEditComponent implements OnInit, OnDestroy {
 
   calculatePreview(): void {
     this.taxPreview = null;
-    if (!this.form.productId || !this.form.cifValue || this.form.cifValue <= 0) {
+    if (
+      !this.form.productId ||
+      !this.form.cifValue ||
+      this.form.cifValue <= 0
+    ) {
       return;
     }
 
     this.isPreviewLoading = true;
-    this.http.get<ImportDutyTaxPreview>(API_ENDPOINTS.IMPORT_DUTIES.PREVIEW, {
-      params: {
-        productId: String(this.form.productId),
-        cifValue: String(this.form.cifValue),
-      },
-    })
+    this.http
+      .get<ImportDutyTaxPreview>(API_ENDPOINTS.IMPORT_DUTIES.PREVIEW, {
+        params: {
+          productId: String(this.form.productId),
+          cifValue: String(this.form.cifValue),
+        },
+      })
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isPreviewLoading = false)),
@@ -191,9 +214,15 @@ export class ImportDutyEditComponent implements OnInit, OnDestroy {
   }
 
   isFormValid(): boolean {
-    return !!(this.form.tinNumber && this.form.productId &&
-      this.form.cifValue > 0 && this.form.portOfEntry &&
-      this.form.boeNumber && this.form.boeDate && this.form.importDate);
+    return !!(
+      this.form.tinNumber &&
+      this.form.productId &&
+      this.form.cifValue > 0 &&
+      this.form.portOfEntry &&
+      this.form.boeNumber &&
+      this.form.boeDate &&
+      this.form.importDate
+    );
   }
 
   onSubmit(): void {
@@ -204,7 +233,11 @@ export class ImportDutyEditComponent implements OnInit, OnDestroy {
     }
 
     this.isSaving = true;
-    this.http.put(API_ENDPOINTS.IMPORT_DUTIES.UPDATE(this.recordId), this.buildPayload())
+    this.http
+      .put(
+        API_ENDPOINTS.IMPORT_DUTIES.UPDATE(this.recordId),
+        this.buildPayload(),
+      )
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isSaving = false)),
@@ -216,7 +249,8 @@ export class ImportDutyEditComponent implements OnInit, OnDestroy {
           setTimeout(() => this.router.navigate(['/import-duty']), 1500);
         },
         error: (err) => {
-          this.errorMsg = err?.error?.message || 'Unable to update import duty record.';
+          this.errorMsg =
+            err?.error?.message || 'Unable to update import duty record.';
           this.toast.error(this.errorMsg);
         },
       });

@@ -8,30 +8,41 @@ import { Penalty } from '../../../../models/penalty.model';
 @Component({
   selector: 'app-penalty-edit',
   templateUrl: './penalty-edit.component.html',
-  styleUrls: ['./penalty-edit.component.css']
+  styleUrls: ['./penalty-edit.component.css'],
 })
 export class PenaltyEditComponent implements OnInit {
-
-  private readonly toast = inject(ToastService);
-
   isLoading = true;
-  isSaving  = false;
+  isSaving = false;
   successMsg = '';
-  errorMsg   = '';
-  penaltyId  = 0;
+  errorMsg = '';
+  penaltyId = 0;
 
-  penaltyTypes    = ['Late Filing', 'Late Payment', 'Non-Compliance', 'Fraud', 'Underpayment', 'Other'];
-  severities      = ['Low', 'Medium', 'High', 'Critical'];
-  statuses        = ['Issued', 'Pending', 'Paid', 'Waived', 'Appealed', 'Overdue'];
+  penaltyTypes = [
+    'Late Filing',
+    'Late Payment',
+    'Non-Compliance',
+    'Fraud',
+    'Underpayment',
+    'Other',
+  ];
+  severities = ['Low', 'Medium', 'High', 'Critical'];
+  statuses = ['Issued', 'Pending', 'Paid', 'Waived', 'Appealed', 'Overdue'];
   assessmentYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
-  officers        = ['Tax Officer', 'Senior Tax Officer', 'Tax Commissioner', 'Assistant Commissioner', 'Deputy Commissioner'];
+  officers = [
+    'Tax Officer',
+    'Senior Tax Officer',
+    'Tax Commissioner',
+    'Assistant Commissioner',
+    'Deputy Commissioner',
+  ];
 
   form: any = {};
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -41,25 +52,39 @@ export class PenaltyEditComponent implements OnInit {
 
   loadPenalty(): void {
     this.isLoading = true;
-    this.http.get<Penalty>(API_ENDPOINTS.PENALTIES.GET(this.penaltyId)).subscribe({
-      next: data => { this.form = { ...data }; this.isLoading = false; },
-      error: ()  => {
-        this.form = {
-          id: this.penaltyId,
-          penaltyNo: 'PEN-2024-00001',
-          tinNumber: 'TIN-1001', taxpayerName: 'Rahman Textile Ltd.',
-          penaltyType: 'Late Filing', severity: 'Medium',
-          penaltyAmount: 25000, interestAmount: 3750, totalAmount: 28750,
-          paidAmount: 28750, returnNo: 'VAT-2024-00001',
-          assessmentYear: '2024-25',
-          issueDate: '2024-03-01', dueDate: '2024-03-31',
-          paymentDate: '2024-03-28', status: 'Paid',
-          issuedBy: 'Tax Officer', approvedBy: 'Tax Commissioner',
-          description: 'Late filing of VAT return for Jan 2024', remarks: ''
-        };
-        this.isLoading = false;
-      }
-    });
+    this.http
+      .get<Penalty>(API_ENDPOINTS.PENALTIES.GET(this.penaltyId))
+      .subscribe({
+        next: (data) => {
+          this.form = { ...data };
+          this.isLoading = false;
+        },
+        error: () => {
+          this.form = {
+            id: this.penaltyId,
+            penaltyNo: 'PEN-2024-00001',
+            tinNumber: 'TIN-1001',
+            taxpayerName: 'Rahman Textile Ltd.',
+            penaltyType: 'Late Filing',
+            severity: 'Medium',
+            penaltyAmount: 25000,
+            interestAmount: 3750,
+            totalAmount: 28750,
+            paidAmount: 28750,
+            returnNo: 'VAT-2024-00001',
+            assessmentYear: '2024-25',
+            issueDate: '2024-03-01',
+            dueDate: '2024-03-31',
+            paymentDate: '2024-03-28',
+            status: 'Paid',
+            issuedBy: 'Tax Officer',
+            approvedBy: 'Tax Commissioner',
+            description: 'Late filing of VAT return for Jan 2024',
+            remarks: '',
+          };
+          this.isLoading = false;
+        },
+      });
   }
 
   onPenaltyChange(): void {
@@ -73,23 +98,44 @@ export class PenaltyEditComponent implements OnInit {
 
   isFormValid(): boolean {
     return !!(
-      this.form.penaltyType && this.form.severity &&
-      this.form.penaltyAmount > 0 && this.form.issuedBy
+      this.form.penaltyType &&
+      this.form.severity &&
+      this.form.penaltyAmount > 0 &&
+      this.form.issuedBy
     );
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.';
-      this.toast.error('Please fill in all required fields.'); return; }
-    this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
-    this.http.put(API_ENDPOINTS.PENALTIES.GET(this.penaltyId), this.form).subscribe({
-      next: () => { this.isSaving = false; this.successMsg = 'Penalty updated successfully!';
-      this.toast.success('Penalty updated successfully!'); setTimeout(() => this.router.navigate(['/penalties']), 1500); },
-      error: () => { this.isSaving = false; this.successMsg = ''; this.errorMsg = 'Failed to update penalty. Please try again.';
-      this.toast.error('Failed to update penalty. Please try again.'); }
-    });
+    if (!this.isFormValid()) {
+      this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.');
+      return;
+    }
+    this.isSaving = true;
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.http
+      .put(API_ENDPOINTS.PENALTIES.GET(this.penaltyId), this.form)
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.successMsg = 'Penalty updated successfully!';
+          this.toast.success('Penalty updated successfully!');
+          setTimeout(() => this.router.navigate(['/penalties']), 1500);
+        },
+        error: () => {
+          this.isSaving = false;
+          this.successMsg = '';
+          this.errorMsg = 'Failed to update penalty. Please try again.';
+          this.toast.error('Failed to update penalty. Please try again.');
+        },
+      });
   }
 
-  onCancel(): void { this.router.navigate(['/penalties', this.penaltyId]); }
-  fmt(val: number): string { return `৳${val?.toLocaleString() ?? 0}`; }
+  onCancel(): void {
+    this.router.navigate(['/penalties', this.penaltyId]);
+  }
+  fmt(val: number): string {
+    return `৳${val?.toLocaleString() ?? 0}`;
+  }
 }

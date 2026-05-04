@@ -8,17 +8,20 @@ import { RegistrationState } from '../../../../../models/registration.model';
   styleUrls: ['./reg-step-review.component.css'],
 })
 export class RegStepReviewComponent {
-
-  private readonly toast = inject(ToastService);
-  @Input()  state!: RegistrationState;
-  @Input()  isSubmitting = false;
+  @Input() state!: RegistrationState;
+  @Input() isSubmitting = false;
   @Output() submit = new EventEmitter<void>();
-  @Output() back   = new EventEmitter<void>();
+  @Output() back = new EventEmitter<void>();
 
-  get isIndividual(): boolean { return this.state.accountCategory === 'Individual'; }
+  constructor(private toast: ToastService) {}
+  get isIndividual(): boolean {
+    return this.state.accountCategory === 'Individual';
+  }
 
   // Mask password display
-  get maskedPassword(): string { return '•'.repeat(this.state.password.length); }
+  get maskedPassword(): string {
+    return '•'.repeat(this.state.password.length);
+  }
   onSubmit(): void {
     this.toast.info('Submitting registration request...');
     this.submit.emit();

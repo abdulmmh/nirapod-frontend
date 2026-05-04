@@ -9,20 +9,20 @@ import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-fiscal-year-list',
   templateUrl: './fiscal-year-list.component.html',
-  styleUrls: ['./fiscal-year-list.component.css']
+  styleUrls: ['./fiscal-year-list.component.css'],
 })
 export class FiscalYearListComponent implements OnInit {
-
-  private readonly toast = inject(ToastService);
-
   years: FiscalYear[] = [];
   isLoading = false;
-  errorMsg   = '';
+  errorMsg = '';
 
   private destroy$ = new Subject<void>();
-  
 
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private toast: ToastService,
+  ) {}
 
   ngOnInit(): void {
     this.loadFiscalYears();
@@ -33,34 +33,44 @@ export class FiscalYearListComponent implements OnInit {
     this.destroy$.complete();
   }
 
-loadFiscalYears(): void {
-      this.isLoading = true;
-      this.errorMsg  = '';
-  
-      this.http.get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST)
-        .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
-        .subscribe({
-          next: data => {
-            this.years = data;
-            this.isLoading  = false;
-          },
-          // FIX #1: Removed fake fallback — show a real error message instead
-          error: () => {
-            this.isLoading = false;
-            this.errorMsg  = 'Failed to load fiscal years. Please refresh the page.';
-      this.toast.error('Failed to load fiscal years. Please refresh the page.');
-          }
-        });
-    }
+  loadFiscalYears(): void {
+    this.isLoading = true;
+    this.errorMsg = '';
+
+    this.http
+      .get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST)
+      .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
+      .subscribe({
+        next: (data) => {
+          this.years = data;
+          this.isLoading = false;
+        },
+        // FIX #1: Removed fake fallback — show a real error message instead
+        error: () => {
+          this.isLoading = false;
+          this.errorMsg =
+            'Failed to load fiscal years. Please refresh the page.';
+          this.toast.error(
+            'Failed to load fiscal years. Please refresh the page.',
+          );
+        },
+      });
+  }
 
   getStatusClass(s: string): string {
-    return s === 'Active' ? 'status-active' : s === 'Upcoming' ? 'status-upcoming' : 'status-inactive';
+    return s === 'Active'
+      ? 'status-active'
+      : s === 'Upcoming'
+        ? 'status-upcoming'
+        : 'status-inactive';
   }
 
   setCurrent(id: number): void {
-    this.years = this.years.map(y => ({
-      ...y, isCurrentYear: y.id === id,
-      status: y.id === id ? 'Active' : y.status === 'Active' ? 'Closed' : y.status
+    this.years = this.years.map((y) => ({
+      ...y,
+      isCurrentYear: y.id === id,
+      status:
+        y.id === id ? 'Active' : y.status === 'Active' ? 'Closed' : y.status,
     }));
   }
 
@@ -71,5 +81,7 @@ loadFiscalYears(): void {
     return new Date(date) < today;
   }
 
- edit(id: number): void { this.router.navigate(['/fiscal-years/edit', id]); }
+  edit(id: number): void {
+    this.router.navigate(['/fiscal-years/edit', id]);
+  }
 }

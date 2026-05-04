@@ -4,21 +4,17 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-settings-home',
   templateUrl: './settings-home.component.html',
-  styleUrls: ['./settings-home.component.css']
+  styleUrls: ['./settings-home.component.css'],
 })
 export class SettingsHomeComponent implements OnInit {
+  constructor(private toast: ToastService) {}
 
-  private readonly toast = inject(ToastService);
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
- settings = {
+  ngOnInit(): void {}
+  settings = {
     emailNotifications: true,
     smsNotifications: false,
     twoFactorAuth: true,
-    maintenanceMode: false
+    maintenanceMode: false,
   };
 
   saveSettings(): void {

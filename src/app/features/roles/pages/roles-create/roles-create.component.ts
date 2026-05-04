@@ -5,40 +5,64 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-roles-create',
   templateUrl: './roles-create.component.html',
-  styleUrls: ['./roles-create.component.css']
+  styleUrls: ['./roles-create.component.css'],
 })
 export class RolesCreateComponent {
-
-  private readonly toast = inject(ToastService);
-
-  isLoading  = false;
+  isLoading = false;
   successMsg = '';
-  errorMsg   = '';
+  errorMsg = '';
 
   modules = [
-    'Taxpayer Management', 'Business Registration', 'TIN Management',
-    'VAT Registration', 'VAT Returns', 'Income Tax Returns',
-    'Payments', 'Refund Management', 'Penalty & Fines',
-    'Audit Management', 'Document Verification', 'Notices & Notifications',
-    'Tax Structure', 'Taxable Products', 'Import Duty', 'AIT', 'Fiscal Years',
-    'Reports & Analytics', 'User Management', 'Roles & Permissions',
-    'Activity Logs', 'System Settings'
+    'Taxpayer Management',
+    'Business Registration',
+    'TIN Management',
+    'VAT Registration',
+    'VAT Returns',
+    'Income Tax Returns',
+    'Payments',
+    'Refund Management',
+    'Penalty & Fines',
+    'Audit Management',
+    'Document Verification',
+    'Notices & Notifications',
+    'Tax Structure',
+    'Taxable Products',
+    'Import Duty',
+    'AIT',
+    'Fiscal Years',
+    'Reports & Analytics',
+    'User Management',
+    'Roles & Permissions',
+    'Activity Logs',
+    'System Settings',
   ];
 
   form: any = {
-    roleName:    '',
-    roleCode:    '',
+    roleName: '',
+    roleCode: '',
     description: '',
-    color:       '#1a3f8f',
-    status:      'Active',
-    permissions: {} as Record<string, { create: boolean; read: boolean; update: boolean; delete: boolean; export: boolean; }>
+    color: '#1a3f8f',
+    status: 'Active',
+    permissions: {} as Record<
+      string,
+      {
+        create: boolean;
+        read: boolean;
+        update: boolean;
+        delete: boolean;
+        export: boolean;
+      }
+    >,
   };
 
-  constructor(private router: Router) {
-    this.modules.forEach(m => {
+  constructor(private router: Router, private toast: ToastService) {
+    this.modules.forEach((m) => {
       this.form.permissions[m] = {
-        create: false, read: false,
-        update: false, delete: false, export: false
+        create: false,
+        read: false,
+        update: false,
+        delete: false,
+        export: false,
       };
     });
   }
@@ -67,13 +91,16 @@ export class RolesCreateComponent {
   }
 
   selectAllModules(checked: boolean): void {
-    this.modules.forEach(m => this.toggleAll(m, checked));
+    this.modules.forEach((m) => this.toggleAll(m, checked));
   }
 
   get selectedPermCount(): number {
     return this.modules.reduce((sum, m) => {
       const p = this.form.permissions[m];
-      return sum + [p.create, p.read, p.update, p.delete, p.export].filter(Boolean).length;
+      return (
+        sum +
+        [p.create, p.read, p.update, p.delete, p.export].filter(Boolean).length
+      );
     }, 0);
   }
 
@@ -82,9 +109,13 @@ export class RolesCreateComponent {
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Role name is required.';
-      this.toast.error('Role name is required.'); return; }
-    this.isLoading = true; this.errorMsg = '';
+    if (!this.isFormValid()) {
+      this.errorMsg = 'Role name is required.';
+      this.toast.error('Role name is required.');
+      return;
+    }
+    this.isLoading = true;
+    this.errorMsg = '';
     setTimeout(() => {
       this.isLoading = false;
       this.successMsg = `Role "${this.form.roleName}" created successfully!`;
@@ -93,5 +124,7 @@ export class RolesCreateComponent {
     }, 800);
   }
 
-  onCancel(): void { this.router.navigate(['/roles']); }
+  onCancel(): void {
+    this.router.navigate(['/roles']);
+  }
 }

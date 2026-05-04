@@ -3,23 +3,23 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TaxStructure } from 'src/app/models/tax-structure.model';
-import { ProductStatus, TaxableProductCreateRequest } from 'src/app/models/taxable-product.model';
+import {
+  ProductStatus,
+  TaxableProductCreateRequest,
+} from 'src/app/models/taxable-product.model';
 import { TaxableProductService } from '../../services/taxable-product.service';
 
 @Component({
   selector: 'app-taxable-product-edit',
   templateUrl: './taxable-product-edit.component.html',
-  styleUrls: ['./taxable-product-edit.component.css']
+  styleUrls: ['./taxable-product-edit.component.css'],
 })
 export class TaxableProductEditComponent implements OnInit {
-
-  private readonly toast = inject(ToastService);
-
-  isLoading  = true;
-  isSaving   = false;
+  isLoading = true;
+  isSaving = false;
   successMsg = '';
-  errorMsg   = '';
-  productId  = 0;
+  errorMsg = '';
+  productId = 0;
   productCode = '';
 
   categories: string[] = [];
@@ -34,13 +34,14 @@ export class TaxableProductEditComponent implements OnInit {
     taxStructureId: 0,
     unit: '',
     description: '',
-    status: 'Active'
+    status: 'Active',
   };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private productService: TaxableProductService
+    private productService: TaxableProductService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -49,7 +50,9 @@ export class TaxableProductEditComponent implements OnInit {
   }
 
   get selectedTaxStructure(): TaxStructure | undefined {
-    return this.taxStructures.find(t => t.id === Number(this.form.taxStructureId));
+    return this.taxStructures.find(
+      (t) => t.id === Number(this.form.taxStructureId),
+    );
   }
 
   get selectedTaxType(): string {
@@ -80,7 +83,7 @@ export class TaxableProductEditComponent implements OnInit {
           taxStructureId: product.taxStructureId,
           unit: product.unit,
           description: product.description,
-          status: product.status
+          status: product.status,
         };
         this.isLoading = false;
       },
@@ -88,7 +91,7 @@ export class TaxableProductEditComponent implements OnInit {
         this.errorMsg = 'Failed to load taxable product data.';
         this.toast.error(this.errorMsg);
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -119,13 +122,17 @@ export class TaxableProductEditComponent implements OnInit {
         this.isSaving = false;
         this.successMsg = 'Taxable product updated successfully!';
         this.toast.success(this.successMsg);
-        setTimeout(() => this.router.navigate(['/taxable-products/view', this.productId]), 1500);
+        setTimeout(
+          () =>
+            this.router.navigate(['/taxable-products/view', this.productId]),
+          1500,
+        );
       },
       error: () => {
         this.isSaving = false;
         this.errorMsg = 'Failed to update taxable product.';
         this.toast.error(this.errorMsg);
-      }
+      },
     });
   }
 

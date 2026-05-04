@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject,
+} from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RegistrationState } from '../../../../../models/registration.model';
@@ -9,15 +16,13 @@ import { RegistrationState } from '../../../../../models/registration.model';
   styleUrls: ['./reg-step-identity.component.css'],
 })
 export class RegStepIdentityComponent implements OnInit {
-
-  private readonly toast = inject(ToastService);
-  @Input()  state!: RegistrationState;
+  @Input() state!: RegistrationState;
   @Output() next = new EventEmitter<Partial<RegistrationState>>();
   @Output() back = new EventEmitter<void>();
 
   form!: FormGroup;
 
-  private readonly nidPattern  = /^\d{10}$|^\d{17}$/;
+  private readonly nidPattern = /^\d{10}$|^\d{17}$/;
   private readonly rjscPattern = /^[A-Za-z0-9\-\/]{6,20}$/;
   // ← phonePattern removed (phone is Step 2's responsibility)
 
@@ -25,12 +30,19 @@ export class RegStepIdentityComponent implements OnInit {
 
   readonly genders = ['Male', 'Female', 'Other'];
   readonly professions = [
-    'Business', 'Service (Government)', 'Service (Private)',
-    'Doctor', 'Engineer', 'Lawyer', 'Teacher', 'Farmer',
-    'Freelancer', 'Other',
+    'Business',
+    'Service (Government)',
+    'Service (Private)',
+    'Doctor',
+    'Engineer',
+    'Lawyer',
+    'Teacher',
+    'Farmer',
+    'Freelancer',
+    'Other',
   ];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private toast: ToastService) {}
 
   ngOnInit(): void {
     if (this.state.accountCategory === 'Individual') {
@@ -40,26 +52,45 @@ export class RegStepIdentityComponent implements OnInit {
     }
   }
 
-  get isIndividual(): boolean { return this.state.accountCategory === 'Individual'; }
-  ctrl(name: string) { return this.form.get(name); }
+  get isIndividual(): boolean {
+    return this.state.accountCategory === 'Individual';
+  }
+  ctrl(name: string) {
+    return this.form.get(name);
+  }
 
   private buildIndividualForm(): void {
     this.form = this.fb.group({
-      nid:         [this.state.nid,         [Validators.required, Validators.pattern(this.nidPattern)]],
+      nid: [
+        this.state.nid,
+        [Validators.required, Validators.pattern(this.nidPattern)],
+      ],
       dateOfBirth: [this.state.dateOfBirth, [Validators.required]],
-      gender:      [this.state.gender,      [Validators.required]],
-      profession:  [this.state.profession,  []],
+      gender: [this.state.gender, [Validators.required]],
+      profession: [this.state.profession, []],
     });
   }
 
   private buildCompanyForm(): void {
     this.form = this.fb.group({
-      companyName:          [this.state.companyName,          [Validators.required, Validators.minLength(3)]],
-      rjscNo:               [this.state.rjscNo,               [Validators.required, Validators.pattern(this.rjscPattern)]],
-      incorporationDate:    [this.state.incorporationDate,    [Validators.required]],
-      natureOfBusiness:     [this.state.natureOfBusiness,     []],
-      authorizedPersonName: [this.state.authorizedPersonName, [Validators.required]],
-      authorizedPersonNid:  [this.state.authorizedPersonNid,  [Validators.required, Validators.pattern(this.nidPattern)]],
+      companyName: [
+        this.state.companyName,
+        [Validators.required, Validators.minLength(3)],
+      ],
+      rjscNo: [
+        this.state.rjscNo,
+        [Validators.required, Validators.pattern(this.rjscPattern)],
+      ],
+      incorporationDate: [this.state.incorporationDate, [Validators.required]],
+      natureOfBusiness: [this.state.natureOfBusiness, []],
+      authorizedPersonName: [
+        this.state.authorizedPersonName,
+        [Validators.required],
+      ],
+      authorizedPersonNid: [
+        this.state.authorizedPersonNid,
+        [Validators.required, Validators.pattern(this.nidPattern)],
+      ],
     });
   }
 

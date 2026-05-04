@@ -8,18 +8,31 @@ import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-tax-structure-create',
   templateUrl: './tax-structure-create.component.html',
-  styleUrls: ['./tax-structure-create.component.css']
+  styleUrls: ['./tax-structure-create.component.css'],
 })
 export class TaxStructureCreateComponent {
-
-  private readonly toast = inject(ToastService);
-
   isLoading = false;
   successMsg = '';
   errorMsg = '';
 
-  taxTypes = ['VAT', 'AIT', 'Import Duty', 'Income Tax', 'Excise Duty', 'Supplementary Duty', 'Other'];
-  applicables = ['All', 'Individual', 'Company', 'Import', 'Export', 'Service', 'Goods'];
+  taxTypes = [
+    'VAT',
+    'AIT',
+    'Import Duty',
+    'Income Tax',
+    'Excise Duty',
+    'Supplementary Duty',
+    'Other',
+  ];
+  applicables = [
+    'All',
+    'Individual',
+    'Company',
+    'Import',
+    'Export',
+    'Service',
+    'Goods',
+  ];
   statuses = ['Active', 'Inactive'];
 
   form: TaxStructureCreateRequest = {
@@ -30,13 +43,15 @@ export class TaxStructureCreateComponent {
     applicableTo: 'All',
     effectiveDate: new Date().toISOString().split('T')[0],
     expiryDate: '2026-12-31',
-    description: 'Standard VAT rate applicable to all taxable goods and services',
-    status: 'Active'
+    description:
+      'Standard VAT rate applicable to all taxable goods and services',
+    status: 'Active',
   };
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toast: ToastService,
   ) {}
 
   isFormValid(): boolean {
@@ -66,7 +81,7 @@ export class TaxStructureCreateComponent {
         console.log('Created successfully', res);
         this.isLoading = false;
         this.successMsg = 'Tax structure created successfully!';
-      this.toast.success('Tax structure created successfully!');
+        this.toast.success('Tax structure created successfully!');
         setTimeout(() => this.router.navigate(['/tax-structure']), 1500);
       },
       error: (err) => {
@@ -75,15 +90,15 @@ export class TaxStructureCreateComponent {
 
         if (err.status === 400) {
           this.errorMsg = 'Invalid input. Please check the form.';
-      this.toast.error('Invalid input. Please check the form.');
+          this.toast.error('Invalid input. Please check the form.');
         } else if (err.status === 409) {
           this.errorMsg = 'Tax Code or Tax Name already exists.';
-      this.toast.error('Tax Code or Tax Name already exists.');
+          this.toast.error('Tax Code or Tax Name already exists.');
         } else {
           this.errorMsg = 'Create failed. Please try again.';
-      this.toast.error('Create failed. Please try again.');
+          this.toast.error('Create failed. Please try again.');
         }
-      }
+      },
     });
   }
 
@@ -96,8 +111,9 @@ export class TaxStructureCreateComponent {
       applicableTo: 'All',
       effectiveDate: new Date().toISOString().split('T')[0],
       expiryDate: '2026-12-31',
-      description: 'Standard VAT rate applicable to all taxable goods and services',
-      status: 'Active'
+      description:
+        'Standard VAT rate applicable to all taxable goods and services',
+      status: 'Active',
     };
 
     this.errorMsg = '';

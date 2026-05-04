@@ -10,13 +10,10 @@ import { RefundCreateRequest } from '../../../../models/refund.model';
 @Component({
   selector: 'app-refund-create',
   templateUrl: './refund-create.component.html',
-  styleUrls: ['./refund-create.component.css']
+  styleUrls: ['./refund-create.component.css'],
 })
 export class RefundCreateComponent {
-
-  private readonly toast = inject(ToastService);
-
-  isLoading  = false;
+  isLoading = false;
 
   // Taxpayer search
   searchQuery = '';
@@ -26,46 +23,60 @@ export class RefundCreateComponent {
   showResults = false;
   private destroy$ = new Subject<void>();
   successMsg = '';
-  errorMsg   = '';
+  errorMsg = '';
 
-  refundTypes   = ['VAT Refund', 'Income Tax Refund', 'Excess Payment', 'Other'];
+  refundTypes = ['VAT Refund', 'Income Tax Refund', 'Excess Payment', 'Other'];
   refundMethods = ['Bank Transfer', 'Cheque', 'Adjustment'];
 
   banks = [
-    'Sonali Bank', 'Agrani Bank', 'Janata Bank', 'Rupali Bank',
-    'Dutch-Bangla Bank', 'BRAC Bank', 'Islami Bank', 'Prime Bank',
-    'Eastern Bank', 'Mercantile Bank', 'Other'
+    'Sonali Bank',
+    'Agrani Bank',
+    'Janata Bank',
+    'Rupali Bank',
+    'Dutch-Bangla Bank',
+    'BRAC Bank',
+    'Islami Bank',
+    'Prime Bank',
+    'Eastern Bank',
+    'Mercantile Bank',
+    'Other',
   ];
 
   form: RefundCreateRequest = {
-    taxpayerId:   null,
-    refundType:   '',
+    taxpayerId: null,
+    refundType: '',
     refundMethod: '',
-    claimAmount:  0,
-    returnNo:     '',
-    paymentRef:   '',
-    bankName:     '',
-    bankBranch:   '',
-    accountNo:    '',
-    claimDate:    new Date().toISOString().split('T')[0],
-    remarks:      ''
+    claimAmount: 0,
+    returnNo: '',
+    paymentRef: '',
+    bankName: '',
+    bankBranch: '',
+    accountNo: '',
+    claimDate: new Date().toISOString().split('T')[0],
+    remarks: '',
   };
 
   get showBankFields(): boolean {
-    return this.form.refundMethod === 'Bank Transfer' ||
-           this.form.refundMethod === 'Cheque';
+    return (
+      this.form.refundMethod === 'Bank Transfer' ||
+      this.form.refundMethod === 'Cheque'
+    );
   }
 
   isFormValid(): boolean {
     return !!(
       this.selectedTaxpayer !== null &&
-      this.form.refundType   &&
+      this.form.refundType &&
       this.form.refundMethod &&
       this.form.claimAmount > 0
     );
   }
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
+  ) {}
 
   onSubmit(): void {
     if (!this.isFormValid()) {
@@ -74,38 +85,47 @@ export class RefundCreateComponent {
       return;
     }
 
-    this.isLoading  = true;
-    this.errorMsg   = '';
+    this.isLoading = true;
+    this.errorMsg = '';
     this.successMsg = '';
 
     this.http.post(API_ENDPOINTS.PAYMENTS.CREATE, this.form).subscribe({
       next: () => {
-        this.isLoading  = false;
+        this.isLoading = false;
         this.successMsg = 'Refund claim submitted successfully!';
         this.toast.success('Refund claim submitted successfully!');
         setTimeout(() => this.router.navigate(['/refunds']), 1500);
       },
       error: () => {
-        this.isLoading  = false;
+        this.isLoading = false;
         this.errorMsg = 'Failed to submit refund claim. Please try again.';
         this.toast.error('Failed to submit refund claim. Please try again.');
-      }
+      },
     });
   }
 
   onReset(): void {
     this.form = {
-      taxpayerId: null, refundType: '',
-      refundMethod: '', claimAmount: 0, returnNo: '',
-      paymentRef: '', bankName: '', bankBranch: '',
-      accountNo: '', claimDate: new Date().toISOString().split('T')[0],
-      remarks: ''
+      taxpayerId: null,
+      refundType: '',
+      refundMethod: '',
+      claimAmount: 0,
+      returnNo: '',
+      paymentRef: '',
+      bankName: '',
+      bankBranch: '',
+      accountNo: '',
+      claimDate: new Date().toISOString().split('T')[0],
+      remarks: '',
     };
-    this.errorMsg = ''; this.successMsg = '';
+    this.errorMsg = '';
+    this.successMsg = '';
     this.toast.info('Form has been reset.');
   }
 
-  onCancel(): void { this.router.navigate(['/refunds']); }
+  onCancel(): void {
+    this.router.navigate(['/refunds']);
+  }
 
   formatCurrency(val: number): string {
     if (val >= 100000) return `৳${(val / 100000).toFixed(2)}L`;
@@ -115,13 +135,25 @@ export class RefundCreateComponent {
   // ── Taxpayer Search ──────────────────────────────────────────────────────
   searchTaxpayer(): void {
     const q = this.searchQuery.trim();
-    if (!q || q.length < 3) { return; }
+    if (!q || q.length < 3) {
+      return;
+    }
     this.isSearching = true;
-    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q))
-      .pipe(takeUntil(this.destroy$), finalize(() => this.isSearching = false))
+    this.http
+      .get<Taxpayer[]>(
+        API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q),
+      )
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isSearching = false)),
+      )
       .subscribe({
-        next: d => { this.searchResults = d; this.showResults = true; },
-        error: () => this.toast.error('Taxpayer search failed. Please try again.')
+        next: (d) => {
+          this.searchResults = d;
+          this.showResults = true;
+        },
+        error: () =>
+          this.toast.error('Taxpayer search failed. Please try again.'),
       });
   }
 
@@ -141,8 +173,12 @@ export class RefundCreateComponent {
 
   getDisplayName(t: Taxpayer): string {
     return t.taxpayerType?.typeName?.toLowerCase().includes('company')
-      ? (t.companyName || '') : (t.fullName || '');
+      ? t.companyName || ''
+      : t.fullName || '';
   }
 
-  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

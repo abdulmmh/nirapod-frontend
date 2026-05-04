@@ -8,20 +8,33 @@ import { TaxStructure } from '../../../../models/tax-structure.model';
 @Component({
   selector: 'app-tax-structure-edit',
   templateUrl: './tax-structure-edit.component.html',
-  styleUrls: ['./tax-structure-edit.component.css']
+  styleUrls: ['./tax-structure-edit.component.css'],
 })
 export class TaxStructureEditComponent implements OnInit {
-
-  private readonly toast = inject(ToastService);
-
   isLoading = true;
   isSaving = false;
   successMsg = '';
   errorMsg = '';
   taxId = 0;
 
-  taxTypes = ['VAT', 'AIT', 'Import Duty', 'Income Tax', 'Excise Duty', 'Supplementary Duty', 'Other'];
-  applicables = ['All', 'Individual', 'Company', 'Import', 'Export', 'Service', 'Goods'];
+  taxTypes = [
+    'VAT',
+    'AIT',
+    'Import Duty',
+    'Income Tax',
+    'Excise Duty',
+    'Supplementary Duty',
+    'Other',
+  ];
+  applicables = [
+    'All',
+    'Individual',
+    'Company',
+    'Import',
+    'Export',
+    'Service',
+    'Goods',
+  ];
   statuses = ['Active', 'Inactive', 'Expired'];
 
   form: any = {};
@@ -29,7 +42,8 @@ export class TaxStructureEditComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -40,18 +54,20 @@ export class TaxStructureEditComponent implements OnInit {
   loadTaxStructure(): void {
     this.isLoading = true;
 
-    this.http.get<TaxStructure>(API_ENDPOINTS.TAX_STRUCTURES.GET(this.taxId)).subscribe({
-      next: (data) => {
-        this.form = { ...data };
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Load failed:', err);
-        this.errorMsg = 'Failed to load tax structure.';
-      this.toast.error('Failed to load tax structure.');
-        this.isLoading = false;
-      }
-    });
+    this.http
+      .get<TaxStructure>(API_ENDPOINTS.TAX_STRUCTURES.GET(this.taxId))
+      .subscribe({
+        next: (data) => {
+          this.form = { ...data };
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Load failed:', err);
+          this.errorMsg = 'Failed to load tax structure.';
+          this.toast.error('Failed to load tax structure.');
+          this.isLoading = false;
+        },
+      });
   }
 
   get ratePreview(): number {
@@ -79,20 +95,25 @@ export class TaxStructureEditComponent implements OnInit {
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.http.put(API_ENDPOINTS.TAX_STRUCTURES.UPDATE(this.taxId), this.form).subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.successMsg = 'Tax structure updated successfully!';
-      this.toast.success('Tax structure updated successfully!');
-        setTimeout(() => this.router.navigate(['/tax-structure/view', this.taxId]), 1500);
-      },
-      error: (err) => {
-        console.error('Update failed:', err);
-        this.isSaving = false;
-        this.errorMsg = 'Tax structure update failed.';
-      this.toast.error('Tax structure update failed.');
-      }
-    });
+    this.http
+      .put(API_ENDPOINTS.TAX_STRUCTURES.UPDATE(this.taxId), this.form)
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.successMsg = 'Tax structure updated successfully!';
+          this.toast.success('Tax structure updated successfully!');
+          setTimeout(
+            () => this.router.navigate(['/tax-structure/view', this.taxId]),
+            1500,
+          );
+        },
+        error: (err) => {
+          console.error('Update failed:', err);
+          this.isSaving = false;
+          this.errorMsg = 'Tax structure update failed.';
+          this.toast.error('Tax structure update failed.');
+        },
+      });
   }
 
   onCancel(): void {

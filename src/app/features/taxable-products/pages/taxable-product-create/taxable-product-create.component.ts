@@ -3,22 +3,22 @@ import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TaxStructure } from 'src/app/models/tax-structure.model';
-import { ProductStatus, TaxableProductCreateRequest } from '../../../../models/taxable-product.model';
+import {
+  ProductStatus,
+  TaxableProductCreateRequest,
+} from '../../../../models/taxable-product.model';
 import { TaxableProductService } from '../../services/taxable-product.service';
 
 @Component({
   selector: 'app-taxable-product-create',
   templateUrl: './taxable-product-create.component.html',
-  styleUrls: ['./taxable-product-create.component.css']
+  styleUrls: ['./taxable-product-create.component.css'],
 })
 export class TaxableProductCreateComponent implements OnInit {
-
-  private readonly toast = inject(ToastService);
-
-  isLoading  = false;
+  isLoading = false;
   isMasterDataLoading = false;
   successMsg = '';
-  errorMsg   = '';
+  errorMsg = '';
 
   categories: string[] = [];
   units: string[] = [];
@@ -29,7 +29,8 @@ export class TaxableProductCreateComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private productService: TaxableProductService
+    private productService: TaxableProductService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -37,7 +38,9 @@ export class TaxableProductCreateComponent implements OnInit {
   }
 
   get selectedTaxStructure(): TaxStructure | undefined {
-    return this.taxStructures.find(t => t.id === Number(this.form.taxStructureId));
+    return this.taxStructures.find(
+      (t) => t.id === Number(this.form.taxStructureId),
+    );
   }
 
   get selectedTaxType(): string {
@@ -63,9 +66,10 @@ export class TaxableProductCreateComponent implements OnInit {
       },
       error: () => {
         this.isMasterDataLoading = false;
-        this.errorMsg = 'Failed to load product master data. Please refresh the page.';
+        this.errorMsg =
+          'Failed to load product master data. Please refresh the page.';
         this.toast.error(this.errorMsg);
-      }
+      },
     });
   }
 
@@ -102,11 +106,12 @@ export class TaxableProductCreateComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMsg = err.status === 400
-          ? 'Invalid input. Please check the form.'
-          : 'Create failed. Please try again.';
+        this.errorMsg =
+          err.status === 400
+            ? 'Invalid input. Please check the form.'
+            : 'Create failed. Please try again.';
         this.toast.error(this.errorMsg);
-      }
+      },
     });
   }
 
@@ -129,7 +134,7 @@ export class TaxableProductCreateComponent implements OnInit {
       taxStructureId: 0,
       unit: '',
       description: '',
-      status: 'Active'
+      status: 'Active',
     };
   }
 }

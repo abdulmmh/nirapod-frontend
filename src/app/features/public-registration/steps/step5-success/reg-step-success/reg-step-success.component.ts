@@ -9,11 +9,9 @@ import { RegistrationResponse } from '../../../../../models/registration.model';
   styleUrls: ['./reg-step-success.component.css'],
 })
 export class RegStepSuccessComponent {
-
-  private readonly toast = inject(ToastService);
   @Input() response!: RegistrationResponse;
 
-  constructor(private router: Router) {}
+  constructor(private toast: ToastService, private router: Router) {}
 
   goToLogin(): void {
     this.toast.info('Redirecting to login.');

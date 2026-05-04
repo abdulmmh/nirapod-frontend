@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject,
+} from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import {
   AbstractControl,
@@ -13,7 +20,7 @@ import { RegistrationState } from '../../../../../models/registration.model';
 // Cross-field validator: password and confirmPassword must match
 function passwordMatchValidator(): ValidatorFn {
   return (group: AbstractControl): ValidationErrors | null => {
-    const pw  = group.get('password')?.value;
+    const pw = group.get('password')?.value;
     const cpw = group.get('confirmPassword')?.value;
     if (pw && cpw && pw !== cpw) {
       return { passwordMismatch: true };
@@ -28,34 +35,34 @@ function passwordMatchValidator(): ValidatorFn {
   styleUrls: ['./reg-step-credentials.component.css'],
 })
 export class RegStepCredentialsComponent implements OnInit {
-
-  private readonly toast = inject(ToastService);
-  @Input()  state!: RegistrationState;
+  @Input() state!: RegistrationState;
   @Output() next = new EventEmitter<Partial<RegistrationState>>();
   @Output() back = new EventEmitter<void>();
 
   form!: FormGroup;
-  showPassword        = false;
+  showPassword = false;
   showConfirmPassword = false;
 
   // BD phone: starts with 01, then 3-9, then 8 digits = 11 digits total
   private readonly phonePattern = /^01[3-9]\d{8}$/;
   // Password: min 8, at least one uppercase, one digit, one special char
-  private readonly passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+  private readonly passwordPattern =
+    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private toast: ToastService) {}
 
   ngOnInit(): void {
     this.form = this.fb.group(
       {
         fullName: [
           this.state.fullName,
-          [Validators.required, Validators.minLength(3), Validators.maxLength(100)],
+          [
+            Validators.required,
+            Validators.minLength(3),
+            Validators.maxLength(100),
+          ],
         ],
-        email: [
-          this.state.email,
-          [Validators.required, Validators.email],
-        ],
+        email: [this.state.email, [Validators.required, Validators.email]],
         phone: [
           this.state.phone,
           [Validators.required, Validators.pattern(this.phonePattern)],
@@ -64,19 +71,17 @@ export class RegStepCredentialsComponent implements OnInit {
           this.state.password,
           [Validators.required, Validators.pattern(this.passwordPattern)],
         ],
-        confirmPassword: [
-          this.state.confirmPassword,
-          Validators.required,
-        ],
+        confirmPassword: [this.state.confirmPassword, Validators.required],
       },
-      { validators: passwordMatchValidator() }
+      { validators: passwordMatchValidator() },
     );
   }
 
-  ctrl(name: string) { return this.form.get(name); }
+  ctrl(name: string) {
+    return this.form.get(name);
+  }
 
-
-  //Getters 
+  //Getters
 
   get hasUpperCase(): boolean {
     const v = this.ctrl('password')?.value;
@@ -99,7 +104,9 @@ export class RegStepCredentialsComponent implements OnInit {
 
   get passwordMismatch(): boolean {
     return this.form.errors?.['passwordMismatch'] &&
-      this.ctrl('confirmPassword')?.touched ? true : false;
+      this.ctrl('confirmPassword')?.touched
+      ? true
+      : false;
   }
 
   onNext(): void {

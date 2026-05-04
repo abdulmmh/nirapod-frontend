@@ -9,8 +9,6 @@ import { ImportDuty } from '../../../../models/import-duty.model';
   styleUrls: ['./import-duty-view.component.css'],
 })
 export class ImportDutyViewComponent implements OnInit {
-
-  private readonly toast = inject(ToastService);
   record: ImportDuty | null = null;
   isLoading = true;
 
@@ -86,13 +84,16 @@ export class ImportDutyViewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.record = this.fallback.find((r) => r.id === id) || this.fallback[0];
     if (this.record.id !== id) {
-      this.toast.warning('Import duty record not found. Showing the first available record.');
+      this.toast.warning(
+        'Import duty record not found. Showing the first available record.',
+      );
     }
     this.isLoading = false;
   }

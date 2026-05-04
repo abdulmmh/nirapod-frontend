@@ -10,13 +10,10 @@ import { PenaltyCreateRequest } from '../../../../models/penalty.model';
 @Component({
   selector: 'app-penalty-create',
   templateUrl: './penalty-create.component.html',
-  styleUrls: ['./penalty-create.component.css']
+  styleUrls: ['./penalty-create.component.css'],
 })
 export class PenaltyCreateComponent {
-
-  private readonly toast = inject(ToastService);
-
-  isLoading  = false;
+  isLoading = false;
 
   // Taxpayer search
   searchQuery = '';
@@ -26,29 +23,39 @@ export class PenaltyCreateComponent {
   showResults = false;
   private destroy$ = new Subject<void>();
   successMsg = '';
-  errorMsg   = '';
+  errorMsg = '';
 
-  penaltyTypes  = ['Late Filing', 'Late Payment', 'Non-Compliance', 'Fraud', 'Underpayment', 'Other'];
-  severities    = ['Low', 'Medium', 'High', 'Critical'];
+  penaltyTypes = [
+    'Late Filing',
+    'Late Payment',
+    'Non-Compliance',
+    'Fraud',
+    'Underpayment',
+    'Other',
+  ];
+  severities = ['Low', 'Medium', 'High', 'Critical'];
   assessmentYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
   officers = [
-    'Tax Officer', 'Senior Tax Officer', 'Tax Commissioner',
-    'Assistant Commissioner', 'Deputy Commissioner'
+    'Tax Officer',
+    'Senior Tax Officer',
+    'Tax Commissioner',
+    'Assistant Commissioner',
+    'Deputy Commissioner',
   ];
 
   form: PenaltyCreateRequest = {
-    taxpayerId:     null,
-    penaltyType:    '',
-    severity:       'Medium',
-    penaltyAmount:  0,
+    taxpayerId: null,
+    penaltyType: '',
+    severity: 'Medium',
+    penaltyAmount: 0,
     interestAmount: 0,
-    returnNo:       '',
+    returnNo: '',
     assessmentYear: '2024-25',
-    issueDate:      new Date().toISOString().split('T')[0],
-    dueDate:        '',
-    issuedBy:       '',
-    description:    '',
-    remarks:        ''
+    issueDate: new Date().toISOString().split('T')[0],
+    dueDate: '',
+    issuedBy: '',
+    description: '',
+    remarks: '',
   };
 
   // Auto calculate interest at 15% of penalty
@@ -61,7 +68,7 @@ export class PenaltyCreateComponent {
     return this.form.penaltyAmount + this.form.interestAmount;
   }
 
-   setDefaultDueDate(): void {
+  setDefaultDueDate(): void {
     if (this.form.issueDate) {
       const due = new Date(this.form.issueDate);
       due.setDate(due.getDate() + 30);
@@ -72,15 +79,19 @@ export class PenaltyCreateComponent {
   isFormValid(): boolean {
     return !!(
       this.selectedTaxpayer !== null &&
-      this.form.penaltyType   &&
-      this.form.severity      &&
+      this.form.penaltyType &&
+      this.form.severity &&
       this.form.penaltyAmount > 0 &&
-      this.form.issuedBy      &&
+      this.form.issuedBy &&
       this.form.dueDate
     );
   }
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
+  ) {
     this.setDefaultDueDate();
   }
 
@@ -91,39 +102,49 @@ export class PenaltyCreateComponent {
       return;
     }
 
-    this.isLoading  = true;
-    this.errorMsg   = '';
+    this.isLoading = true;
+    this.errorMsg = '';
     this.successMsg = '';
 
     this.http.post(API_ENDPOINTS.PENALTIES.CREATE, this.form).subscribe({
       next: () => {
-        this.isLoading  = false;
+        this.isLoading = false;
         this.successMsg = 'Penalty issued successfully!';
-      this.toast.success('Penalty issued successfully!');
+        this.toast.success('Penalty issued successfully!');
         setTimeout(() => this.router.navigate(['/penalties']), 1500);
       },
       error: () => {
-        this.isLoading  = false;
+        this.isLoading = false;
         this.successMsg = '';
-        this.errorMsg   = 'Failed to issue penalty. Please try again.';
-      this.toast.error('Failed to issue penalty. Please try again.');
-      }
+        this.errorMsg = 'Failed to issue penalty. Please try again.';
+        this.toast.error('Failed to issue penalty. Please try again.');
+      },
     });
   }
 
   onReset(): void {
     this.form = {
-      taxpayerId: null, penaltyType: '',
-      severity: 'Medium', penaltyAmount: 0, interestAmount: 0,
-      returnNo: '', assessmentYear: '2024-25',
+      taxpayerId: null,
+      penaltyType: '',
+      severity: 'Medium',
+      penaltyAmount: 0,
+      interestAmount: 0,
+      returnNo: '',
+      assessmentYear: '2024-25',
       issueDate: new Date().toISOString().split('T')[0],
-      dueDate: '', issuedBy: '', description: '', remarks: ''
+      dueDate: '',
+      issuedBy: '',
+      description: '',
+      remarks: '',
     };
     this.setDefaultDueDate();
-    this.errorMsg = ''; this.successMsg = '';
+    this.errorMsg = '';
+    this.successMsg = '';
   }
 
-  onCancel(): void { this.router.navigate(['/penalties']); }
+  onCancel(): void {
+    this.router.navigate(['/penalties']);
+  }
 
   fmt(val: number): string {
     if (val >= 100000) return `৳${(val / 100000).toFixed(2)}L`;
@@ -133,11 +154,25 @@ export class PenaltyCreateComponent {
   // ── Taxpayer Search ──────────────────────────────────────────────────────
   searchTaxpayer(): void {
     const q = this.searchQuery.trim();
-    if (!q || q.length < 3) { return; }
+    if (!q || q.length < 3) {
+      return;
+    }
     this.isSearching = true;
-    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q))
-      .pipe(takeUntil(this.destroy$), finalize(() => this.isSearching = false))
-      .subscribe({ next: d => { this.searchResults = d; this.showResults = true; }, error: () => {} });
+    this.http
+      .get<Taxpayer[]>(
+        API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q),
+      )
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isSearching = false)),
+      )
+      .subscribe({
+        next: (d) => {
+          this.searchResults = d;
+          this.showResults = true;
+        },
+        error: () => {},
+      });
   }
 
   selectTaxpayer(t: Taxpayer): void {
@@ -156,8 +191,12 @@ export class PenaltyCreateComponent {
 
   getDisplayName(t: Taxpayer): string {
     return t.taxpayerType?.typeName?.toLowerCase().includes('company')
-      ? (t.companyName || '') : (t.fullName || '');
+      ? t.companyName || ''
+      : t.fullName || '';
   }
 
-  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }
