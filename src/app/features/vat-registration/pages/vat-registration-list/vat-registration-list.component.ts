@@ -18,6 +18,9 @@ export class VatRegistrationListComponent implements OnInit, OnDestroy {
   searchTerm   = '';
   filterStatus = '';
   isLoading    = false;
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
+  pendingDeleteName = '';
 
   private destroy$ = new Subject<void>();
 
@@ -93,9 +96,25 @@ export class VatRegistrationListComponent implements OnInit, OnDestroy {
   view(id: number): void { this.router.navigate(['/vat-registration/view', id]); }
   edit(id: number): void { this.router.navigate(['/vat-registration/edit', id]); }
 
-  delete(id: number, businessName: string): void {
-    if (!confirm(`Delete VAT registration for "${businessName}"? This action cannot be undone.`)) return;
+  confirmDelete(id: number, businessName: string): void {
+    this.pendingDeleteId = id;
+    this.pendingDeleteName = businessName;
+    this.showDeleteModal = true;
+  }
 
+  cancelDelete(): void {
+    this.resetDeleteState();
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
+    const businessName = this.pendingDeleteName;
+    this.resetDeleteState();
+    this.delete(id, businessName);
+  }
+
+  private delete(id: number, businessName: string): void {
     this.http.delete(API_ENDPOINTS.VAT_REGISTRATIONS.DELETE(id))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -107,5 +126,11 @@ export class VatRegistrationListComponent implements OnInit, OnDestroy {
           this.toast.error('Failed to delete VAT registration. Please try again.');
         }
       });
+  }
+
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.pendingDeleteName = '';
+    this.showDeleteModal = false;
   }
 }

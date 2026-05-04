@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { Taxpayer } from '../../../../models/taxpayer.model';
@@ -12,6 +13,8 @@ import { RefundCreateRequest } from '../../../../models/refund.model';
   styleUrls: ['./refund-create.component.css']
 })
 export class RefundCreateComponent {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = false;
 
@@ -67,6 +70,7 @@ export class RefundCreateComponent {
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.');
       return;
     }
 
@@ -78,12 +82,13 @@ export class RefundCreateComponent {
       next: () => {
         this.isLoading  = false;
         this.successMsg = 'Refund claim submitted successfully!';
+        this.toast.success('Refund claim submitted successfully!');
         setTimeout(() => this.router.navigate(['/refunds']), 1500);
       },
       error: () => {
         this.isLoading  = false;
-        this.successMsg = 'Refund claim submitted successfully!';
-        setTimeout(() => this.router.navigate(['/refunds']), 1500);
+        this.errorMsg = 'Failed to submit refund claim. Please try again.';
+        this.toast.error('Failed to submit refund claim. Please try again.');
       }
     });
   }
@@ -97,6 +102,7 @@ export class RefundCreateComponent {
       remarks: ''
     };
     this.errorMsg = ''; this.successMsg = '';
+    this.toast.info('Form has been reset.');
   }
 
   onCancel(): void { this.router.navigate(['/refunds']); }
@@ -113,7 +119,10 @@ export class RefundCreateComponent {
     this.isSearching = true;
     this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q))
       .pipe(takeUntil(this.destroy$), finalize(() => this.isSearching = false))
-      .subscribe({ next: d => { this.searchResults = d; this.showResults = true; }, error: () => {} });
+      .subscribe({
+        next: d => { this.searchResults = d; this.showResults = true; },
+        error: () => this.toast.error('Taxpayer search failed. Please try again.')
+      });
   }
 
   selectTaxpayer(t: Taxpayer): void {

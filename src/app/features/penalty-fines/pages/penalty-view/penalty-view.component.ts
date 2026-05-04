@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -10,6 +11,8 @@ import { Penalty } from '../../../../models/penalty.model';
   styleUrls: ['./penalty-view.component.css']
 })
 export class PenaltyViewComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   penalty: Penalty | null = null;
   isLoading = true;
@@ -44,6 +47,7 @@ export class PenaltyViewComponent implements OnInit {
       error: ()  => {
         this.penalty = this.fallback.find(p => p.id === id) || this.fallback[0];
         this.isLoading = false;
+        this.toast.error('Failed to load penalty details. Showing sample data.');
       }
     });
   }

@@ -40,8 +40,8 @@
           <th>Goods</th>
           <th>Origin</th>
           <th>CIF Value</th>
-          <th>Duty Rate</th>
-          <th>Duty Amount</th>
+          <th>CD Rate</th>
+          <th>Customs Duty</th>
           <th>Total Payable</th>
           <th>Port</th>
           <th>Import Date</th>
@@ -70,8 +70,8 @@
           </td>
           <td><span class="country-badge">🌐 {{ r.originCountry }}</span></td>
           <td class="amt-cell">{{ formatCurrency(r.cifValue) }}</td>
-          <td><span class="rate-pill">{{ r.dutyRate }}%</span></td>
-          <td class="amt-cell duty">{{ formatCurrency(r.dutyAmount) }}</td>
+          <td><span class="rate-pill">{{ r.cdRate || 0 }}%</span></td>
+          <td class="amt-cell duty">{{ formatCurrency(r.customsDuty) }}</td>
           <td class="amt-cell total">{{ formatCurrency(r.totalPayable) }}</td>
           <td><span class="port-badge">{{ r.portOfEntry }}</span></td>
           <td>{{ r.importDate }}</td>
@@ -81,7 +81,7 @@
           <td>
             <div class="action-btns">
               <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
-                class="btn-delete" (click)="delete(r.id)">
+                class="btn-delete" (click)="confirmDelete(r.id)">
                 <i class="bi bi-trash-fill"></i>
               </button>
             </div>
@@ -114,14 +114,14 @@
         <div class="mobile-field"><label>HS Code</label><span>{{ r.hsCode }}</span></div>
         <div class="mobile-field"><label>Origin</label><span>{{ r.originCountry }}</span></div>
         <div class="mobile-field"><label>CIF Value</label><span>{{ formatCurrency(r.cifValue) }}</span></div>
-        <div class="mobile-field"><label>Duty Rate</label><span>{{ r.dutyRate }}%</span></div>
-        <div class="mobile-field"><label>Duty Amount</label><span class="duty">{{ formatCurrency(r.dutyAmount) }}</span></div>
+        <div class="mobile-field"><label>CD Rate</label><span>{{ r.cdRate || 0 }}%</span></div>
+        <div class="mobile-field"><label>Customs Duty</label><span class="duty">{{ formatCurrency(r.customsDuty) }}</span></div>
         <div class="mobile-field"><label>Total Payable</label><span class="total">{{ formatCurrency(r.totalPayable) }}</span></div>
         <div class="mobile-field"><label>Port</label><span>{{ r.portOfEntry }}</span></div>
         <div class="mobile-field"><label>Import Date</label><span>{{ r.importDate }}</span></div>
       </div>
       <div class="mobile-card-actions">
-        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="delete(r.id)">
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(r.id)">
           <i class="bi bi-trash-fill"></i> Delete
         </button>
       </div>
@@ -136,3 +136,22 @@
 <button *canDo="'create'" class="fab-btn" routerLink="/import-duty/create">
   <i class="bi bi-plus-lg"></i>
 </button>
+
+<div class="modal-overlay" *ngIf="showDeleteModal">
+  <div class="modal-card">
+    <div class="modal-accent error"></div>
+    <div class="modal-icon-wrap error">
+      <i class="bi bi-trash-fill" style="color:#A32D2D; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Delete Import Duty Record?</p>
+    <p class="modal-msg">
+      This action cannot be undone. Are you sure you want to delete this import duty record?
+    </p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-modal-confirm error" (click)="confirmDeleteExecute()">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>

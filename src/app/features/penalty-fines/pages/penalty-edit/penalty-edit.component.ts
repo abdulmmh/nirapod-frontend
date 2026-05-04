@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -10,6 +11,8 @@ import { Penalty } from '../../../../models/penalty.model';
   styleUrls: ['./penalty-edit.component.css']
 })
 export class PenaltyEditComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   isLoading = true;
   isSaving  = false;
@@ -76,11 +79,14 @@ export class PenaltyEditComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
+    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.'); return; }
     this.isSaving = true; this.errorMsg = ''; this.successMsg = '';
     this.http.put(API_ENDPOINTS.PENALTIES.GET(this.penaltyId), this.form).subscribe({
-      next: () => { this.isSaving = false; this.successMsg = 'Penalty updated successfully!'; setTimeout(() => this.router.navigate(['/penalties']), 1500); },
-      error: () => { this.isSaving = false; this.successMsg = ''; this.errorMsg = 'Failed to update penalty. Please try again.'; }
+      next: () => { this.isSaving = false; this.successMsg = 'Penalty updated successfully!';
+      this.toast.success('Penalty updated successfully!'); setTimeout(() => this.router.navigate(['/penalties']), 1500); },
+      error: () => { this.isSaving = false; this.successMsg = ''; this.errorMsg = 'Failed to update penalty. Please try again.';
+      this.toast.error('Failed to update penalty. Please try again.'); }
     });
   }
 

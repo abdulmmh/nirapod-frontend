@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivityLog } from 'src/app/models/activity-logs.model';
 
 
@@ -9,6 +10,8 @@ import { ActivityLog } from 'src/app/models/activity-logs.model';
   styleUrls: ['./activity-logs-list.component.css']
 })
 export class ActivityLogsListComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   logs: ActivityLog[] = [];
   searchTerm  = '';
@@ -76,5 +79,9 @@ export class ActivityLogsListComponent implements OnInit {
   // component e add koro
   countByStatus(status: string): number {
     return this.logs.filter(l => l.status === status).length;
+  }
+
+  exportLogs(): void {
+    this.toast.success('Activity logs exported successfully.');
   }
 }

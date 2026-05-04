@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -7,6 +8,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./roles-create.component.css']
 })
 export class RolesCreateComponent {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = false;
   successMsg = '';
@@ -79,11 +82,13 @@ export class RolesCreateComponent {
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Role name is required.'; return; }
+    if (!this.isFormValid()) { this.errorMsg = 'Role name is required.';
+      this.toast.error('Role name is required.'); return; }
     this.isLoading = true; this.errorMsg = '';
     setTimeout(() => {
       this.isLoading = false;
       this.successMsg = `Role "${this.form.roleName}" created successfully!`;
+      this.toast.success(`Role "${this.form.roleName}" created successfully!`);
       setTimeout(() => this.router.navigate(['/roles']), 1500);
     }, 800);
   }

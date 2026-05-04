@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -10,6 +11,8 @@ import { Refund } from '../../../../models/refund.model';
   styleUrls: ['./refund-edit.component.css']
 })
 export class RefundEditComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = true;
   isSaving   = false;
@@ -59,6 +62,7 @@ export class RefundEditComponent implements OnInit {
           approvedBy: 'Tax Commissioner', remarks: ''
         };
         this.isLoading = false;
+        this.toast.error('Failed to load refund details. Showing sample data.');
       }
     });
   }
@@ -79,6 +83,7 @@ export class RefundEditComponent implements OnInit {
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.');
       return;
     }
 
@@ -92,12 +97,13 @@ export class RefundEditComponent implements OnInit {
       next: () => {
         this.isSaving   = false;
         this.successMsg = 'Refund updated successfully!';
+        this.toast.success('Refund updated successfully!');
         setTimeout(() => this.router.navigate(['/refunds']), 1500);
       },
       error: () => {
         this.isSaving   = false;
-        this.successMsg = 'Refund updated successfully!';
-        setTimeout(() => this.router.navigate(['/refunds']), 1500);
+        this.errorMsg = 'Failed to update refund. Please try again.';
+        this.toast.error('Failed to update refund. Please try again.');
       }
     });
   }

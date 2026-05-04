@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -13,10 +14,14 @@ import { Role } from '../../../../core/constants/roles.constants';
 })
 export class NoticeListComponent implements OnInit {
 
+  private readonly toast = inject(ToastService);
+
   notices: Notice[] = [];
   searchTerm    = '';
   isLoading     = false;
   activeFilter  = 'All';
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
   filters = ['All', 'Unread', 'Read', 'Responded', 'Urgent', 'Expired'];
 
@@ -119,7 +124,11 @@ export class NoticeListComponent implements OnInit {
     this.isLoading = true;
     this.http.get<Notice[]>(API_ENDPOINTS.NOTICES.LIST).subscribe({
       next: data => { this.notices = data;           this.isLoading = false; },
-      error: ()   => { this.notices = this.fallback; this.isLoading = false; }
+      error: ()   => {
+        this.notices = this.fallback;
+        this.isLoading = false;
+        this.toast.error('Failed to load notices. Showing sample data.');
+      }
     });
   }
 
@@ -204,8 +213,29 @@ export class NoticeListComponent implements OnInit {
 
   viewNotice(id: number): void { this.router.navigate(['/notices', id]); }
 
-  delete(id: number): void {
-    if (!confirm('Are you sure you want to delete this notice?')) return;
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.resetDeleteState();
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
+    this.resetDeleteState();
+    this.delete(id);
+  }
+
+  private delete(id: number): void {
     this.notices = this.notices.filter(n => n.id !== id);
+    this.toast.success('Notice deleted successfully.');
+  }
+
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
   }
 }

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -7,6 +8,8 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./user-edit.component.css']
 })
 export class UserEditComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = true;
   isSaving   = false;
@@ -38,11 +41,13 @@ export class UserEditComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
+    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.'); return; }
     this.isSaving = true;
     setTimeout(() => {
       this.isSaving = false;
       this.successMsg = 'User updated successfully!';
+      this.toast.success('User updated successfully!');
       setTimeout(() => this.router.navigate(['/users']), 1500);
     }, 800);
   }

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -7,6 +8,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./user-create.component.css']
 })
 export class UserCreateComponent {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = false;
   successMsg = '';
@@ -35,11 +38,13 @@ export class UserCreateComponent {
   constructor(private router: Router) {}
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields correctly.'; return; }
+    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields correctly.';
+      this.toast.error('Please fill in all required fields correctly.'); return; }
     this.isLoading = true; this.errorMsg = '';
     setTimeout(() => {
       this.isLoading = false;
       this.successMsg = 'User created successfully!';
+      this.toast.success('User created successfully!');
       setTimeout(() => this.router.navigate(['/users']), 1500);
     }, 800);
   }

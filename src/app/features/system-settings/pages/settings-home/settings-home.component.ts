@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-settings-home',
@@ -6,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./settings-home.component.css']
 })
 export class SettingsHomeComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   constructor() { }
 
@@ -20,6 +23,6 @@ export class SettingsHomeComponent implements OnInit {
 
   saveSettings(): void {
     console.log('Settings Saved:', this.settings);
-    alert('Settings saved successfully!');
+    this.toast.success('Settings saved successfully!');
   }
 }

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -10,6 +11,8 @@ import { TaxStructure } from '../../../../models/tax-structure.model';
   styleUrls: ['./tax-structure-edit.component.css']
 })
 export class TaxStructureEditComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   isLoading = true;
   isSaving = false;
@@ -45,6 +48,7 @@ export class TaxStructureEditComponent implements OnInit {
       error: (err) => {
         console.error('Load failed:', err);
         this.errorMsg = 'Failed to load tax structure.';
+      this.toast.error('Failed to load tax structure.');
         this.isLoading = false;
       }
     });
@@ -67,6 +71,7 @@ export class TaxStructureEditComponent implements OnInit {
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.');
       return;
     }
 
@@ -78,12 +83,14 @@ export class TaxStructureEditComponent implements OnInit {
       next: () => {
         this.isSaving = false;
         this.successMsg = 'Tax structure updated successfully!';
+      this.toast.success('Tax structure updated successfully!');
         setTimeout(() => this.router.navigate(['/tax-structure/view', this.taxId]), 1500);
       },
       error: (err) => {
         console.error('Update failed:', err);
         this.isSaving = false;
         this.errorMsg = 'Tax structure update failed.';
+      this.toast.error('Tax structure update failed.');
       }
     });
   }

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppUser } from '../user-list/user-list.component';
 
@@ -8,6 +9,8 @@ import { AppUser } from '../user-list/user-list.component';
   styleUrls: ['./user-view.component.css']
 })
 export class UserViewComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   user: AppUser | null = null;
   isLoading = true;
@@ -23,6 +26,9 @@ export class UserViewComponent implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.user = this.fallback.find(u => u.id === id) || this.fallback[0];
+    if (this.user.id !== id) {
+      this.toast.warning('User not found. Showing the first available user.');
+    }
     this.isLoading = false;
   }
 

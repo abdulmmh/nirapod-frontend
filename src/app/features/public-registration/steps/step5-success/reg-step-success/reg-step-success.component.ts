@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 import { RegistrationResponse } from '../../../../../models/registration.model';
 
@@ -8,9 +9,14 @@ import { RegistrationResponse } from '../../../../../models/registration.model';
   styleUrls: ['./reg-step-success.component.css'],
 })
 export class RegStepSuccessComponent {
+
+  private readonly toast = inject(ToastService);
   @Input() response!: RegistrationResponse;
 
   constructor(private router: Router) {}
 
-  goToLogin(): void { this.router.navigate(['/auth/login']); }
+  goToLogin(): void {
+    this.toast.info('Redirecting to login.');
+    this.router.navigate(['/auth/login']);
+  }
 }

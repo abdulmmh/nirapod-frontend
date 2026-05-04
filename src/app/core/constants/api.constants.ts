@@ -93,6 +93,16 @@ export const API_ENDPOINTS = {
     GET:    (id: number) => `${API_BASE_URL}/ait/${id}`,
   },
 
+  // Import Duty
+  IMPORT_DUTIES: {
+    LIST:    `${API_BASE_URL}/import-duty`,
+    CREATE:  `${API_BASE_URL}/import-duty`,
+    GET:     (id: number) => `${API_BASE_URL}/import-duty/${id}`,
+    UPDATE:  (id: number) => `${API_BASE_URL}/import-duty/${id}`,
+    DELETE:  (id: number) => `${API_BASE_URL}/import-duty/${id}`,
+    PREVIEW: `${API_BASE_URL}/import-duty/preview-tax`,
+  },
+
   // Fiscal Years
   FISCAL_YEARS: {
     LIST:   `${API_BASE_URL}/fiscal-years`,
@@ -187,6 +197,8 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
+    CATEGORIES: `${API_BASE_URL}/taxable-products/categories`,
+    UNITS:      `${API_BASE_URL}/taxable-products/units`,
   },
 
   // Get MaterData
@@ -196,6 +208,11 @@ export const API_ENDPOINTS = {
   TAXPAYER_TYPES: `${API_BASE_URL}/master/taxpayer-types`,
   BUSINESS_TYPES:      `${API_BASE_URL}/master/business-types`,
   BUSINESS_CATEGORIES: `${API_BASE_URL}/master/business-categories`,
+  AIT_SOURCE_TYPES: `${API_BASE_URL}/master/ait/source-types`,
+  AIT_STATUSES: `${API_BASE_URL}/master/ait/statuses`,
+  IMPORT_PORTS: `${API_BASE_URL}/master/import-duty/ports`,
+  IMPORT_COUNTRIES: `${API_BASE_URL}/master/import-duty/countries`,
+  IMPORT_DUTY_STATUSES: `${API_BASE_URL}/master/import-duty/statuses`,
   DISTRICTS_BY_DIVISION: (divisionId: number) =>
     `${API_BASE_URL}/master/divisions/${divisionId}/districts`,
   TAX_ZONES_BY_DISTRICT: (districtId: number) =>

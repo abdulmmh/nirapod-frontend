@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 import { TaxStructureCreateRequest } from '../../../../models/tax-structure.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
@@ -10,6 +11,8 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./tax-structure-create.component.css']
 })
 export class TaxStructureCreateComponent {
+
+  private readonly toast = inject(ToastService);
 
   isLoading = false;
   successMsg = '';
@@ -49,6 +52,7 @@ export class TaxStructureCreateComponent {
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.');
       this.successMsg = '';
       return;
     }
@@ -62,6 +66,7 @@ export class TaxStructureCreateComponent {
         console.log('Created successfully', res);
         this.isLoading = false;
         this.successMsg = 'Tax structure created successfully!';
+      this.toast.success('Tax structure created successfully!');
         setTimeout(() => this.router.navigate(['/tax-structure']), 1500);
       },
       error: (err) => {
@@ -70,10 +75,13 @@ export class TaxStructureCreateComponent {
 
         if (err.status === 400) {
           this.errorMsg = 'Invalid input. Please check the form.';
+      this.toast.error('Invalid input. Please check the form.');
         } else if (err.status === 409) {
           this.errorMsg = 'Tax Code or Tax Name already exists.';
+      this.toast.error('Tax Code or Tax Name already exists.');
         } else {
           this.errorMsg = 'Create failed. Please try again.';
+      this.toast.error('Create failed. Please try again.');
         }
       }
     });

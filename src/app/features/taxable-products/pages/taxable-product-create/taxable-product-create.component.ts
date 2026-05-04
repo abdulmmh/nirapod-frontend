@@ -1,89 +1,135 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { TaxableProductCreateRequest } from '../../../../models/taxable-product.model';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { forkJoin } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { TaxStructure } from 'src/app/models/tax-structure.model';
+import { ProductStatus, TaxableProductCreateRequest } from '../../../../models/taxable-product.model';
+import { TaxableProductService } from '../../services/taxable-product.service';
 
 @Component({
   selector: 'app-taxable-product-create',
   templateUrl: './taxable-product-create.component.html',
   styleUrls: ['./taxable-product-create.component.css']
 })
-export class TaxableProductCreateComponent {
+export class TaxableProductCreateComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = false;
+  isMasterDataLoading = false;
   successMsg = '';
   errorMsg   = '';
 
-  categories = ['Electronics', 'Textile', 'Food & Beverage', 'Pharmaceutical', 'Machinery', 'Chemicals', 'Vehicles', 'Agriculture', 'Luxury', 'Other'];
-  units      = ['Piece', 'KG', 'Meter', 'Liter', 'Pack', 'Unit', 'Ton', 'Set', 'Box', 'Dozen'];
-  statuses   = ['Active', 'Inactive', 'Restricted'];
+  categories: string[] = [];
+  units: string[] = [];
+  statuses: ProductStatus[] = ['Active', 'Inactive', 'Restricted'];
+  taxStructures: TaxStructure[] = [];
 
-  // Tax structures from system — in real app fetch from API
-  taxStructures = [
-    { id: 1, name: 'Standard VAT (15%)', type: 'VAT', rate: 15 },
-    { id: 2, name: 'Reduced VAT (5%)', type: 'VAT', rate: 5 },
-    { id: 3, name: 'AIT on Salary (10%)', type: 'AIT', rate: 10 },
-    { id: 4, name: 'AIT on Import (5%)', type: 'AIT', rate: 5 },
-    { id: 5, name: 'General Import Duty (25%)', type: 'Import Duty', rate: 25 },
-    { id: 6, name: 'Electronics Import Duty (10%)', type: 'Import Duty', rate: 10 },
-    { id: 7, name: 'Supplementary Duty (20%)', type: 'Supplementary Duty', rate: 20 },
-  ];
+  form: TaxableProductCreateRequest = this.createEmptyForm();
 
-  form: TaxableProductCreateRequest = {
-    productName: 'Mobile Phone', hsCode: '8517.12.00', category: 'Electronics', taxType: 'VAT', taxStructureId: 1, taxRate: 15, unit: 'Piece', description: 'Mobile phones and smartphones', status: 'Active'
-  };
+  constructor(
+    private router: Router,
+    private productService: TaxableProductService
+  ) {}
 
-  onTaxStructureChange(): void {
-    const selected = this.taxStructures.find(t => t.id === Number(this.form.taxStructureId));
-    if (selected) {
-      this.form.taxType = selected.type;
-      this.form.taxRate = selected.rate;
-    }
+  ngOnInit(): void {
+    this.loadMasterData();
   }
+
+  get selectedTaxStructure(): TaxStructure | undefined {
+    return this.taxStructures.find(t => t.id === Number(this.form.taxStructureId));
+  }
+
+  get selectedTaxType(): string {
+    return this.selectedTaxStructure?.taxType ?? '';
+  }
+
+  get selectedTaxRate(): number {
+    return this.selectedTaxStructure?.rate ?? 0;
+  }
+
+  loadMasterData(): void {
+    this.isMasterDataLoading = true;
+    forkJoin({
+      categories: this.productService.listCategories(),
+      units: this.productService.listUnits(),
+      taxStructures: this.productService.listTaxStructures(),
+    }).subscribe({
+      next: ({ categories, units, taxStructures }) => {
+        this.categories = categories;
+        this.units = units;
+        this.taxStructures = taxStructures;
+        this.isMasterDataLoading = false;
+      },
+      error: () => {
+        this.isMasterDataLoading = false;
+        this.errorMsg = 'Failed to load product master data. Please refresh the page.';
+        this.toast.error(this.errorMsg);
+      }
+    });
+  }
+
+  onTaxStructureChange(): void {}
 
   isFormValid(): boolean {
-    return !!(this.form.productName && this.form.hsCode &&
-              this.form.category && this.form.unit);
+    return !!(
+      this.form.productName.trim() &&
+      this.form.hsCode.trim() &&
+      this.form.category &&
+      this.form.unit &&
+      this.form.taxStructureId > 0
+    );
   }
-
-  constructor(private router: Router, private http: HttpClient) {}
 
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error(this.errorMsg);
       this.successMsg = '';
       return;
     }
-    console.log('Submitting form:', this.form);
+
     this.isLoading = true;
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.http.post(API_ENDPOINTS.TAXABLE_PRODUCTS.CREATE, this.form).subscribe({
-      next: (res) => {
-        console.log('Created successfully', res);
+    this.productService.create(this.form).subscribe({
+      next: () => {
         this.isLoading = false;
         this.successMsg = 'Taxable product created successfully!';
+        this.toast.success(this.successMsg);
         setTimeout(() => this.router.navigate(['/taxable-products']), 1500);
       },
       error: (err) => {
-        console.error('Create failed', err);
         this.isLoading = false;
-
-        if (err.status === 400) {
-          this.errorMsg = 'Invalid input. Please check the form.';
-        } else {
-          this.errorMsg = 'Create failed. Please try again.';
-        }
+        this.errorMsg = err.status === 400
+          ? 'Invalid input. Please check the form.'
+          : 'Create failed. Please try again.';
+        this.toast.error(this.errorMsg);
       }
     });
   }
 
   onReset(): void {
-    this.form = { productName: 'Mobile Phone', hsCode: '8517.12.00', category: 'Electronics', taxType: 'VAT', taxStructureId: 1, taxRate: 15, unit: 'Piece', description: 'Mobile phones and smartphones', status: 'Active' };
-    this.errorMsg = ''; this.successMsg = '';
+    this.form = this.createEmptyForm();
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.toast.info('Form has been reset.');
   }
 
-  onCancel(): void { this.router.navigate(['/taxable-products']); }
+  onCancel(): void {
+    this.router.navigate(['/taxable-products']);
+  }
+
+  private createEmptyForm(): TaxableProductCreateRequest {
+    return {
+      productName: '',
+      hsCode: '',
+      category: '',
+      taxStructureId: 0,
+      unit: '',
+      description: '',
+      status: 'Active'
+    };
+  }
 }

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 interface Permission {
   module: string;
@@ -24,6 +25,8 @@ interface RoleConfig {
   styleUrls: ['./roles-list.component.css']
 })
 export class RolesListComponent {
+
+  private readonly toast = inject(ToastService);
 
   selectedRole = 'TAX_OFFICER';
 
@@ -142,6 +145,11 @@ export class RolesListComponent {
 
   get selectedRoleConfig(): RoleConfig {
     return this.roles.find(r => r.role === this.selectedRole) || this.roles[0];
+  }
+
+  selectRole(role: string): void {
+    this.selectedRole = role;
+    this.toast.info(`${this.selectedRoleConfig.label} permissions selected.`);
   }
 
   getRoleColorClass(color: string): string {

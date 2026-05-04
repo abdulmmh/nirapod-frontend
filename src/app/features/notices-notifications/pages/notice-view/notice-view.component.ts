@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -10,6 +11,8 @@ import { Notice } from '../../../../models/notice.model';
   styleUrls: ['./notice-view.component.css']
 })
 export class NoticeViewComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   notice: Notice | null = null;
   isLoading    = true;
@@ -60,6 +63,7 @@ export class NoticeViewComponent implements OnInit {
       error: () => {
         this.notice = this.fallback.find(n => n.id === id) || this.fallback[0];
         this.isLoading = false;
+        this.toast.error('Failed to load notice details. Showing sample data.');
         this.markAsReadIfNeeded();
       }
     });
@@ -107,12 +111,14 @@ export class NoticeViewComponent implements OnInit {
         this.notice = data ?? updatedNotice;
         this.showResponse = false;
         this.responseNote = '';
+        this.toast.success('Response submitted successfully.');
       },
       error: () => {
         // Fallback keeps UI usable before backend is ready.
         this.notice = updatedNotice;
         this.showResponse = false;
         this.responseNote = '';
+        this.toast.warning('Response saved locally. Server update failed.');
       }
     });
   }

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 import { FiscalYearCreateRequest } from '../../../../models/fiscal-year.model';
 import { HttpClient } from '@angular/common/http';
@@ -11,6 +12,8 @@ import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
   styleUrls: ['./fiscal-year-create.component.css']
 })
 export class FiscalYearCreateComponent {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = false;
   successMsg = '';
@@ -62,7 +65,8 @@ export class FiscalYearCreateComponent {
   constructor(private router: Router, private http: HttpClient) {}
 
   onSubmit(): void {
-    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.'; return; }
+    if (!this.isFormValid()) { this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.'); return; }
 
     this.isLoading = true; 
     this.errorMsg = ''; 
@@ -75,11 +79,13 @@ export class FiscalYearCreateComponent {
         next: () => {
           this.isLoading = false;
           this.successMsg = 'Fiscal year created successfully!';
+      this.toast.success('Fiscal year created successfully!');
           setTimeout(() => this.router.navigate(['/fiscal-years']), 1500);
         },
         error: () => {
           this.isLoading = false;
           this.errorMsg = 'Failed to create fiscal year. Please try again.';
+          this.toast.error('Failed to create fiscal year. Please try again.');
         }
       });
 

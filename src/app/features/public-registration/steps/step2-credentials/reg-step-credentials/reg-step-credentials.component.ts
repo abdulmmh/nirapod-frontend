@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import {
   AbstractControl,
   FormBuilder,
@@ -27,6 +28,8 @@ function passwordMatchValidator(): ValidatorFn {
   styleUrls: ['./reg-step-credentials.component.css'],
 })
 export class RegStepCredentialsComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
   @Input()  state!: RegistrationState;
   @Output() next = new EventEmitter<Partial<RegistrationState>>();
   @Output() back = new EventEmitter<void>();
@@ -101,7 +104,10 @@ export class RegStepCredentialsComponent implements OnInit {
 
   onNext(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.toast.warning('Please complete your credentials correctly.');
+      return;
+    }
     this.next.emit(this.form.value);
   }
 }

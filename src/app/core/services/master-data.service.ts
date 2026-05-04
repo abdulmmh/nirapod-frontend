@@ -3,6 +3,8 @@ import { BaseApiService } from './base-api.service';
 import { API_ENDPOINTS } from '../constants/api.constants';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { AitSourceType, AitStatus } from 'src/app/models/ait.model';
+import { FiscalYear } from 'src/app/models/fiscal-year.model';
 import { BusinessCategory, BusinessType, TaxCircle, TaxpayerType, TaxZone } from 'src/app/models/master-data.model';
 import { District, Division } from 'src/app/models/master-data.model';
 
@@ -42,6 +44,42 @@ export class MasterDataService extends BaseApiService {
 
   getBusinessCategories(): Observable<BusinessCategory[]> {
     return this.get<BusinessCategory[]>(API_ENDPOINTS.MASTER_DATA.BUSINESS_CATEGORIES).pipe(
+      catchError(() => of([]))
+    );
+  }
+
+  getAitSourceTypes(): Observable<AitSourceType[]> {
+    return this.get<AitSourceType[]>(API_ENDPOINTS.MASTER_DATA.AIT_SOURCE_TYPES).pipe(
+      catchError(() => of([]))
+    );
+  }
+
+  getAitStatuses(): Observable<AitStatus[]> {
+    return this.get<AitStatus[]>(API_ENDPOINTS.MASTER_DATA.AIT_STATUSES).pipe(
+      catchError(() => of([]))
+    );
+  }
+
+  getFiscalYears(): Observable<FiscalYear[]> {
+    return this.get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST).pipe(
+      catchError(() => of([]))
+    );
+  }
+
+  getImportPorts(): Observable<any[]> {
+    return this.get<any[]>(API_ENDPOINTS.MASTER_DATA.IMPORT_PORTS).pipe(
+      catchError(() => of([]))
+    );
+  }
+
+  getImportCountries(): Observable<any[]> {
+    return this.get<any[]>(API_ENDPOINTS.MASTER_DATA.IMPORT_COUNTRIES).pipe(
+      catchError(() => of([]))
+    );
+  }
+
+  getImportDutyStatuses(): Observable<any[]> {
+    return this.get<any[]>(API_ENDPOINTS.MASTER_DATA.IMPORT_DUTY_STATUSES).pipe(
       catchError(() => of([]))
     );
   }

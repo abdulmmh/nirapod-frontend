@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { RegistrationState } from '../../../../../models/registration.model';
 
 @Component({
@@ -7,6 +8,8 @@ import { RegistrationState } from '../../../../../models/registration.model';
   styleUrls: ['./reg-step-review.component.css'],
 })
 export class RegStepReviewComponent {
+
+  private readonly toast = inject(ToastService);
   @Input()  state!: RegistrationState;
   @Input()  isSubmitting = false;
   @Output() submit = new EventEmitter<void>();
@@ -16,4 +19,8 @@ export class RegStepReviewComponent {
 
   // Mask password display
   get maskedPassword(): string { return '•'.repeat(this.state.password.length); }
+  onSubmit(): void {
+    this.toast.info('Submitting registration request...');
+    this.submit.emit();
+  }
 }

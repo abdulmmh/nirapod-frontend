@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-reports-home',
@@ -6,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./reports-home.component.css']
 })
 export class ReportsHomeComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   constructor() { }
 
@@ -41,4 +44,8 @@ export class ReportsHomeComponent implements OnInit {
     'Monthly Business Registration Report',
     'Taxpayer Growth Analysis Report'
   ];
+
+  generateReport(type: string): void {
+    this.toast.success(`${type} report generated successfully.`);
+  }
 }

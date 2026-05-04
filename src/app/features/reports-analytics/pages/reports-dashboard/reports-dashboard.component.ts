@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-reports-dashboard',
@@ -6,6 +7,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./reports-dashboard.component.css']
 })
 export class ReportsDashboardComponent {
+
+  private readonly toast = inject(ToastService);
 
   selectedPeriod = 'monthly';
   selectedYear   = '2024-25';
@@ -32,6 +35,6 @@ export class ReportsDashboardComponent {
   ];
 
   downloadReport(title: string): void {
-    alert(`Downloading: ${title}`);
+    this.toast.info(`Downloading: ${title}`);
   }
 }

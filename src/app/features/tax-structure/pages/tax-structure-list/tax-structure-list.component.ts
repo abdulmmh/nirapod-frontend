@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { TaxStructure } from 'src/app/models/tax-structure.model';
@@ -12,9 +13,13 @@ import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 })
 export class TaxStructureListComponent implements OnInit {
 
+  private readonly toast = inject(ToastService);
+
   taxes: TaxStructure[] = [];
   searchTerm = '';
   isLoading  = false;
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
   private fallback: TaxStructure[] = [
     { id: 1, taxCode: 'TAX-001', taxName: 'Standard VAT', taxType: 'VAT', rate: 15, applicableTo: 'All', effectiveDate: '2024-01-01', expiryDate: '', description: 'Standard VAT rate applicable to all taxable goods and services', status: 'Active', createdBy: 'Tax Commissioner', createdAt: '2024-01-01' },
@@ -34,7 +39,11 @@ export class TaxStructureListComponent implements OnInit {
     this.isLoading = true;
     this.http.get<TaxStructure[]>(API_ENDPOINTS.TAX_STRUCTURES.LIST).subscribe({
       next: data => { this.taxes = data;           this.isLoading = false; },
-      error: ()   => { this.taxes = this.fallback; this.isLoading = false; }
+      error: ()   => {
+        this.taxes = this.fallback;
+        this.isLoading = false;
+        this.toast.error('Failed to load tax structures. Showing sample data.');
+      }
     });
     // setTimeout(() => { this.taxes = this.fallback; this.isLoading = false; }, 400);
   }
@@ -65,13 +74,36 @@ export class TaxStructureListComponent implements OnInit {
 
   isExpired(date: string): boolean { return !!date && new Date(date) < new Date(); }
 
-  delete(id: number): void {
-    if (!confirm('Are you sure you want to delete this tax structure?')) return;
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.resetDeleteState();
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
+    this.resetDeleteState();
+    this.delete(id);
+  }
+
+  private delete(id: number): void {
         this.http.delete(API_ENDPOINTS.TAX_STRUCTURES.DELETE(id)).subscribe({
-          next: () => { this.taxes = this.taxes.filter(t => t.id !== id); },
-          error: ()  => { alert('Failed to delete tax structure, Please try again.'); }
+          next: () => {
+            this.taxes = this.taxes.filter(t => t.id !== id);
+            this.toast.success('Tax structure deleted successfully.');
+          },
+          error: ()  => { this.toast.error('Failed to delete tax structure, Please try again.'); }
         });
   
+  }
+
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
   }
 
   view(id: number): void { this.router.navigate(['/tax-structure/view', id]); }

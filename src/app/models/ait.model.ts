@@ -13,6 +13,9 @@ export interface Ait {
   aitAmount: number;
   deductionDate: string;
   depositDate?: string; 
+  challanNumber: string;
+  bankName: string;
+  attachmentUrl?: string;
   deductedBy: string;
   fiscalYear: string;
   status: AitStatus;
@@ -27,9 +30,11 @@ export interface AitCreateRequest {
   sourceType: AitSourceType; 
   taxStructureId: number;
   grossAmount: number;
-  aitRate: number;
   deductionDate: string;
   depositDate?: string; 
+  challanNumber: string;
+  bankName: string;
+  attachmentUrl?: string;
   fiscalYear: string;
   deductedBy: string;
   status: AitStatus; 

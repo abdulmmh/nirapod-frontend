@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TaxStructure } from '../../../../models/tax-structure.model';
 import { HttpClient } from '@angular/common/http';
@@ -10,6 +11,8 @@ import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
   styleUrls: ['./tax-structure-view.component.css']
 })
 export class TaxStructureViewComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   tax: TaxStructure | null = null;
   isLoading = true;
@@ -34,6 +37,7 @@ export class TaxStructureViewComponent implements OnInit {
           error: ()  => {
             this.tax = this.fallback.find(t => t.id === id) || this.fallback[0];
             this.isLoading = false;
+            this.toast.error('Failed to load tax structure details. Showing sample data.');
           }
         });
   }

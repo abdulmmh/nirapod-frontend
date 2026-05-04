@@ -123,7 +123,7 @@
             <button
               *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
               class="btn-delete-sm"
-              (click)="delete(n.id)"
+              (click)="confirmDelete(n.id)"
             >
               <i class="bi bi-trash-fill"></i>
             </button>
@@ -154,3 +154,22 @@
 >
   <i class="bi bi-plus-lg"></i>
 </button>
+
+<div class="modal-overlay" *ngIf="showDeleteModal">
+  <div class="modal-card">
+    <div class="modal-accent error"></div>
+    <div class="modal-icon-wrap error">
+      <i class="bi bi-trash-fill" style="color:#A32D2D; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Delete Notice?</p>
+    <p class="modal-msg">
+      This action cannot be undone. Are you sure you want to delete this notice?
+    </p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-modal-confirm error" (click)="confirmDeleteExecute()">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>

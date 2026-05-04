@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -11,9 +12,13 @@ import { Penalty } from '../../../../models/penalty.model';
 })
 export class PenaltyListComponent implements OnInit {
 
+  private readonly toast = inject(ToastService);
+
   penalties: Penalty[] = [];
   searchTerm = '';
   isLoading  = false;
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
   private fallback: Penalty[] = [
     {
@@ -108,7 +113,11 @@ export class PenaltyListComponent implements OnInit {
     this.isLoading = true;
     this.http.get<Penalty[]>(API_ENDPOINTS.PENALTIES.LIST).subscribe({
       next: data => { this.penalties = data;           this.isLoading = false; },
-      error: ()   => { this.penalties = this.fallback; this.isLoading = false; }
+      error: ()   => {
+        this.penalties = this.fallback;
+        this.isLoading = false;
+        this.toast.error('Failed to load penalties. Showing sample data.');
+      }
     });
   }
 
@@ -171,11 +180,37 @@ export class PenaltyListComponent implements OnInit {
     this.router.navigate(['/penalties', 'edit', id]);
   }
 
-  delete(id: number): void {
-    if (!confirm('Are you sure you want to delete this penalty?')) return;
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.resetDeleteState();
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
+    this.resetDeleteState();
+    this.delete(id);
+  }
+
+  private delete(id: number): void {
     this.http.delete(`${API_ENDPOINTS.PENALTIES.LIST}/${id}`).subscribe({
-      next: () => { this.penalties = this.penalties.filter(p => p.id !== id); },
-      error: ()  => { this.penalties = this.penalties.filter(p => p.id !== id); }
+      next: () => {
+        this.penalties = this.penalties.filter(p => p.id !== id);
+        this.toast.success('Penalty deleted successfully.');
+      },
+      error: ()  => {
+        this.penalties = this.penalties.filter(p => p.id !== id);
+        this.toast.warning('Penalty removed locally. Server delete failed.');
+      }
     });
+  }
+
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
   }
 }

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { Taxpayer } from '../../../../models/taxpayer.model';
@@ -12,6 +13,8 @@ import { NoticeCreateRequest } from '../../../../models/notice.model';
   styleUrls: ['./notice-create.component.css']
 })
 export class NoticeCreateComponent {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = false;
 
@@ -61,6 +64,7 @@ export class NoticeCreateComponent {
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.');
       return;
     }
 
@@ -72,12 +76,14 @@ export class NoticeCreateComponent {
       next: () => {
         this.isLoading  = false;
         this.successMsg = 'Notice sent successfully!';
+      this.toast.success('Notice sent successfully!');
         setTimeout(() => this.router.navigate(['/notices']), 1500);
       },
       error: () => {
         this.isLoading  = false;
         this.successMsg = '';
         this.errorMsg   = 'Failed to send notice. Please try again.';
+      this.toast.error('Failed to send notice. Please try again.');
       }
     });
   }

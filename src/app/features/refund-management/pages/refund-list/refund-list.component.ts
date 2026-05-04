@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -11,9 +12,13 @@ import { Refund } from '../../../../models/refund.model';
 })
 export class RefundListComponent implements OnInit {
 
+  private readonly toast = inject(ToastService);
+
   refunds: Refund[] = [];
   searchTerm = '';
   isLoading  = false;
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
   private fallback: Refund[] = [
     {
@@ -101,7 +106,11 @@ export class RefundListComponent implements OnInit {
     this.isLoading = true;
     this.http.get<Refund[]>(API_ENDPOINTS.PAYMENTS.LIST).subscribe({
       next: data => { this.refunds = data;           this.isLoading = false; },
-      error: ()   => { this.refunds = this.fallback; this.isLoading = false; }
+      error: ()   => {
+        this.refunds = this.fallback;
+        this.isLoading = false;
+        this.toast.error('Failed to load refunds. Showing sample data.');
+      }
     });
   }
 
@@ -152,11 +161,37 @@ export class RefundListComponent implements OnInit {
     this.router.navigate(['/refunds', id, 'edit']);
   }
 
-  delete(id: number): void {
-    if (!confirm('Are you sure you want to delete this refund?')) return;
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.resetDeleteState();
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
+    this.resetDeleteState();
+    this.delete(id);
+  }
+
+  private delete(id: number): void {
     this.http.delete(`${API_ENDPOINTS.PAYMENTS.LIST}/${id}`).subscribe({
-      next: () => { this.refunds = this.refunds.filter(r => r.id !== id); },
-      error: ()  => { this.refunds = this.refunds.filter(r => r.id !== id); }
+      next: () => {
+        this.refunds = this.refunds.filter(r => r.id !== id);
+        this.toast.success('Refund deleted successfully.');
+      },
+      error: ()  => {
+        this.refunds = this.refunds.filter(r => r.id !== id);
+        this.toast.warning('Refund removed locally. Server delete failed.');
+      }
     });
+  }
+
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
   }
 }

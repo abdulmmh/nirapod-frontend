@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { Taxpayer } from '../../../../models/taxpayer.model';
@@ -12,6 +13,8 @@ import { PenaltyCreateRequest } from '../../../../models/penalty.model';
   styleUrls: ['./penalty-create.component.css']
 })
 export class PenaltyCreateComponent {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = false;
 
@@ -84,6 +87,7 @@ export class PenaltyCreateComponent {
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.errorMsg = 'Please fill in all required fields.';
+      this.toast.error('Please fill in all required fields.');
       return;
     }
 
@@ -95,12 +99,14 @@ export class PenaltyCreateComponent {
       next: () => {
         this.isLoading  = false;
         this.successMsg = 'Penalty issued successfully!';
+      this.toast.success('Penalty issued successfully!');
         setTimeout(() => this.router.navigate(['/penalties']), 1500);
       },
       error: () => {
         this.isLoading  = false;
         this.successMsg = '';
         this.errorMsg   = 'Failed to issue penalty. Please try again.';
+      this.toast.error('Failed to issue penalty. Please try again.');
       }
     });
   }

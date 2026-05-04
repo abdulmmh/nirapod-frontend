@@ -93,7 +93,7 @@
             (ngModelChange)="onTaxStructureChange()">
             <option [value]="0">Select Tax Structure</option>
             <option *ngFor="let ts of taxStructures" [value]="ts.id">
-              {{ ts.name }}
+              {{ ts.taxName }} ({{ ts.rate }}%)
             </option>
           </select>
         </div>
@@ -105,7 +105,7 @@
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>
           <input type="text" class="form-input auto-field"
-            [value]="form.taxType || 'Auto from tax structure'"
+            [value]="selectedTaxType || 'Auto from tax structure'"
             readonly />
         </div>
       </div>
@@ -114,11 +114,11 @@
         <div class="input-wrap">
           <i class="bi bi-percent input-icon"></i>
           <input type="number" class="form-input auto-field"
-            [value]="form.taxRate"
+            [value]="selectedTaxRate"
             readonly />
         </div>
-        <span class="rate-preview-sm" *ngIf="form.taxRate > 0">
-          {{ form.taxRate }}% applied to this product
+        <span class="rate-preview-sm" *ngIf="selectedTaxRate > 0">
+          {{ selectedTaxRate }}% applied to this product
         </span>
       </div>
     </div>
@@ -127,10 +127,10 @@
     <div class="tax-info-card" *ngIf="form.taxStructureId > 0">
       <div class="tic-icon"><i class="bi bi-info-circle-fill"></i></div>
       <div class="tic-body">
-        <div class="tic-type">{{ form.taxType }}</div>
-        <div class="tic-rate">{{ form.taxRate }}% tax rate applied</div>
+        <div class="tic-type">{{ selectedTaxType }}</div>
+        <div class="tic-rate">{{ selectedTaxRate }}% tax rate applied</div>
       </div>
-      <div class="tic-rate-big">{{ form.taxRate }}%</div>
+      <div class="tic-rate-big">{{ selectedTaxRate }}%</div>
     </div>
   </div>
 
@@ -177,7 +177,7 @@
       <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
     <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isLoading || !isFormValid()">
+      [disabled]="isLoading || isMasterDataLoading || !isFormValid()">
       <span *ngIf="!isLoading"><i class="bi bi-check-lg"></i> Add Product</span>
       <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Adding...</span>
     </button>

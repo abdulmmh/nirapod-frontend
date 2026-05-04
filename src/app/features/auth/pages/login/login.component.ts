@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -8,6 +9,8 @@ import { AuthService } from '../../../../core/services/auth.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+
+  private readonly toast = inject(ToastService);
   email    = '';
   password = '';
   isLoading = false;
@@ -43,6 +46,7 @@ export class LoginComponent {
   login(): void {
     if (!this.email || !this.password) {
       this.errorMsg = 'Please enter email and password.';
+      this.toast.error('Please enter email and password.');
       return;
     }
 
@@ -58,6 +62,7 @@ export class LoginComponent {
         error: () => {
           this.isLoading = false;
           this.errorMsg  = 'Invalid email or password. Please try again.';
+      this.toast.error('Invalid email or password. Please try again.');
         }
       });
   }

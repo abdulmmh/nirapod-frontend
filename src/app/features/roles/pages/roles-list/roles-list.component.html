@@ -10,7 +10,7 @@
   <div class="role-card"
     *ngFor="let r of roles"
     [class.selected]="selectedRole === r.role"
-    (click)="selectedRole = r.role">
+    (click)="selectRole(r.role)">
     <div class="rc-avatar" [ngClass]="getRoleColorClass(r.color)">
       <i class="bi bi-person-badge-fill"></i>
     </div>

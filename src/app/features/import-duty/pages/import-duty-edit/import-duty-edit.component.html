@@ -30,6 +30,21 @@
     </div>
     <div class="form-grid">
       <div class="form-group">
+        <label class="form-label required">Taxable Product</label>
+        <div class="input-wrap"><i class="bi bi-box-seam input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.productId" (ngModelChange)="onProductChange()">
+            <option [value]="0">Select Product</option>
+            <option *ngFor="let p of products" [value]="p.id">{{ p.productName }} ({{ p.hsCode }})</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">HS Code <span class="auto-label">Auto</span></label>
+        <div class="input-wrap"><i class="bi bi-upc input-icon"></i>
+          <input type="text" class="form-input auto-field" [value]="selectedProduct?.hsCode || form.hsCode || 'Auto from product'" readonly />
+        </div>
+      </div>
+      <div class="form-group">
         <label class="form-label">Goods Description</label>
         <div class="input-wrap"><i class="bi bi-file-text input-icon"></i>
           <input type="text" class="form-input" [(ngModel)]="form.goodsDescription" />
@@ -39,33 +54,53 @@
         <label class="form-label">Origin Country</label>
         <div class="input-wrap"><i class="bi bi-globe input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.originCountry">
+            <option value="">Select Country</option>
             <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
           </select>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label required">CIF Value (৳)</label>
+        <label class="form-label required">CIF Value (BDT)</label>
         <div class="input-wrap"><i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.cifValue" />
+          <input type="number" class="form-input" [(ngModel)]="form.cifValue" (ngModelChange)="onCifValueChange()" />
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Duty Rate (%)</label>
-        <div class="input-wrap"><i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.dutyRate" />
+        <label class="form-label">Tax Source <span class="auto-label">Server</span></label>
+        <div class="input-wrap"><i class="bi bi-shield-check input-icon"></i>
+          <input type="text" class="form-input auto-field" value="Backend preview" readonly />
         </div>
       </div>
     </div>
 
     <!-- Calc Summary -->
     <div class="calc-summary" *ngIf="form.cifValue > 0">
-      <div class="cs-row"><span>CIF Value</span><span>৳{{ form.cifValue?.toLocaleString() }}</span></div>
-      <div class="cs-row"><span>Duty ({{ form.dutyRate }}%)</span><span class="duty">৳{{ dutyAmount.toLocaleString()
-          }}</span></div>
-      <div class="cs-row"><span>VAT (15%)</span><span class="vat">৳{{ vatOnImport.toLocaleString() }}</span></div>
-      <div class="cs-divider"></div>
-      <div class="cs-row total-row"><span class="bold">Total Payable</span><span class="total">৳{{
-          totalPayable.toLocaleString() }}</span></div>
+      <div class="cs-row" *ngIf="isPreviewLoading"><span>Tax Preview</span><span>Loading...</span></div>
+      <div class="cs-row"><span>CIF Value</span><span>{{ fmt(form.cifValue) }}</span></div>
+      <ng-container *ngIf="taxPreview">
+        <div class="cs-row">
+          <span>Customs Duty (CD<span *ngIf="taxPreview.cdRate !== undefined"> {{ taxPreview.cdRate }}%</span>)</span>
+          <span class="duty">{{ fmt(taxPreview.customsDuty) }}</span>
+        </div>
+        <div class="cs-row">
+          <span>Supplementary Duty (SD<span *ngIf="taxPreview.sdRate !== undefined"> {{ taxPreview.sdRate }}%</span>)</span>
+          <span class="duty">{{ fmt(taxPreview.supplementaryDuty) }}</span>
+        </div>
+        <div class="cs-row">
+          <span>VAT<span *ngIf="taxPreview.vatRate !== undefined"> {{ taxPreview.vatRate }}%</span></span>
+          <span class="vat">{{ fmt(taxPreview.vat) }}</span>
+        </div>
+        <div class="cs-row">
+          <span>Advance Income Tax (AIT<span *ngIf="taxPreview.aitRate !== undefined"> {{ taxPreview.aitRate }}%</span>)</span>
+          <span class="vat">{{ fmt(taxPreview.advanceIncomeTax) }}</span>
+        </div>
+        <div class="cs-row">
+          <span>Advance Tax (AT<span *ngIf="taxPreview.atRate !== undefined"> {{ taxPreview.atRate }}%</span>)</span>
+          <span class="vat">{{ fmt(taxPreview.advanceTax) }}</span>
+        </div>
+        <div class="cs-divider"></div>
+        <div class="cs-row total-row"><span class="bold">Total Payable</span><span class="total">{{ fmt(taxPreview.totalPayable) }}</span></div>
+      </ng-container>
     </div>
   </div>
 
@@ -76,7 +111,7 @@
     <div class="section-header">
       <div class="section-icon red"><i class="bi bi-geo-alt-fill"></i></div>
       <div>
-        <h6 class="section-title">Port, Shipping & Status</h6><span class="section-sub">Entry port, dates and current
+        <h6 class="section-title">Port, Shipping & Status</h6><span class="section-sub">Entry port, Bill of Entry, dates and current
           status</span>
       </div>
     </div>
@@ -85,8 +120,21 @@
         <label class="form-label required">Port of Entry</label>
         <div class="input-wrap"><i class="bi bi-geo-alt-fill input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.portOfEntry">
+            <option value="">Select Port</option>
             <option *ngFor="let p of ports" [value]="p">{{ p }}</option>
           </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Bill of Entry Number</label>
+        <div class="input-wrap"><i class="bi bi-file-earmark-check input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.boeNumber" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Bill of Entry Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar-check input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.boeDate" />
         </div>
       </div>
       <div class="form-group">
@@ -110,9 +158,9 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Paid Amount (৳)</label>
+        <label class="form-label">Paid Amount (BDT)</label>
         <div class="input-wrap"><i class="bi bi-cash-coin input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.paidAmount" />
+          <input type="number" class="form-input" [(ngModel)]="form.paidAmount" readonly />
         </div>
       </div>
       <div class="form-group full-width">

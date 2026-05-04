@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -10,6 +11,8 @@ import { Refund } from '../../../../models/refund.model';
   styleUrls: ['./refund-view.component.css']
 })
 export class RefundViewComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   refund: Refund | null = null;
   isLoading = true;
@@ -43,6 +46,7 @@ export class RefundViewComponent implements OnInit {
       error: ()  => {
         this.refund = this.fallback.find(r => r.id === id) || this.fallback[0];
         this.isLoading = false;
+        this.toast.error('Failed to load refund details. Showing sample data.');
       }
     });
   }

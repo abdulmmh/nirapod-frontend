@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-settings',
@@ -6,6 +7,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent {
+
+  private readonly toast = inject(ToastService);
 
   activeTab = 'general';
   isSaving  = false;
@@ -68,6 +71,7 @@ export class SettingsComponent {
     setTimeout(() => {
       this.isSaving = false;
       this.successMsg = 'Settings saved successfully!';
+      this.toast.success('Settings saved successfully!');
       setTimeout(() => this.successMsg = '', 3000);
     }, 800);
   }

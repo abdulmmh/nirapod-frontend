@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RegistrationState } from '../../../../../models/registration.model';
 
@@ -8,6 +9,8 @@ import { RegistrationState } from '../../../../../models/registration.model';
   styleUrls: ['./reg-step-identity.component.css'],
 })
 export class RegStepIdentityComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
   @Input()  state!: RegistrationState;
   @Output() next = new EventEmitter<Partial<RegistrationState>>();
   @Output() back = new EventEmitter<void>();
@@ -62,7 +65,10 @@ export class RegStepIdentityComponent implements OnInit {
 
   onNext(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.toast.warning('Please complete the identity information correctly.');
+      return;
+    }
     this.next.emit(this.form.value);
   }
 }

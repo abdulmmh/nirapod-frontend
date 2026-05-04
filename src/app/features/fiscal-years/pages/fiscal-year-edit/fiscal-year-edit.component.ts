@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FiscalYear } from '../../../../models/fiscal-year.model';
 import { Subject, takeUntil } from 'rxjs';
@@ -11,6 +12,8 @@ import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
   styleUrls: ['./fiscal-year-edit.component.css']
 })
 export class FiscalYearEditComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   isLoading  = true;
   isSaving   = false;
@@ -34,6 +37,7 @@ export class FiscalYearEditComponent implements OnInit {
     if (!rawId || isNaN(parsedId) || parsedId <= 0) {
       this.isLoading = false;
       this.errorMsg  = 'Invalid business ID. Please go back and try again.';
+      this.toast.error('Invalid business ID. Please go back and try again.');
       return;
     }
 
@@ -61,6 +65,7 @@ export class FiscalYearEditComponent implements OnInit {
           error: () => {
             this.isLoading = false;
             this.errorMsg  = 'Failed to load fiscal year data. Please refresh or go back.';
+      this.toast.error('Failed to load fiscal year data. Please refresh or go back.');
           }
         });
     }
@@ -77,6 +82,7 @@ export class FiscalYearEditComponent implements OnInit {
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.errorMsg = 'Please fill in all required fields with valid values.';
+      this.toast.error('Please fill in all required fields with valid values.');
       return;
     }
 
@@ -90,12 +96,14 @@ export class FiscalYearEditComponent implements OnInit {
         next: () => {
           this.isSaving   = false;
           this.successMsg = 'Fiscal year updated successfully!';
+      this.toast.success('Fiscal year updated successfully!');
           setTimeout(() => this.router.navigate(['/fiscal-years']), 1500);
         },
         // FIX #1: Removed navigate() from error handler — user stays to retry
         error: () => {
           this.isSaving  = false;
           this.errorMsg  = 'Failed to update fiscal year. Please try again.';
+      this.toast.error('Failed to update fiscal year. Please try again.');
         }
       });
   }

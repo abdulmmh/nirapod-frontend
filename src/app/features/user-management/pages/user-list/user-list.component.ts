@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 
 export interface AppUser {
@@ -20,9 +21,13 @@ export interface AppUser {
 })
 export class UserListComponent implements OnInit {
 
+  private readonly toast = inject(ToastService);
+
   users: AppUser[] = [];
   searchTerm = '';
   isLoading  = false;
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
   private fallback: AppUser[] = [
     { id: 1, fullName: 'System Administrator', username: 'super_admin',  email: 'admin@nbr.gov.bd',     role: 'SUPER_ADMIN',       department: 'IT Administration',  lastLogin: '2026-04-01 08:31', status: 'Active',    createdAt: '2024-01-01' },
@@ -78,8 +83,29 @@ export class UserListComponent implements OnInit {
   view(id: number): void { this.router.navigate(['/users/view', id]); }
   edit(id: number): void { this.router.navigate(['/users/edit', id]); }
 
-  delete(id: number): void {
-    if (!confirm('Delete this user?')) return;
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.resetDeleteState();
+  }
+
+  confirmDeleteExecute(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
+    this.resetDeleteState();
+    this.delete(id);
+  }
+
+  private delete(id: number): void {
     this.users = this.users.filter(u => u.id !== id);
+    this.toast.success('User deleted successfully.');
+  }
+
+  private resetDeleteState(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
   }
 }

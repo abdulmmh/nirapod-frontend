@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 import { FiscalYear } from '../../../../models/fiscal-year.model';
 import { Subject, takeUntil } from 'rxjs';
@@ -11,6 +12,8 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./fiscal-year-list.component.css']
 })
 export class FiscalYearListComponent implements OnInit {
+
+  private readonly toast = inject(ToastService);
 
   years: FiscalYear[] = [];
   isLoading = false;
@@ -45,6 +48,7 @@ loadFiscalYears(): void {
           error: () => {
             this.isLoading = false;
             this.errorMsg  = 'Failed to load fiscal years. Please refresh the page.';
+      this.toast.error('Failed to load fiscal years. Please refresh the page.');
           }
         });
     }

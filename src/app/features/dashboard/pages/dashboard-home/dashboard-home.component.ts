@@ -1,4 +1,5 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -20,6 +21,8 @@ declare global {
   styleUrls: ['./dashboard-home.component.css'],
 })
 export class DashboardHomeComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  private readonly toast = inject(ToastService);
   private destroy$ = new Subject<void>();
 
   currentUser: any;
@@ -144,6 +147,7 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit, OnDestroy 
         },
         error: () => {
           this.hasError = true;
+          this.toast.error('Failed to load dashboard data. Please try refreshing.');
         },
       });
   }
@@ -253,7 +257,10 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit, OnDestroy 
   onRefresh(): void {
     this.isRefreshing = true;
     this.loadDashboard();
-    setTimeout(() => { this.isRefreshing = false; }, 1200);
+    setTimeout(() => {
+      this.isRefreshing = false;
+      if (!this.hasError) this.toast.success('Dashboard refreshed.');
+    }, 1200);
   }
 
   onYearChange(): void {

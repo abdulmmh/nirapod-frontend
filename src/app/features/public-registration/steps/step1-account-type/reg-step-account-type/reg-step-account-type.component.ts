@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
@@ -18,6 +19,8 @@ interface TaxpayerType {
   styleUrls: ['./reg-step-account-type.component.css'],
 })
 export class RegStepAccountTypeComponent implements OnInit, OnDestroy {
+
+  private readonly toast = inject(ToastService);
 
   @Input()  state!: RegistrationState;
   @Output() next = new EventEmitter<Partial<RegistrationState>>();
@@ -58,7 +61,9 @@ export class RegStepAccountTypeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$), finalize(() => this.isLoading = false))
       .subscribe({
         next : data  => this.allTypes = data,
-        error: _err  => {},
+        error: _err  => {
+          this.toast.error('Failed to load taxpayer types. Please try again.');
+        },
       });
   }
 
@@ -81,7 +86,10 @@ export class RegStepAccountTypeComponent implements OnInit, OnDestroy {
   }
 
   onNext(): void {
-    if (!this.canProceed) return;
+    if (!this.canProceed) {
+      this.toast.warning('Please select an account category and taxpayer type.');
+      return;
+    }
     const selected = this.allTypes.find(t => t.id === this.selectedTypeId)!;
     this.next.emit({
       accountCategory : this.selectedCategory!,

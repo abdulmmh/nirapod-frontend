@@ -18,10 +18,10 @@
     <h3>Available Reports</h3>
 
     <div class="report-actions">
-      <button class="primary-btn">Generate Tax Report</button>
-      <button class="primary-btn">Generate VAT Report</button>
-      <button class="primary-btn">Generate Audit Report</button>
-      <button class="primary-btn">Generate Payment Report</button>
+      <button class="primary-btn" (click)="generateReport('Tax')">Generate Tax Report</button>
+      <button class="primary-btn" (click)="generateReport('VAT')">Generate VAT Report</button>
+      <button class="primary-btn" (click)="generateReport('Audit')">Generate Audit Report</button>
+      <button class="primary-btn" (click)="generateReport('Payment')">Generate Payment Report</button>
     </div>
   </div>
 

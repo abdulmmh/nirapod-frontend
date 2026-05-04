@@ -1,5 +1,5 @@
 export type ProductStatus   = 'Active' | 'Inactive' | 'Restricted';
-export type ProductCategory = 'Electronics' | 'Textile' | 'Food & Beverage' | 'Pharmaceutical' | 'Machinery' | 'Chemicals' | 'Vehicles' | 'Agriculture' | 'Luxury' | 'Other';
+export type ProductCategory = string;
 
 export interface TaxableProduct {
   id: number;
@@ -7,9 +7,9 @@ export interface TaxableProduct {
   productName: string;
   hsCode: string;
   category: ProductCategory;
-  taxType: string;
   taxStructureId: number;
-  taxRate: number;
+  taxType?: string;
+  taxRate?: number;
   unit: string;
   description: string;
   status: ProductStatus;
@@ -20,9 +20,7 @@ export interface TaxableProductCreateRequest {
   productName: string;
   hsCode: string;
   category: ProductCategory;
-  taxType: string;
   taxStructureId: number;
-  taxRate: number;
   unit: string;
   description: string;
   status: ProductStatus;

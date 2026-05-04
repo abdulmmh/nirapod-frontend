@@ -1,19 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
-import {
-  AitCreateRequest,
-  AitSourceType,
-  AitStatus,
-} from '../../../../models/ait.model';
-
+import { AitCreateRequest, AitSourceType, AitStatus } from '../../../../models/ait.model';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Taxpayer } from 'src/app/models/taxpayer.model';
 import { TaxStructure } from 'src/app/models/tax-structure.model';
+import { MasterDataService } from 'src/app/core/services/master-data.service';
 
 @Component({
   selector: 'app-ait-create',
@@ -21,48 +17,31 @@ import { TaxStructure } from 'src/app/models/tax-structure.model';
   styleUrls: ['./ait-create.component.css'],
 })
 export class AitCreateComponent implements OnInit, OnDestroy {
-  // ──────────────── State ────────────────
+
   isLoading = false;
+  isMasterDataLoading = false;
+  maxDate = new Date().toISOString().split('T')[0];
 
   form: AitCreateRequest = this.getEmptyForm();
-  private destroy$ = new Subject<void>();
+  previewAitAmount = 0;
 
-  // ──────────────── Dropdown Data ────────────────
   taxpayers: Partial<Taxpayer>[] = [];
   availableStructures: Partial<TaxStructure>[] = [];
-
-  sourceTypes: AitSourceType[] = [
-    'Salary',
-    'Import',
-    'Contract',
-    'Interest',
-    'Dividend',
-    'Commission',
-    'Export',
-  ];
-
-  statuses: AitStatus[] = [
-    'Draft',
-    'Deducted',
-    'Deposited',
-    'Credited',
-    'Disputed',
-  ];
-
+  sourceTypes: AitSourceType[] = [];
+  statuses: AitStatus[] = [];
   fiscalYears: string[] = [];
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private toast: ToastService,
+    private masterData: MasterDataService,
   ) {}
 
-  // ──────────────── Lifecycle ────────────────
   ngOnInit(): void {
-    this.fiscalYears = this.generateFiscalYears();
-    this.form.fiscalYear = this.fiscalYears[0];
-
-    this.loadTaxpayers();
+    this.loadMasterData();
   }
 
   ngOnDestroy(): void {
@@ -70,15 +49,29 @@ export class AitCreateComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ──────────────── API Calls ────────────────
+  private loadMasterData(): void {
+    this.isMasterDataLoading = true;
 
-  private loadTaxpayers(): void {
-    this.http
-      .get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST)
-      .pipe(takeUntil(this.destroy$))
+    forkJoin({
+      taxpayers: this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST),
+      sourceTypes: this.masterData.getAitSourceTypes(),
+      statuses: this.masterData.getAitStatuses(),
+      fiscalYears: this.masterData.getFiscalYears(),
+    })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isMasterDataLoading = false)),
+      )
       .subscribe({
-        next: (res) => (this.taxpayers = res),
-        error: () => this.toast.error('Failed to load taxpayers'),
+        next: ({ taxpayers, sourceTypes, statuses, fiscalYears }) => {
+          this.taxpayers = taxpayers;
+          this.sourceTypes = sourceTypes;
+          this.statuses = statuses;
+          this.fiscalYears = fiscalYears.map(fy => fy.yearName);
+          this.form.fiscalYear = this.fiscalYears[0] ?? '';
+          this.form.status = this.statuses[0] ?? 'Draft';
+        },
+        error: () => this.toast.error('Failed to load AIT master data. Please refresh the page.'),
       });
   }
 
@@ -89,61 +82,59 @@ export class AitCreateComponent implements OnInit, OnDestroy {
       .get<TaxStructure[]>(API_ENDPOINTS.TAX_STRUCTURES.BY_SOURCE(source))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res) => (this.availableStructures = res),
+        next: (res) => {
+          this.availableStructures = res;
+          this.updatePreviewAmount();
+        },
         error: () => this.toast.error('Failed to load tax structures'),
       });
   }
 
-  // ──────────────── Events ────────────────
-
   onTaxpayerChange(): void {
     const tp = this.taxpayers.find((t) => t.tinNumber === this.form.tinNumber);
-    if (tp) this.form.taxpayerName = tp.fullName!;
+    if (tp) this.form.taxpayerName = tp.fullName ?? '';
   }
 
   onSourceChange(): void {
-    this.resetStructureFields();
-    this.loadStructuresBySource(this.form.sourceType as AitSourceType);
+    this.availableStructures = [];
+    this.form.taxStructureId = 0;
+    this.previewAitAmount = 0;
+    this.loadStructuresBySource(this.form.sourceType);
   }
 
   onStructureChange(): void {
+    this.updatePreviewAmount();
+  }
+
+  onGrossAmountChange(): void {
+    this.updatePreviewAmount();
+  }
+
+  onStatusChange(): void {
+    if (!this.requiresDepositProof) {
+      this.form.challanNumber = '';
+      this.form.bankName = '';
+      this.form.attachmentUrl = '';
+    }
+  }
+
+  get selectedAitRate(): number {
     const structure = this.availableStructures.find(
       (s) => s.id === Number(this.form.taxStructureId),
     );
-
-    if (structure) {
-      this.form.aitRate = structure.rate!;
-    }
+    return structure?.rate ?? 0;
   }
 
-  private resetStructureFields(): void {
-    this.availableStructures = [];
-    this.form.taxStructureId = 0;
-    this.form.aitRate = 0;
+  get requiresDepositProof(): boolean {
+    return this.form.status === 'Deposited' || this.form.status === 'Credited';
   }
 
-  // ──────────────── Computed ────────────────
-
-  get aitAmount(): number {
-    const { grossAmount, aitRate } = this.form;
-    return grossAmount && aitRate
-      ? Math.round((grossAmount * aitRate) / 100)
+  private updatePreviewAmount(): void {
+    const gross = Number(this.form.grossAmount) || 0;
+    const rate = this.selectedAitRate;
+    this.previewAitAmount = gross > 0 && rate > 0
+      ? Math.round((gross * rate) / 100)
       : 0;
-  }
-
-  // ──────────────── Helpers ────────────────
-
-  private generateFiscalYears(): string[] {
-    const currentYear = new Date().getFullYear();
-    const years: string[] = [];
-
-    for (let i = 0; i < 5; i++) {
-      const start = currentYear - i;
-      const end = (start + 1).toString().slice(-2);
-      years.push(`${start}-${end}`);
-    }
-
-    return years;
   }
 
   private getEmptyForm(): AitCreateRequest {
@@ -153,19 +144,22 @@ export class AitCreateComponent implements OnInit, OnDestroy {
       sourceType: '' as AitSourceType,
       taxStructureId: 0,
       grossAmount: 0,
-      aitRate: 0,
-      deductionDate: new Date().toISOString().split('T')[0],
+      deductionDate: this.maxDate,
+      depositDate: '',
+      challanNumber: '',
+      bankName: '',
+      attachmentUrl: '',
       fiscalYear: '',
       deductedBy: '',
-      status: 'Draft' as AitStatus,
+      status: 'Draft',
       remarks: '',
     };
   }
 
-  // ──────────────── Validation ────────────────
-
   isFormValid(): boolean {
     const f = this.form;
+    const hasDepositProof = !this.requiresDepositProof ||
+      !!(f.challanNumber.trim() && f.bankName.trim() && f.depositDate);
 
     return !!(
       f.tinNumber &&
@@ -176,11 +170,10 @@ export class AitCreateComponent implements OnInit, OnDestroy {
       f.deductedBy &&
       f.deductionDate &&
       f.fiscalYear &&
-      f.status
+      f.status &&
+      hasDepositProof
     );
   }
-
-  // ──────────────── Actions ────────────────
 
   onSubmit(): void {
     if (!this.isFormValid()) {
@@ -214,8 +207,10 @@ export class AitCreateComponent implements OnInit, OnDestroy {
 
   onReset(): void {
     this.form = this.getEmptyForm();
-    this.form.fiscalYear = this.fiscalYears[0];
+    this.form.fiscalYear = this.fiscalYears[0] ?? '';
+    this.form.status = this.statuses[0] ?? 'Draft';
     this.availableStructures = [];
+    this.previewAitAmount = 0;
   }
 
   onCancel(): void {

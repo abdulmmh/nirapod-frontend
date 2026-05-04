@@ -80,6 +80,12 @@
             ait.deductionDate }}</span></div>
         <div class="detail-row"><span class="detail-label">Deposit Date</span><span class="detail-value">{{
             ait.depositDate || '—' }}</span></div>
+        <div class="detail-row"><span class="detail-label">Challan No</span><span class="detail-value">{{
+            ait.challanNumber || '—' }}</span></div>
+        <div class="detail-row"><span class="detail-label">Bank Name</span><span class="detail-value">{{
+            ait.bankName || '—' }}</span></div>
+        <div class="detail-row" *ngIf="ait.attachmentUrl"><span class="detail-label">Attachment</span><span
+            class="detail-value">{{ ait.attachmentUrl }}</span></div>
         <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span
               class="status-badge" [ngClass]="getStatusClass(ait.status)">{{ ait.status }}</span></span></div>
         <div class="detail-row" *ngIf="ait.remarks"><span class="detail-label">Remarks</span><span

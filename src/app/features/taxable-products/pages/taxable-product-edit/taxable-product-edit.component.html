@@ -17,7 +17,7 @@
   <div class="edit-banner">
     <i class="bi bi-pencil-square"></i>
     Editing: <strong>{{ form.productName }}</strong>
-    <span class="banner-code">{{ form.productCode }}</span>
+    <span class="banner-code">{{ productCode }}</span>
   </div>
 
   <div class="form-section">
@@ -78,20 +78,21 @@
         <div class="input-wrap"><i class="bi bi-sliders input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.taxStructureId"
             (ngModelChange)="onTaxStructureChange()">
-            <option *ngFor="let ts of taxStructures" [value]="ts.id">{{ ts.name }}</option>
+            <option [value]="0">Select Tax Structure</option>
+            <option *ngFor="let ts of taxStructures" [value]="ts.id">{{ ts.taxName }} ({{ ts.rate }}%)</option>
           </select>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Tax Type <span class="auto-label">Auto</span></label>
         <div class="input-wrap"><i class="bi bi-tag-fill input-icon"></i>
-          <input type="text" class="form-input auto-field" [value]="form.taxType" readonly />
+          <input type="text" class="form-input auto-field" [value]="selectedTaxType || 'Auto from tax structure'" readonly />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Tax Rate (%) <span class="auto-label">Auto</span></label>
         <div class="input-wrap"><i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input auto-field" [value]="form.taxRate" readonly />
+          <input type="number" class="form-input auto-field" [value]="selectedTaxRate" readonly />
         </div>
       </div>
     </div>

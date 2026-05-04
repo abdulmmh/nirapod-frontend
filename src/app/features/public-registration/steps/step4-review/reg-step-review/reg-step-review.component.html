@@ -85,7 +85,7 @@
     <button type="button" class="btn-back" (click)="back.emit()" [disabled]="isSubmitting">
       <i class="bi bi-arrow-left"></i> Back
     </button>
-    <button type="button" class="btn-submit" (click)="submit.emit()" [disabled]="isSubmitting">
+    <button type="button" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
       <span *ngIf="!isSubmitting">
         <i class="bi bi-send-fill"></i> Submit Registration
       </span>
