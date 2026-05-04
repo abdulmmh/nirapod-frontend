@@ -1,5 +1,18 @@
 <div class="dashboard-wrap">
 
+  <!-- Loading overlay -->
+  <div *ngIf="isLoading" class="dash-loading-overlay">
+    <div class="dash-spinner"></div>
+    <p>Loading dashboard…</p>
+  </div>
+
+  <!-- Error banner -->
+  <div *ngIf="hasError && !isLoading" class="dash-error-banner">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    Could not reach the server — showing cached data. &nbsp;
+    <button class="btn-refresh" (click)="onRefresh()">Retry</button>
+  </div>
+
   <div class="dash-header">
     <div class="dash-header-left">
       <div class="greeting-avatar">
@@ -16,13 +29,58 @@
       </div>
     </div>
     <div class="dash-header-right">
-      <select class="year-select" [(ngModel)]="selectedYear">
-        <option *ngFor="let y of years" [value]="y">FY {{ y }}</option>
+      <select class="year-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
+        <option *ngFor="let fy of fiscalYears" [value]="fy.yearName">
+          FY {{ fy.yearName }}{{ fy.isCurrentYear ? ' ★' : '' }}
+        </option>
       </select>
       <button class="btn-refresh" (click)="onRefresh()" [class.spinning]="isRefreshing">
         <i class="bi bi-arrow-clockwise"></i> Refresh
       </button>
     </div>
+  </div>
+
+  <!-- ── Current Fiscal Year Info Bar ── -->
+  <div class="fy-info-bar" *ngIf="currentFiscalYear">
+    <div class="fy-info-left">
+      <div class="fy-info-icon"><i class="bi bi-calendar2-range-fill"></i></div>
+      <div class="fy-info-text">
+        <span class="fy-info-label">Current Fiscal Year</span>
+        <span class="fy-info-name">{{ currentFiscalYear.yearName }}</span>
+      </div>
+      <span class="fy-status-badge" [ngClass]="'fy-' + currentFiscalYear.status.toLowerCase()">
+        {{ currentFiscalYear.status }}
+      </span>
+    </div>
+
+    <div class="fy-info-deadlines">
+      <div class="fy-deadline-chip">
+        <i class="bi bi-calendar-check"></i>
+        <div>
+          <span class="fdc-label">Period</span>
+          <span class="fdc-val">{{ currentFiscalYear.startDate | date:'d MMM yyyy' }} – {{ currentFiscalYear.endDate | date:'d MMM yyyy' }}</span>
+        </div>
+      </div>
+      <div class="fy-deadline-chip vat">
+        <i class="bi bi-receipt-cutoff"></i>
+        <div>
+          <span class="fdc-label">VAT Due</span>
+          <span class="fdc-val">{{ currentFiscalYear.vatDueDay }}th of each month</span>
+        </div>
+      </div>
+      <div class="fy-deadline-chip it" [class.overdue]="isDatePast(currentFiscalYear.incomeTaxDueDate)">
+        <i class="bi bi-calendar-event-fill"></i>
+        <div>
+          <span class="fdc-label">Income Tax Due</span>
+          <span class="fdc-val">{{ currentFiscalYear.incomeTaxDueDate | date:'d MMM yyyy' }}</span>
+        </div>
+        <span class="fdc-overdue-tag" *ngIf="isDatePast(currentFiscalYear.incomeTaxDueDate)">Passed</span>
+      </div>
+    </div>
+
+    <a routerLink="/fiscal-years" class="fy-manage-link">
+      Manage <i class="bi bi-arrow-right-short"></i>
+    </a>
   </div>
 
   <div class="stat-cards-grid">
@@ -97,12 +155,12 @@
       <canvas id="gaugeCanvas" class="gauge-canvas"></canvas>
       <div class="gauge-stats">
         <div class="gs-item">
-          <span class="gs-val green">18,450</span>
+          <span class="gs-val green">{{ complianceFiled | number }}</span>
           <span class="gs-label">Filed</span>
         </div>
         <div class="gs-divider"></div>
         <div class="gs-item">
-          <span class="gs-val red">6,400</span>
+          <span class="gs-val red">{{ compliancePending | number }}</span>
           <span class="gs-label">Pending</span>
         </div>
       </div>

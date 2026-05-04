@@ -146,6 +146,7 @@ import {
   RecentAudit, RecentEntry, MyNotice, MyReturn,
   DashboardChartData
 } from '../../../models/dashboard.model';
+import { FiscalYear } from '../../../models/fiscal-year.model';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService extends BaseApiService {
@@ -155,6 +156,12 @@ export class DashboardService extends BaseApiService {
   getStats():           Observable<DashboardStats>   { return this.get<DashboardStats>(API_ENDPOINTS.DASHBOARD.STATS); }
   getRecentTaxpayers(): Observable<RecentTaxpayer[]> { return this.get<RecentTaxpayer[]>(API_ENDPOINTS.DASHBOARD.RECENT_TAXPAYERS); }
   getRecentPayments():  Observable<RecentPayment[]>  { return this.get<RecentPayment[]>(API_ENDPOINTS.DASHBOARD.RECENT_PAYMENTS); }
+
+  getFiscalYears(): Observable<FiscalYear[]> {
+    return this.get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST).pipe(
+      catchError(() => of(this.mockFiscalYears()))
+    );
+  }
 
   getChartData(): Observable<DashboardChartData> {
     const mock = this.mockChartData();
@@ -182,6 +189,7 @@ export class DashboardService extends BaseApiService {
       of(this.mockEntries()),
       of(this.mockNotices()),
       of(this.mockMyReturns()),
+      this.getFiscalYears(),  // index [8] — fiscal years
     ]);
   }
 
@@ -258,6 +266,26 @@ export class DashboardService extends BaseApiService {
       { id: 1, returnNo: 'VAT-2024-001', period: 'Jan 2024', submittedDate: '2024-02-15', amount: 45000,  status: 'Approved'  },
       { id: 2, returnNo: 'VAT-2024-002', period: 'Feb 2024', submittedDate: '2024-03-15', amount: 52000,  status: 'Submitted' },
       { id: 3, returnNo: 'IT-2024-001',  period: 'FY 2023',  submittedDate: '2024-01-30', amount: 125000, status: 'Approved'  },
+    ];
+  }
+
+  mockFiscalYears(): FiscalYear[] {
+    return [
+      {
+        id: 1, yearName: '2024-25', startDate: '2024-07-01', endDate: '2025-06-30',
+        vatDueDay: 15, incomeTaxDueDate: '2024-11-30', isCurrentYear: true, status: 'Active',
+        createdAt: '2024-06-01'
+      },
+      {
+        id: 2, yearName: '2023-24', startDate: '2023-07-01', endDate: '2024-06-30',
+        vatDueDay: 15, incomeTaxDueDate: '2023-11-30', isCurrentYear: false, status: 'Closed',
+        createdAt: '2023-06-01'
+      },
+      {
+        id: 3, yearName: '2025-26', startDate: '2025-07-01', endDate: '2026-06-30',
+        vatDueDay: 15, incomeTaxDueDate: '2025-11-30', isCurrentYear: false, status: 'Upcoming',
+        createdAt: '2025-06-01'
+      },
     ];
   }
 
