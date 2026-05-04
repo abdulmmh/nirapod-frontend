@@ -6,13 +6,15 @@ import { Role } from './core/constants/roles.constants';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { LoginComponent } from './features/auth/pages/login/login.component';
 
+import { UnauthorizedComponent } from './features/auth/pages/unauthorized/unauthorized.component';
+
 import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home/dashboard-home.component';
 
 const routes: Routes = [
 
   // ── Public ──
   { path: 'auth/login', component: LoginComponent },
-  { path: 'unauthorized', redirectTo: 'dashboard' },
+  { path: 'unauthorized', component: UnauthorizedComponent },
   
   // Public Registration
       { path: 'register', 

@@ -16,10 +16,14 @@ export interface RegistrationState {
   confirmPassword: string;
 
   // Step 3 — Individual
-  nid:         string;
-  dateOfBirth: string;
-  gender:      string;
-  profession:  string;
+  nid:             string;
+  dateOfBirth:     string;
+  gender:          string;
+  profession:      string;
+
+  // Step 3 — existing TIN toggle (Individual & Company)
+  hasExistingTin:  boolean;
+  existingTin:     string;
 
   // Step 3 — Business / Organization
   companyName:          string;
@@ -35,6 +39,7 @@ export function emptyState(): RegistrationState {
     accountCategory: null, taxpayerTypeId: null, taxpayerTypeName: '',
     fullName: '', email: '', phone: '', password: '', confirmPassword: '',
     nid: '', dateOfBirth: '', gender: '', profession: '',
+    hasExistingTin: false, existingTin: '',
     companyName: '', rjscNo: '', incorporationDate: '',
     natureOfBusiness: '', authorizedPersonName: '', authorizedPersonNid: '',
   };
@@ -42,12 +47,15 @@ export function emptyState(): RegistrationState {
 
 // ── Backend payload ──────────────────────────────────────────────────────────
 export interface UserRegistrationRequest {
-  taxpayerTypeId:  number;           // DB id — backend resolve করবে
-  accountCategory: AccountCategory;  // "Individual" | "Business" | "Organization"
+  taxpayerTypeId:  number;
+  accountCategory: AccountCategory;
   fullName:        string;
   email:           string;
   phone:           string;
   password:        string;
+
+  /** Present only when the taxpayer already has an offline-issued TIN */
+  existingTin?:    string;
 
   // Individual only
   nid?:         string;
@@ -57,7 +65,7 @@ export interface UserRegistrationRequest {
 
   // Business / Organization only
   companyName?:          string;
-  rjscNo?:               string;    // Government Organization-এ optional
+  rjscNo?:               string;
   incorporationDate?:    string;
   natureOfBusiness?:     string;
   authorizedPersonName?: string;
@@ -66,12 +74,12 @@ export interface UserRegistrationRequest {
 
 // ── Backend success response ─────────────────────────────────────────────────
 export interface RegistrationResponse {
-  userId:          number;
-  taxpayerId:      number;
-  tinNumber:       string;
-  fullName:        string;
-  email:           string;
-  accountCategory: AccountCategory;   // ← accountType থেকে accountCategory
-  taxpayerTypeName: string;           // ← নতুন — e.g. "Non-Resident Individual"
-  message:         string;
+  userId:           number;
+  taxpayerId:       number;
+  tinNumber:        string;
+  fullName:         string;
+  email:            string;
+  accountCategory:  AccountCategory;
+  taxpayerTypeName: string;
+  message:          string;
 }

@@ -62,19 +62,20 @@ export const API_ENDPOINTS = {
     LIST:   `${API_BASE_URL}/vat-returns`,
     CREATE: `${API_BASE_URL}/vat-returns`,
     UPDATE: (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
-      DELETE: (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/vat-returns/${id}`,
   },
 
   // Income Tax Returns
   INCOME_TAX_RETURNS: {
-    LIST:   `${API_BASE_URL}/income-tax-returns`,
-    CREATE: `${API_BASE_URL}/income-tax-returns`,
-    UPDATE: (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
-    GET: (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
+    LIST:    `${API_BASE_URL}/income-tax-returns`,
+    CREATE:  `${API_BASE_URL}/income-tax-returns`,
+    PREVIEW: `${API_BASE_URL}/income-tax-returns/preview`,
+    UPDATE:  (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
+    DELETE:  (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
+    GET:     (id: number) => `${API_BASE_URL}/income-tax-returns/${id}`,
     UPDATE_STATUS: (id: number) => `${API_BASE_URL}/income-tax-returns/${id}/status`,
-    EXPORT: `${API_BASE_URL}/income-tax-returns/export`,
+    EXPORT:  `${API_BASE_URL}/income-tax-returns/export`,
   },
 
   IT10B: {
@@ -84,6 +85,7 @@ export const API_ENDPOINTS = {
     UPDATE:    (id: number)       => `${API_BASE_URL}/it10b/${id}`,
     DELETE:    (id: number)       => `${API_BASE_URL}/it10b/${id}`,
   },
+
   // AIT (Advance Income Tax)
   AITS: {
     LIST:   `${API_BASE_URL}/ait`,
@@ -91,6 +93,16 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/ait/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/ait/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/ait/${id}`,
+  },
+
+  // Fiscal Years
+  FISCAL_YEARS: {
+    LIST:   `${API_BASE_URL}/fiscal-years`,
+    ACTIVE: `${API_BASE_URL}/fiscal-years/active`,
+    CREATE: `${API_BASE_URL}/fiscal-years`,
+    UPDATE: (id: number) => `${API_BASE_URL}/fiscal-years/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/fiscal-years/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/fiscal-years/${id}`,
   },
 
   // Import Duty
@@ -103,14 +115,6 @@ export const API_ENDPOINTS = {
     PREVIEW: `${API_BASE_URL}/import-duty/preview-tax`,
   },
 
-  // Fiscal Years
-  FISCAL_YEARS: {
-    LIST:   `${API_BASE_URL}/fiscal-years`,
-    CREATE: `${API_BASE_URL}/fiscal-years`,
-    UPDATE: (id: number) => `${API_BASE_URL}/fiscal-years/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/fiscal-years/${id}`,
-    GET:    (id: number) => `${API_BASE_URL}/fiscal-years/${id}`,
-  },
 
 
   // Payments
@@ -199,6 +203,16 @@ export const API_ENDPOINTS = {
     GET:    (id: number) => `${API_BASE_URL}/taxable-products/${id}`,
     CATEGORIES: `${API_BASE_URL}/taxable-products/categories`,
     UNITS:      `${API_BASE_URL}/taxable-products/units`,
+  },
+
+  // Refunds
+  REFUNDS: {
+    LIST:   `${API_BASE_URL}/refunds`,
+    CREATE: `${API_BASE_URL}/refunds`,
+    GET:    (id: number) => `${API_BASE_URL}/refunds/${id}`,
+    UPDATE: (id: number) => `${API_BASE_URL}/refunds/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/refunds/${id}`,
+    UPDATE_STATUS: (id: number) => `${API_BASE_URL}/refunds/${id}/status`,
   },
 
   // Get MaterData

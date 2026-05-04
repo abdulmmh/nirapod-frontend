@@ -14,12 +14,52 @@
       <i class="bi bi-info-circle-fill"></i>
       <span>
         Each NID can only be linked to <strong>one TIN</strong>.
-        If you already have a TIN, log in using your existing credentials instead.
+        If you already have a TIN, enable the toggle below instead of entering your NID again.
       </span>
+    </div>
+
+    <!-- Existing TIN toggle -->
+    <div class="existing-tin-toggle">
+      <label class="toggle-label">
+        <input type="checkbox"
+               [checked]="hasExistingTin"
+               (change)="onToggleExistingTin($any($event.target).checked)" />
+        <span class="toggle-text">
+          <i class="bi bi-upc-scan"></i>
+          I already have a TIN issued offline or at a Tax Circle office
+        </span>
+      </label>
     </div>
 
     <form [formGroup]="form" novalidate>
       <div class="form-grid">
+
+        <!-- Existing TIN input — shown only when toggle is on -->
+        <ng-container *ngIf="hasExistingTin">
+          <div class="form-group full-width">
+            <label class="form-label required">Your Existing TIN</label>
+            <div class="input-wrap" [class.input-error]="ctrl('existingTin')?.invalid && ctrl('existingTin')?.touched">
+              <i class="bi bi-upc-scan input-icon"></i>
+              <input type="text" class="form-input"
+                placeholder="e.g. TIN-20250101-A3F19C82"
+                formControlName="existingTin"
+                style="text-transform: uppercase" />
+            </div>
+            <span class="field-error" *ngIf="ctrl('existingTin')?.errors?.['required'] && ctrl('existingTin')?.touched">
+              TIN is required.
+            </span>
+            <span class="field-error" *ngIf="ctrl('existingTin')?.errors?.['pattern'] && ctrl('existingTin')?.touched">
+              Enter a valid TIN format (e.g. TIN-20250101-A3F19C82).
+            </span>
+            <span class="field-hint">
+              <i class="bi bi-info-circle"></i>
+              Your TIN will be verified against the NBR registry. Contact your Tax Circle if you are unsure.
+            </span>
+          </div>
+        </ng-container>
+
+        <!-- Standard NID fields — hidden when toggle is on -->
+        <ng-container *ngIf="!hasExistingTin">
 
         <div class="form-group full-width">
           <label class="form-label required">National ID Number (NID)</label>
@@ -73,6 +113,8 @@
           </div>
         </div>
 
+        </ng-container><!-- end *ngIf="!hasExistingTin" -->
+
       </div>
     </form>
   </ng-container>
@@ -91,12 +133,45 @@
       <i class="bi bi-info-circle-fill"></i>
       <span>
         Each RJSC number can only be linked to <strong>one TIN</strong>.
-        If your company already has a TIN, use the existing login credentials.
+        If your company already has a TIN, enable the toggle below.
       </span>
+    </div>
+
+    <!-- Existing TIN toggle (company) -->
+    <div class="existing-tin-toggle">
+      <label class="toggle-label">
+        <input type="checkbox"
+               [checked]="hasExistingTin"
+               (change)="onToggleExistingTin($any($event.target).checked)" />
+        <span class="toggle-text">
+          <i class="bi bi-upc-scan"></i>
+          This company already has a TIN issued at a Tax Circle office
+        </span>
+      </label>
     </div>
 
     <form [formGroup]="form" novalidate>
       <div class="form-grid">
+
+        <!-- Existing TIN input for company -->
+        <ng-container *ngIf="hasExistingTin">
+          <div class="form-group full-width">
+            <label class="form-label required">Company's Existing TIN</label>
+            <div class="input-wrap" [class.input-error]="ctrl('existingTin')?.invalid && ctrl('existingTin')?.touched">
+              <i class="bi bi-upc-scan input-icon"></i>
+              <input type="text" class="form-input"
+                placeholder="e.g. TIN-20250101-A3F19C82"
+                formControlName="existingTin"
+                style="text-transform: uppercase" />
+            </div>
+            <span class="field-error" *ngIf="ctrl('existingTin')?.errors?.['required'] && ctrl('existingTin')?.touched">
+              TIN is required.
+            </span>
+            <span class="field-error" *ngIf="ctrl('existingTin')?.errors?.['pattern'] && ctrl('existingTin')?.touched">
+              Enter a valid TIN format (e.g. TIN-20250101-A3F19C82).
+            </span>
+          </div>
+        </ng-container>
 
         <div class="form-group full-width">
           <label class="form-label required">Company Name</label>

@@ -1,21 +1,55 @@
-/* reg-step-identity.component.css
-   Shared form styles live in register.component.css.
-   Only identity-step-specific rules here. */
+/* reg-step-identity.component.css */
 
-/* NID/RJSC info banner — shared rule in register.component.css,
-   but we need the banner to sit flush under the step-intro with a
-   tighter gap since it acts as a section note, not a form field. */
 .nid-info-banner {
   margin-top: -6px;
 }
 
-/* For the company form the grid should stack the full-width company name
-   above the two-column RJSC / date row naturally — no override needed
-   since .full-width already handles that via grid-column: 1/-1.
-   This comment is intentional documentation. */
+/* Existing TIN toggle row */
+.existing-tin-toggle {
+  margin: 14px 0 18px;
+  padding: 12px 16px;
+  border: 1.5px dashed #a5b4fc;
+  border-radius: 10px;
+  background: #f5f3ff;
+}
 
-/* Date input — remove the default calendar icon on some browsers to keep
-   the icon consistent with our custom .input-icon */
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #6366f1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-text {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #4338ca;
+}
+
+.toggle-text i {
+  margin-right: 5px;
+}
+
+.field-hint {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 5px;
+}
+
+.field-hint i {
+  margin-right: 4px;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0.4;
   cursor: pointer;

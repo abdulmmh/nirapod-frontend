@@ -14,6 +14,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 // Auth
 import { LoginComponent } from './features/auth/pages/login/login.component';
+import { UnauthorizedComponent } from './features/auth/pages/unauthorized/unauthorized.component';
 
 // Layout
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
@@ -43,6 +44,7 @@ import { SettingsHomeComponent } from './features/system-settings/pages/settings
 
     // Auth
     LoginComponent,
+    UnauthorizedComponent,
 
     // Dashboard
     DashboardHomeComponent,
