@@ -1,39 +1,155 @@
-.phc-name {
-  font-size: 20px;
-  font-weight: 800;
-  margin-bottom: 8px;
+/* src/app/features/taxable-product/view/product-view.component.css */
+
+.page-wrapper {
+  padding: 24px;
+  background-color: #f4f6f9;
+  min-height: 100vh;
 }
-.phc-rate {
-  font-size: 40px;
-  font-weight: 900;
-  line-height: 1;
+
+.detail-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: 860px;
+  margin: 0 auto;
 }
-.phc-rate-label {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
-  margin-top: 4px;
+
+.card-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid #e8ecf0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-.phc-unit {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 2px;
+
+.card-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
 }
-.hs-pill {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  font-size: 11px;
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.card-body {
+  padding: 28px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: #718096;
+}
+
+.section-title {
+  font-size: 0.8rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #a0aec0;
+  margin: 24px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.section-title:first-of-type {
+  margin-top: 0;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 28px;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.detail-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  color: #2d3748;
+}
+
+.tax-rate {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #276749;
+}
+
+.code-badge {
+  font-family: monospace;
+  background-color: #ebf4ff;
+  color: #2b6cb0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.status-badge {
   padding: 3px 10px;
   border-radius: 12px;
-  font-family: monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
-.detail-value.rate-big {
-  font-size: 16px;
-  font-weight: 800;
-  color: #f59e0b;
+
+.status-active   { background-color: #c6f6d5; color: #276749; }
+.status-inactive { background-color: #fed7d7; color: #9b2c2c; }
+
+.description-text {
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 0;
 }
-.code-badge.cyan {
-  color: #0891b2;
-  background: #e0f2f9;
-  font-family: monospace;
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.18s;
+}
+
+.btn-primary {
+  background-color: #4f8ef7;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #3a7ae0;
+}
+
+.btn-secondary {
+  background-color: #edf2f7;
+  color: #4a5568;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+.alert-error {
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  color: #c53030;
+  font-size: 0.875rem;
 }

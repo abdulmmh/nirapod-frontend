@@ -1,10 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { TaxableProductViewModel } from 'src/app/models/taxable-product.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import {
-  TaxableProductService,
-  TaxableProductViewModel,
+  TaxableProductService
 } from '../../services/taxable-product.service';
 
 @Component({
@@ -60,7 +60,9 @@ export class TaxableProductListComponent implements OnInit {
         p.productName.toLowerCase().includes(term) ||
         p.hsCode.toLowerCase().includes(term) ||
         p.category.toLowerCase().includes(term) ||
-        p.taxType.toLowerCase().includes(term),
+        // FIX: taxType enrichProduct এ সবসময় 'N/A' fallback পায়, তাই safe
+        // কিন্তু তবুও optional chaining দেওয়া হলো extra safety-র জন্য
+        (p.taxType ?? '').toLowerCase().includes(term),
     );
   }
 

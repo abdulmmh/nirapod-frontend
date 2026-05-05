@@ -1,71 +1,196 @@
-.prod-code {
-  font-size: 12px;
-  font-weight: 700;
-  color: #1a3f8f;
-  background: #e8eef9;
-  padding: 3px 8px;
-  border-radius: 5px;
-  font-family: monospace;
-}
-.hs-code {
-  font-size: 12px;
-  font-weight: 700;
-  color: #1a3f8f;
-  background: #e8eef9;
-  padding: 3px 8px;
-  border-radius: 5px;
-  font-family: monospace;
+/* src/app/features/taxable-product/list/product-list.component.css */
+
+.page-wrapper {
+  padding: 24px;
+  background-color: #f4f6f9;
+  min-height: 100vh;
 }
 
-.cat-pill {
-  display: inline-flex;
+.page-header {
+  display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  background: #f0f4f8;
-  color: #555;
-  padding: 3px 9px;
-  border-radius: 5px;
-  white-space: nowrap;
-}
-.cat-pill i {
-  font-size: 11px;
-  color: #1a3f8f;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
-.tax-type-badge {
-  font-size: 11px;
+.page-title {
+  margin: 0;
+  font-size: 1.35rem;
   font-weight: 600;
-  background: #e6f7f3;
-  color: #1faa8b;
-  padding: 3px 9px;
-  border-radius: 5px;
-  white-space: nowrap;
+  color: #2c3e50;
 }
 
-.rate-chip {
-  font-size: 12px;
-  font-weight: 800;
-  background: #e8eef9;
-  color: #1a3f8f;
-  padding: 3px 10px;
+.btn {
+  padding: 9px 20px;
   border-radius: 6px;
-}
-.rate-chip.zero-rate {
-  background: #e6f7f3;
-  color: #1faa8b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.18s;
 }
 
-.unit-badge {
-  font-size: 11px;
-  font-weight: 600;
-  background: #f5f7fb;
-  color: #666;
-  padding: 3px 8px;
-  border-radius: 5px;
+.btn-primary {
+  background-color: #4f8ef7;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #3a7ae0;
+}
+
+.btn-secondary {
+  background-color: #edf2f7;
+  color: #4a5568;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+.btn-danger {
+  background-color: #e53e3e;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background-color: #c53030;
+}
+
+.table-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
 }
 
 .data-table {
-  min-width: 1100px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.data-table thead tr {
+  background-color: #f7fafc;
+  border-bottom: 2px solid #e8ecf0;
+}
+
+.data-table th {
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: #4a5568;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 11px 14px;
+  color: #2d3748;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f7fafc;
+}
+
+.code-badge {
+  font-family: monospace;
+  background-color: #ebf4ff;
+  color: #2b6cb0;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.status-active {
+  background-color: #c6f6d5;
+  color: #276749;
+}
+
+.status-inactive {
+  background-color: #fed7d7;
+  color: #9b2c2c;
+}
+
+.action-cell {
+  white-space: nowrap;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 1rem;
+  border-radius: 4px;
+  transition: background-color 0.15s;
+}
+
+.btn-icon:hover {
+  background-color: #edf2f7;
+}
+
+.empty-row {
+  text-align: center;
+  color: #a0aec0;
+  padding: 32px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: #718096;
+}
+
+/* Delete confirmation modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-dialog {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 28px 32px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.confirm-message {
+  margin: 0 0 20px;
+  font-size: 0.95rem;
+  color: #2d3748;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.alert-error {
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  color: #c53030;
+  font-size: 0.875rem;
 }

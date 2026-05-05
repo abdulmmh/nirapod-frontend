@@ -25,3 +25,8 @@ export interface TaxableProductCreateRequest {
   description: string;
   status: ProductStatus;
 }
+
+export interface TaxableProductViewModel extends TaxableProduct {
+  taxType: string;
+  taxRate: number;
+}

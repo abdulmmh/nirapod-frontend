@@ -3,12 +3,10 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { TaxStructure } from 'src/app/models/tax-structure.model';
-import { TaxableProduct, TaxableProductCreateRequest } from 'src/app/models/taxable-product.model';
+import { TaxableProduct, TaxableProductCreateRequest, TaxableProductViewModel } from 'src/app/models/taxable-product.model';
 
-export interface TaxableProductViewModel extends TaxableProduct {
-  taxType: string;
-  taxRate: number;
-}
+// taxType ও taxRate এখানে non-optional কারণ enrichProduct সবসময় এগুলো fill করে দেয়
+
 
 @Injectable({ providedIn: 'root' })
 export class TaxableProductService {
@@ -23,12 +21,14 @@ export class TaxableProductService {
     return this.http.get<TaxableProduct>(API_ENDPOINTS.TAXABLE_PRODUCTS.GET(id));
   }
 
-  create(request: TaxableProductCreateRequest): Observable<TaxableProduct> {
-    return this.http.post<TaxableProduct>(API_ENDPOINTS.TAXABLE_PRODUCTS.CREATE, request);
+  // FIX: backend void return করে, TaxableProduct নয়
+  create(request: TaxableProductCreateRequest): Observable<void> {
+    return this.http.post<void>(API_ENDPOINTS.TAXABLE_PRODUCTS.CREATE, request);
   }
 
-  update(id: number, request: TaxableProductCreateRequest): Observable<TaxableProduct> {
-    return this.http.put<TaxableProduct>(API_ENDPOINTS.TAXABLE_PRODUCTS.UPDATE(id), request);
+  // FIX: backend void return করে, TaxableProduct নয়
+  update(id: number, request: TaxableProductCreateRequest): Observable<void> {
+    return this.http.put<void>(API_ENDPOINTS.TAXABLE_PRODUCTS.UPDATE(id), request);
   }
 
   delete(id: number): Observable<void> {
@@ -52,6 +52,7 @@ export class TaxableProductService {
     const structure = taxStructures.find(item => item.id === Number(product.taxStructureId));
     return {
       ...product,
+      // FIX: 'N/A' ও 0 fallback দেওয়া হয়েছে যাতে কখনো undefined না হয়
       taxType: structure?.taxType ?? product.taxType ?? 'N/A',
       taxRate: structure?.rate ?? product.taxRate ?? 0,
     };
