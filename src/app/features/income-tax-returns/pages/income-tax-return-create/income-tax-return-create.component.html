@@ -1,371 +1,576 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     Page header
+══════════════════════════════════════════════════════════════════ -->
 <div class="page-header">
   <div class="page-header-left">
     <h4>File Income Tax Return</h4>
-    <p>Submit a new income tax return.</p>
+    <p>Complete all steps to submit a new income tax return.</p>
   </div>
   <button class="btn-back" (click)="onCancel()">
     <i class="bi bi-arrow-left"></i> Back to List
   </button>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     Step Indicator
+══════════════════════════════════════════════════════════════════ -->
+<div class="wizard-stepper">
+
+  <div class="wizard-step"
+       *ngFor="let s of [1,2,3,4]; let i = index"
+       [class.active]="currentStep === s"
+       [class.completed]="currentStep > s"
+       (click)="goToStep(s)">
+
+    <div class="step-circle">
+      <i *ngIf="currentStep > s" class="bi bi-check-lg"></i>
+      <span *ngIf="currentStep <= s">{{ s }}</span>
+    </div>
+
+    <span class="step-label">
+      <ng-container [ngSwitch]="s">
+        <ng-container *ngSwitchCase="1">Profile</ng-container>
+        <ng-container *ngSwitchCase="2">Income</ng-container>
+        <ng-container *ngSwitchCase="3">Tax</ng-container>
+        <ng-container *ngSwitchCase="4">Review</ng-container>
+      </ng-container>
+    </span>
+
+    <div class="step-connector" *ngIf="i < 3"></div>
+  </div>
+
+</div>
+
 <div class="form-card">
 
-  <!-- Section 0: Taxpayer Search -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon search-icon"><i class="bi bi-search"></i></div>
-      <div>
-        <h6 class="section-title">Find Taxpayer</h6>
-        <span class="section-sub">Search by TIN, NID or name — details will auto-fill</span>
+  <!-- ════════════════════════════════════════════════════════════
+       STEP 1 — Taxpayer Profile
+  ═════════════════════════════════════════════════════════════ -->
+  <div [hidden]="currentStep !== 1" [formGroup]="step1Form">
+
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon"><i class="bi bi-person-badge-fill"></i></div>
+        <div>
+          <h6 class="section-title">Taxpayer Profile</h6>
+          <span class="section-sub" *ngIf="isTaxpayerRole">
+            Filing as yourself — your name is pre-filled from your session.
+          </span>
+          <span class="section-sub" *ngIf="!isTaxpayerRole">
+            Search for the taxpayer by TIN, NID or name, then complete the filing period.
+          </span>
+        </div>
       </div>
-    </div>
-    <div class="search-row">
-      <div class="input-wrap search-input-wrap">
-        <i class="bi bi-upc-scan input-icon"></i>
-        <input type="text" class="form-input"
-          placeholder="Enter TIN number, NID or taxpayer name..."
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="onSearchInput()"
-          (keyup.enter)="searchTaxpayer()"
-          [disabled]="isAutoFilled" />
-        <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearSelectedTaxpayer()">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-      <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
-        <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
-        <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span> Searching...</span>
+
+      <!-- Officer search bar — hidden for TAXPAYER role -->
+      <ng-container *ngIf="!isTaxpayerRole">
+
+        <div class="search-row">
+          <div class="input-wrap search-input-wrap">
+            <i class="bi bi-upc-scan input-icon"></i>
+            <input type="text" class="form-input"
+              placeholder="Enter TIN, NID or taxpayer name…"
+              [(ngModel)]="searchQuery"
+              [ngModelOptions]="{standalone: true}"
+              (ngModelChange)="onSearchInput()"
+              (keyup.enter)="searchTaxpayer()"
+              [disabled]="isAutoFilled" />
+            <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearSelectedTaxpayer()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
+            <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
+            <span *ngIf="isSearching">
+              <span class="spinner-border spinner-border-sm"></span> Searching…
+            </span>
+          </button>
+        </div>
+
+        <!-- Search results dropdown -->
+        <div class="search-results" *ngIf="showResults && searchResults.length > 0">
+          <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
+            <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="result-info">
+              <span class="result-name">{{ getDisplayName(t) }}</span>
+              <span class="result-meta">
+                <span *ngIf="t.tinNumber"  class="me-2 fw-bold text-primary">TIN: {{ t.tinNumber }}</span>
+                <span *ngIf="!t.tinNumber" class="text-danger me-2">No TIN</span>
+                <span *ngIf="t.nid">NID: {{ t.nid }}</span>
+              </span>
+            </div>
+            <span class="result-badge">Select</span>
+          </div>
+        </div>
+
+        <!-- No result note -->
+        <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
+          <i class="bi bi-info-circle"></i> No taxpayer found. Fill in TIN and name manually below.
+        </div>
+
+        <!-- Selected taxpayer card -->
+        <div class="selected-card" *ngIf="isAutoFilled && selectedTaxpayer">
+          <div class="selected-card-left">
+            <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
+            <div>
+              <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
+              <p class="selected-meta">
+                <span *ngIf="selectedTaxpayer.tinNumber">TIN: {{ selectedTaxpayer.tinNumber }}</span>
+                <span *ngIf="selectedTaxpayer.phone"> · {{ selectedTaxpayer.phone }}</span>
+              </p>
+            </div>
+          </div>
+          <div class="autofill-tag"><i class="bi bi-lightning-charge-fill"></i> Auto-filled</div>
+        </div>
+
+      </ng-container><!-- /officer search -->
+
+      <!-- ── Profile fields ── -->
+      <div class="form-grid" style="margin-top:20px">
+
+        <div class="form-group">
+          <label class="form-label required">TIN Number</label>
+          <div class="input-wrap" [class.locked]="isAutoFilled">
+            <i class="bi bi-upc-scan input-icon"></i>
+            <input type="text" class="form-input" formControlName="tinNumber"
+              placeholder="e.g. TIN-20250504-A3F19C82" />
+            <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
+          </div>
+          <span class="field-error"
+            *ngIf="step1Form.get('tinNumber')?.invalid && step1Form.get('tinNumber')?.touched">
+            TIN is required.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Taxpayer Name</label>
+          <div class="input-wrap" [class.locked]="isAutoFilled || isTaxpayerRole">
+            <i class="bi bi-person-fill input-icon"></i>
+            <input type="text" class="form-input" formControlName="taxpayerName"
+              placeholder="Full name or company" />
+            <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled || isTaxpayerRole"></i>
+          </div>
+          <span class="field-hint" *ngIf="isTaxpayerRole">
+            <i class="bi bi-info-circle"></i> Auto-filled from your login session.
+          </span>
+          <span class="field-error"
+            *ngIf="step1Form.get('taxpayerName')?.invalid && step1Form.get('taxpayerName')?.touched">
+            Taxpayer name is required.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Category</label>
+          <div class="input-wrap" [class.locked]="isAutoFilled">
+            <i class="bi bi-tag-fill input-icon"></i>
+            <select class="form-input form-select" formControlName="itrCategory">
+              <option *ngFor="let c of itrCategories" [value]="c">{{ c }}</option>
+            </select>
+            <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
+          </div>
+        </div>
+
+        <!-- Company sub-type — shown only when category = Company -->
+        <div class="form-group" *ngIf="isCompanyCategory">
+          <label class="form-label">Company Sub-Type</label>
+          <div class="input-wrap">
+            <i class="bi bi-building input-icon"></i>
+            <select class="form-input form-select" formControlName="companySubType">
+              <option value="">— Select sub-type —</option>
+              <option *ngFor="let t of companySubTypes" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Assessment Year</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar-check input-icon"></i>
+            <select class="form-input form-select" formControlName="assessmentYear">
+              <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Income Year</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar input-icon"></i>
+            <select class="form-input form-select" formControlName="incomeYear">
+              <option *ngFor="let y of incomeYears" [value]="y">{{ y }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Return Period</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar3 input-icon"></i>
+            <select class="form-input form-select" formControlName="returnPeriod">
+              <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Submission Date</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar3 input-icon"></i>
+            <input type="date" class="form-input" formControlName="submissionDate" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <div class="input-wrap locked">
+            <i class="bi bi-calendar-x input-icon"></i>
+            <input type="date" class="form-input" formControlName="dueDate" readonly />
+            <i class="bi bi-lock-fill lock-icon"></i>
+          </div>
+          <span class="field-hint"><i class="bi bi-info-circle"></i> Set from the active fiscal year.</span>
+        </div>
+
+      </div><!-- /form-grid -->
+    </div><!-- /form-section -->
+
+    <div class="form-actions">
+      <button class="btn-cancel" (click)="onCancel()">
+        <i class="bi bi-x-lg"></i> Cancel
+      </button>
+      <button class="btn-submit" (click)="nextStep()">
+        Next: Income Details <i class="bi bi-arrow-right ms-1"></i>
       </button>
     </div>
 
-    <div class="search-results" *ngIf="showResults && searchResults.length > 0">
-      <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
-        <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
-        <div class="result-info">
-          <span class="result-name">{{ getDisplayName(t) }}</span>
-          <span class="result-meta">
-            <span *ngIf="t.tinNumber" class="me-2 fw-bold text-primary">TIN: {{ t.tinNumber }}</span>
-            <span *ngIf="!t.tinNumber" class="text-danger me-2">No TIN</span>
-            <span *ngIf="t.nid">NID: {{ t.nid }}</span>
+  </div><!-- /step 1 -->
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       STEP 2 — Income Details
+  ═════════════════════════════════════════════════════════════ -->
+  <div [hidden]="currentStep !== 2" [formGroup]="step2Form">
+
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon purple"><i class="bi bi-cash-stack"></i></div>
+        <div>
+          <h6 class="section-title">Income Details</h6>
+          <span class="section-sub">Enter gross income and deductions — tax is computed server-side in Step 3.</span>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label required">Gross Income (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-currency-dollar input-icon"></i>
+            <input type="number" class="form-input" placeholder="0" formControlName="grossIncome" min="0" />
+          </div>
+          <span class="field-error"
+            *ngIf="step2Form.get('grossIncome')?.invalid && step2Form.get('grossIncome')?.touched">
+            Gross income must be greater than 0.
           </span>
         </div>
-        <span class="result-badge">Select</span>
-      </div>
+
+        <div class="form-group">
+          <label class="form-label">Exempt Income (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-shield-check input-icon"></i>
+            <input type="number" class="form-input" placeholder="0" formControlName="exemptIncome" min="0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tax Rebate (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-arrow-down-circle input-icon"></i>
+            <input type="number" class="form-input" placeholder="0" formControlName="taxRebate" min="0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Advance Tax Paid (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar-check input-icon"></i>
+            <input type="number" class="form-input" placeholder="0" formControlName="advanceTaxPaid" min="0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Withholding Tax (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-arrow-left-circle input-icon"></i>
+            <input type="number" class="form-input" placeholder="0" formControlName="withholdingTax" min="0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tax Paid at Filing (৳)</label>
+          <div class="input-wrap">
+            <i class="bi bi-cash-coin input-icon"></i>
+            <input type="number" class="form-input" placeholder="0" formControlName="taxPaid" min="0" />
+          </div>
+        </div>
+
+      </div><!-- /form-grid -->
+    </div><!-- /form-section -->
+
+    <div class="form-actions">
+      <button class="btn-cancel" (click)="prevStep()">
+        <i class="bi bi-arrow-left"></i> Back
+      </button>
+      <button class="btn-submit" (click)="nextStep()">
+        Next: Tax Computation <i class="bi bi-arrow-right ms-1"></i>
+      </button>
     </div>
 
-    <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
-      <i class="bi bi-info-circle"></i> No taxpayer found. Fill in TIN and name manually below.
-    </div>
+  </div><!-- /step 2 -->
 
-    <div class="selected-card" *ngIf="isAutoFilled && selectedTaxpayer">
-      <div class="selected-card-left">
-        <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       STEP 3 — Tax Computation (READ-ONLY)
+  ═════════════════════════════════════════════════════════════ -->
+  <div [hidden]="currentStep !== 3">
+
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon teal"><i class="bi bi-calculator-fill"></i></div>
         <div>
-          <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
-          <p class="selected-meta">
-            <span *ngIf="selectedTaxpayer.tinNumber">TIN: {{ selectedTaxpayer.tinNumber }}</span>
-            <span *ngIf="selectedTaxpayer.phone"> · {{ selectedTaxpayer.phone }}</span>
-          </p>
-        </div>
-      </div>
-      <div class="autofill-tag"><i class="bi bi-lightning-charge-fill"></i> Auto-filled</div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 1: Taxpayer Info -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon"><i class="bi bi-person-badge-fill"></i></div>
-      <div>
-        <h6 class="section-title">Taxpayer Information</h6>
-        <span class="section-sub">TIN, name, category and filing period</span>
-      </div>
-    </div>
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label class="form-label required">TIN Number</label>
-        <div class="input-wrap" [class.locked]="isAutoFilled">
-          <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input" placeholder="e.g. TIN-20250504-A3F19C82"
-            [(ngModel)]="form.tinNumber" [disabled]="isAutoFilled" />
-          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
+          <h6 class="section-title">Tax Computation</h6>
+          <span class="section-sub">
+            Computed by the NBR tax engine — these figures are read-only.
+          </span>
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label required">Taxpayer Name</label>
-        <div class="input-wrap" [class.locked]="isAutoFilled">
-          <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input" placeholder="Full name or company"
-            [(ngModel)]="form.taxpayerName" [disabled]="isAutoFilled" />
-          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
+      <!-- Loading state -->
+      <div class="preview-loading" *ngIf="isPreviewLoading">
+        <span class="spinner-border text-primary me-3"></span>
+        <span>Computing tax via server engine…</span>
+      </div>
+
+      <!-- Error state -->
+      <div class="preview-error-card" *ngIf="previewError && !isPreviewLoading">
+        <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+        Tax computation failed. Check your income figures in Step 2, then retry.
+        <button class="btn btn-sm btn-outline-danger ms-3" (click)="retryPreview()">
+          <i class="bi bi-arrow-clockwise"></i> Retry
+        </button>
+      </div>
+
+      <!-- Result panel -->
+      <div class="income-summary" *ngIf="previewResult && !isPreviewLoading">
+
+        <div class="preview-header">
+          <i class="bi bi-check-circle-fill me-2 text-success"></i>
+          Tax figures confirmed by server · {{ serverEffectiveRate }}% effective rate
         </div>
-      </div>
 
-      <div class="form-group">
-        <label class="form-label required">Category</label>
-        <div class="input-wrap" [class.locked]="isAutoFilled">
-          <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="form.itrCategory"
-            (ngModelChange)="onIncomeChanged()"
-            [disabled]="isAutoFilled">
-            <option *ngFor="let c of itrCategories" [value]="c">{{ c }}</option>
-          </select>
-          <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Return Period</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar3 input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.returnPeriod">
-            <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label required">Assessment Year</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-check input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
-            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Income Year</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.incomeYear">
-            <option *ngFor="let y of incomeYears" [value]="y">{{ y }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Submission Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.submissionDate" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Due Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-x input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.dueDate" [readOnly]="true" />
-        </div>
-        <span class="field-hint" *ngIf="form.dueDate">
-          <i class="bi bi-info-circle"></i> Set automatically from the active fiscal year.
-        </span>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 2: Income Details -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon purple"><i class="bi bi-cash-stack"></i></div>
-      <div>
-        <h6 class="section-title">Income Details</h6>
-        <span class="section-sub">Enter gross income and exemptions — tax is computed by the server</span>
-      </div>
-    </div>
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label class="form-label">Gross Income (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.grossIncome"
-            (ngModelChange)="onIncomeChanged()" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Exempt Income (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-shield-check input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.exemptIncome"
-            (ngModelChange)="onIncomeChanged()" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Tax Rebate (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-arrow-down-circle input-icon"></i>
-          <input type="number" class="form-input" placeholder="0" [(ngModel)]="form.taxRebate" />
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Server Tax Preview Panel -->
-    <div class="income-summary">
-      <div class="preview-header" *ngIf="isPreviewLoading">
-        <span class="spinner-border spinner-border-sm me-2"></span>
-        <span class="preview-label">Computing tax...</span>
-      </div>
-      <div class="preview-header" *ngIf="!isPreviewLoading && previewResult">
-        <i class="bi bi-calculator-fill me-2 text-primary"></i>
-        <span class="preview-label">Live tax preview — computed by NBR engine</span>
-      </div>
-      <div class="is-row">
-        <span class="is-label">Gross Income</span>
-        <span class="is-value">৳{{ (form.grossIncome || 0).toLocaleString() }}</span>
-      </div>
-      <div class="is-row">
-        <span class="is-label">Less: Exempt</span>
-        <span class="is-value exempt">— ৳{{ (form.exemptIncome || 0).toLocaleString() }}</span>
-      </div>
-      <div class="is-divider"></div>
-      <div class="is-row highlight-row">
-        <span class="is-label bold">Taxable Income</span>
-        <span class="is-value bold">৳{{ taxableIncome.toLocaleString() }}</span>
-      </div>
-      <ng-container *ngIf="previewResult; else noPreview">
         <div class="is-row">
-          <span class="is-label">Gross Tax ({{ previewResult.effectiveRatePct }}%)</span>
+          <span class="is-label">Gross Income</span>
+          <span class="is-value">৳{{ (step2Form.value.grossIncome || 0).toLocaleString() }}</span>
+        </div>
+        <div class="is-row">
+          <span class="is-label">Less: Exempt Income</span>
+          <span class="is-value exempt">— ৳{{ (step2Form.value.exemptIncome || 0).toLocaleString() }}</span>
+        </div>
+        <div class="is-divider"></div>
+
+        <div class="is-row highlight-row">
+          <span class="is-label bold">Taxable Income</span>
+          <span class="is-value bold">৳{{ serverTaxableIncome.toLocaleString() }}</span>
+        </div>
+
+        <div class="is-row">
+          <span class="is-label">Gross Tax ({{ serverEffectiveRate }}%)</span>
           <span class="is-value tax">৳{{ serverGrossTax.toLocaleString() }}</span>
         </div>
         <div class="is-row">
-          <span class="is-label">Less: Rebate</span>
-          <span class="is-value rebate">— ৳{{ (form.taxRebate || 0).toLocaleString() }}</span>
+          <span class="is-label">Less: Tax Rebate</span>
+          <span class="is-value rebate">— ৳{{ (step2Form.value.taxRebate || 0).toLocaleString() }}</span>
         </div>
         <div class="is-divider"></div>
+
         <div class="is-row total-row">
           <span class="is-label bold">Net Tax Payable</span>
           <span class="is-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
         </div>
-      </ng-container>
-      <ng-template #noPreview>
+
+        <!-- Payment breakdown -->
+        <div class="is-divider"></div>
         <div class="is-row">
-          <span class="is-label" style="color:#aaa;font-style:italic">
-            Enter gross income above to see computed tax
-          </span>
+          <span class="is-label">Less: Advance Tax</span>
+          <span class="is-value exempt">— ৳{{ (step2Form.value.advanceTaxPaid || 0).toLocaleString() }}</span>
         </div>
-      </ng-template>
-    </div>
-  </div>
+        <div class="is-row">
+          <span class="is-label">Less: Withholding Tax</span>
+          <span class="is-value exempt">— ৳{{ (step2Form.value.withholdingTax || 0).toLocaleString() }}</span>
+        </div>
+        <div class="is-row">
+          <span class="is-label">Less: Tax Paid at Filing</span>
+          <span class="is-value exempt">— ৳{{ (step2Form.value.taxPaid || 0).toLocaleString() }}</span>
+        </div>
+        <div class="is-divider"></div>
 
-  <div class="section-divider"></div>
+        <div class="is-row total-row" *ngIf="balanceDue > 0">
+          <span class="is-label bold">Balance Due</span>
+          <span class="is-value due">৳{{ balanceDue.toLocaleString() }}</span>
+        </div>
+        <div class="is-row total-row refund" *ngIf="refundable > 0">
+          <span class="is-label bold">Refundable Amount</span>
+          <span class="is-value refund-val">৳{{ refundable.toLocaleString() }}</span>
+        </div>
+        <div class="is-row total-row" *ngIf="balanceDue === 0 && refundable === 0 && previewResult">
+          <span class="is-label bold">Balance</span>
+          <span class="is-value settled">৳0 — Fully Settled</span>
+        </div>
 
-  <!-- Section 3: Tax Payment -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon teal"><i class="bi bi-cash-coin"></i></div>
-      <div>
-        <h6 class="section-title">Tax Payment Details</h6>
-        <span class="section-sub">Advance tax, withholding tax and payment at filing</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Advance Tax Paid (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-check input-icon"></i>
-          <input type="number" class="form-input" placeholder="0" [(ngModel)]="form.advanceTaxPaid" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Withholding Tax (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-arrow-left-circle input-icon"></i>
-          <input type="number" class="form-input" placeholder="0" [(ngModel)]="form.withholdingTax" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tax Paid at Filing (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-cash-coin input-icon"></i>
-          <input type="number" class="form-input" placeholder="0" [(ngModel)]="form.taxPaid" />
-        </div>
-      </div>
+      </div><!-- /income-summary -->
+
+    </div><!-- /form-section -->
+
+    <div class="form-actions">
+      <button class="btn-cancel" (click)="prevStep()">
+        <i class="bi bi-arrow-left"></i> Back
+      </button>
+      <button class="btn-submit"
+        (click)="goToStep(4)"
+        [disabled]="isPreviewLoading || previewError || !previewResult">
+        Next: Review & Submit <i class="bi bi-arrow-right ms-1"></i>
+      </button>
     </div>
 
-    <div class="payment-summary">
-      <div class="ps-row"><span class="ps-label">Net Tax Payable</span><span class="ps-value">৳{{ netTaxPayable.toLocaleString() }}</span></div>
-      <div class="ps-row"><span class="ps-label">Advance Tax</span><span class="ps-value credit">— ৳{{ (form.advanceTaxPaid || 0).toLocaleString() }}</span></div>
-      <div class="ps-row"><span class="ps-label">Withholding Tax</span><span class="ps-value credit">— ৳{{ (form.withholdingTax || 0).toLocaleString() }}</span></div>
-      <div class="ps-row"><span class="ps-label">Tax Paid</span><span class="ps-value credit">— ৳{{ (form.taxPaid || 0).toLocaleString() }}</span></div>
-      <div class="ps-divider"></div>
-      <div class="ps-row total-row" *ngIf="balanceDue > 0">
-        <span class="ps-label bold">Balance Due</span>
-        <span class="ps-value due">৳{{ balanceDue.toLocaleString() }}</span>
-      </div>
-      <div class="ps-row total-row refund" *ngIf="refundable > 0">
-        <span class="ps-label bold">Refundable Amount</span>
-        <span class="ps-value refund-val">৳{{ refundable.toLocaleString() }}</span>
-      </div>
-      <div class="ps-row total-row" *ngIf="balanceDue === 0 && refundable === 0">
-        <span class="ps-label bold">Balance</span>
-        <span class="ps-value settled">৳0 — Settled</span>
-      </div>
-    </div>
-  </div>
+  </div><!-- /step 3 -->
 
-  <div class="section-divider"></div>
 
-  <!-- Section 4: Submission -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon orange"><i class="bi bi-person-badge-fill"></i></div>
-      <div>
-        <h6 class="section-title">Submission Details</h6>
-        <span class="section-sub">Filed by and additional notes</span>
-      </div>
-    </div>
-    <div class="form-grid">
+  <!-- ════════════════════════════════════════════════════════════
+       STEP 4 — Review & Submit
+  ═════════════════════════════════════════════════════════════ -->
+  <div [hidden]="currentStep !== 4" [formGroup]="step4Form">
 
-      <!-- submittedBy is now read-only — bound to logged-in user -->
-      <div class="form-group">
-        <label class="form-label">Filed By</label>
-        <div class="input-wrap locked">
-          <i class="bi bi-person-check-fill input-icon"></i>
-          <input type="text" class="form-input" [value]="form.submittedBy" readonly />
-          <i class="bi bi-lock-fill lock-icon"></i>
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon orange"><i class="bi bi-clipboard2-check-fill"></i></div>
+        <div>
+          <h6 class="section-title">Review & Submit</h6>
+          <span class="section-sub">Verify all details below before filing.</span>
         </div>
-        <span class="field-hint"><i class="bi bi-info-circle"></i> Automatically set to the logged-in user.</span>
       </div>
 
-      <div class="form-group full-width">
-        <label class="form-label">Remarks</label>
+      <!-- Review summary grid -->
+      <div class="review-grid">
+
+        <div class="review-block">
+          <p class="review-block-title"><i class="bi bi-person-badge-fill me-2"></i>Taxpayer Profile</p>
+          <div class="review-row">
+            <span class="review-label">TIN</span>
+            <span class="review-value">{{ step1Form.getRawValue().tinNumber }}</span>
+          </div>
+          <div class="review-row">
+            <span class="review-label">Name</span>
+            <span class="review-value">{{ step1Form.getRawValue().taxpayerName }}</span>
+          </div>
+          <div class="review-row">
+            <span class="review-label">Category</span>
+            <span class="review-value">{{ step1Form.getRawValue().itrCategory }}</span>
+          </div>
+          <div class="review-row" *ngIf="isCompanyCategory">
+            <span class="review-label">Sub-Type</span>
+            <span class="review-value">{{ step1Form.getRawValue().companySubType || '—' }}</span>
+          </div>
+          <div class="review-row">
+            <span class="review-label">Assessment Year</span>
+            <span class="review-value">{{ step1Form.getRawValue().assessmentYear }}</span>
+          </div>
+          <div class="review-row">
+            <span class="review-label">Return Period</span>
+            <span class="review-value">{{ step1Form.getRawValue().returnPeriod }}</span>
+          </div>
+        </div>
+
+        <div class="review-block">
+          <p class="review-block-title"><i class="bi bi-cash-stack me-2"></i>Tax Summary</p>
+          <div class="review-row">
+            <span class="review-label">Gross Income</span>
+            <span class="review-value">৳{{ (step2Form.value.grossIncome || 0).toLocaleString() }}</span>
+          </div>
+          <div class="review-row">
+            <span class="review-label">Exempt Income</span>
+            <span class="review-value">৳{{ (step2Form.value.exemptIncome || 0).toLocaleString() }}</span>
+          </div>
+          <div class="review-row">
+            <span class="review-label">Taxable Income</span>
+            <span class="review-value fw-bold">৳{{ serverTaxableIncome.toLocaleString() }}</span>
+          </div>
+          <div class="review-row">
+            <span class="review-label">Gross Tax</span>
+            <span class="review-value text-danger">৳{{ serverGrossTax.toLocaleString() }}</span>
+          </div>
+          <div class="review-row">
+            <span class="review-label">Tax Rebate</span>
+            <span class="review-value">৳{{ (step2Form.value.taxRebate || 0).toLocaleString() }}</span>
+          </div>
+          <div class="review-row highlight-row">
+            <span class="review-label fw-bold">Net Tax Payable</span>
+            <span class="review-value text-primary fw-bold">৳{{ netTaxPayable.toLocaleString() }}</span>
+          </div>
+          <div class="review-row">
+            <span class="review-label">Balance Due / Refundable</span>
+            <span class="review-value"
+              [class.text-danger]="balanceDue > 0"
+              [class.text-success]="refundable > 0">
+              <ng-container *ngIf="balanceDue > 0">৳{{ balanceDue.toLocaleString() }} Due</ng-container>
+              <ng-container *ngIf="refundable > 0">৳{{ refundable.toLocaleString() }} Refundable</ng-container>
+              <ng-container *ngIf="balanceDue === 0 && refundable === 0">৳0 — Settled</ng-container>
+            </span>
+          </div>
+        </div>
+
+      </div><!-- /review-grid -->
+
+      <!-- Remarks -->
+      <div class="form-group full-width mt-4">
+        <label class="form-label">Remarks (optional)</label>
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
           <textarea class="form-input form-textarea"
-            placeholder="Optional remarks..." [(ngModel)]="form.remarks" rows="2"></textarea>
+            placeholder="Any additional notes for the record…"
+            formControlName="remarks"
+            rows="3"></textarea>
         </div>
       </div>
 
+      <!-- Filed-by indicator — read-only, auto-assigned -->
+      <div class="form-group mt-3">
+        <label class="form-label">Filed By</label>
+        <div class="input-wrap locked">
+          <i class="bi bi-person-check-fill input-icon"></i>
+          <input type="text" class="form-input" [value]="authService.currentUser?.fullName" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
+        </div>
+        <span class="field-hint">
+          <i class="bi bi-info-circle"></i> Automatically set from your login session.
+        </span>
+      </div>
+
+    </div><!-- /form-section -->
+
+    <div class="form-actions">
+      <button class="btn-cancel" (click)="prevStep()" [disabled]="isLoading">
+        <i class="bi bi-arrow-left"></i> Back
+      </button>
+      <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+        <i class="bi bi-x-lg"></i> Cancel
+      </button>
+      <button class="btn-submit" (click)="onSubmit()" [disabled]="isLoading">
+        <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> File Return</span>
+        <span *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm me-2"></span>Filing…
+        </span>
+      </button>
     </div>
-  </div>
 
-  <!-- Actions -->
-  <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
-      <i class="bi bi-x-lg"></i> Cancel
-    </button>
-    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
-      <i class="bi bi-arrow-counterclockwise"></i> Reset
-    </button>
-    <button class="btn-submit" (click)="onSubmit()" [disabled]="isLoading || !isFormValid()">
-      <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> File Return</span>
-      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Filing...</span>
-    </button>
-  </div>
+  </div><!-- /step 4 -->
 
-</div>
+</div><!-- /form-card -->

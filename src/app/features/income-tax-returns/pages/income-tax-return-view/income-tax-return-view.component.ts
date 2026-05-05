@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { finalize, Subject, takeUntil } from 'rxjs';
+
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { IncomeTaxReturn } from '../../../../models/income-tax-return.model';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -11,7 +12,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-income-tax-return-view',
   templateUrl: './income-tax-return-view.component.html',
-  styleUrls: ['./income-tax-return-view.component.css']
+  styleUrls: ['./income-tax-return-view.component.css'],
 })
 export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
 
@@ -26,26 +27,23 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
 
   Role = Role;
 
-  private destroy$ = new Subject<void>();
-
-
-  statusMap: Record<string, string> = {
-    'Submit': 'Submitted',
+  readonly statusMap: Record<string, string> = {
+    Submit: 'Submitted',
     'Start Review': 'Under Review',
-    'Accept': 'Accepted',
-    'Reject': 'Rejected',
-    'Send Back': 'Send Back'
+    Accept: 'Accepted',
+    Reject: 'Rejected',
+    'Send Back': 'Send Back',
   };
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
     public authService: AuthService,
-    private toast: ToastService
+    private toast: ToastService,
   ) {}
-
-  // ───────────── Lifecycle ─────────────
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -57,42 +55,34 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ───────────── Data Load ─────────────
-
   private loadData(id: number): void {
     this.isLoading = true;
-
     this.http.get<IncomeTaxReturn>(API_ENDPOINTS.INCOME_TAX_RETURNS.GET(id))
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => (this.isLoading = false))
+        finalize(() => (this.isLoading = false)),
       )
       .subscribe({
-        next: (data) => {
-          this.itr = data;
-        },
+        next: (data) => (this.itr = data),
         error: () => {
           this.toast.error('Failed to load income tax return.');
           this.router.navigate(['/income-tax-returns']);
-        }
+        },
       });
   }
-
-  // ───────────── Workflow Permissions ─────────────
 
   canSubmit(): boolean {
     return this.itr?.status === 'Draft' || this.itr?.status === 'Send Back';
   }
 
   canStartReview(): boolean {
-    return this.itr?.status === 'Submitted' &&
-           this.authService.hasRole(Role.TAX_OFFICER);
+    return this.itr?.status === 'Submitted' && this.authService.hasRole(Role.TAX_OFFICER);
   }
 
   canAccept(): boolean {
     return this.itr?.status === 'Under Review' &&
-           (this.authService.hasRole(Role.TAX_COMMISSIONER) ||
-            this.authService.hasRole(Role.SUPER_ADMIN));
+      (this.authService.hasRole(Role.TAX_COMMISSIONER) ||
+        this.authService.hasRole(Role.SUPER_ADMIN));
   }
 
   canReject(): boolean {
@@ -101,11 +91,9 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
 
   canSendBack(): boolean {
     return this.itr?.status === 'Under Review' &&
-           (this.authService.hasRole(Role.TAX_OFFICER) ||
-            this.authService.hasRole(Role.TAX_COMMISSIONER));
+      (this.authService.hasRole(Role.TAX_OFFICER) ||
+        this.authService.hasRole(Role.TAX_COMMISSIONER));
   }
-
-  // ───────────── Modal Control ─────────────
 
   openAction(action: string): void {
     this.currentAction = action;
@@ -121,12 +109,9 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
     this.actionError = '';
   }
 
-  // ───────────── Action Handler  ─────────────
-
   confirmAction(): void {
     if (!this.itr || !this.currentAction) return;
 
-    // Validation
     if (
       (this.currentAction === 'Reject' || this.currentAction === 'Send Back') &&
       !this.actionRemarks.trim()
@@ -135,15 +120,12 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const newStatus = this.statusMap[this.currentAction];
-
     const payload = {
-      status: newStatus,
+      status: this.statusMap[this.currentAction],
       remarks: this.actionRemarks,
       action: this.currentAction,
-
       performedBy: this.authService.currentUser?.email ?? 'unknown',
-      role: this.authService.userRole ?? 'UNKNOWN'
+      role: this.authService.userRole ?? 'UNKNOWN',
     };
 
     this.isActing = true;
@@ -151,52 +133,46 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
 
     this.http.patch<IncomeTaxReturn>(
       API_ENDPOINTS.INCOME_TAX_RETURNS.UPDATE_STATUS(this.itr.id),
-      payload
+      payload,
     )
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => (this.isActing = false))
-    )
-    .subscribe({
-      next: (updatedData) => {
-        
-        this.itr = updatedData;
-
-        this.toast.success(`Return ${this.currentAction}ed successfully!`);
-        this.closeModal();
-      },
-      error: (err) => {
-        this.toast.error(
-          err?.error?.message || 'Failed to update status. Please try again.'
-        );
-      }
-    });
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isActing = false)),
+      )
+      .subscribe({
+        next: (updatedData) => {
+          this.itr = updatedData;
+          this.toast.success(this.actionSuccessMessage(this.currentAction));
+          this.closeModal();
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message || 'Failed to update status. Please try again.');
+        },
+      });
   }
 
-  // ───────────── UI Helpers ─────────────
-
-  getStatusClass(s: string): string {
+  getStatusClass(status: string): string {
     const map: Record<string, string> = {
-      'Draft': 'status-draft',
-      'Submitted': 'status-pending',
+      Draft: 'status-draft',
+      Submitted: 'status-pending',
       'Under Review': 'status-review',
-      'Accepted': 'status-active',
-      'Rejected': 'status-suspended',
-      'Overdue': 'status-overdue',
-      'Amended': 'status-amended',
-      'Send Back': 'status-sendback'
+      Accepted: 'status-active',
+      Rejected: 'status-suspended',
+      Overdue: 'status-overdue',
+      Amended: 'status-amended',
+      'Send Back': 'status-sendback',
     };
-    return map[s] ?? '';
+    return map[status] ?? '';
   }
 
-  getCategoryClass(c: string): string {
+  getCategoryClass(category: string): string {
     const map: Record<string, string> = {
-      'Individual': 'cat-individual',
-      'Company': 'cat-company',
-      'Partnership': 'cat-partner',
-      'NGO': 'cat-ngo'
+      Individual: 'cat-individual',
+      Company: 'cat-company',
+      Partnership: 'cat-partner',
+      NGO: 'cat-ngo',
     };
-    return map[c] ?? '';
+    return map[category] ?? '';
   }
 
   getActionIcon(action: string): string {
@@ -206,44 +182,52 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
       'Review Started': 'bi bi-search',
       'Return Accepted': 'bi bi-check-circle-fill',
       'Return Rejected': 'bi bi-x-circle-fill',
-      'Sent Back for Correction': 'bi bi-arrow-return-left'
+      'Sent Back for Correction': 'bi bi-arrow-return-left',
     };
     return map[action] ?? 'bi bi-circle-fill';
   }
 
   getActionColor(toStatus: string): string {
     const map: Record<string, string> = {
-      'Submitted': 'tl-blue',
+      Submitted: 'tl-blue',
       'Under Review': 'tl-purple',
-      'Accepted': 'tl-green',
-      'Rejected': 'tl-red',
-      'Send Back': 'tl-orange'
+      Accepted: 'tl-green',
+      Rejected: 'tl-red',
+      'Send Back': 'tl-orange',
     };
     return map[toStatus] ?? 'tl-gray';
   }
 
-  // Computed getters — backend doesn't store these, they are derived from raw fields
   get taxableIncome(): number {
-    return Math.max(0, (this.itr?.grossIncome || 0) - (this.itr?.exemptIncome || 0));
+    return this.itr?.taxableIncome ?? Math.max(0, (this.itr?.grossIncome || 0) - (this.itr?.exemptIncome || 0));
   }
 
   get netTaxPayable(): number {
-    return Math.max(0, (this.itr?.grossTax || 0) - (this.itr?.taxRebate || 0));
+    return this.itr?.netTaxPayable ?? Math.max(0, (this.itr?.grossTax || 0) - (this.itr?.taxRebate || 0));
   }
 
   get refundable(): number {
-    const totalPaid = (this.itr?.advanceTaxPaid || 0)
-      + (this.itr?.withholdingTax || 0)
-      + (this.itr?.taxPaid || 0);
-    return Math.max(0, totalPaid - this.netTaxPayable);
+    const totalPaid =
+      (this.itr?.advanceTaxPaid || 0) +
+      (this.itr?.withholdingTax || 0) +
+      (this.itr?.taxPaid || 0);
+    return this.itr?.refundable ?? Math.max(0, totalPaid - this.netTaxPayable);
   }
 
-  // Null-safe currency formatter — guards against undefined fields
-  fmt(a: number | null | undefined): string {
-    return `৳${(a || 0).toLocaleString()}`;
+  fmt(amount: number | null | undefined): string {
+    return `BDT ${(amount || 0).toLocaleString('en-BD')}`;
   }
 
-  // ───────────── Navigation ─────────────
+  private actionSuccessMessage(action: string): string {
+    const map: Record<string, string> = {
+      Submit: 'Return submitted successfully!',
+      'Start Review': 'Review started successfully!',
+      Accept: 'Return accepted successfully!',
+      Reject: 'Return rejected successfully!',
+      'Send Back': 'Return sent back successfully!',
+    };
+    return map[action] ?? 'Return status updated successfully!';
+  }
 
   onEdit(): void {
     this.router.navigate(['/income-tax-returns/edit', this.itr?.id]);
@@ -253,14 +237,11 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/income-tax-returns']);
   }
 
- 
-goToIT10B(): void {
-  if (this.itr && this.itr.id) {
-    this.router.navigate(['/income-tax-returns', this.itr.id, 'it10b'], { 
-      queryParams: { returnNo: this.itr.returnNo } 
-    });
+  goToIT10B(): void {
+    if (this.itr?.id) {
+      this.router.navigate(['/income-tax-returns', this.itr.id, 'it10b'], {
+        queryParams: { returnNo: this.itr.returnNo },
+      });
+    }
   }
-}
-
-
 }

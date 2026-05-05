@@ -5,6 +5,9 @@
   </div>
   <div class="header-actions">
     <button class="btn-back" (click)="onBack()"><i class="bi bi-arrow-left"></i> Back</button>
+    <button class="btn-edit-top" (click)="goToIT10B()">
+      <i class="bi bi-file-earmark-text"></i> IT-10B
+    </button>
 
     <ng-container *ngIf="itr?.status === 'Draft' || itr?.status === 'Send Back'">
       <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
@@ -211,7 +214,7 @@
               <div class="tl-remarks" *ngIf="a.remarks">
                 <i class="bi bi-chat-left-text-fill"></i> {{ a.remarks }}
               </div>
-              <div class="tl-time">{{ a.timestamp }}</div>
+              <div class="tl-time">{{ a.performedAt }}</div>
             </div>
           </div>
         </div>
@@ -281,9 +284,6 @@
         (click)="confirmAction()" [disabled]="isActing">
         <span *ngIf="!isActing"><i class="bi bi-check-lg"></i> Confirm {{ currentAction }}</span>
         <span *ngIf="isActing"><span class="spinner-border spinner-border-sm me-2"></span>Processing...</span>
-      </button>
-      <button class="btn btn-outline-primary mt-3" (click)="goToIT10B()">
-        <i class="bi bi-file-earmark-text"></i> Statement of Assets & Liabilities (IT-10B)
       </button>
     </div>
   </div>

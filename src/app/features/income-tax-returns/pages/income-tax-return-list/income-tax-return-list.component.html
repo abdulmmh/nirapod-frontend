@@ -122,16 +122,16 @@
             </div>
           </td>
 
-          <td class="amt-cell">{{ formatCurrency(r.taxableIncome) }}</td>
+          <td class="amt-cell">{{ formatCurrency(taxableIncomeOf(r)) }}</td>
           <td class="amt-cell gross">{{ formatCurrency(r.grossTax) }}</td>
-          <td class="amt-cell net">{{ formatCurrency(r.netTaxPayable) }}</td>
+          <td class="amt-cell net">{{ formatCurrency(netPayableOf(r)) }}</td>
           <td class="amt-cell paid">{{ formatCurrency(r.taxPaid) }}</td>
 
           <td>
-            <span *ngIf="r.refundable > 0" class="refund-badge">
-              {{ formatCurrency(r.refundable) }}
+            <span *ngIf="refundableOf(r) > 0" class="refund-badge">
+              {{ formatCurrency(refundableOf(r)) }}
             </span>
-            <span *ngIf="r.refundable === 0" class="text-muted">—</span>
+            <span *ngIf="refundableOf(r) === 0" class="text-muted">-</span>
           </td>
 
           <td>{{ r.dueDate }}</td>
@@ -194,12 +194,12 @@
           <span class="cat-badge" [ngClass]="getCategoryClass(r.itrCategory)">{{ r.itrCategory }}</span>
         </div>
         <div class="mobile-field"><label>Assessment Year</label><span>{{ r.assessmentYear }}</span></div>
-        <div class="mobile-field"><label>Taxable Income</label><span>{{ formatCurrency(r.taxableIncome) }}</span></div>
-        <div class="mobile-field"><label>Net Payable</label><span class="net">{{ formatCurrency(r.netTaxPayable) }}</span></div>
+        <div class="mobile-field"><label>Taxable Income</label><span>{{ formatCurrency(taxableIncomeOf(r)) }}</span></div>
+        <div class="mobile-field"><label>Net Payable</label><span class="net">{{ formatCurrency(netPayableOf(r)) }}</span></div>
         <div class="mobile-field"><label>Tax Paid</label><span class="paid">{{ formatCurrency(r.taxPaid) }}</span></div>
-        <div class="mobile-field" *ngIf="r.refundable > 0">
+        <div class="mobile-field" *ngIf="refundableOf(r) > 0">
           <label>Refundable</label>
-          <span class="refund-badge">{{ formatCurrency(r.refundable) }}</span>
+          <span class="refund-badge">{{ formatCurrency(refundableOf(r)) }}</span>
         </div>
         <div class="mobile-field"><label>Due Date</label><span>{{ r.dueDate }}</span></div>
       </div>
@@ -254,4 +254,3 @@
     </div>
   </div>
 </div>
-
