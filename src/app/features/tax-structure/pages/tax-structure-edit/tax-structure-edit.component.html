@@ -15,27 +15,31 @@
   <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
 </div>
 
-<div class="loading-overlay" *ngIf="isLoading">
+<div class="loading-overlay" *ngIf="isLoading || isMasterLoading">
   <div class="spinner-border text-warning"></div>
 </div>
 
-<div class="form-card" *ngIf="!isLoading">
+<div class="form-card" *ngIf="!isLoading && !isMasterLoading">
 
   <div class="edit-banner">
     <i class="bi bi-pencil-square"></i>
     Editing: <strong>{{ form.taxName }}</strong>
     <span class="banner-code">{{ form.taxCode }}</span>
+    <span class="banner-rate-type" [class.slab]="form.rateType === 'SLAB'">
+      {{ form.rateType }}
+    </span>
   </div>
 
-  <!-- Section 1 -->
+  <!-- ── Section 1: Tax Identity ── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon"><i class="bi bi-sliders"></i></div>
       <div>
         <h6 class="section-title">Tax Identity</h6>
-        <span class="section-sub">Name, type, rate and applicability</span>
+        <span class="section-sub">Name, type, rate method and applicability</span>
       </div>
     </div>
+
     <div class="form-grid">
       <div class="form-group full-width">
         <label class="form-label required">Tax Name</label>
@@ -44,6 +48,7 @@
           <input type="text" class="form-input" [(ngModel)]="form.taxName" />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label required">Tax Type</label>
         <div class="input-wrap">
@@ -53,18 +58,31 @@
           </select>
         </div>
       </div>
+
       <div class="form-group">
+        <label class="form-label required">Rate Method</label>
+        <div class="input-wrap">
+          <i class="bi bi-diagram-3-fill input-icon"></i>
+          <select class="form-input form-select"
+            [(ngModel)]="form.rateType"
+            (change)="onRateTypeChange()">
+            <option *ngFor="let r of rateTypes" [value]="r.value">{{ r.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Flat Rate -->
+      <div class="form-group" *ngIf="form.rateType === 'FLAT'">
         <label class="form-label required">Rate (%)</label>
         <div class="input-wrap rate-wrap">
           <i class="bi bi-percent input-icon"></i>
           <input type="number" class="form-input" min="0" max="100" step="0.5"
-            [(ngModel)]="form.rate" />
+            [(ngModel)]="form.rate"
+            (ngModelChange)="triggerPreview()" />
           <span class="rate-suffix">%</span>
         </div>
-        <div class="rate-preview" *ngIf="form.rate > 0">
-          ৳1,00,000 → Tax = ৳{{ ratePreview | number:'1.0-0' }}
-        </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Applicable To</label>
         <div class="input-wrap">
@@ -74,6 +92,7 @@
           </select>
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Status</label>
         <div class="input-wrap">
@@ -86,9 +105,117 @@
     </div>
   </div>
 
+  <!-- ── Section 2: Slabs ── -->
+  <div class="form-section" *ngIf="form.rateType === 'SLAB'">
+    <div class="section-divider"></div>
+    <div class="section-header">
+      <div class="section-icon orange"><i class="bi bi-table"></i></div>
+      <div>
+        <h6 class="section-title">Tax Slabs</h6>
+        <span class="section-sub">Progressive income brackets (sorted ascending)</span>
+      </div>
+    </div>
+
+    <div class="slabs-table-wrap">
+      <table class="slabs-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Min Amount (৳)</th>
+            <th>Max Amount (৳) <small class="optional">blank = unlimited</small></th>
+            <th>Rate (%)</th>
+            <th>Label <small class="optional">(optional)</small></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let slab of form.slabs; let i = index; trackBy: trackByIndex">
+            <td class="slab-num">{{ i + 1 }}</td>
+            <td>
+              <input type="number" class="slab-input" min="0"
+                [(ngModel)]="slab.minAmount" (ngModelChange)="triggerPreview()" />
+            </td>
+            <td>
+              <input type="number" class="slab-input" min="0" placeholder="unlimited"
+                [(ngModel)]="slab.maxAmount" (ngModelChange)="triggerPreview()" />
+            </td>
+            <td>
+              <input type="number" class="slab-input slab-rate" min="0" max="100" step="0.5"
+                [(ngModel)]="slab.rate" (ngModelChange)="triggerPreview()" />
+              <span class="slab-pct">%</span>
+            </td>
+            <td>
+              <input type="text" class="slab-input slab-label" placeholder="e.g. Up to ৳3,50,000"
+                [(ngModel)]="slab.label" />
+            </td>
+            <td>
+              <button class="btn-slab-remove" (click)="removeSlab(i)" title="Remove">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="btn-add-slab" (click)="addSlab()">
+        <i class="bi bi-plus-circle"></i> Add Slab
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Section 3: Preview ── -->
+  <div class="section-divider"></div>
+  <div class="form-section preview-section">
+    <div class="section-header">
+      <div class="section-icon teal"><i class="bi bi-calculator-fill"></i></div>
+      <div>
+        <h6 class="section-title">Tax Preview</h6>
+        <span class="section-sub">Calculated by the server</span>
+      </div>
+    </div>
+
+    <div class="preview-controls">
+      <label class="form-label">Preview Amount (৳)</label>
+      <div class="input-wrap preview-amount-wrap">
+        <i class="bi bi-currency-exchange input-icon"></i>
+        <input type="number" class="form-input preview-input" min="1"
+          [(ngModel)]="previewAmount" (ngModelChange)="triggerPreview()" />
+      </div>
+    </div>
+
+    <div class="preview-result" *ngIf="!isPreviewLoading && previewResult">
+      <div class="pr-flat" *ngIf="previewResult.rateType === 'FLAT'">
+        <span class="pr-label">For ৳{{ previewAmount | number }}</span>
+        <span class="pr-arrow">→</span>
+        <span class="pr-tax">Tax = ৳{{ previewResult.taxAmount | number:'1.0-2' }}</span>
+        <span class="pr-rate">({{ previewResult.effectiveRate }}%)</span>
+      </div>
+      <div class="pr-slab" *ngIf="previewResult.rateType === 'SLAB'">
+        <div class="pr-slab-summary">
+          <span>Total Tax on ৳{{ previewAmount | number }}</span>
+          <strong>= ৳{{ previewResult.taxAmount | number:'1.0-2' }}</strong>
+          <span class="pr-rate">Effective: {{ previewResult.effectiveRate | number:'1.1-2' }}%</span>
+        </div>
+        <table class="pr-slab-table" *ngIf="previewResult.breakdown.length">
+          <thead><tr><th>Slab</th><th>Rate</th><th>Taxable</th><th>Tax</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let b of previewResult.breakdown">
+              <td>{{ b.label || (b.slabMin | number) + ' – ' + (b.slabMax ? (b.slabMax | number) : '∞') }}</td>
+              <td>{{ b.slabRate }}%</td>
+              <td>৳{{ b.taxableInSlab | number:'1.0-0' }}</td>
+              <td>৳{{ b.taxInSlab    | number:'1.0-0' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="preview-loading" *ngIf="isPreviewLoading">
+      <span class="spinner-border spinner-border-sm"></span> Calculating…
+    </div>
+  </div>
+
   <div class="section-divider"></div>
 
-  <!-- Section 2 -->
+  <!-- ── Section 4: Validity ── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon teal"><i class="bi bi-calendar-range-fill"></i></div>
@@ -117,7 +244,7 @@
 
   <div class="section-divider"></div>
 
-  <!-- Section 3 -->
+  <!-- ── Section 5: Description ── -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon purple"><i class="bi bi-chat-text-fill"></i></div>
@@ -145,8 +272,8 @@
     <button class="btn-submit" (click)="onSubmit()"
       [disabled]="isSaving || !isFormValid()">
       <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update Tax Structure</span>
-      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating…</span>
     </button>
   </div>
 
-</div>
+</div><!-- /form-card -->
