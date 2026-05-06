@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:8080/api',
   /** When true, failed /auth/login requests can fall back to demo users (dev only). */
-  useMockAuth: true
+  useMockAuth: false
 };
 
 /*

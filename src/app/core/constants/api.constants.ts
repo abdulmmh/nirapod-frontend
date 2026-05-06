@@ -88,11 +88,11 @@ export const API_ENDPOINTS = {
 
   // AIT (Advance Income Tax)
   AITS: {
-    LIST:   `${API_BASE_URL}/ait`,
-    CREATE: `${API_BASE_URL}/ait`,
-    UPDATE: (id: number) => `${API_BASE_URL}/ait/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/ait/${id}`,
-    GET:    (id: number) => `${API_BASE_URL}/ait/${id}`,
+    LIST:   `${API_BASE_URL}/aits`,
+    CREATE: `${API_BASE_URL}/aits`,
+    UPDATE: (id: number) => `${API_BASE_URL}/aits/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/aits/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/aits/${id}`,
   },
 
   // Fiscal Years
