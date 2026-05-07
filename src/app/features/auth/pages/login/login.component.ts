@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { Role } from 'src/app/core/constants/roles.constants';
 
 @Component({
   selector: 'app-login',
@@ -44,7 +45,12 @@ export class LoginComponent {
     private toast: ToastService,
   ) {
     if (this.authService.isLoggedIn) {
-      this.router.navigate(['/dashboard']);
+      const role = this.authService.userRole;
+      if (role === Role.TAXPAYER) {
+        this.router.navigate(['/my-portal']);
+      } else {
+        this.router.navigate(['/dashboard']);
+      }
     }
   }
 
@@ -68,9 +74,16 @@ export class LoginComponent {
       .login({ email: this.email, password: this.password })
       .subscribe({
         next: () => {
-          const returnUrl =
-            this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-          this.router.navigateByUrl(returnUrl);
+          const role = this.authService.userRole;
+          if (role === Role.TAXPAYER) {
+            this.router.navigate(['/my-portal']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
+
+          // const returnUrl =
+          //   this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+          // this.router.navigateByUrl(returnUrl);
         },
         error: () => {
           this.isLoading = false;

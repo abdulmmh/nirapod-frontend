@@ -281,27 +281,27 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
 
     if (data.presentAddress?.division) {
       const div = this.divisions.find(
-        (d) => d.name === data.presentAddress.division,
+        (d) => d.name === data.presentAddress?.division,
       );
       if (div) {
         this.masterData.getDistrictsByDivision(div.id).pipe(takeUntil(this.destroy$)).subscribe((dists) => {
           this.presentDistricts = dists;
           this.taxpayerForm
             .get('presentAddress.district')
-            ?.setValue(data.presentAddress.district);
+            ?.setValue(data.presentAddress?.district);
         });
       }
     }
     if (data.permanentAddress?.division && !data.sameAsPermanent) {
       const div = this.divisions.find(
-        (d) => d.name === data.permanentAddress.division,
+        (d) => d.name === data.permanentAddress?.division,
       );
       if (div) {
         this.masterData.getDistrictsByDivision(div.id).subscribe((dists) => {
           this.permanentDistricts = dists;
           this.taxpayerForm
             .get('permanentAddress.district')
-            ?.setValue(data.permanentAddress.district);
+            ?.setValue(data.permanentAddress?.district);
         });
       }
     }

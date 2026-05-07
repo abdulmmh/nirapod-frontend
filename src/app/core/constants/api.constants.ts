@@ -43,6 +43,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/tins/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/tins/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/tins/${id}`,
+    BY_TAXPAYER: (taxpayerId: number) => `${API_BASE_URL}/tins/my-tin/${taxpayerId}`,
     EXPORT: `${API_BASE_URL}/tins/export`,
     BASE:   `${API_BASE_URL}/tins`,
     DOWNLOAD_CERT: (id: number) => `${API_BASE_URL}/tins/${id}/certificate`

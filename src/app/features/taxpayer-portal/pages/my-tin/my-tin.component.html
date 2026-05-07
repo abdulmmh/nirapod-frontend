@@ -1,0 +1,56 @@
+<div class="my-tin">
+
+  <div class="page-header">
+    <a routerLink="/my-portal" class="back-link">← Back to portal</a>
+    <h2>My TIN Certificate</h2>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Loading...</div>
+
+  <div *ngIf="error" class="error-card">
+    <span>⚠️</span> {{ error }}
+  </div>
+
+  <div *ngIf="tin && !isLoading" class="tin-card">
+
+    <div class="tin-header">
+      <div class="tin-number">{{ tin.tinNumber }}</div>
+      <span class="status-badge" [class.active]="tin.status === 'Active'">
+        {{ tin.status }}
+      </span>
+    </div>
+
+    <div class="tin-grid">
+      <div class="tin-field">
+        <div class="field-label">Category</div>
+        <div class="field-value">{{ tin.tinCategory }}</div>
+      </div>
+      <div class="tin-field">
+        <div class="field-label">Issued Date</div>
+        <div class="field-value">{{ tin.issuedDate }}</div>
+      </div>
+      <div class="tin-field">
+        <div class="field-label">Tax Zone</div>
+        <div class="field-value">{{ tin.taxZone || '—' }}</div>
+      </div>
+      <div class="tin-field">
+        <div class="field-label">Tax Circle</div>
+        <div class="field-value">{{ tin.taxCircle || '—' }}</div>
+      </div>
+      <div class="tin-field">
+        <div class="field-label">Division</div>
+        <div class="field-value">{{ tin.division || '—' }}</div>
+      </div>
+      <div class="tin-field">
+        <div class="field-label">District</div>
+        <div class="field-value">{{ tin.district || '—' }}</div>
+      </div>
+    </div>
+
+    <button class="download-btn" (click)="downloadCertificate()">
+      ⬇️ Download TIN Certificate (PDF)
+    </button>
+
+  </div>
+
+</div>

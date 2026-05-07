@@ -42,12 +42,16 @@ export interface Taxpayer {
   // Contact & Address
   email: string;
   phone: string;
-  presentAddress: Address;
-  permanentAddress: Address;
-  sameAsPermanent: boolean;
+  presentAddress?: Address;
+  permanentAddress?: Address;
+  sameAsPermanent?: boolean;
 
   status: TaxpayerStatus;
-  registrationDate: string;
+  registrationDate?: string;
+
+  approvalStatus?: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
+  reviewNotes?: string;
+  reviewedAt?: string;
 }
 
 export interface TaxpayerCreateRequest extends Omit<

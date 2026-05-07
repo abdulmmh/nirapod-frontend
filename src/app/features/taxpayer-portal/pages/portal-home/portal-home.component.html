@@ -1,0 +1,65 @@
+<div class="portal-home">
+
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="avatar">{{ displayName.charAt(0) }}</div>
+    <div class="profile-info">
+      <h2>{{ displayName }}</h2>
+      <div class="badges">
+        <span class="badge green">Active</span>
+        <span class="badge blue">{{ taxpayerTypeName }}</span>
+      </div>
+      <p class="tin" *ngIf="taxpayer?.tinNumber">TIN: {{ taxpayer!.tinNumber }}</p>
+    </div>
+    <div class="profile-actions">
+      <button class="btn-outline">Edit profile</button>
+      <button class="btn-outline">Print summary</button>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Compliance score</div>
+      <div class="stat-value green">—</div>
+      <div class="stat-sub">Not calculated yet</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Returns filed</div>
+      <div class="stat-value">—</div>
+      <div class="stat-sub">No data yet</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Outstanding dues</div>
+      <div class="stat-value red">—</div>
+      <div class="stat-sub">No dues found</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Last activity</div>
+      <div class="stat-value small">—</div>
+      <div class="stat-sub">No activity yet</div>
+    </div>
+  </div>
+
+  <!-- Menu Cards -->
+  <div class="section-title">Quick access</div>
+  <div class="menu-grid">
+    <a *ngFor="let item of menuItems"
+       [routerLink]="item.route"
+       class="menu-card">
+      <span class="menu-icon">{{ item.icon }}</span>
+      <span class="menu-label">{{ item.label }}</span>
+      <span class="menu-arrow">→</span>
+    </a>
+  </div>
+
+  <!-- Coming Soon -->
+  <div class="coming-soon">
+    <div class="coming-soon-icon">🚧</div>
+    <div class="coming-soon-text">
+      <strong>Tax summary & compliance details</strong>
+      <span>Coming soon — full dashboard under development</span>
+    </div>
+  </div>
+
+</div>

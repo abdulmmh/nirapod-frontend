@@ -22,6 +22,16 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
 
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
+  showApproveModal = false;
+  showRejectModal = false;
+  pendingApprovalId: number | null = null;
+  rejectNotes = '';
+  approveZone = '';
+  approveCircle = '';
+  isProcessing = false;
+
+  // Tab filter
+  activeTab: 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED' = 'ALL';
 
   // ──────────────Constructor  ───────────────────
 
@@ -92,11 +102,21 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   // ─────────────────── Filtering ────────────────────────
 
   get filteredTaxpayers(): Taxpayer[] {
-    if (!this.searchTerm.trim()) {
-      return this.taxpayers;
+    let result = this.taxpayers;
+
+    // Tab filter
+    if (this.activeTab === 'PENDING') {
+      result = result.filter(tp => tp.approvalStatus === 'PENDING_REVIEW');
+    } else if (this.activeTab === 'APPROVED') {
+      result = result.filter(tp => tp.approvalStatus === 'APPROVED');
+    } else if (this.activeTab === 'REJECTED') {
+      result = result.filter(tp => tp.approvalStatus === 'REJECTED');
     }
+
+    // Search filter
+    if (!this.searchTerm.trim()) return result;
     const term = this.searchTerm.toLowerCase();
-    return this.taxpayers.filter((tp) => this.matchesSearchTerm(tp, term));
+    return result.filter(tp => this.matchesSearchTerm(tp, term));
   }
 
   private matchesSearchTerm(tp: Taxpayer, term: string): boolean {
@@ -170,6 +190,94 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     if (id) this.router.navigate(['/taxpayers/edit', id]);
   }
 
+
+    // Tab
+  setTab(tab: 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'): void {
+    this.activeTab = tab;
+  }
+
+  get pendingCount(): number {
+    return this.taxpayers.filter(tp => tp.approvalStatus === 'PENDING_REVIEW').length;
+  }
+
+  // Approve flow
+  openApprove(id: number | undefined): void {
+    if (!id) return;
+    this.pendingApprovalId = id;
+    this.approveZone = '';
+    this.approveCircle = '';
+    this.showApproveModal = true;
+  }
+
+  closeApprove(): void {
+    this.showApproveModal = false;
+    this.pendingApprovalId = null;
+  }
+
+  confirmApprove(): void {
+    if (!this.pendingApprovalId) return;
+    if (!this.approveZone || !this.approveCircle) {
+      this.toast.warning('Please enter Tax Zone and Tax Circle.');
+      return;
+    }
+
+    this.isProcessing = true;
+    const url = `${API_ENDPOINTS.TAXPAYERS.LIST}/${this.pendingApprovalId}/approve`;
+
+    this.http.put(url, {
+      taxZone: this.approveZone,
+      taxCircle: this.approveCircle,
+      reviewNotes: 'Approved'
+    }).pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isProcessing = false)
+    ).subscribe({
+      next: () => {
+        this.toast.success('Taxpayer approved and TIN issued!');
+        this.closeApprove();
+        this.fetchTaxpayer();
+      },
+      error: () => this.toast.error('Approval failed. Please try again.')
+    });
+  }
+
+  // Reject flow
+  openReject(id: number | undefined): void {
+    if (!id) return;
+    this.pendingApprovalId = id;
+    this.rejectNotes = '';
+    this.showRejectModal = true;
+  }
+
+  closeReject(): void {
+    this.showRejectModal = false;
+    this.pendingApprovalId = null;
+  }
+
+  confirmReject(): void {
+    if (!this.pendingApprovalId) return;
+    if (!this.rejectNotes.trim()) {
+      this.toast.warning('Please enter rejection reason.');
+      return;
+    }
+
+    this.isProcessing = true;
+    const url = `${API_ENDPOINTS.TAXPAYERS.LIST}/${this.pendingApprovalId}/reject`;
+
+    this.http.put(url, {
+      reviewNotes: this.rejectNotes
+    }).pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isProcessing = false)
+    ).subscribe({
+      next: () => {
+        this.toast.success('Taxpayer application rejected.');
+        this.closeReject();
+        this.fetchTaxpayer();
+      },
+      error: () => this.toast.error('Rejection failed. Please try again.')
+    });
+  }
   // ─────────────────── Export Section ─────────────────────────
 
   onExport(): void {

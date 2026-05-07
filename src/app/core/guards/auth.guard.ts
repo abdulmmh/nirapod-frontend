@@ -30,9 +30,16 @@ export class AuthGuard implements CanActivate, CanActivateChild {
       return false;
     }
 
+    const userRole = this.authService.userRole;
+
+    // TAXPAYER শুধু /my-portal এ যাবে
+    if (userRole === Role.TAXPAYER && !state.url.startsWith('/my-portal')) {
+      this.router.navigate(['/my-portal']);
+      return false;
+    }
+
     const requiredRoles = this.collectRequiredRoles(state);
     if (requiredRoles.length > 0) {
-      const userRole = this.authService.userRole;
       const hasRole =
         userRole === Role.SUPER_ADMIN ||
         requiredRoles.includes(userRole);

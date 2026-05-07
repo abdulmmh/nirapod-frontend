@@ -22,6 +22,14 @@ const routes: Routes = [
           import('./features/public-registration/public-registration/public-registration.module')
             .then(m => m.PublicRegistrationModule) 
   },
+
+  // Taxpayer Portal
+  {
+    path: 'my-portal',
+    loadChildren: () =>
+      import('./features/taxpayer-portal/taxpayer-portal/taxpayer-portal.module')
+        .then(m => m.TaxpayerPortalModule)
+  },
   
   // ── Protected Layout ──
   {

@@ -2,3 +2,122 @@
 
 .tin-code { font-size:12px; font-weight:700; color:#1a3f8f; background:#e8eef9; padding:3px 8px; border-radius:5px; font-family:monospace; }
 .data-table { min-width: 900px; }
+/* Tabs */
+.approval-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.approval-tabs button {
+  padding: 8px 18px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.approval-tabs button.active {
+  background: #1a7a4a;
+  color: #fff;
+  border-color: #1a7a4a;
+}
+
+.tab-badge {
+  background: #e74c3c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 20px;
+}
+
+/* Approval badges */
+.approval-badge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.approval-pending  { background: #faeeda; color: #633806; }
+.approval-approved { background: #e1f5ee; color: #085041; }
+.approval-rejected { background: #fcebeb; color: #791f1f; }
+
+/* Approve/Reject buttons */
+.btn-approve {
+  background: #e1f5ee;
+  color: #085041;
+  border: 1px solid #9fe1cb;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-approve:hover { background: #9fe1cb; }
+
+.btn-reject {
+  background: #fcebeb;
+  color: #791f1f;
+  border: 1px solid #f7c1c1;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-reject:hover { background: #f7c1c1; }
+
+/* Modal form */
+.modal-form {
+  width: 100%;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.modal-field label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+}
+
+.modal-field input,
+.modal-field textarea {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.modal-field input:focus,
+.modal-field textarea:focus {
+  border-color: #1a7a4a;
+}
+
+.modal-accent.success { background: #1a7a4a; }
+.modal-icon-wrap.success { background: #e1f5ee; }
+.btn-modal-confirm.success {
+  background: #1a7a4a;
+  color: #fff;
+}
+.btn-modal-confirm.success:hover { background: #155d38; }

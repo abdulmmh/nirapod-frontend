@@ -294,6 +294,10 @@ export class SidebarComponent implements OnInit {
   }
 
   get visibleMenuItems(): MenuItem[] {
+    if (this.authService.userRole === Role.TAXPAYER) {
+      return [];
+    }
+
     return this.menuItems.filter(item => {
       if (item.isGroupHeader) {
         return true;

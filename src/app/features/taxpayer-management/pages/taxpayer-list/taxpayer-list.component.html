@@ -9,6 +9,23 @@
   </a>
 </div>
 
+<!-- Tabs -->
+<div class="approval-tabs">
+  <button [class.active]="activeTab === 'ALL'" (click)="setTab('ALL')">
+    All
+  </button>
+  <button [class.active]="activeTab === 'PENDING'" (click)="setTab('PENDING')">
+    Pending Review
+    <span class="tab-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+  </button>
+  <button [class.active]="activeTab === 'APPROVED'" (click)="setTab('APPROVED')">
+    Approved
+  </button>
+  <button [class.active]="activeTab === 'REJECTED'" (click)="setTab('REJECTED')">
+    Rejected
+  </button>
+</div>
+
 <div class="page-wrapper">
 
   <div class="list-search-bar">
@@ -39,6 +56,7 @@
           <th>Phone</th>
           <th>Type</th>
           <th>Status</th>
+          <th>Approval</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -65,6 +83,17 @@
             </span>
           </td>
           <td>
+            <span class="approval-badge" [ngClass]="{
+              'approval-pending':  tp.approvalStatus === 'PENDING_REVIEW',
+              'approval-approved': tp.approvalStatus === 'APPROVED',
+              'approval-rejected': tp.approvalStatus === 'REJECTED'
+            }">
+              {{ tp.approvalStatus === 'PENDING_REVIEW' ? 'Pending' : 
+                tp.approvalStatus === 'APPROVED' ? 'Approved' : 
+                tp.approvalStatus === 'REJECTED' ? 'Rejected' : '—' }}
+            </span>
+          </td>
+          <td>
             <div class="action-btns">
               <button class="btn-view" (click)="viewTaxpayers(tp.id)">
                 <i class="bi bi-eye-fill"></i> View
@@ -77,6 +106,20 @@
               <button *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(tp.id)">
                 <i class="bi bi-trash-fill"></i> Delete
               </button>
+              <ng-container *ngIf="tp.approvalStatus === 'PENDING_REVIEW'">
+                <button 
+                  *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER', 'TAX_OFFICER']"
+                  class="btn-approve" 
+                  (click)="openApprove(tp.id)">
+                  <i class="bi bi-check-circle-fill"></i> Approve
+                </button>
+                <button 
+                  *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER', 'TAX_OFFICER']"
+                  class="btn-reject" 
+                  (click)="openReject(tp.id)">
+                  <i class="bi bi-x-circle-fill"></i> Reject
+                </button>
+              </ng-container>
             </div>
           </td>
         </tr>
@@ -157,6 +200,70 @@
       <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
       <button class="btn-modal-confirm error" (click)="confirmDeleteExecute()">
         <i class="bi bi-trash-fill"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Approve Modal -->
+<div class="modal-overlay" *ngIf="showApproveModal">
+  <div class="modal-card">
+    <div class="modal-accent success"></div>
+    <div class="modal-icon-wrap success">
+      <i class="bi bi-check-circle-fill" style="color:#1a7a4a; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Approve Application</p>
+    <p class="modal-msg">Assign Tax Zone and Circle to issue TIN.</p>
+
+    <div class="modal-form">
+      <div class="modal-field">
+        <label>Tax Zone *</label>
+        <input type="text" [(ngModel)]="approveZone" placeholder="e.g. Dhaka Zone-1"/>
+      </div>
+      <div class="modal-field">
+        <label>Tax Circle *</label>
+        <input type="text" [(ngModel)]="approveCircle" placeholder="e.g. Circle-5"/>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="closeApprove()">Cancel</button>
+      <button class="btn-modal-confirm success" 
+              (click)="confirmApprove()"
+              [disabled]="isProcessing">
+        <i class="bi bi-check-circle-fill"></i> 
+        {{ isProcessing ? 'Processing...' : 'Approve & Issue TIN' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal-overlay" *ngIf="showRejectModal">
+  <div class="modal-card">
+    <div class="modal-accent error"></div>
+    <div class="modal-icon-wrap error">
+      <i class="bi bi-x-circle-fill" style="color:#A32D2D; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Reject Application</p>
+    <p class="modal-msg">Please provide a reason for rejection.</p>
+
+    <div class="modal-form">
+      <div class="modal-field">
+        <label>Rejection Reason *</label>
+        <textarea [(ngModel)]="rejectNotes" 
+                  rows="3"
+                  placeholder="e.g. NID verification failed..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="closeReject()">Cancel</button>
+      <button class="btn-modal-confirm error" 
+              (click)="confirmReject()"
+              [disabled]="isProcessing">
+        <i class="bi bi-x-circle-fill"></i>
+        {{ isProcessing ? 'Processing...' : 'Reject Application' }}
       </button>
     </div>
   </div>

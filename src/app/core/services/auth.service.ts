@@ -6,19 +6,7 @@ import { Router } from '@angular/router';
 import { Role, ROLE_PERMISSIONS, ROLE_ACTIONS, ROLE_MENU } from '../constants/roles.constants';
 import { API_ENDPOINTS } from '../constants/api.constants';
 import { environment } from '../../../environments/environment';
-
-export interface AuthUser {
-  id: number;
-  fullName: string;
-  email: string;
-  role: Role;
-  token?: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+import { AuthUser, LoginRequest } from 'src/app/models/auth-user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -59,6 +47,8 @@ export class AuthService {
   private handleLoginSuccess(response: any): void {
     const user: AuthUser = {
       id:       response.id       ?? 1,
+      taxpayerId: response.taxpayerId ?? null,
+      taxpayerType: response.taxpayerType ?? null,
       fullName: response.fullName ?? response.name ?? 'Admin User',
       email:    response.email    ?? '',
       role:     response.role     ?? Role.GUEST,

@@ -1,0 +1,32 @@
+<div class="portal-container">
+  
+  <!-- Topbar -->
+  <header class="portal-topbar">
+    <div class="portal-brand">
+      <div class="brand-icon">🏛️</div>
+      <div>
+        <div class="brand-title">National VAT & Tax Management System</div>
+        <div class="brand-sub">Government of Bangladesh — NBR Portal</div>
+      </div>
+    </div>
+    <div class="portal-user">
+      <div class="user-info">
+        <span class="user-name">{{ currentUser?.fullName }}</span>
+        <span class="user-badge">{{ currentUser?.taxpayerType }}</span>
+      </div>
+      <button class="sign-out-btn" (click)="logout()">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="portal-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="portal-footer">
+    <span>© 2025 National Board of Revenue, Bangladesh</span>
+    <span>Secure Government Portal</span>
+  </footer>
+
+</div>
