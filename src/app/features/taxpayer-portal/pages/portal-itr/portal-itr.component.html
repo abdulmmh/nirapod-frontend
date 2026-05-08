@@ -1,0 +1,197 @@
+<!-- ═══════════════════════════════════════════
+     Page Header
+════════════════════════════════════════════ -->
+<div class="itr-header">
+  <div class="itr-header-left">
+    <div class="itr-header-icon">📋</div>
+    <div>
+      <h2 class="itr-title">Income Tax Returns</h2>
+      <p class="itr-sub">
+        View and file your income tax returns — assessment year {{ currentUser?.fullName ? '' : '' }}
+      </p>
+    </div>
+  </div>
+  <button class="btn-file" (click)="fileNew()">
+    <i class="bi bi-plus-lg"></i> File New Return
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Summary Stats
+════════════════════════════════════════════ -->
+<div class="stats-row" *ngIf="!isLoading">
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="bi bi-file-text-fill"></i></div>
+    <div class="stat-body">
+      <div class="stat-value">{{ totalFiled }}</div>
+      <div class="stat-label">Total filed</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-body">
+      <div class="stat-value green">{{ totalAccepted }}</div>
+      <div class="stat-label">Accepted</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+    <div class="stat-body">
+      <div class="stat-value amber">{{ totalPending }}</div>
+      <div class="stat-label">Pending review</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red"><i class="bi bi-exclamation-circle-fill"></i></div>
+    <div class="stat-body">
+      <div class="stat-value red">{{ totalOverdue }}</div>
+      <div class="stat-label">Overdue</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Loading state
+════════════════════════════════════════════ -->
+<div class="loading-state" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <p>Loading your returns…</p>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Empty state — no returns yet
+════════════════════════════════════════════ -->
+<div class="empty-state" *ngIf="!isLoading && returns.length === 0">
+  <div class="empty-icon">📄</div>
+  <h4>No returns filed yet</h4>
+  <p>File your first income tax return for the current assessment year.</p>
+  <button class="btn-file" (click)="fileNew()">
+    <i class="bi bi-plus-lg"></i> File Now
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Filter Tabs
+════════════════════════════════════════════ -->
+<div class="filter-tabs" *ngIf="!isLoading && returns.length > 0">
+  <button class="ftab" [class.active]="filterStatus === ''"
+          (click)="filterStatus = ''">
+    All <span class="ftab-count">{{ returns.length }}</span>
+  </button>
+  <button class="ftab submitted"
+          [class.active]="filterStatus === 'Submitted'"
+          (click)="filterStatus = 'Submitted'">
+    Submitted <span class="ftab-count">{{ countByStatus('Submitted') }}</span>
+  </button>
+  <button class="ftab review"
+          [class.active]="filterStatus === 'Under Review'"
+          (click)="filterStatus = 'Under Review'">
+    Under Review <span class="ftab-count">{{ countByStatus('Under Review') }}</span>
+  </button>
+  <button class="ftab accepted"
+          [class.active]="filterStatus === 'Accepted'"
+          (click)="filterStatus = 'Accepted'">
+    Accepted <span class="ftab-count">{{ countByStatus('Accepted') }}</span>
+  </button>
+  <button class="ftab draft"
+          [class.active]="filterStatus === 'Draft'"
+          (click)="filterStatus = 'Draft'">
+    Draft <span class="ftab-count">{{ countByStatus('Draft') }}</span>
+  </button>
+  <button class="ftab overdue"
+          [class.active]="filterStatus === 'Overdue'"
+          (click)="filterStatus = 'Overdue'">
+    Overdue <span class="ftab-count">{{ countByStatus('Overdue') }}</span>
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Returns list — card layout for taxpayer
+════════════════════════════════════════════ -->
+<div class="returns-list" *ngIf="!isLoading && returns.length > 0">
+
+  <div class="itr-card"
+       *ngFor="let r of filtered"
+       (click)="view(r.id)">
+
+    <!-- Card header -->
+    <div class="itr-card-header">
+      <div class="itr-card-left">
+        <div class="return-no">{{ r.returnNo || '—' }}</div>
+        <div class="return-year">
+          Assessment Year: <strong>{{ r.assessmentYear }}</strong>
+          &nbsp;·&nbsp; Income Year: <strong>{{ r.incomeYear }}</strong>
+        </div>
+      </div>
+      <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+        {{ r.status }}
+      </span>
+    </div>
+
+    <!-- Card body -->
+    <div class="itr-card-body">
+      <div class="itr-stat">
+        <div class="itr-stat-label">Gross income</div>
+        <div class="itr-stat-value">{{ formatCurrency(r.grossIncome) }}</div>
+      </div>
+      <div class="itr-stat">
+        <div class="itr-stat-label">Taxable income</div>
+        <div class="itr-stat-value">
+          {{ formatCurrency(r.taxableIncome ?? (r.grossIncome - r.exemptIncome)) }}
+        </div>
+      </div>
+      <div class="itr-stat">
+        <div class="itr-stat-label">Net tax payable</div>
+        <div class="itr-stat-value tax">{{ formatCurrency(netPayableOf(r)) }}</div>
+      </div>
+      <div class="itr-stat" *ngIf="refundableOf(r) > 0">
+        <div class="itr-stat-label">Refundable</div>
+        <div class="itr-stat-value refund">{{ formatCurrency(refundableOf(r)) }}</div>
+      </div>
+    </div>
+
+    <!-- Overdue warning -->
+    <div class="overdue-warning" *ngIf="isOverdue(r)">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      Due date was {{ r.dueDate | date:'dd MMM yyyy' }} — return is overdue
+    </div>
+
+    <!-- Card footer -->
+    <div class="itr-card-footer">
+      <div class="itr-card-meta">
+        <span><i class="bi bi-calendar3"></i> Filed: {{ r.submissionDate | date:'dd MMM yyyy' }}</span>
+        <span *ngIf="r.dueDate"><i class="bi bi-alarm"></i> Due: {{ r.dueDate | date:'dd MMM yyyy' }}</span>
+      </div>
+      <div class="itr-card-actions" (click)="$event.stopPropagation()">
+        <button class="btn-action view" (click)="view(r.id)">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+        <button class="btn-action wealth"
+                *ngIf="r.status === 'Accepted' || r.status === 'Submitted'"
+                (click)="openIT10B(r.id)">
+          <i class="bi bi-bank2"></i> Wealth Statement
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- No results after filter -->
+  <div class="no-filter-results" *ngIf="filtered.length === 0 && filterStatus">
+    <i class="bi bi-funnel"></i>
+    No returns with status <strong>"{{ filterStatus }}"</strong>.
+    <button class="btn-link" (click)="filterStatus = ''">Show all</button>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Help box
+════════════════════════════════════════════ -->
+<div class="help-box" *ngIf="!isLoading">
+  <div class="help-icon">💡</div>
+  <div class="help-text">
+    <strong>Filing deadline:</strong> Income tax return must be filed by <strong>30 November</strong> each year.
+    Late submission may attract a penalty. For queries, contact your local tax circle.
+  </div>
+</div>

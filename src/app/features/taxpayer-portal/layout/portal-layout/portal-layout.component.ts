@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { AuthUser } from 'src/app/models/auth-user.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -8,9 +8,17 @@ import { AuthService } from '../../../../core/services/auth.service';
   styleUrls: ['./portal-layout.component.css']
 })
 export class PortalLayoutComponent {
+
   showDropdown = false;
+  currentYear = new Date().getFullYear();
 
-
+  @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent): void {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.user-menu')) {
+        this.showDropdown = false;
+      }
+    }
   constructor(private authService: AuthService) {}
 
   get currentUser(): AuthUser | null {
@@ -22,6 +30,7 @@ export class PortalLayoutComponent {
   }
 
   logout(): void {
+    this.showDropdown = false;
     this.authService.logout();
   }
 }

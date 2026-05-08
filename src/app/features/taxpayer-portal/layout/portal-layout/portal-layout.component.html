@@ -1,55 +1,113 @@
-<div class="portal-container">
+<div class="portal-shell">
 
-  <!-- Topbar -->
-  <header class="portal-topbar">
-    <div class="portal-brand">
-      <div class="brand-icon">🏛️</div>
-      <div>
-        <div class="brand-title">National VAT & Tax Management System</div>
-        <div class="brand-sub">Government of Bangladesh — NBR Portal</div>
+  <!-- TOP NAV -->
+  <header class="portal-nav">
+    <div class="nav-brand">
+      <div class="brand-emblem">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect width="28" height="28" rx="8" fill="rgba(255,255,255,0.15)"/>
+          <path d="M14 4L24 9V14C24 19.5 19.5 24 14 24C8.5 24 4 19.5 4 14V9L14 4Z" 
+                fill="rgba(255,255,255,0.9)" stroke="none"/>
+          <path d="M10 14L13 17L18 11" stroke="#1a7a4a" stroke-width="2" 
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">NBR Portal</span>
+        <span class="brand-sub">Government of Bangladesh</span>
       </div>
     </div>
-    <div class="portal-user" (click)="toggleDropdown()" style="cursor:pointer; position:relative;">
-      <div class="topbar-avatar">
-        <img *ngIf="currentUser?.photoUrl"
-            [src]="currentUser!.photoUrl"
-            class="topbar-avatar-img"/>
-        <div *ngIf="!currentUser?.photoUrl" class="topbar-avatar-initials">
-          {{ currentUser?.fullName?.charAt(0) | uppercase }}
-        </div>
-      </div>
-      <div class="user-info">
-        <span class="user-name">{{ currentUser?.fullName }}</span>
-        <span class="user-badge">{{ currentUser?.taxpayerType }}</span>
-      </div>
-      <i class="bi bi-chevron-down" style="color:rgba(255,255,255,0.7); font-size:12px; margin-left:4px"></i>
 
-      <!-- Dropdown -->
-      <div class="user-dropdown" *ngIf="showDropdown">
-        <div class="dropdown-header">
-          <div class="dropdown-name">{{ currentUser?.fullName }}</div>
-          <div class="dropdown-email">{{ currentUser?.email }}</div>
+    <div class="nav-center">
+      <span class="nav-title">National VAT & Tax Management System</span>
+    </div>
+
+    <div class="nav-right">
+      <!-- User Menu -->
+      <div class="user-menu" 
+           (click)="toggleDropdown()" 
+           [class.open]="showDropdown"
+           clickOutside (clickOutside)="showDropdown = false">
+
+        <div class="user-avatar-ring">
+          <img *ngIf="currentUser?.photoUrl"
+               [src]="currentUser!.photoUrl"
+               class="user-photo"/>
+          <div *ngIf="!currentUser?.photoUrl" class="user-monogram">
+            {{ currentUser?.fullName?.charAt(0) | uppercase }}
+          </div>
+          <div class="online-dot"></div>
         </div>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" routerLink="/my-portal">
-          <i class="bi bi-grid-fill"></i> My Portal
-        </a>
-        <div class="dropdown-divider"></div>
-        <button class="dropdown-item danger" (click)="logout()">
-          <i class="bi bi-box-arrow-right"></i> Sign Out
-        </button>
+
+        <div class="user-meta">
+          <span class="user-name">{{ currentUser?.fullName }}</span>
+          <span class="user-role">{{ currentUser?.taxpayerType }}</span>
+        </div>
+
+        <div class="chevron" [class.flipped]="showDropdown">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.7)" 
+                  stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <!-- Dropdown -->
+        <div class="user-dropdown" *ngIf="showDropdown" (click)="$event.stopPropagation()">
+          <div class="dropdown-profile">
+            <div class="dp-avatar">
+              <img *ngIf="currentUser?.photoUrl" [src]="currentUser!.photoUrl" class="dp-photo"/>
+              <div *ngIf="!currentUser?.photoUrl" class="dp-monogram">
+                {{ currentUser?.fullName?.charAt(0) | uppercase }}
+              </div>
+            </div>
+            <div class="dp-info">
+              <div class="dp-name">{{ currentUser?.fullName }}</div>
+              <div class="dp-email">{{ currentUser?.email }}</div>
+              <span class="dp-badge">{{ currentUser?.taxpayerType }}</span>
+            </div>
+          </div>
+
+          <div class="dropdown-body">
+            <a class="dd-item" routerLink="/my-portal" (click)="showDropdown = false">
+              <div class="dd-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
+                  <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
+                  <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
+                  <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
+                </svg>
+              </div>
+              <span>My Portal</span>
+            </a>
+
+            <div class="dd-divider"></div>
+
+            <button class="dd-item danger" (click)="logout()">
+              <div class="dd-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6" 
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span>Sign out</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Content -->
-  <main class="portal-content">
-    <router-outlet></router-outlet>
+  <!-- MAIN CONTENT -->
+  <main class="portal-main">
+    <div class="portal-container">
+      <router-outlet></router-outlet>
+    </div>
   </main>
 
-  <!-- Footer -->
+  <!-- FOOTER -->
   <footer class="portal-footer">
-    <span>© 2025 National Board of Revenue, Bangladesh</span>
+    <span>© {{ currentYear }} National Board of Revenue, Bangladesh</span>
+    <span class="footer-sep">·</span>
     <span>Secure Government Portal</span>
   </footer>
 
