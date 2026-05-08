@@ -319,4 +319,7 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     };
     return map[status] ?? '';
   }
+   getPhotoUrl(photoPath: string): string {
+    return 'http://localhost:8080' + photoPath;
+  }
 }

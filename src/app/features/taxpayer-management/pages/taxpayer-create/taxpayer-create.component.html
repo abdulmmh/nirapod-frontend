@@ -310,6 +310,65 @@
 
     <div class="section-divider"></div>
 
+    <!-- Photo Upload Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon purple">
+          <i class="bi bi-camera-fill"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Profile Photo</h6>
+          <span class="section-sub">Upload a clear photo (max 5MB, JPG/PNG)</span>
+        </div>
+      </div>
+
+      <div class="photo-upload-area">
+
+        <!-- Current / Preview photo -->
+        <div class="photo-display">
+          <img *ngIf="photoPreview" [src]="photoPreview" class="photo-img" alt="Preview" />
+          <img *ngIf="!photoPreview && currentPhotoUrl" [src]="currentPhotoUrl" class="photo-img" alt="Current photo" />
+          <div class="photo-placeholder" *ngIf="!photoPreview && !currentPhotoUrl">
+            <i class="bi bi-person-fill"></i>
+          </div>
+        </div>
+
+        <!-- Upload controls -->
+        <div class="photo-controls">
+          <div class="photo-status" *ngIf="currentPhotoUrl && !photoPreview">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            Photo uploaded
+          </div>
+          <div class="photo-status pending" *ngIf="photoPreview">
+            <i class="bi bi-clock-fill"></i>
+            Photo selected — will be uploaded when you save
+          </div>
+          <div class="photo-status missing" *ngIf="!currentPhotoUrl && !photoPreview">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            No photo uploaded
+          </div>
+
+          <div class="photo-btn-row">
+            <label class="btn-select-photo">
+              <i class="bi bi-image"></i>
+              {{ photoPreview ? 'Change Photo' : 'Select Photo' }}
+              <input type="file" accept="image/jpeg,image/png,image/jpg" (change)="onFileSelected($event)"
+                style="display:none" />
+            </label>
+            
+            <button type="button" class="btn-cancel-photo" *ngIf="selectedFile" (click)="removePhoto()">
+              <i class="bi bi-x-lg"></i>
+              Cancel
+            </button>
+          </div>
+
+          <div class="photo-hint">
+            Accepted formats: JPG, PNG · Max size: 5MB
+          </div>
+        </div>
+
+      </div>
+    </div>
     <div class="form-section">
       <div class="section-header">
         <div class="section-icon orange">

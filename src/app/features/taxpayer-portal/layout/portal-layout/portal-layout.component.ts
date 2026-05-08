@@ -8,11 +8,17 @@ import { AuthService } from '../../../../core/services/auth.service';
   styleUrls: ['./portal-layout.component.css']
 })
 export class PortalLayoutComponent {
+  showDropdown = false;
+
 
   constructor(private authService: AuthService) {}
 
   get currentUser(): AuthUser | null {
     return this.authService.currentUser;
+  }
+
+  toggleDropdown(): void {
+    this.showDropdown = !this.showDropdown;
   }
 
   logout(): void {

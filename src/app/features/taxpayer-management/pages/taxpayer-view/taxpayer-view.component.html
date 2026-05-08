@@ -21,7 +21,17 @@
 
   <div class="view-header-card blue">
     <div class="profile-avatar-wrap">
-      <div class="profile-avatar">{{ getDisplayName(taxpayer).charAt(0) | uppercase }}</div>
+      <div class="profile-avatar-wrap">
+        <div class="photo-container">
+          <img *ngIf="taxpayer.photoPath" 
+              [src]="getPhotoUrl(taxpayer.photoPath)" 
+              class="profile-photo"
+              alt="Profile photo"/>
+          <div class="profile-avatar" *ngIf="!taxpayer.photoPath">
+            {{ getDisplayName(taxpayer).charAt(0) | uppercase }}
+          </div>
+        </div>
+      </div>
       <div>
         <div class="profile-name">{{ getDisplayName(taxpayer) }}</div>
 
@@ -202,5 +212,110 @@
     </div>
 
   </div>
+  <!-- Officer Review Section -->
+<div class="review-card" 
+     *ngIf="canReview && (isPendingReview || isApproved || isRejected)">
+
+  <div class="review-card-header">
+    <i class="bi bi-shield-fill-check"></i>
+    <span>Application Review</span>
+    <span class="approval-badge"
+      [ngClass]="{
+        'approval-pending':  isPendingReview,
+        'approval-approved': isApproved,
+        'approval-rejected': isRejected
+      }">
+      {{ isPendingReview ? 'Pending Review' : isApproved ? 'Approved' : 'Rejected' }}
+    </span>
+  </div>
+
+  <!-- Already Approved -->
+  <div class="review-done" *ngIf="isApproved">
+    <i class="bi bi-check-circle-fill text-success"></i>
+    <div>
+      <div class="review-done-title">TIN Issued Successfully</div>
+      <div class="review-done-sub">TIN: {{ taxpayer.tinNumber }}</div>
+      <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
+        Notes: {{ taxpayer.reviewNotes }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Already Rejected -->
+  <div class="review-done rejected" *ngIf="isRejected">
+    <i class="bi bi-x-circle-fill text-danger"></i>
+    <div>
+      <div class="review-done-title">Application Rejected</div>
+      <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
+        Reason: {{ taxpayer.reviewNotes }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending — show form -->
+  <div class="review-form" *ngIf="isPendingReview">
+
+    <div class="review-info">
+      <i class="bi bi-info-circle"></i>
+      <span>Review taxpayer details above, then assign Tax Zone and Circle to issue TIN.</span>
+    </div>
+
+    <!-- Load Zones button -->
+    <div class="review-field" *ngIf="zones.length === 0">
+      <button class="btn-load-zones" (click)="loadZones()" [disabled]="loadingZones">
+        <i class="bi" [ngClass]="loadingZones ? 'bi-hourglass-split' : 'bi-geo-alt-fill'"></i>
+        {{ loadingZones ? 'Loading zones...' : 'Load Tax Zones from taxpayer district' }}
+      </button>
+      <div class="zone-hint" *ngIf="taxpayer.presentAddress?.district">
+        District: <strong>{{ taxpayer.presentAddress?.district }}</strong>
+      </div>
+      <div class="zone-hint error" *ngIf="!taxpayer.presentAddress?.district">
+        ⚠️ Taxpayer has no district. Ask them to update profile first.
+      </div>
+    </div>
+
+    <!-- Zone dropdown -->
+    <div class="review-field" *ngIf="zones.length > 0">
+      <label>Tax Zone *</label>
+      <select [(ngModel)]="approveZone" (change)="onZoneChange()">
+        <option value="">Select Tax Zone</option>
+        <option *ngFor="let z of zones" [value]="z.name">{{ z.name }}</option>
+      </select>
+    </div>
+
+    <!-- Circle dropdown -->
+    <div class="review-field" *ngIf="approveZone">
+      <label>Tax Circle *</label>
+      <select [(ngModel)]="approveCircle" [disabled]="loadingCircles">
+        <option value="">{{ loadingCircles ? 'Loading...' : 'Select Tax Circle' }}</option>
+        <option *ngFor="let c of circles" [value]="c.name">{{ c.name }}</option>
+      </select>
+    </div>
+
+    <!-- Notes -->
+    <div class="review-field">
+      <label>Review Notes (optional)</label>
+      <textarea [(ngModel)]="reviewNotes" rows="2" 
+                placeholder="Any notes for this application..."></textarea>
+    </div>
+
+    <!-- Buttons -->
+    <div class="review-actions">
+      <button class="btn-reject-action" 
+              (click)="onReject()"
+              [disabled]="isProcessing">
+        <i class="bi bi-x-circle-fill"></i>
+        {{ isProcessing ? 'Processing...' : 'Reject Application' }}
+      </button>
+      <button class="btn-approve-action" 
+              (click)="onApprove()"
+              [disabled]="isProcessing">
+        <i class="bi bi-check-circle-fill"></i>
+        {{ isProcessing ? 'Processing...' : 'Approve & Issue TIN' }}
+      </button>
+    </div>
+
+  </div>
+</div>
 
 </ng-container>

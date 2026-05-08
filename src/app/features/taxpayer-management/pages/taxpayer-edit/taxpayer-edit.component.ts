@@ -26,6 +26,11 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
   presentDistricts: any[] = [];
   permanentDistricts: any[] = [];
 
+  selectedFile: File | null = null;
+  photoPreview: string | null = null;
+  isUploadingPhoto = false;
+  currentPhotoUrl: string | null = null;
+
   private destroy$ = new Subject<void>();
 
   statuses = ['Active', 'Inactive', 'Pending', 'Suspended'];
@@ -305,6 +310,9 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
         });
       }
     }
+    if (data.photoPath) {
+      this.currentPhotoUrl = 'http://localhost:8080' + data.photoPath;
+    }
   }
 
   // ───────────── Getters (Updated with includes) ─────────────
@@ -362,5 +370,54 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
 
   onCancel(): void {
     this.router.navigate(['/taxpayers', 'view', this.taxpayerId]);
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.toast.error('Only image files allowed.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.toast.error('File must be less than 5MB.');
+      return;
+    }
+
+    this.selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = () => this.photoPreview = reader.result as string;
+    reader.readAsDataURL(file);
+  }
+
+  uploadPhoto(): void {
+    if (!this.selectedFile || !this.taxpayerId) return;
+
+    this.isUploadingPhoto = true;
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+
+    this.http.post<any>(
+      `${API_ENDPOINTS.TAXPAYERS.LIST}/${this.taxpayerId}/photo`,
+      formData
+    ).pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isUploadingPhoto = false)
+    ).subscribe({
+      next: (res) => {
+        this.toast.success('Photo uploaded successfully!');
+        this.currentPhotoUrl = 'http://localhost:8080' + res.photoUrl;
+        this.selectedFile = null;
+        this.photoPreview = null;
+      },
+      error: () => this.toast.error('Photo upload failed.')
+    });
+  }
+
+  removePhoto(): void {
+    this.selectedFile = null;
+    this.photoPreview = null;
   }
 }

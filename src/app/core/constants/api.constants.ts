@@ -21,6 +21,8 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
     GET:    (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
+    UPLOAD_PHOTO: (id: number) => `${API_BASE_URL}/taxpayers/${id}/photo`,
+    GET_PHOTO:    (id: number) => `${API_BASE_URL}/taxpayers/${id}/photo`,
     EXPORT: `${API_BASE_URL}/taxpayers/export`,
   },
 

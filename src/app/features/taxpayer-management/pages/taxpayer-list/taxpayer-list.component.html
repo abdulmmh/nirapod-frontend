@@ -70,7 +70,13 @@
           </td>
           <td>
             <div class="td-name">
-              <div class="td-avatar">{{ getDisplayName(tp).charAt(0) | uppercase }}</div>
+              <img *ngIf="tp.photoPath" 
+                  [src]="getPhotoUrl(tp.photoPath)" 
+                  class="td-avatar-img"
+                  alt="photo"/>
+              <div class="td-avatar" *ngIf="!tp.photoPath">
+                {{ getDisplayName(tp).charAt(0) | uppercase }}
+              </div>
               <span>{{ getDisplayName(tp) }}</span>
             </div>
           </td>

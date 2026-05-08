@@ -5,6 +5,10 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
+import { TaxCircle, TaxZone } from 'src/app/models/master-data.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Role } from 'src/app/core/constants/roles.constants';
+import { District } from '../../../../models/master-data.model';
 
 @Component({
   selector: 'app-taxpayer-view',
@@ -17,8 +21,23 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
   taxpayer: Taxpayer | null = null;
   isLoading = true;
   taxpayerId: number | null = null;
+  isUploadingPhoto = false;
+  photoPreview: string | null = null;
 
   private destroy$ = new Subject<void>();
+
+  // Zone & Circle
+  zones: TaxZone[] = [];
+  circles: TaxCircle[] = [];
+  loadingZones = false;
+  loadingCircles = false;
+  isProcessing = false;
+
+  // Form fields
+  selectedZoneId: number | null = null;
+  approveZone = '';
+  approveCircle = '';
+  reviewNotes = '';
 
   // ──────────────────── Constructor ───────────────────────
 
@@ -27,6 +46,7 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
     private router: Router,
     private http: HttpClient,
     private toast: ToastService,
+    private authService: AuthService,
   ) {}
 
   // ────────────────────── Lifecycle ──────────────────────
@@ -114,6 +134,130 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
     return category === 'individual';
   }
 
+
+  get canReview(): boolean {
+    const role = this.authService.userRole;
+    return role === Role.SUPER_ADMIN || 
+          role === Role.TAX_COMMISSIONER || 
+          role === Role.TAX_OFFICER;
+  }
+
+  get isPendingReview(): boolean {
+    return this.taxpayer?.approvalStatus === 'PENDING_REVIEW';
+  }
+
+  get isApproved(): boolean {
+    return this.taxpayer?.approvalStatus === 'APPROVED';
+  }
+
+  get isRejected(): boolean {
+    return this.taxpayer?.approvalStatus === 'REJECTED';
+  }
+
+  // get profileCompletion(): number {
+  //   if (!this.taxpayer) return 0;
+  //   const tp = this.taxpayer;
+  //   const category = tp.taxpayerType?.category?.toLowerCase() || '';
+
+  //   let fields: boolean[] = [];
+
+  //   if (category === 'individual') {
+  //     fields = [
+  //       !!tp.fullName,
+  //       !!tp.nid,
+  //       !!tp.dateOfBirth,
+  //       !!tp.gender,
+  //       !!tp.phone,
+  //       !!tp.email,
+  //       !!tp.profession,
+  //       !!tp.presentAddress?.district,
+  //       !!tp.presentAddress?.division,
+  //       !!tp.photoPath,
+  //     ];
+  //   } else {
+  //     fields = [
+  //       !!tp.companyName,
+  //       !!tp.rjscNo,
+  //       !!tp.natureOfBusiness,
+  //       !!tp.authorizedPersonName,
+  //       !!tp.authorizedPersonNid,
+  //       !!tp.phone,
+  //       !!tp.email,
+  //       !!tp.presentAddress?.district,
+  //       !!tp.presentAddress?.division,
+  //       !!tp.photoPath,
+  //     ];
+  //   }
+
+  //   const filled = fields.filter(Boolean).length;
+  //   return Math.round((filled / fields.length) * 100);
+  // }
+
+  // get completionColor(): string {
+  //   if (this.profileCompletion >= 80) return '#1a7a4a';
+  //   if (this.profileCompletion >= 50) return '#e67e22';
+  //   return '#c0392b';
+  // }
+
+  // get missingFields(): string[] {
+  //   if (!this.taxpayer) return [];
+  //   const tp = this.taxpayer;
+  //   const category = tp.taxpayerType?.category?.toLowerCase() || '';
+  //   const missing: string[] = [];
+
+  //   if (category === 'individual') {
+  //     if (!tp.fullName)                    missing.push('Full Name');
+  //     if (!tp.nid)                         missing.push('NID Number');
+  //     if (!tp.dateOfBirth)                 missing.push('Date of Birth');
+  //     if (!tp.gender)                      missing.push('Gender');
+  //     if (!tp.phone)                       missing.push('Phone');
+  //     if (!tp.email)                       missing.push('Email');
+  //     if (!tp.profession)                  missing.push('Profession');
+  //     if (!tp.presentAddress?.district)    missing.push('District');
+  //     if (!tp.presentAddress?.division)    missing.push('Division');
+  //     if (!tp.photoPath)                   missing.push('Profile Photo');
+  //   } else {
+  //     if (!tp.companyName)                 missing.push('Company Name');
+  //     if (!tp.rjscNo)                      missing.push('RJSC Number');
+  //     if (!tp.natureOfBusiness)            missing.push('Nature of Business');
+  //     if (!tp.authorizedPersonName)        missing.push('Authorized Person Name');
+  //     if (!tp.authorizedPersonNid)         missing.push('Authorized Person NID');
+  //     if (!tp.phone)                       missing.push('Phone');
+  //     if (!tp.email)                       missing.push('Email');
+  //     if (!tp.presentAddress?.district)    missing.push('District');
+  //     if (!tp.presentAddress?.division)    missing.push('Division');
+  //     if (!tp.photoPath)                   missing.push('Profile Photo');
+  //   }
+
+  //   return missing;
+  // }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.toast.error('Only image files allowed.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.toast.error('File must be less than 5MB.');
+      return;
+    }
+
+
+
+    // Preview
+    const reader = new FileReader();
+    reader.onload = () => this.photoPreview = reader.result as string;
+    reader.readAsDataURL(file);
+  }
+
+  getPhotoUrl(photoPath: string): string {
+    return 'http://localhost:8080' + photoPath;
+  }
+
   // ───────────────────── Navigation ────────────────────────
 
   onEdit(): void {
@@ -135,5 +279,108 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
       Suspended: 'status-suspended',
     };
     return map[status] ?? '';
+  }
+
+  loadZones(): void {
+    // taxpayer এর district থেকে zone load করব
+    const district = this.taxpayer?.presentAddress?.district;
+    if (!district) {
+      this.toast.warning('Taxpayer has no district address. Please edit profile first.');
+      return;
+    }
+
+    this.loadingZones = true;
+    // আগে সব districts load করে match করব
+    this.http.get<District[]>(API_ENDPOINTS.MASTER_DATA.DISTRICTS)
+      .subscribe({
+        next: (districts) => {
+          const matched = districts.find(d => 
+            d.name.toLowerCase() === district.toLowerCase()
+          );
+          if (matched) {
+            this.http.get<TaxZone[]>(
+              API_ENDPOINTS.MASTER_DATA.TAX_ZONES_BY_DISTRICT(matched.id)
+            ).pipe(finalize(() => this.loadingZones = false))
+            .subscribe({
+              next: (zones) => this.zones = zones.filter(z => !!z.name),
+              error: () => this.toast.error('Could not load tax zones.')
+            });
+          } else {
+            this.loadingZones = false;
+            this.toast.warning('Could not match district. Please check taxpayer address.');
+          }
+        },
+        error: () => {
+          this.loadingZones = false;
+          this.toast.error('Could not load districts.');
+        }
+      });
+  }
+
+  onZoneChange(): void {
+    this.approveCircle = '';
+    this.circles = [];
+    const zone = this.zones.find(z => z.name === this.approveZone);
+    if (!zone) return;
+
+    this.selectedZoneId = zone.id;
+    this.loadingCircles = true;
+    this.http.get<TaxCircle[]>(
+      API_ENDPOINTS.MASTER_DATA.TAX_CIRCLES_BY_ZONE(zone.id)
+    ).pipe(finalize(() => this.loadingCircles = false))
+    .subscribe({
+      next: (circles) => this.circles = circles.filter(c => !!c.name),
+      error: () => this.toast.error('Could not load tax circles.')
+    });
+  }
+
+  // ────────────────────── Actions ──────────────────────
+
+  onApprove(): void {
+  if (!this.approveZone || !this.approveCircle) {
+    this.toast.warning('Please select Tax Zone and Tax Circle.');
+    return;
+  }
+
+  this.isProcessing = true;
+      const url = `${API_ENDPOINTS.TAXPAYERS.LIST}/${this.taxpayerId}/approve`;
+
+      this.http.put(url, {
+        taxZone: this.approveZone,
+        taxCircle: this.approveCircle,
+        reviewNotes: this.reviewNotes || 'Approved'
+      }).pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isProcessing = false)
+      ).subscribe({
+        next: (data: any) => {
+          this.taxpayer = data;
+          this.toast.success('Taxpayer approved! TIN has been issued.');
+        },
+        error: () => this.toast.error('Approval failed. Please try again.')
+      });
+    }
+
+  onReject(): void {
+    if (!this.reviewNotes.trim()) {
+      this.toast.warning('Please enter rejection reason.');
+      return;
+    }
+
+    this.isProcessing = true;
+    const url = `${API_ENDPOINTS.TAXPAYERS.LIST}/${this.taxpayerId}/reject`;
+
+    this.http.put(url, {
+      reviewNotes: this.reviewNotes
+    }).pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isProcessing = false)
+    ).subscribe({
+      next: (data: any) => {
+        this.taxpayer = data;
+        this.toast.success('Application rejected.');
+      },
+      error: () => this.toast.error('Rejection failed. Please try again.')
+    });
   }
 }

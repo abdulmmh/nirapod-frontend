@@ -8,6 +8,7 @@ export interface AuthUser {
   email: string;
   role: Role;
   token?: string;
+  photoUrl?: string; 
 }
 
 export interface LoginRequest {

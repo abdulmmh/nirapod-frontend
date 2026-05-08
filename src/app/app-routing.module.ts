@@ -66,6 +66,14 @@ const routes: Routes = [
             .then(m => m.TinModule)
       },
 
+      // My TIN for Taxpayer Portal
+      {
+        path: 'my-portal/tin',
+        loadChildren: () =>
+          import('./features/tin-management/tin/tin.module')
+            .then(m => m.TinModule)
+      },
+
 
       //VAT Registration
       {

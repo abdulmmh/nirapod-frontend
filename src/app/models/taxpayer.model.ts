@@ -26,6 +26,7 @@ export interface Taxpayer {
   nid?: string;
   dateOfBirth?: string;
   profession?: string;
+  photoPath?: string;
 
   // Company fields
   companyName?: string;

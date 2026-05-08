@@ -1,576 +1,822 @@
-<!-- ═══════════════════════════════════════════════════════════════
-     Page header
-══════════════════════════════════════════════════════════════════ -->
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>File Income Tax Return</h4>
-    <p>Complete all steps to submit a new income tax return.</p>
-  </div>
-  <button class="btn-back" (click)="onCancel()">
-    <i class="bi bi-arrow-left"></i> Back to List
-  </button>
-</div>
+<!-- ═══════════════════════════════════════════════════════
+     ITR FILING WIZARD  —  Angular 13
+     Design: neutral compact token-based (matches itr_filing_interface.html)
+══════════════════════════════════════════════════════════ -->
 
-<!-- ═══════════════════════════════════════════════════════════════
-     Step Indicator
-══════════════════════════════════════════════════════════════════ -->
-<div class="wizard-stepper">
-
-  <div class="wizard-step"
-       *ngFor="let s of [1,2,3,4]; let i = index"
-       [class.active]="currentStep === s"
-       [class.completed]="currentStep > s"
-       (click)="goToStep(s)">
-
-    <div class="step-circle">
-      <i *ngIf="currentStep > s" class="bi bi-check-lg"></i>
-      <span *ngIf="currentStep <= s">{{ s }}</span>
-    </div>
-
-    <span class="step-label">
-      <ng-container [ngSwitch]="s">
-        <ng-container *ngSwitchCase="1">Profile</ng-container>
-        <ng-container *ngSwitchCase="2">Income</ng-container>
-        <ng-container *ngSwitchCase="3">Tax</ng-container>
-        <ng-container *ngSwitchCase="4">Review</ng-container>
+<!-- ── Topbar ─────────────────────────────────────────────────────────────── -->
+<div class="itr-topbar">
+  <div>
+    <div class="topbar-title">Income Tax Return (ITR) — FY {{ filingYear || '—' }}</div>
+    <div class="topbar-meta">
+      <ng-container *ngIf="step1Form.getRawValue().taxpayerName; else noProfile">
+        {{ step1Form.getRawValue().taxpayerName }}
+        &nbsp;·&nbsp; TIN: {{ step1Form.getRawValue().tinNumber || '—' }}
+        &nbsp;·&nbsp; Assessment year: {{ step1Form.getRawValue().assessmentYear || '—' }}
+        &nbsp;·&nbsp; Deadline: {{ dueDate || '—' }}
       </ng-container>
-    </span>
-
-    <div class="step-connector" *ngIf="i < 3"></div>
+      <ng-template #noProfile>Fill taxpayer profile to begin</ng-template>
+    </div>
   </div>
-
+  <div class="topbar-right">
+    <span class="badge" [ngClass]="getStatusClass()">{{ getStatusLabel() }}</span>
+    <button class="btn btn-sm" (click)="onCancel()">✕ Cancel</button>
+  </div>
 </div>
 
-<div class="form-card">
-
-  <!-- ════════════════════════════════════════════════════════════
-       STEP 1 — Taxpayer Profile
-  ═════════════════════════════════════════════════════════════ -->
-  <div [hidden]="currentStep !== 1" [formGroup]="step1Form">
-
-    <div class="form-section">
-      <div class="section-header">
-        <div class="section-icon"><i class="bi bi-person-badge-fill"></i></div>
-        <div>
-          <h6 class="section-title">Taxpayer Profile</h6>
-          <span class="section-sub" *ngIf="isTaxpayerRole">
-            Filing as yourself — your name is pre-filled from your session.
-          </span>
-          <span class="section-sub" *ngIf="!isTaxpayerRole">
-            Search for the taxpayer by TIN, NID or name, then complete the filing period.
-          </span>
-        </div>
+<!-- ── Step Rail ──────────────────────────────────────────────────────────── -->
+<div class="step-rail" *ngIf="currentStep < 7">
+  <ng-container *ngFor="let s of [1,2,3,4,5,6]; let i = index">
+    <div class="step-item" [ngClass]="'s-' + getStepState(s)" (click)="goToStep(s)">
+      <div class="step-circle">
+        <span *ngIf="getStepState(s) === 'done'">✓</span>
+        <span *ngIf="getStepState(s) !== 'done'">{{ s }}</span>
       </div>
+      <div class="step-label">
+        <ng-container [ngSwitch]="s">
+          <ng-container *ngSwitchCase="1">Taxpayer<br/>profile</ng-container>
+          <ng-container *ngSwitchCase="2">Income<br/>sources</ng-container>
+          <ng-container *ngSwitchCase="3">Deductions<br/>&amp; exemptions</ng-container>
+          <ng-container *ngSwitchCase="4">Tax<br/>liability</ng-container>
+          <ng-container *ngSwitchCase="5">Assets &amp;<br/>liabilities</ng-container>
+          <ng-container *ngSwitchCase="6">Review &amp;<br/>submit</ng-container>
+        </ng-container>
+      </div>
+    </div>
+    <div class="step-line" *ngIf="i < 5" [class.done]="currentStep > s"></div>
+  </ng-container>
+</div>
 
-      <!-- Officer search bar — hidden for TAXPAYER role -->
-      <ng-container *ngIf="!isTaxpayerRole">
 
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 1 — Taxpayer Profile
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 1" [formGroup]="step1Form">
+
+  <!-- Officer: taxpayer search -->
+  <ng-container *ngIf="!isTaxpayerRole">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-hdr-left">
+          <div class="hdr-icon ic-blue">
+            <i class="bi bi-search" style="font-size:12px;color:#185FA5"></i>
+          </div>
+          <div>
+            <div class="card-title">Search taxpayer</div>
+            <div class="card-sub">Search by TIN, NID, or name — then select to auto-fill</div>
+          </div>
+        </div>
+        <span class="badge b-info" *ngIf="isAutoFilled">
+          <i class="bi bi-lightning-charge-fill"></i> Auto-filled
+        </span>
+      </div>
+      <div class="card-p">
         <div class="search-row">
-          <div class="input-wrap search-input-wrap">
-            <i class="bi bi-upc-scan input-icon"></i>
-            <input type="text" class="form-input"
-              placeholder="Enter TIN, NID or taxpayer name…"
-              [(ngModel)]="searchQuery"
-              [ngModelOptions]="{standalone: true}"
-              (ngModelChange)="onSearchInput()"
-              (keyup.enter)="searchTaxpayer()"
+          <div class="search-field-wrap">
+            <i class="bi bi-upc-scan search-icon"></i>
+            <input type="text" class="search-input" placeholder="Enter TIN, NID or taxpayer name…"
+              [(ngModel)]="searchQuery" [ngModelOptions]="{standalone:true}"
+              (ngModelChange)="onSearchInput()" (keyup.enter)="searchTaxpayer()"
               [disabled]="isAutoFilled" />
-            <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearSelectedTaxpayer()">
+            <button class="clear-btn" *ngIf="isAutoFilled" (click)="clearSelectedTaxpayer()">
               <i class="bi bi-x-lg"></i>
             </button>
           </div>
-          <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
+          <button class="btn btn-primary" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
             <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
             <span *ngIf="isSearching">
-              <span class="spinner-border spinner-border-sm"></span> Searching…
+              <span class="spinner-border spinner-border-sm me-1"></span> Searching…
             </span>
           </button>
         </div>
 
-        <!-- Search results dropdown -->
+        <!-- Search results -->
         <div class="search-results" *ngIf="showResults && searchResults.length > 0">
           <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
             <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
             <div class="result-info">
               <span class="result-name">{{ getDisplayName(t) }}</span>
               <span class="result-meta">
-                <span *ngIf="t.tinNumber"  class="me-2 fw-bold text-primary">TIN: {{ t.tinNumber }}</span>
+                <span *ngIf="t.tinNumber" class="me-2">TIN: {{ t.tinNumber }}</span>
                 <span *ngIf="!t.tinNumber" class="text-danger me-2">No TIN</span>
                 <span *ngIf="t.nid">NID: {{ t.nid }}</span>
               </span>
             </div>
-            <span class="result-badge">Select</span>
+            <span class="badge b-info">Select</span>
           </div>
         </div>
 
         <!-- No result note -->
-        <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
-          <i class="bi bi-info-circle"></i> No taxpayer found. Fill in TIN and name manually below.
+        <div class="alert alert-info" style="margin-top:8px" *ngIf="hasSearched && searchResults.length === 0">
+          <span>ℹ</span>
+          <div>No taxpayer found. Fill in TIN and name manually below.</div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Profile fields card -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-green">
+          <i class="bi bi-person-badge-fill" style="font-size:12px;color:#3B6D11"></i>
+        </div>
+        <div>
+          <div class="card-title">Taxpayer profile</div>
+          <div class="card-sub" *ngIf="isTaxpayerRole">Filing as yourself — name is pre-filled from your session.</div>
+          <div class="card-sub" *ngIf="!isTaxpayerRole">Verify and complete the filing period below.</div>
+        </div>
+      </div>
+      <span class="badge b-ok" *ngIf="isAutoFilled || isTaxpayerRole">✓ Verified</span>
+    </div>
+    <div class="card-p">
+      <div class="grid2">
+        <div class="field">
+          <label>TIN number <span class="req">*</span></label>
+          <input formControlName="tinNumber" type="text" placeholder="e.g. TIN-20250504-A3F19C82" />
+          <span class="autofill" *ngIf="isAutoFilled">✓ From taxpayer record</span>
+          <span class="hint" style="color:#A32D2D" *ngIf="step1Form.get('tinNumber')?.invalid && step1Form.get('tinNumber')?.touched">TIN is required.</span>
         </div>
 
-        <!-- Selected taxpayer card -->
-        <div class="selected-card" *ngIf="isAutoFilled && selectedTaxpayer">
-          <div class="selected-card-left">
-            <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
-            <div>
-              <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
-              <p class="selected-meta">
-                <span *ngIf="selectedTaxpayer.tinNumber">TIN: {{ selectedTaxpayer.tinNumber }}</span>
-                <span *ngIf="selectedTaxpayer.phone"> · {{ selectedTaxpayer.phone }}</span>
-              </p>
-            </div>
+        <div class="field">
+          <label>Taxpayer name <span class="req">*</span></label>
+          <input formControlName="taxpayerName" type="text" placeholder="Full name or company" />
+          <span class="autofill" *ngIf="isTaxpayerRole">✓ From login session</span>
+        </div>
+
+        <div class="field">
+          <label>Category <span class="req">*</span></label>
+          <select formControlName="itrCategory">
+            <option *ngFor="let c of itrCategories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <div class="field" *ngIf="isCompanyCategory">
+          <label>Company sub-type</label>
+          <select formControlName="companySubType">
+            <option value="">— Select —</option>
+            <option *ngFor="let t of companySubTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Assessment year <span class="req">*</span></label>
+          <select formControlName="assessmentYear">
+            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Income year</label>
+          <select formControlName="incomeYear">
+            <option *ngFor="let y of incomeYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Return period</label>
+          <select formControlName="returnPeriod">
+            <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Submission date</label>
+          <input formControlName="submissionDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label>Due date</label>
+          <input formControlName="dueDate" type="date" readonly />
+          <span class="hint">Set from the active fiscal year.</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <button class="btn btn-ghost" (click)="onCancel()">✕ Cancel</button>
+      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 2 — Income Sources
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 2" [formGroup]="step2Form">
+
+  <div class="alert alert-info">
+    <div>ℹ</div>
+    <div>Enter income from all sources before any deduction. TDS and AIT deducted at source are recorded separately — they reduce your final tax balance.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-blue">
+          <i class="bi bi-table" style="font-size:12px;color:#185FA5"></i>
+        </div>
+        <div>
+          <div class="card-title">Income from all sources</div>
+          <div class="card-sub">Enter gross amounts — deductions are handled in the next step</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p" style="padding:0;overflow-x:auto">
+      <table class="income-table">
+        <thead>
+          <tr>
+            <th style="width:42%">Income head</th>
+            <th>Gross amount (৳)</th>
+            <th>TDS / AIT (৳)</th>
+            <th>Net amount (৳)</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- A: Salary -->
+          <tr class="section-row">
+            <td colspan="4">A — Salary income</td>
+          </tr>
+          <tr>
+            <td>Basic salary</td>
+            <td><input type="number" class="table-input" formControlName="salBasic" min="0" placeholder="0" /></td>
+            <td><input type="number" class="table-input" formControlName="salTds" min="0" placeholder="0" /></td>
+            <td class="computed">{{ fmtN(salBasicNet) }}</td>
+          </tr>
+          <tr>
+            <td>House rent allowance (HRA)</td>
+            <td><input type="number" class="table-input" formControlName="hra" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.hra || 0) }}</td>
+          </tr>
+          <tr>
+            <td>Festival bonus / other allowances</td>
+            <td><input type="number" class="table-input" formControlName="bonus" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.bonus || 0) }}</td>
+          </tr>
+          <tr class="sub-total">
+            <td>Total salary income</td>
+            <td class="computed">{{ fmtN(salGross) }}</td>
+            <td class="computed">{{ fmtN(step2Form.value.salTds || 0) }}</td>
+            <td class="computed">{{ fmtN(salNet) }}</td>
+          </tr>
+
+          <!-- B: Business -->
+          <tr class="section-row">
+            <td colspan="4">B — Business / profession income</td>
+          </tr>
+          <tr>
+            <td>Net business profit</td>
+            <td><input type="number" class="table-input" formControlName="bizIncome" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.bizIncome || 0) }}</td>
+          </tr>
+
+          <!-- C: Other sources -->
+          <tr class="section-row">
+            <td colspan="4">C — Income from other sources</td>
+          </tr>
+          <tr>
+            <td>Bank interest</td>
+            <td><input type="number" class="table-input" formControlName="bankInterest" min="0" placeholder="0" /></td>
+            <td><input type="number" class="table-input" formControlName="bankAit" min="0" placeholder="0" /></td>
+            <td class="computed">{{ fmtN(bankNet) }}</td>
+          </tr>
+          <tr>
+            <td>Rental income</td>
+            <td><input type="number" class="table-input" formControlName="rentIncome" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.rentIncome || 0) }}</td>
+          </tr>
+          <tr>
+            <td>Capital gains</td>
+            <td><input type="number" class="table-input" formControlName="capitalGain" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.capitalGain || 0) }}</td>
+          </tr>
+
+          <!-- Grand total -->
+          <tr class="grand-total">
+            <td>Total gross income</td>
+            <td class="big">{{ fmt(totalGrossIncome) }}</td>
+            <td class="computed">{{ fmt(totalTds) }}</td>
+            <td class="big">{{ fmt(grandNet) }}</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 3 — Deductions & Exemptions
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 3" [formGroup]="step3Form">
+
+  <div class="alert alert-info">
+    <div>ℹ</div>
+    <div>Deductions reduce your taxable income. Enter only amounts you can prove with receipts. Each has a legal maximum limit set by NBR.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-amber">
+          <i class="bi bi-piggy-bank-fill" style="font-size:12px;color:#BA7517"></i>
+        </div>
+        <div>
+          <div class="card-title">Allowable deductions &amp; investments</div>
+          <div class="card-sub">Section 44 — Investment tax credit &amp; exemptions</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Life insurance premium</div>
+          <div class="ded-hint">Max 10% of sum insured or ৳ 1,50,000 — whichever is lower</div>
+        </div>
+        <input class="ded-input" type="number" formControlName="lifeInsurance" min="0" placeholder="0" />
+      </div>
+
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Provident fund / gratuity contribution</div>
+          <div class="ded-hint">Employee contribution only — employer share is not deductible</div>
+        </div>
+        <input class="ded-input" type="number" formControlName="providentFund" min="0" placeholder="0" />
+      </div>
+
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">DPS / savings deposit</div>
+          <div class="ded-hint">Max ৳ 60,000 per year
+            <span *ngIf="(step3Form.value.dps || 0) > 60000" class="badge b-warn" style="margin-left:6px">Capped at ৳ 60,000</span>
           </div>
-          <div class="autofill-tag"><i class="bi bi-lightning-charge-fill"></i> Auto-filled</div>
         </div>
+        <input class="ded-input" type="number" formControlName="dps" min="0" placeholder="0" />
+      </div>
 
-      </ng-container><!-- /officer search -->
-
-      <!-- ── Profile fields ── -->
-      <div class="form-grid" style="margin-top:20px">
-
-        <div class="form-group">
-          <label class="form-label required">TIN Number</label>
-          <div class="input-wrap" [class.locked]="isAutoFilled">
-            <i class="bi bi-upc-scan input-icon"></i>
-            <input type="text" class="form-input" formControlName="tinNumber"
-              placeholder="e.g. TIN-20250504-A3F19C82" />
-            <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
-          </div>
-          <span class="field-error"
-            *ngIf="step1Form.get('tinNumber')?.invalid && step1Form.get('tinNumber')?.touched">
-            TIN is required.
-          </span>
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Investment in govt. securities / savings bonds</div>
+          <div class="ded-hint">Sanchay Patra, Treasury bonds</div>
         </div>
+        <input class="ded-input" type="number" formControlName="govtBonds" min="0" placeholder="0" />
+      </div>
 
-        <div class="form-group">
-          <label class="form-label required">Taxpayer Name</label>
-          <div class="input-wrap" [class.locked]="isAutoFilled || isTaxpayerRole">
-            <i class="bi bi-person-fill input-icon"></i>
-            <input type="text" class="form-input" formControlName="taxpayerName"
-              placeholder="Full name or company" />
-            <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled || isTaxpayerRole"></i>
-          </div>
-          <span class="field-hint" *ngIf="isTaxpayerRole">
-            <i class="bi bi-info-circle"></i> Auto-filled from your login session.
-          </span>
-          <span class="field-error"
-            *ngIf="step1Form.get('taxpayerName')?.invalid && step1Form.get('taxpayerName')?.touched">
-            Taxpayer name is required.
-          </span>
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Donation to approved charity / Zakat</div>
+          <div class="ded-hint">Must be NBR-approved institution</div>
         </div>
+        <input class="ded-input" type="number" formControlName="donation" min="0" placeholder="0" />
+      </div>
 
-        <div class="form-group">
-          <label class="form-label required">Category</label>
-          <div class="input-wrap" [class.locked]="isAutoFilled">
-            <i class="bi bi-tag-fill input-icon"></i>
-            <select class="form-input form-select" formControlName="itrCategory">
-              <option *ngFor="let c of itrCategories" [value]="c">{{ c }}</option>
-            </select>
-            <i class="bi bi-lock-fill lock-icon" *ngIf="isAutoFilled"></i>
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Investment in listed company shares</div>
+          <div class="ded-hint">Max ৳ 50,000 — must be stock exchange listed
+            <span *ngIf="(step3Form.value.shares || 0) > 50000" class="badge b-warn" style="margin-left:6px">Capped at ৳ 50,000</span>
           </div>
         </div>
+        <input class="ded-input" type="number" formControlName="shares" min="0" placeholder="0" />
+      </div>
 
-        <!-- Company sub-type — shown only when category = Company -->
-        <div class="form-group" *ngIf="isCompanyCategory">
-          <label class="form-label">Company Sub-Type</label>
-          <div class="input-wrap">
-            <i class="bi bi-building input-icon"></i>
-            <select class="form-input form-select" formControlName="companySubType">
-              <option value="">— Select sub-type —</option>
-              <option *ngFor="let t of companySubTypes" [value]="t">{{ t }}</option>
-            </select>
-          </div>
+      <!-- Summary box -->
+      <div class="ded-summary">
+        <div>
+          <div class="ded-sum-label">Total investments / deductions</div>
+          <div class="ded-sum-value blue">{{ fmt(totalDeductions) }}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="ded-sum-label">Tax rebate (15% of investments)</div>
+          <div class="ded-sum-value green">{{ fmt(taxRebate) }}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 4 — Tax Liability
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 4">
+
+  <!-- Tax bracket table -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-blue">
+          <i class="bi bi-bar-chart-steps" style="font-size:12px;color:#185FA5"></i>
+        </div>
+        <div>
+          <div class="card-title">Tax slab — Individual (BD)</div>
+          <div class="card-sub">Which bracket your taxable income falls into</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+      <div class="tax-bracket">
+        <div class="bracket-hdr">
+          <span>Income slab</span>
+          <span>Rate</span>
+          <span>Your income in slab</span>
+          <span>Tax</span>
+        </div>
+        <div class="bracket-row" *ngFor="let b of computedBrackets" [class.active]="b.active">
+          <span>{{ b.label }}</span>
+          <span>{{ b.rate === 0 ? '0%' : b.rate + '%' }}</span>
+          <span class="amount">{{ fmt(b.incomeInSlab) }}</span>
+          <span class="amount">{{ fmt(b.taxInSlab) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final calculation -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Final tax calculation</div>
+    </div>
+    <div class="card-p">
+      <div class="summary-box">
+
+        <div class="sum-row">
+          <span class="sum-key">Total gross income</span>
+          <span class="sum-val">{{ fmt(totalGrossIncome) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Less: HRA exemption (50%, max ৳ 50,000)</span>
+          <span class="sum-val" style="color:#1D9E75">− {{ fmt(hraExemption) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Taxable income</span>
+          <span class="sum-val">{{ fmt(localTaxableIncome) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Gross tax (before rebate)</span>
+          <span class="sum-val">{{ fmt(localGrossTax) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Less: investment tax rebate (15%)</span>
+          <span class="sum-val" style="color:#1D9E75">− {{ fmt(taxRebate) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Net tax liability</span>
+          <span class="sum-val">{{ fmt(localNetTax) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Less: TDS already deducted (salary)</span>
+          <span class="sum-val" style="color:#1D9E75">− {{ fmt(step2Form.value.salTds || 0) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Less: AIT already deducted (bank)</span>
+          <span class="sum-val" style="color:#1D9E75">− {{ fmt(step2Form.value.bankAit || 0) }}</span>
         </div>
 
-        <div class="form-group">
-          <label class="form-label required">Assessment Year</label>
-          <div class="input-wrap">
-            <i class="bi bi-calendar-check input-icon"></i>
-            <select class="form-input form-select" formControlName="assessmentYear">
-              <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
-            </select>
-          </div>
+        <!-- Result row -->
+        <div class="sum-row sum-total" [ngClass]="taxResult <= 0 ? 'sum-refund' : 'sum-due'">
+          <span class="sum-key">{{ taxResult <= 0 ? 'Refund receivable' : 'Tax payable' }}</span>
+          <span class="sum-val">{{ fmt(taxResult <= 0 ? refundable : balanceDue) }}</span>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Income Year</label>
-          <div class="input-wrap">
-            <i class="bi bi-calendar input-icon"></i>
-            <select class="form-input form-select" formControlName="incomeYear">
-              <option *ngFor="let y of incomeYears" [value]="y">{{ y }}</option>
-            </select>
-          </div>
+      </div>
+
+      <!-- Result message -->
+      <div class="result-msg" [ngClass]="taxResult <= 0 ? 'result-ok' : 'result-warn'">
+        <ng-container *ngIf="taxResult <= 0">
+          🎉 <strong>Good news!</strong> You are eligible for a <strong>{{ fmt(refundable) }} refund</strong>
+          because your TDS/AIT already paid exceeds your actual tax liability.
+        </ng-container>
+        <ng-container *ngIf="taxResult > 0">
+          ⚠ <strong>Tax due: {{ fmt(balanceDue) }}</strong> — Pay before submitting via treasury challan.
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
+    <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 5 — Assets & Liabilities (IT-10B)
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 5" [formGroup]="step5Form">
+
+  <div class="alert alert-warn">
+    <div>⚠</div>
+    <div>Assets &amp; liabilities statement is mandatory for all taxpayers. Declare all assets honestly — any unexplained wealth may trigger an audit.</div>
+  </div>
+
+  <!-- Assets card -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-purple">
+          <i class="bi bi-bank2" style="font-size:12px;color:#534AB7"></i>
         </div>
-
-        <div class="form-group">
-          <label class="form-label">Return Period</label>
-          <div class="input-wrap">
-            <i class="bi bi-calendar3 input-icon"></i>
-            <select class="form-input form-select" formControlName="returnPeriod">
-              <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
-            </select>
-          </div>
+        <div>
+          <div class="card-title">Statement of assets</div>
+          <div class="card-sub">As of end of income year — market value or cost, whichever is lower</div>
         </div>
-
-        <div class="form-group">
-          <label class="form-label">Submission Date</label>
-          <div class="input-wrap">
-            <i class="bi bi-calendar3 input-icon"></i>
-            <input type="date" class="form-input" formControlName="submissionDate" />
-          </div>
+      </div>
+      <span class="badge b-info">Total: {{ fmt(totalAssets) }}</span>
+    </div>
+    <div class="card-p">
+      <div class="grid2">
+        <div class="field">
+          <label>Land / building (market value)</label>
+          <input type="number" formControlName="landBuilding" min="0" placeholder="0" />
         </div>
-
-        <div class="form-group">
-          <label class="form-label">Due Date</label>
-          <div class="input-wrap locked">
-            <i class="bi bi-calendar-x input-icon"></i>
-            <input type="date" class="form-input" formControlName="dueDate" readonly />
-            <i class="bi bi-lock-fill lock-icon"></i>
-          </div>
-          <span class="field-hint"><i class="bi bi-info-circle"></i> Set from the active fiscal year.</span>
+        <div class="field">
+          <label>Motor vehicle</label>
+          <input type="number" formControlName="motorVehicle" min="0" placeholder="0" />
         </div>
+        <div class="field">
+          <label>Business capital</label>
+          <input type="number" formControlName="businessCapital" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Bank balance (all accounts)</label>
+          <input type="number" formControlName="bankBalance" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Cash in hand</label>
+          <input type="number" formControlName="cashInHand" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Investment (shares, bonds, DPS)</label>
+          <input type="number" formControlName="investment" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Gold / jewellery (value)</label>
+          <input type="number" formControlName="gold" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Other assets</label>
+          <input type="number" formControlName="otherAssets" min="0" placeholder="0" />
+        </div>
+      </div>
+      <div class="assets-total-bar">
+        <span>Total assets</span>
+        <span class="assets-total-value">{{ fmt(totalAssets) }}</span>
+      </div>
+    </div>
+  </div>
 
-      </div><!-- /form-grid -->
-    </div><!-- /form-section -->
+  <!-- Liabilities card -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-red">
+          <i class="bi bi-credit-card-2-back-fill" style="font-size:12px;color:#A32D2D"></i>
+        </div>
+        <div>
+          <div class="card-title">Statement of liabilities</div>
+          <div class="card-sub">Outstanding loans and financial obligations</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+      <div class="grid2">
+        <div class="field">
+          <label>Bank loan / mortgage</label>
+          <input type="number" formControlName="bankLoan" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Business loan</label>
+          <input type="number" formControlName="bizLoan" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Other liabilities</label>
+          <input type="number" formControlName="otherLiabilities" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Net worth (assets − liabilities)</label>
+          <input type="text" [value]="fmt(netWorth)" readonly
+            [style.color]="netWorth >= 0 ? '#185FA5' : '#A32D2D'" style="font-weight:500" />
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <div class="form-actions">
-      <button class="btn-cancel" (click)="onCancel()">
-        <i class="bi bi-x-lg"></i> Cancel
-      </button>
-      <button class="btn-submit" (click)="nextStep()">
-        Next: Income Details <i class="bi bi-arrow-right ms-1"></i>
+  <div class="footer">
+    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
+    <button class="btn btn-primary" (click)="nextStep()">Review &amp; submit →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 6 — Review & Submit
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 6" [formGroup]="step6Form">
+
+  <div class="alert alert-warn">
+    <div>⚠</div>
+    <div>Once submitted, this ITR is <strong>permanently locked</strong>. File an amended return for corrections before the deadline ({{ dueDate || '—' }}).</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Final summary — ITR FY {{ filingYear }}</div>
+    </div>
+    <div class="card-p">
+
+      <!-- Summary stats -->
+      <div class="grid3" style="margin-bottom:14px">
+        <div class="stat-box">
+          <div class="stat-label">Total income</div>
+          <div class="stat-value">{{ fmt(totalGrossIncome) }}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Tax liability</div>
+          <div class="stat-value">{{ fmt(localNetTax) }}</div>
+        </div>
+        <div class="stat-box" [ngClass]="taxResult <= 0 ? 'stat-green' : 'stat-red'">
+          <div class="stat-label">{{ taxResult <= 0 ? 'Refund' : 'Balance due' }}</div>
+          <div class="stat-value">{{ fmt(taxResult <= 0 ? refundable : balanceDue) }}</div>
+        </div>
+      </div>
+
+      <!-- Review detail rows -->
+      <div class="review-detail">
+        <div class="review-row">
+          <span class="rew-k">TIN</span>
+          <span class="rew-v">{{ step1Form.getRawValue().tinNumber || '—' }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">Taxpayer</span>
+          <span class="rew-v">{{ step1Form.getRawValue().taxpayerName }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">Category</span>
+          <span class="rew-v">{{ step1Form.getRawValue().itrCategory }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">Assessment year</span>
+          <span class="rew-v">{{ step1Form.getRawValue().assessmentYear }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">Gross income</span>
+          <span class="rew-v">{{ fmt(totalGrossIncome) }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">HRA exemption</span>
+          <span class="rew-v" style="color:#1D9E75">− {{ fmt(hraExemption) }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">Taxable income</span>
+          <span class="rew-v font-bold">{{ fmt(localTaxableIncome) }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">Gross tax</span>
+          <span class="rew-v">{{ fmt(localGrossTax) }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">Investment rebate (15%)</span>
+          <span class="rew-v" style="color:#1D9E75">− {{ fmt(taxRebate) }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">Net tax liability</span>
+          <span class="rew-v font-bold">{{ fmt(localNetTax) }}</span>
+        </div>
+        <div class="review-row">
+          <span class="rew-k">TDS &amp; AIT paid</span>
+          <span class="rew-v" style="color:#1D9E75">− {{ fmt(totalTds) }}</span>
+        </div>
+        <div class="review-row" *ngIf="totalAssets > 0">
+          <span class="rew-k">Net worth (IT-10B)</span>
+          <span class="rew-v">{{ fmt(netWorth) }}</span>
+        </div>
+      </div>
+
+      <!-- Declaration -->
+      <div class="declaration-box">
+        <div class="decl-title">Verification &amp; declaration</div>
+        <div class="decl-body">
+          I, <strong>{{ step1Form.getRawValue().taxpayerName || '...' }}</strong>
+          (TIN: {{ step1Form.getRawValue().tinNumber || '...' }}), solemnly declare that the information
+          furnished in this return of income for the assessment year
+          {{ step1Form.getRawValue().assessmentYear }} is correct and complete
+          to the best of my knowledge and belief.
+        </div>
+        <label class="decl-check">
+          <input type="checkbox" formControlName="declaration" />
+          <span>I confirm the above declaration and consent to submit this ITR.</span>
+        </label>
+        <div class="field" style="margin-top:10px">
+          <label>Remarks (optional)</label>
+          <textarea class="remarks-input" formControlName="remarks" rows="2"
+            placeholder="Any additional notes for the record…"></textarea>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer">
+      <button class="btn btn-ghost" (click)="prevStep()" [disabled]="isLoading">← Back</button>
+      <button class="btn btn-primary" (click)="onSubmit()" [disabled]="isLoading">
+        <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> Submit ITR →</span>
+        <span *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm me-1"></span> Submitting…
+        </span>
       </button>
     </div>
+  </div>
+</div>
 
-  </div><!-- /step 1 -->
 
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 7 — Success
+════════════════════════════════════════════════════════════════ -->
+<div *ngIf="currentStep === 7 && successData">
+  <div class="card">
+    <div class="success-screen">
+      <div class="success-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+             stroke="#3B6D11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="success-title">ITR filed successfully!</div>
+      <div class="success-sub">
+        Your return for FY {{ filingYear }} has been submitted.
+        <ng-container *ngIf="taxResult <= 0">
+          Refund of <strong>{{ fmt(refundable) }}</strong> will be processed within 30 working days.
+        </ng-container>
+        <ng-container *ngIf="taxResult > 0">
+          Balance due of <strong>{{ fmt(balanceDue) }}</strong> should be cleared via treasury challan.
+        </ng-container>
+      </div>
 
-  <!-- ════════════════════════════════════════════════════════════
-       STEP 2 — Income Details
-  ═════════════════════════════════════════════════════════════ -->
-  <div [hidden]="currentStep !== 2" [formGroup]="step2Form">
-
-    <div class="form-section">
-      <div class="section-header">
-        <div class="section-icon purple"><i class="bi bi-cash-stack"></i></div>
-        <div>
-          <h6 class="section-title">Income Details</h6>
-          <span class="section-sub">Enter gross income and deductions — tax is computed server-side in Step 3.</span>
+      <!-- Acknowledgment box -->
+      <div class="ack-box">
+        <div class="ack-row">
+          <span>Acknowledgement no.</span>
+          <span class="ack-val mono">{{ successData.returnNo }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Assessment year</span>
+          <span class="ack-val">{{ step1Form.getRawValue().assessmentYear }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Total income declared</span>
+          <span class="ack-val">{{ fmt(totalGrossIncome) }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Net tax liability</span>
+          <span class="ack-val">{{ fmt(localNetTax) }}</span>
+        </div>
+        <div class="ack-row" *ngIf="taxResult <= 0">
+          <span>Refund due</span>
+          <span class="ack-val" style="color:#1D9E75">{{ fmt(refundable) }}</span>
+        </div>
+        <div class="ack-row" *ngIf="taxResult > 0">
+          <span>Balance due</span>
+          <span class="ack-val" style="color:#A32D2D">{{ fmt(balanceDue) }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Filed at</span>
+          <span class="ack-val">{{ successData.filedAt }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Status</span>
+          <span><span class="badge b-ok">Submitted</span></span>
         </div>
       </div>
 
-      <div class="form-grid">
-
-        <div class="form-group">
-          <label class="form-label required">Gross Income (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-currency-dollar input-icon"></i>
-            <input type="number" class="form-input" placeholder="0" formControlName="grossIncome" min="0" />
-          </div>
-          <span class="field-error"
-            *ngIf="step2Form.get('grossIncome')?.invalid && step2Form.get('grossIncome')?.touched">
-            Gross income must be greater than 0.
-          </span>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Exempt Income (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-shield-check input-icon"></i>
-            <input type="number" class="form-input" placeholder="0" formControlName="exemptIncome" min="0" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Tax Rebate (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-arrow-down-circle input-icon"></i>
-            <input type="number" class="form-input" placeholder="0" formControlName="taxRebate" min="0" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Advance Tax Paid (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-calendar-check input-icon"></i>
-            <input type="number" class="form-input" placeholder="0" formControlName="advanceTaxPaid" min="0" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Withholding Tax (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-arrow-left-circle input-icon"></i>
-            <input type="number" class="form-input" placeholder="0" formControlName="withholdingTax" min="0" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Tax Paid at Filing (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-cash-coin input-icon"></i>
-            <input type="number" class="form-input" placeholder="0" formControlName="taxPaid" min="0" />
-          </div>
-        </div>
-
-      </div><!-- /form-grid -->
-    </div><!-- /form-section -->
-
-    <div class="form-actions">
-      <button class="btn-cancel" (click)="prevStep()">
-        <i class="bi bi-arrow-left"></i> Back
-      </button>
-      <button class="btn-submit" (click)="nextStep()">
-        Next: Tax Computation <i class="bi bi-arrow-right ms-1"></i>
-      </button>
-    </div>
-
-  </div><!-- /step 2 -->
-
-
-  <!-- ════════════════════════════════════════════════════════════
-       STEP 3 — Tax Computation (READ-ONLY)
-  ═════════════════════════════════════════════════════════════ -->
-  <div [hidden]="currentStep !== 3">
-
-    <div class="form-section">
-      <div class="section-header">
-        <div class="section-icon teal"><i class="bi bi-calculator-fill"></i></div>
-        <div>
-          <h6 class="section-title">Tax Computation</h6>
-          <span class="section-sub">
-            Computed by the NBR tax engine — these figures are read-only.
-          </span>
-        </div>
-      </div>
-
-      <!-- Loading state -->
-      <div class="preview-loading" *ngIf="isPreviewLoading">
-        <span class="spinner-border text-primary me-3"></span>
-        <span>Computing tax via server engine…</span>
-      </div>
-
-      <!-- Error state -->
-      <div class="preview-error-card" *ngIf="previewError && !isPreviewLoading">
-        <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
-        Tax computation failed. Check your income figures in Step 2, then retry.
-        <button class="btn btn-sm btn-outline-danger ms-3" (click)="retryPreview()">
-          <i class="bi bi-arrow-clockwise"></i> Retry
+      <div class="success-actions">
+        <button class="btn btn-sm" (click)="goToList()">← Back to list</button>
+        <button class="btn btn-primary btn-sm" (click)="goToView()">
+          <i class="bi bi-eye-fill"></i> View return
         </button>
       </div>
-
-      <!-- Result panel -->
-      <div class="income-summary" *ngIf="previewResult && !isPreviewLoading">
-
-        <div class="preview-header">
-          <i class="bi bi-check-circle-fill me-2 text-success"></i>
-          Tax figures confirmed by server · {{ serverEffectiveRate }}% effective rate
-        </div>
-
-        <div class="is-row">
-          <span class="is-label">Gross Income</span>
-          <span class="is-value">৳{{ (step2Form.value.grossIncome || 0).toLocaleString() }}</span>
-        </div>
-        <div class="is-row">
-          <span class="is-label">Less: Exempt Income</span>
-          <span class="is-value exempt">— ৳{{ (step2Form.value.exemptIncome || 0).toLocaleString() }}</span>
-        </div>
-        <div class="is-divider"></div>
-
-        <div class="is-row highlight-row">
-          <span class="is-label bold">Taxable Income</span>
-          <span class="is-value bold">৳{{ serverTaxableIncome.toLocaleString() }}</span>
-        </div>
-
-        <div class="is-row">
-          <span class="is-label">Gross Tax ({{ serverEffectiveRate }}%)</span>
-          <span class="is-value tax">৳{{ serverGrossTax.toLocaleString() }}</span>
-        </div>
-        <div class="is-row">
-          <span class="is-label">Less: Tax Rebate</span>
-          <span class="is-value rebate">— ৳{{ (step2Form.value.taxRebate || 0).toLocaleString() }}</span>
-        </div>
-        <div class="is-divider"></div>
-
-        <div class="is-row total-row">
-          <span class="is-label bold">Net Tax Payable</span>
-          <span class="is-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
-        </div>
-
-        <!-- Payment breakdown -->
-        <div class="is-divider"></div>
-        <div class="is-row">
-          <span class="is-label">Less: Advance Tax</span>
-          <span class="is-value exempt">— ৳{{ (step2Form.value.advanceTaxPaid || 0).toLocaleString() }}</span>
-        </div>
-        <div class="is-row">
-          <span class="is-label">Less: Withholding Tax</span>
-          <span class="is-value exempt">— ৳{{ (step2Form.value.withholdingTax || 0).toLocaleString() }}</span>
-        </div>
-        <div class="is-row">
-          <span class="is-label">Less: Tax Paid at Filing</span>
-          <span class="is-value exempt">— ৳{{ (step2Form.value.taxPaid || 0).toLocaleString() }}</span>
-        </div>
-        <div class="is-divider"></div>
-
-        <div class="is-row total-row" *ngIf="balanceDue > 0">
-          <span class="is-label bold">Balance Due</span>
-          <span class="is-value due">৳{{ balanceDue.toLocaleString() }}</span>
-        </div>
-        <div class="is-row total-row refund" *ngIf="refundable > 0">
-          <span class="is-label bold">Refundable Amount</span>
-          <span class="is-value refund-val">৳{{ refundable.toLocaleString() }}</span>
-        </div>
-        <div class="is-row total-row" *ngIf="balanceDue === 0 && refundable === 0 && previewResult">
-          <span class="is-label bold">Balance</span>
-          <span class="is-value settled">৳0 — Fully Settled</span>
-        </div>
-
-      </div><!-- /income-summary -->
-
-    </div><!-- /form-section -->
-
-    <div class="form-actions">
-      <button class="btn-cancel" (click)="prevStep()">
-        <i class="bi bi-arrow-left"></i> Back
-      </button>
-      <button class="btn-submit"
-        (click)="goToStep(4)"
-        [disabled]="isPreviewLoading || previewError || !previewResult">
-        Next: Review & Submit <i class="bi bi-arrow-right ms-1"></i>
-      </button>
     </div>
-
-  </div><!-- /step 3 -->
-
-
-  <!-- ════════════════════════════════════════════════════════════
-       STEP 4 — Review & Submit
-  ═════════════════════════════════════════════════════════════ -->
-  <div [hidden]="currentStep !== 4" [formGroup]="step4Form">
-
-    <div class="form-section">
-      <div class="section-header">
-        <div class="section-icon orange"><i class="bi bi-clipboard2-check-fill"></i></div>
-        <div>
-          <h6 class="section-title">Review & Submit</h6>
-          <span class="section-sub">Verify all details below before filing.</span>
-        </div>
-      </div>
-
-      <!-- Review summary grid -->
-      <div class="review-grid">
-
-        <div class="review-block">
-          <p class="review-block-title"><i class="bi bi-person-badge-fill me-2"></i>Taxpayer Profile</p>
-          <div class="review-row">
-            <span class="review-label">TIN</span>
-            <span class="review-value">{{ step1Form.getRawValue().tinNumber }}</span>
-          </div>
-          <div class="review-row">
-            <span class="review-label">Name</span>
-            <span class="review-value">{{ step1Form.getRawValue().taxpayerName }}</span>
-          </div>
-          <div class="review-row">
-            <span class="review-label">Category</span>
-            <span class="review-value">{{ step1Form.getRawValue().itrCategory }}</span>
-          </div>
-          <div class="review-row" *ngIf="isCompanyCategory">
-            <span class="review-label">Sub-Type</span>
-            <span class="review-value">{{ step1Form.getRawValue().companySubType || '—' }}</span>
-          </div>
-          <div class="review-row">
-            <span class="review-label">Assessment Year</span>
-            <span class="review-value">{{ step1Form.getRawValue().assessmentYear }}</span>
-          </div>
-          <div class="review-row">
-            <span class="review-label">Return Period</span>
-            <span class="review-value">{{ step1Form.getRawValue().returnPeriod }}</span>
-          </div>
-        </div>
-
-        <div class="review-block">
-          <p class="review-block-title"><i class="bi bi-cash-stack me-2"></i>Tax Summary</p>
-          <div class="review-row">
-            <span class="review-label">Gross Income</span>
-            <span class="review-value">৳{{ (step2Form.value.grossIncome || 0).toLocaleString() }}</span>
-          </div>
-          <div class="review-row">
-            <span class="review-label">Exempt Income</span>
-            <span class="review-value">৳{{ (step2Form.value.exemptIncome || 0).toLocaleString() }}</span>
-          </div>
-          <div class="review-row">
-            <span class="review-label">Taxable Income</span>
-            <span class="review-value fw-bold">৳{{ serverTaxableIncome.toLocaleString() }}</span>
-          </div>
-          <div class="review-row">
-            <span class="review-label">Gross Tax</span>
-            <span class="review-value text-danger">৳{{ serverGrossTax.toLocaleString() }}</span>
-          </div>
-          <div class="review-row">
-            <span class="review-label">Tax Rebate</span>
-            <span class="review-value">৳{{ (step2Form.value.taxRebate || 0).toLocaleString() }}</span>
-          </div>
-          <div class="review-row highlight-row">
-            <span class="review-label fw-bold">Net Tax Payable</span>
-            <span class="review-value text-primary fw-bold">৳{{ netTaxPayable.toLocaleString() }}</span>
-          </div>
-          <div class="review-row">
-            <span class="review-label">Balance Due / Refundable</span>
-            <span class="review-value"
-              [class.text-danger]="balanceDue > 0"
-              [class.text-success]="refundable > 0">
-              <ng-container *ngIf="balanceDue > 0">৳{{ balanceDue.toLocaleString() }} Due</ng-container>
-              <ng-container *ngIf="refundable > 0">৳{{ refundable.toLocaleString() }} Refundable</ng-container>
-              <ng-container *ngIf="balanceDue === 0 && refundable === 0">৳0 — Settled</ng-container>
-            </span>
-          </div>
-        </div>
-
-      </div><!-- /review-grid -->
-
-      <!-- Remarks -->
-      <div class="form-group full-width mt-4">
-        <label class="form-label">Remarks (optional)</label>
-        <div class="input-wrap">
-          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Any additional notes for the record…"
-            formControlName="remarks"
-            rows="3"></textarea>
-        </div>
-      </div>
-
-      <!-- Filed-by indicator — read-only, auto-assigned -->
-      <div class="form-group mt-3">
-        <label class="form-label">Filed By</label>
-        <div class="input-wrap locked">
-          <i class="bi bi-person-check-fill input-icon"></i>
-          <input type="text" class="form-input" [value]="authService.currentUser?.fullName" readonly />
-          <i class="bi bi-lock-fill lock-icon"></i>
-        </div>
-        <span class="field-hint">
-          <i class="bi bi-info-circle"></i> Automatically set from your login session.
-        </span>
-      </div>
-
-    </div><!-- /form-section -->
-
-    <div class="form-actions">
-      <button class="btn-cancel" (click)="prevStep()" [disabled]="isLoading">
-        <i class="bi bi-arrow-left"></i> Back
-      </button>
-      <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
-        <i class="bi bi-x-lg"></i> Cancel
-      </button>
-      <button class="btn-submit" (click)="onSubmit()" [disabled]="isLoading">
-        <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> File Return</span>
-        <span *ngIf="isLoading">
-          <span class="spinner-border spinner-border-sm me-2"></span>Filing…
-        </span>
-      </button>
-    </div>
-
-  </div><!-- /step 4 -->
-
-</div><!-- /form-card -->
+  </div>
+</div>

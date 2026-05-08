@@ -46,13 +46,14 @@ export class AuthService {
 
   private handleLoginSuccess(response: any): void {
     const user: AuthUser = {
-      id:       response.id       ?? 1,
-      taxpayerId: response.taxpayerId ?? null,
+      id:           response.id       ?? 1,
+      fullName:     response.fullName ?? '',
+      email:        response.email    ?? '',
+      role:         response.role     ?? Role.GUEST,
+      token:        response.token    ?? '',
+      taxpayerId:   response.taxpayerId  ?? null,
       taxpayerType: response.taxpayerType ?? null,
-      fullName: response.fullName ?? response.name ?? 'Admin User',
-      email:    response.email    ?? '',
-      role:     response.role     ?? Role.GUEST,
-      token:    response.token    ?? response.accessToken ?? ''
+      photoUrl:     response.photoUrl    ?? null,  // ← যোগ করো
     };
     localStorage.setItem('current_user', JSON.stringify(user));
     if (user.token) localStorage.setItem('auth_token', user.token);

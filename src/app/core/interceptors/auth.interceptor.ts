@@ -44,12 +44,17 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = localStorage.getItem('auth_token');
 
     if (token) {
-      request = request.clone({
-        setHeaders: {
-          Authorization : `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // File upload হলে Content-Type set করো না
+      // Browser নিজে multipart/form-data set করবে
+      const headers: any = {
+        Authorization: `Bearer ${token}`
+      };
+
+      if (!(request.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+      }
+
+      request = request.clone({ setHeaders: headers });
     }
 
     return next.handle(request).pipe(

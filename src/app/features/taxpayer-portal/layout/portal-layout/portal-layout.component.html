@@ -1,5 +1,5 @@
 <div class="portal-container">
-  
+
   <!-- Topbar -->
   <header class="portal-topbar">
     <div class="portal-brand">
@@ -9,12 +9,36 @@
         <div class="brand-sub">Government of Bangladesh — NBR Portal</div>
       </div>
     </div>
-    <div class="portal-user">
+    <div class="portal-user" (click)="toggleDropdown()" style="cursor:pointer; position:relative;">
+      <div class="topbar-avatar">
+        <img *ngIf="currentUser?.photoUrl"
+            [src]="currentUser!.photoUrl"
+            class="topbar-avatar-img"/>
+        <div *ngIf="!currentUser?.photoUrl" class="topbar-avatar-initials">
+          {{ currentUser?.fullName?.charAt(0) | uppercase }}
+        </div>
+      </div>
       <div class="user-info">
         <span class="user-name">{{ currentUser?.fullName }}</span>
         <span class="user-badge">{{ currentUser?.taxpayerType }}</span>
       </div>
-      <button class="sign-out-btn" (click)="logout()">Sign Out</button>
+      <i class="bi bi-chevron-down" style="color:rgba(255,255,255,0.7); font-size:12px; margin-left:4px"></i>
+
+      <!-- Dropdown -->
+      <div class="user-dropdown" *ngIf="showDropdown">
+        <div class="dropdown-header">
+          <div class="dropdown-name">{{ currentUser?.fullName }}</div>
+          <div class="dropdown-email">{{ currentUser?.email }}</div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" routerLink="/my-portal">
+          <i class="bi bi-grid-fill"></i> My Portal
+        </a>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item danger" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Sign Out
+        </button>
+      </div>
     </div>
   </header>
 

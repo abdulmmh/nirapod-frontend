@@ -23,6 +23,11 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
   presentDistricts: any[] = [];
   permanentDistricts: any[] = [];
 
+  selectedFile: File | null = null;
+  photoPreview: string | null = null;
+  isUploadingPhoto = false;
+  currentPhotoUrl: string | null = null;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -244,6 +249,7 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
         if (selectedDiv) {
           this.masterData
             .getDistrictsByDivision(selectedDiv.id)
+            .pipe(takeUntil(this.destroy$))
             .subscribe((data) => {
               this.permanentDistricts = data;
               this.taxpayerForm.get('permanentAddress.district')?.setValue('');
@@ -252,8 +258,32 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
           this.permanentDistricts = [];
         }
       });
+      
+  }
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.toast.error('Only image files allowed.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.toast.error('File must be less than 5MB.');
+      return;
+    }
+
+    this.selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = () => this.photoPreview = reader.result as string;
+    reader.readAsDataURL(file);
   }
 
+  removePhoto(): void {
+    this.selectedFile = null;
+    this.photoPreview = null;
+  }
   // ───────────── Getters for UI  ─────────────
 
   get isIndividual(): boolean {
@@ -292,21 +322,41 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
     const payload = this.taxpayerForm.getRawValue();
 
     this.http
-      .post(API_ENDPOINTS.TAXPAYERS.CREATE, payload)
+      .post<any>(API_ENDPOINTS.TAXPAYERS.CREATE, payload)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false)),
       )
       .subscribe({
-        next: () => {
-          this.toast.success('Taxpayer created successfully!');
-          setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+        next: (response) => {
+          // Photo upload if selected
+          if (this.selectedFile && response?.id) {
+            const formData = new FormData();
+            formData.append('file', this.selectedFile);
+            this.http.post(
+              `${API_ENDPOINTS.TAXPAYERS.LIST}/${response.id}/photo`,
+              formData
+            ).pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: () => {
+                this.toast.success('Taxpayer created with photo!');
+                setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+              },
+              error: () => {
+                this.toast.success('Taxpayer created but photo upload failed.');
+                setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+              }
+            });
+          } else {
+            this.toast.success('Taxpayer created successfully!');
+            setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+          }
         },
         error: (err) => {
           console.error(err);
           this.toast.error('Failed to create taxpayer.');
         },
-      });
+    });
   }
 
   onReset(): void {
