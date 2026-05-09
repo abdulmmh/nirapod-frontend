@@ -50,7 +50,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
     if (category === 'Individual') {
       this.menuItems = [
         { label: 'My TIN',            route: 'tin',                icon: '🪪' },
-        { label: 'Income Tax Return', route: 'itr',                icon: '📋' },
+        { label: 'Income Tax Return', route: 'income-tax-returns', icon: '📋' },
         { label: 'AIT',               route: 'ait',                icon: '📊' },
         { label: 'Payments',          route: 'payments',           icon: '💳' },
         { label: 'Notices',           route: 'notices',            icon: '🔔' },
@@ -66,7 +66,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
     } else if (category === 'Organization') {
       this.menuItems = [
         { label: 'My TIN',            route: 'tin',                icon: '🪪' },
-        { label: 'Income Tax Return', route: 'itr',                icon: '📋' },
+        { label: 'Income Tax Return', route: 'income-tax-returns', icon: '📋' },
         { label: 'Documents',         route: 'documents',          icon: '📁' },
         { label: 'Payments',          route: 'payments',           icon: '💳' },
         { label: 'Notices',           route: 'notices',            icon: '🔔' },

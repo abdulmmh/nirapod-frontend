@@ -13,13 +13,13 @@ const routes: Routes = [
        path: '',
        component: TinListComponent,
        canActivate: [AuthGuard],
-       data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR] }
+       data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] }
      },
      {
        path: 'create',
        component: TinCreateComponent,
        canActivate: [AuthGuard],
-       data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+       data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
      },
      {
        path: 'view/:id',

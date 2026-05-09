@@ -6,6 +6,7 @@ import { TaxpayerPortalRoutingModule } from './taxpayer-portal-routing.module';
 import { PortalHomeComponent } from '../pages/portal-home/portal-home.component';
 import { PortalLayoutComponent } from '../layout/portal-layout/portal-layout.component';
 import { PortalItrComponent } from '../pages/portal-itr/portal-itr.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { PortalItrComponent } from '../pages/portal-itr/portal-itr.component';
   imports: [
     CommonModule,
     RouterModule,
+    FormsModule,
     TaxpayerPortalRoutingModule,
   ]
 })

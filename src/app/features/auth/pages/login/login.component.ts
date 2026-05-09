@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Role } from 'src/app/core/constants/roles.constants';
 
@@ -41,7 +41,6 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute,
     private toast: ToastService,
   ) {
     if (this.authService.isLoggedIn) {

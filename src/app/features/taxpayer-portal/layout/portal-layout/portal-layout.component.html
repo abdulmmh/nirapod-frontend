@@ -26,8 +26,7 @@
       <!-- User Menu -->
       <div class="user-menu" 
            (click)="toggleDropdown()" 
-           [class.open]="showDropdown"
-           clickOutside (clickOutside)="showDropdown = false">
+           [class.open]="showDropdown">
 
         <div class="user-avatar-ring">
           <img *ngIf="currentUser?.photoUrl"

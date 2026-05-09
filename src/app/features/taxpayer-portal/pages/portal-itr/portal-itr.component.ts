@@ -46,8 +46,9 @@ export class PortalItrComponent implements OnInit, OnDestroy {
 
   private loadMyReturns(): void {
     this.isLoading = true;
-    this.http
-      .get<IncomeTaxReturn[]>(API_ENDPOINTS.INCOME_TAX_RETURNS.LIST)
+    const taxpayerId = this.authService.currentUser?.taxpayerId;
+    const url = `${API_ENDPOINTS.INCOME_TAX_RETURNS.LIST}?taxpayerId=${taxpayerId}`;
+    this.http.get<IncomeTaxReturn[]>(url)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false)),
@@ -55,7 +56,7 @@ export class PortalItrComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => (this.returns = data),
         error: () => this.toast.error('Failed to load your returns.'),
-      });
+    });
   }
 
   // ── Computed helpers ──────────────────────────────────────────

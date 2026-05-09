@@ -101,6 +101,15 @@ const routes: Routes = [
             .then(m => m.IncomeTaxReturnsModule)
       },
 
+      //Income-TAX-returns for Taxpayer Portal
+      {
+        path: 'my-portal/income-tax-returns',
+        loadChildren: () =>
+          import('./features/income-tax-returns/income-tax-returns/income-tax-returns.module')
+            .then(m => m.IncomeTaxReturnsModule)
+      },
+      
+      
 
       // Payments
       {

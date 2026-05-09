@@ -14,9 +14,7 @@ const routes: Routes = [
     path: '',
     component: IncomeTaxReturnListComponent,
     canActivate: [AuthGuard],
-    // ✅ Fixed: TAXPAYER was excluded — they couldn't see their own filed returns
-    // ✅ Fixed: DATA_ENTRY_OPERATOR added — they file returns but couldn't list them
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.DATA_ENTRY_OPERATOR, Role.TAXPAYER] }
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.DATA_ENTRY_OPERATOR] }
   },
   {
     path: 'create',
@@ -40,7 +38,6 @@ const routes: Routes = [
     path: ':returnId/it10b',
     component: It10bComponent,
     canActivate: [AuthGuard],
-    // ✅ Fixed: TAXPAYER was locked out of their own wealth statement form
     data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.DATA_ENTRY_OPERATOR, Role.TAXPAYER] }
   }
 ];
