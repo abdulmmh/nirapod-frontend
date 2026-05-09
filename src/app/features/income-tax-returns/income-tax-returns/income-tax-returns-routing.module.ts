@@ -14,7 +14,7 @@ const routes: Routes = [
     path: '',
     component: IncomeTaxReturnListComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.DATA_ENTRY_OPERATOR] }
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.DATA_ENTRY_OPERATOR, Role.TAXPAYER] }
   },
   {
     path: 'create',

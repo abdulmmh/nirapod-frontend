@@ -96,6 +96,16 @@
     </div>
   </header>
 
+  <!-- Breadcrumb -->
+  <nav class="portal-breadcrumb" *ngIf="currentPageTitle">
+    <a routerLink="/my-portal" class="breadcrumb-home">
+      <i class="bi bi-house-fill"></i>
+      <span>My Portal</span>
+    </a>
+    <i class="bi bi-chevron-right breadcrumb-sep"></i>
+    <span class="breadcrumb-current">{{ currentPageTitle }}</span>
+  </nav>  
+
   <!-- MAIN CONTENT -->
   <main class="portal-main">
     <div class="portal-container">

@@ -9,8 +9,52 @@ const routes: Routes = [
     path: '',
     component: PortalLayoutComponent,
     children: [
-      { path: '',    component: PortalHomeComponent },
-      { path: 'itr', component: PortalItrComponent  },
+      { path: '', component: PortalHomeComponent },
+      { path: 'itr', component: PortalItrComponent },
+
+      // Existing modules — portal layout এর ভেতরে
+      {
+        path: 'tin',
+        loadChildren: () =>
+          import('../../../features/tin-management/tin/tin.module')
+            .then(m => m.TinModule)
+      },
+      {
+        path: 'payments',
+        loadChildren: () =>
+          import('../../../features/payments/payment/payment.module')
+            .then(m => m.PaymentModule)
+      },
+      {
+        path: 'notices',
+        loadChildren: () =>
+          import('../../../features/notices-notifications/notice/notice.module')
+            .then(m => m.NoticeModule)
+      },
+      {
+        path: 'vat-returns',
+        loadChildren: () =>
+          import('../../../features/vat-returns/vat-returns/vat-returns.module')
+            .then(m => m.VatReturnsModule)
+      },
+      {
+        path: 'vat-registration',
+        loadChildren: () =>
+          import('../../../features/vat-registration/vat-registration/vat-registration.module')
+            .then(m => m.VatRegistrationModule)
+      },
+      {
+        path: 'documents',
+        loadChildren: () =>
+          import('../../../features/document-verification/document/document-verification.module')
+            .then(m => m.DocumentVerificationModule)
+      },
+      {
+        path: 'ait',
+        loadChildren: () =>
+          import('../../../features/ait/ait/ait.module')
+            .then(m => m.AitModule)
+      },
     ]
   }
 ];

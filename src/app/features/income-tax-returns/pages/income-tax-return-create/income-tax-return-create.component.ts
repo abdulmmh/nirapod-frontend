@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { finalize, Subject, takeUntil } from 'rxjs';
 
 import { API_ENDPOINTS }   from '../../../../core/constants/api.constants';
@@ -13,7 +13,7 @@ import { Role }            from '../../../../core/constants/roles.constants';
 
 interface TaxBracket {
   label:        string;
-  rate:         number;   // percent e.g. 5
+  rate:         number;   
   incomeInSlab: number;
   taxInSlab:    number;
   active:       boolean;
@@ -77,6 +77,7 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   constructor(
     private fb:          FormBuilder,
     private http:        HttpClient,
+    private route:       ActivatedRoute,
     private router:      Router,
     private toast:       ToastService,
     public  authService: AuthService
@@ -382,6 +383,11 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
     return 'todo';
   }
 
+  private get returnUrl(): string {
+    return this.route.snapshot.queryParamMap.get('returnUrl')
+      || '/income-tax-returns';
+  }
+
   getStatusLabel(): string {
     const m: Record<number, string> = {
       1: 'Draft', 2: 'Draft', 3: 'Draft',
@@ -483,11 +489,20 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
 
   // ── Navigation helpers ────────────────────────────────────────────────────
 
-  onCancel():  void { this.router.navigate(['/income-tax-returns']); }
-  goToList():  void { this.router.navigate(['/income-tax-returns']); }
-  goToView():  void {
+  onCancel(): void {
+    this.router.navigate([this.returnUrl]);
+  }
+  goToList(): void {
+    this.router.navigate([this.returnUrl]);
+  }
+ 
+  goToView(): void {
     if (this.successData) {
-      this.router.navigate(['/income-tax-returns/view', this.successData.returnId]);
+      // Pass returnUrl forward so the view page also knows where to go back
+      this.router.navigate(
+        ['/income-tax-returns/view', this.successData.returnId],
+        { queryParams: { returnUrl: this.returnUrl } }
+      );
     }
   }
 

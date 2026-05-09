@@ -198,6 +198,11 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
     return map[toStatus] ?? 'tl-gray';
   }
 
+  private get returnUrl(): string {
+    return this.route.snapshot.queryParamMap.get('returnUrl')
+      || '/income-tax-returns';
+  }
+
   get taxableIncome(): number {
     return this.itr?.taxableIncome ?? Math.max(0, (this.itr?.grossIncome || 0) - (this.itr?.exemptIncome || 0));
   }
@@ -234,14 +239,21 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
   }
 
   onBack(): void {
-    this.router.navigate(['/income-tax-returns']);
+    this.router.navigate([this.returnUrl]);
   }
 
   goToIT10B(): void {
     if (this.itr?.id) {
-      this.router.navigate(['/income-tax-returns', this.itr.id, 'it10b'], {
-        queryParams: { returnNo: this.itr.returnNo },
-      });
+      // Pass returnUrl forward to IT10B page so its back button also works
+      this.router.navigate(
+        ['/income-tax-returns', this.itr.id, 'it10b'],
+        {
+          queryParams: {
+            returnNo:  this.itr.returnNo,
+            returnUrl: this.returnUrl,
+          }
+        }
+      );
     }
   }
 }

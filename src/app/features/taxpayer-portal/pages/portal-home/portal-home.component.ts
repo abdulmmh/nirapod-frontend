@@ -47,32 +47,32 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
   }
 
   private buildMenu(category: string): void {
-    if (category === 'Individual') {
-      this.menuItems = [
-        { label: 'My TIN',            route: 'tin',                icon: '🪪' },
-        { label: 'Income Tax Return', route: 'income-tax-returns', icon: '📋' },
-        { label: 'AIT',               route: 'ait',                icon: '📊' },
-        { label: 'Payments',          route: 'payments',           icon: '💳' },
-        { label: 'Notices',           route: 'notices',            icon: '🔔' },
-      ];
-    } else if (category === 'Business') {
-      this.menuItems = [
-        { label: 'My TIN',           route: 'tin',              icon: '🪪' },
-        { label: 'VAT Registration', route: 'vat-registration', icon: '🏢' },
-        { label: 'VAT Returns',      route: 'vat-returns',      icon: '📋' },
-        { label: 'Payments',         route: 'payments',         icon: '💳' },
-        { label: 'Notices',          route: 'notices',          icon: '🔔' },
-      ];
-    } else if (category === 'Organization') {
-      this.menuItems = [
-        { label: 'My TIN',            route: 'tin',                icon: '🪪' },
-        { label: 'Income Tax Return', route: 'income-tax-returns', icon: '📋' },
-        { label: 'Documents',         route: 'documents',          icon: '📁' },
-        { label: 'Payments',          route: 'payments',           icon: '💳' },
-        { label: 'Notices',           route: 'notices',            icon: '🔔' },
-      ];
-    }
+  if (category === 'Individual') {
+    this.menuItems = [
+      { label: 'My TIN',            route: '/my-portal/tin',  icon: '🪪' },
+      { label: 'Income Tax Return', route: '/my-portal/itr',  icon: '📋' },
+      { label: 'AIT',               route: '/my-portal/ait',  icon: '📊' },
+      { label: 'Payments',          route: '/my-portal/payments', icon: '💳' },
+      { label: 'Notices',           route: '/my-portal/notices',  icon: '🔔' },
+    ];
+  } else if (category === 'Business') {
+    this.menuItems = [
+      { label: 'My TIN',           route: '/my-portal/tin',              icon: '🪪' },
+      { label: 'VAT Registration', route: '/my-portal/vat-registration', icon: '🏢' },
+      { label: 'VAT Returns',      route: '/my-portal/vat-returns',      icon: '📋' },
+      { label: 'Payments',         route: '/my-portal/payments',         icon: '💳' },
+      { label: 'Notices',          route: '/my-portal/notices',          icon: '🔔' },
+    ];
+  } else if (category === 'Organization') {
+    this.menuItems = [
+      { label: 'My TIN',            route: '/my-portal/tin',       icon: '🪪' },
+      { label: 'Income Tax Return', route: '/my-portal/itr',       icon: '📋' },
+      { label: 'Documents',         route: '/my-portal/documents', icon: '📁' },
+      { label: 'Payments',          route: '/my-portal/payments',  icon: '💳' },
+      { label: 'Notices',           route: '/my-portal/notices',   icon: '🔔' },
+    ];
   }
+}
 
   // ── Display helpers ──────────────────────────────────────────
 

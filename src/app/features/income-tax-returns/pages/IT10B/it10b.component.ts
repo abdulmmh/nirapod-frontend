@@ -185,7 +185,16 @@ export class It10bComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/income-tax-returns/view', this.returnId]);
+    // Go back to the view page, preserving the returnUrl so the view page's
+    // own back button still works correctly (portal → view → it10b → view → portal)
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    const navExtras = returnUrl
+      ? { queryParams: { returnUrl } }
+      : {};
+    this.router.navigate(
+      ['/income-tax-returns/view', this.returnId],
+      navExtras
+    );
   }
 
   get isEditMode(): boolean { return this.existingId > 0; }

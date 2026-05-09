@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   background: #f0f2f5;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: "Segoe UI", system-ui, sans-serif;
 }
 
 /* ── Top Nav ────────────────────────────────────────────── */
@@ -18,9 +18,9 @@
   position: sticky;
   top: 0;
   z-index: 200;
-  box-shadow: 
-    0 1px 0 rgba(255,255,255,0.08) inset,
-    0 4px 20px rgba(0,0,0,0.2);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Brand */
@@ -52,7 +52,7 @@
 
 .brand-sub {
   font-size: 10px;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }
@@ -67,7 +67,7 @@
 .nav-title {
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.2px;
   white-space: nowrap;
 }
@@ -95,7 +95,7 @@
 
 .user-menu:hover,
 .user-menu.open {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* Avatar */
@@ -111,7 +111,7 @@
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255,255,255,0.4);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   display: block;
 }
 
@@ -119,8 +119,8 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  border: 2px solid rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   color: #fff;
   font-size: 15px;
   font-weight: 600;
@@ -154,7 +154,7 @@
 
 .user-role {
   font-size: 11px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .chevron {
@@ -175,10 +175,10 @@
   width: 280px;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 
-    0 0 0 1px rgba(0,0,0,0.06),
-    0 16px 48px rgba(0,0,0,0.16),
-    0 4px 12px rgba(0,0,0,0.08);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 16px 48px rgba(0, 0, 0, 0.16),
+    0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   animation: dropIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -200,7 +200,7 @@
   gap: 12px;
   padding: 16px;
   background: linear-gradient(135deg, #f0faf5, #e8f5ee);
-  border-bottom: 1px solid rgba(26,122,74,0.1);
+  border-bottom: 1px solid rgba(26, 122, 74, 0.1);
 }
 
 .dp-avatar {
@@ -212,7 +212,7 @@
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(26,122,74,0.2);
+  border: 2px solid rgba(26, 122, 74, 0.2);
 }
 
 .dp-monogram {
@@ -259,7 +259,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #1a7a4a;
-  background: rgba(26,122,74,0.1);
+  background: rgba(26, 122, 74, 0.1);
   padding: 2px 8px;
   border-radius: 20px;
 }
@@ -282,7 +282,9 @@
   border: none;
   width: 100%;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
   text-align: left;
 }
 
@@ -292,8 +294,13 @@
   text-decoration: none;
 }
 
-.dd-item.danger { color: #dc2626; }
-.dd-item.danger:hover { background: #fef2f2; color: #dc2626; }
+.dd-item.danger {
+  color: #dc2626;
+}
+.dd-item.danger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
 
 .dd-icon {
   width: 28px;
@@ -308,9 +315,16 @@
   transition: background 0.15s;
 }
 
-.dd-item:hover .dd-icon { background: #e8e8e8; }
-.dd-item.danger .dd-icon { background: #fee2e2; color: #dc2626; }
-.dd-item.danger:hover .dd-icon { background: #fecaca; }
+.dd-item:hover .dd-icon {
+  background: #e8e8e8;
+}
+.dd-item.danger .dd-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.dd-item.danger:hover .dd-icon {
+  background: #fecaca;
+}
 
 .dd-divider {
   height: 1px;
@@ -343,4 +357,38 @@
   color: #aaa;
 }
 
-.footer-sep { color: #ddd; }
+.footer-sep {
+  color: #ddd;
+}
+
+.portal-breadcrumb {
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+  padding: 8px 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.breadcrumb-home {
+  color: #1a7a4a;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.breadcrumb-home:hover { color: #155d38; }
+
+.breadcrumb-sep {
+  color: #ccc;
+  font-size: 11px;
+}
+
+.breadcrumb-current {
+  color: #666;
+  font-weight: 400;
+}
