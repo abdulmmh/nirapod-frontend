@@ -1,17 +1,19 @@
 /* vat-registration-create.component.css
-   Only styles that are EXCLUSIVE to the create wizard live here.
-   Global utilities (section-icon variants, form controls, buttons,
-   section-header, section-divider, etc.) are in styles.css.
+   Component-specific styles only.
+   All shared utilities (section-icon variants, form controls, buttons,
+   badges, modal base) live in global styles.css.
 
-   Dead code removed:
-     - .cat-pill, .zone-pill, .text-blue      (unused in template)
-     - .tax-summary / .ts-* / .total-row       (unused in template)
-     - .business-select-* / .bsi-* / .bin-badge (superseded by BusinessPickerComponent)
-     - section-icon.teal / .orange / .green    (moved to styles.css)
+   Sections:
+   1. Wizard Step Indicator
+   2. Step Edit Button
+   3. Company Notice
+   4. Update Link
+   5. Draft Recovery Banner        ← NEW Phase 2
+   6. Review Modal Overrides       ← NEW Phase 2
 */
 
 
-/* ── Wizard Step Indicator ───────────────────────────────────── */
+/* ── 1. Wizard Step Indicator ────────────────────────────────── */
 
 .wizard-steps {
   display: flex;
@@ -42,21 +44,9 @@
   flex-shrink: 0;
 }
 
-.wizard-step.active  .ws-circle {
-  background: var(--color-accent);
-  color: var(--color-text-inverse);
-}
-
-.wizard-step.done    .ws-circle {
-  background: var(--color-teal);
-  color: var(--color-text-inverse);
-}
-
-.wizard-step.skipped .ws-circle {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  font-size: 12px;
-}
+.wizard-step.active  .ws-circle { background: var(--color-accent); color: var(--color-text-inverse); }
+.wizard-step.done    .ws-circle { background: var(--color-teal);   color: var(--color-text-inverse); }
+.wizard-step.skipped .ws-circle { background: var(--color-accent-light); color: var(--color-accent); font-size: 12px; }
 
 .ws-label {
   font-size: 11px;
@@ -77,12 +67,10 @@
   transition: background 0.25s;
 }
 
-.wizard-connector.done {
-  background: var(--color-teal);
-}
+.wizard-connector.done { background: var(--color-teal); }
 
 
-/* ── "Change" step edit button ───────────────────────────────── */
+/* ── 2. Step Edit Button ─────────────────────────────────────── */
 
 .btn-edit-step {
   margin-left: auto;
@@ -108,7 +96,7 @@
 }
 
 
-/* ── Company taxpayer notice ─────────────────────────────────── */
+/* ── 3. Company Notice ───────────────────────────────────────── */
 
 .company-notice {
   display: flex;
@@ -130,7 +118,7 @@
 }
 
 
-/* ── "Request Update" inline link ────────────────────────────── */
+/* ── 4. Update Link ──────────────────────────────────────────── */
 
 .update-link {
   display: inline-flex;
@@ -154,9 +142,262 @@
 }
 
 
+/* ── 5. Draft Recovery Banner ────────────────────────────────── */
+
+.draft-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--color-warning-bg);
+  border-bottom: 0.5px solid var(--color-warning-border);
+  flex-wrap: wrap;
+}
+
+.draft-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.draft-banner-left i {
+  font-size: 18px;
+  color: var(--color-warning);
+  flex-shrink: 0;
+}
+
+.draft-banner-left strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 1px;
+}
+
+.draft-banner-left span {
+  display: block;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.draft-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.draft-btn-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--color-warning);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.draft-btn-continue:hover {
+  background: var(--color-orange-dark);
+}
+
+.draft-btn-discard {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.draft-btn-discard:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
+}
+
+
+/* ── 6. Review Modal Overrides ───────────────────────────────── */
+
+/*
+  Base .modal-overlay, .modal-card, .modal-accent, .modal-actions,
+  .btn-modal-cancel and .btn-modal-confirm are all defined in styles.css.
+  These rules only extend or override for the review-specific layout.
+*/
+
+/* Wider card — global default is 420px max-width */
+.review-modal-card {
+  max-width: 600px;
+  padding: 0;
+  text-align: left;
+  align-items: stretch;
+}
+
+/* Re-position the accent bar so it flows in the flex column */
+.review-modal-card .modal-accent {
+  position: relative;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  flex-shrink: 0;
+}
+
+/* Header: icon + title side-by-side */
+.review-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px 14px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+
+/* Scrollable summary region */
+.review-scroll-body {
+  overflow-y: auto;
+  max-height: 52vh;
+  padding: 4px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-primary) transparent;
+}
+
+.review-scroll-body::-webkit-scrollbar       { width: 4px; }
+.review-scroll-body::-webkit-scrollbar-track { background: transparent; }
+.review-scroll-body::-webkit-scrollbar-thumb {
+  background: var(--color-border-primary);
+  border-radius: 4px;
+}
+
+/* A labelled group within the scroll body */
+.review-section {
+  padding: 10px 22px 4px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+
+.review-section:last-child {
+  border-bottom: none;
+}
+
+/* Pill label above each section */
+.review-section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.review-section-label i {
+  font-size: 12px;
+  color: var(--color-accent);
+}
+
+/* Key / value pair */
+.review-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+
+.review-row:last-child {
+  border-bottom: none;
+  padding-bottom: 10px;
+}
+
+.review-key {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  flex-shrink: 0;
+  min-width: 110px;
+}
+
+.review-val {
+  font-size: 12.5px;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+/* Legal declaration block */
+.review-declaration {
+  padding: 14px 22px;
+  background: var(--color-bg-secondary);
+  border-top: 0.5px solid var(--color-border-secondary);
+  border-bottom: 0.5px solid var(--color-border-secondary);
+}
+
+.declaration-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.declaration-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: var(--color-accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.declaration-label span {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  user-select: none;
+}
+
+/* Actions row inside review modal */
+.review-modal-card .modal-actions {
+  padding: 14px 22px;
+  border-top: none;
+  background: transparent;
+}
+
+.review-modal-card .btn-modal-confirm:disabled {
+  opacity: 0.40;
+  cursor: not-allowed;
+}
+
+
 /* ── Responsive ──────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
-  .wizard-steps { padding: 14px 16px 0; }
-  .ws-label     { display: none; }
+  .wizard-steps         { padding: 14px 16px 0; }
+  .ws-label             { display: none; }
+
+  .draft-banner         { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .draft-banner-actions { width: 100%; }
+  .draft-btn-continue,
+  .draft-btn-discard    { flex: 1; justify-content: center; }
+
+  .review-modal-card    { max-width: 100%; }
+  .review-scroll-body   { max-height: 44vh; }
+  .review-key           { min-width: 90px; }
 }
