@@ -16,6 +16,7 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 @Component({
   selector: 'app-taxpayer-search',
   templateUrl: './taxpayer-search.component.html',
+  styleUrls: ['./taxpayer-search.component.css'],
 })
 export class TaxpayerSearchComponent implements OnInit, OnDestroy {
   /** When true the search input is locked (a taxpayer is already selected). */

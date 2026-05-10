@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Ait } from '../../../../models/ait.model';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
@@ -27,6 +27,7 @@ export class AitListComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
+    private route: ActivatedRoute,
     private router: Router,
     private toast: ToastService,
   ) {}
@@ -149,10 +150,20 @@ export class AitListComponent implements OnInit {
   // ────────────────── Navigation ──────────────────────
 
   view(id: number): void {
-    this.router.navigate(['/ait/view', id]);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+   if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/ait/view', id]);
+    }
   }
   edit(id: number): void {
-    this.router.navigate(['/ait/edit', id]);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/ait/edit', id]);
+    }
   }
 
   // ────────────────── Helpers ──────────────────────

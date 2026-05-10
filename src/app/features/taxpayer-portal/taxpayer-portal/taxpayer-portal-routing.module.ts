@@ -55,6 +55,13 @@ const routes: Routes = [
           import('../../../features/ait/ait/ait.module')
             .then(m => m.AitModule)
       },
+
+      {
+        path: 'income-tax-returns',
+        loadChildren: () =>
+          import('../../../features/income-tax-returns/income-tax-returns/income-tax-returns.module')
+            .then(m => m.IncomeTaxReturnsModule)
+      },
     ]
   }
 ];

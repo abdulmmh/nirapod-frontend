@@ -126,7 +126,7 @@ export class PortalItrComponent implements OnInit, OnDestroy {
    */
   fileNew(): void {
     this.router.navigate(
-      ['/income-tax-returns/create'],
+      ['/my-portal/income-tax-returns/create'],
       { queryParams: { returnUrl: this.RETURN_URL } }
     );
   }
@@ -137,14 +137,14 @@ export class PortalItrComponent implements OnInit, OnDestroy {
    */
   view(id: number): void {
     this.router.navigate(
-      ['/income-tax-returns/view', id],
+      ['/my-portal/income-tax-returns/view', id],
       { queryParams: { returnUrl: this.RETURN_URL } }
     );
   }
 
   openIT10B(returnId: number): void {
     this.router.navigate(
-      ['/income-tax-returns', returnId, 'it10b'],
+      ['/my-portal/income-tax-returns', returnId, 'it10b'],
       { queryParams: { returnUrl: this.RETURN_URL } }
     );
   }

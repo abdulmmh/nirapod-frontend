@@ -1,0 +1,1663 @@
+/* ============================================================
+   NVTMS — National VAT & Tax Management System
+   Global Stylesheet
+   
+   Structure:
+   01. Design Tokens (CSS Custom Properties)
+   02. Base & Reset
+   03. Layout Shells
+   04. Section Anatomy (form-section, section-header, section-icon)
+   05. Form Grid & Groups
+   06. Form Labels & Hints
+   07. Form Controls (input-wrap, form-input, select, textarea)
+   08. Form Actions Bar
+   09. Buttons
+   10. Status Badges
+   11. VAT Category Badges
+   12. Code / BIN / Pill Display
+   13. Data Table (Desktop)
+   14. Mobile Cards
+   15. List Page Search Bar
+   16. View Page Anatomy (view-header-card, details-grid)
+   17. Edit Banner
+   18. Loading & Empty States
+   19. Modal
+   20. FAB Button
+   21. Responsive Breakpoints
+   ============================================================ */
+
+
+/* ── 01. Design Tokens ───────────────────────────────────────── */
+
+:root {
+  /* Backgrounds */
+  --color-bg-primary:       #ffffff;
+  --color-bg-secondary:     #f7f8fa;
+  --color-bg-tertiary:      #f0f4f8;
+
+  /* Text */
+  --color-text-primary:     #1a2340;
+  --color-text-secondary:   #6b7280;
+  --color-text-tertiary:    #9ca3af;
+  --color-text-inverse:     #ffffff;
+
+  /* Borders — 0.5px system-wide */
+  --color-border-primary:   #d1d5db;
+  --color-border-secondary: #e0e8f0;
+  --color-border-tertiary:  #f0f0f0;
+
+  /* Accent — blue */
+  --color-accent:           #185FA5;
+  --color-accent-dark:      #0c447c;
+  --color-accent-light:     #e6f1fb;
+  --color-accent-mid:       #378ADD;
+
+  /* Accent — teal */
+  --color-teal:             #1faa8b;
+  --color-teal-light:       #e6f7f3;
+  --color-teal-dark:        #17855f;
+
+  /* Accent — orange */
+  --color-orange:           #f59e0b;
+  --color-orange-light:     #fef3e2;
+  --color-orange-dark:      #d97706;
+
+  /* Semantic — success */
+  --color-success:          #3b6d11;
+  --color-success-bg:       #eaf3de;
+  --color-success-border:   #639922;
+
+  /* Semantic — warning */
+  --color-warning:          #854f0b;
+  --color-warning-bg:       #faeeda;
+  --color-warning-border:   #ef9f27;
+
+  /* Semantic — danger */
+  --color-danger:           #a32d2d;
+  --color-danger-bg:        #fdf0f0;
+  --color-danger-border:    #e74c3c;
+
+  /* Semantic — pending */
+  --color-pending:          #854f0b;
+  --color-pending-bg:       #faeeda;
+
+  /* Semantic — neutral/inactive */
+  --color-inactive:         #4b5563;
+  --color-inactive-bg:      #f3f4f6;
+
+  /* Border radius */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 9999px;
+
+  /* Border width */
+  --border:      0.5px solid var(--color-border-secondary);
+  --border-pri:  0.5px solid var(--color-border-primary);
+  --border-ter:  0.5px solid var(--color-border-tertiary);
+
+  /* Typography */
+  --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:   'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  /* Shadows */
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.04);
+
+  /* Transitions */
+  --transition:  all 0.15s ease;
+}
+
+
+/* ── 02. Base & Reset ────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-dark);
+  text-decoration: underline;
+}
+
+
+/* ── 03. Layout Shells ───────────────────────────────────────── */
+
+/* Page header — top bar on every page */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.page-header-left h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 3px;
+}
+
+.page-header-left p {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Header actions group (view page has both Back + Edit) */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Page wrapper — wraps table + search bar */
+.page-wrapper {
+  background: var(--color-bg-primary);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Form card — wraps wizard / edit form */
+.form-card {
+  background: var(--color-bg-primary);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Full-page loading overlay (spinner centred) */
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+
+/* ── 04. Section Anatomy ─────────────────────────────────────── */
+
+/* A logical block inside form-card */
+.form-section {
+  padding: 20px 24px;
+}
+
+/* Section header row */
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+/* Coloured icon box in section-header */
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.section-icon.green {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.section-icon.teal {
+  background: linear-gradient(135deg, var(--color-teal), #17c69a);
+  color: #fff;
+}
+
+.section-icon.orange {
+  background: linear-gradient(135deg, var(--color-orange), #f97316);
+  color: #fff;
+}
+
+.section-title {
+  margin: 0 0 2px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.section-sub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* Thin rule between sections inside form-card */
+.section-divider {
+  height: 0;
+  border: none;
+  border-top: var(--border-ter);
+  margin: 0;
+}
+
+
+/* ── 05. Form Grid & Groups ──────────────────────────────────── */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group.full-width,
+.full-width {
+  grid-column: 1 / -1;
+}
+
+
+/* ── 06. Form Labels & Hints ─────────────────────────────────── */
+
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 0;
+}
+
+/* Red asterisk for required fields */
+.form-label .required,
+label .required,
+.required-star {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+/* "Required" marker as sibling element */
+.form-label.required::after {
+  content: '*';
+  color: var(--color-danger);
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+/* Auto-filled pill label */
+.auto-label {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Optional hint */
+.optional {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+}
+
+/* Field-level validation error */
+.field-error-msg {
+  font-size: 11px;
+  color: var(--color-danger);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+
+/* ── 07. Form Controls ───────────────────────────────────────── */
+
+/* Wrapper that holds icon + input in a row */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Leading icon inside input */
+.input-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+/* For textarea, icon aligns to top */
+.textarea-icon {
+  top: 10px;
+  align-self: flex-start;
+}
+
+/* Trailing lock icon */
+.lock-icon {
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+
+/* Read-only / locked state */
+.input-wrap.locked {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.input-wrap.locked .form-input {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+/* Base input */
+.form-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px 0 34px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.form-input:focus {
+  border-color: var(--color-accent-mid);
+  box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+.form-input.is-invalid {
+  border-color: var(--color-danger-border);
+  box-shadow: 0 0 0 3px var(--color-danger-bg);
+}
+
+.form-input:disabled,
+.form-input[readonly] {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+/* Select — needs extra right padding for the arrow */
+.form-select {
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%236b7280' d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+}
+
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Textarea */
+.form-textarea {
+  height: auto;
+  min-height: 72px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* No leading icon — remove left padding */
+.input-wrap:not(:has(.input-icon)) .form-input {
+  padding-left: 12px;
+}
+
+/* Clear button inside search inputs */
+.clear-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+  z-index: 1;
+}
+
+.clear-btn:hover {
+  color: var(--color-danger);
+}
+
+
+/* ── 08. Form Actions Bar ────────────────────────────────────── */
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: var(--border-ter);
+  background: var(--color-bg-secondary);
+}
+
+
+/* ── 09. Buttons ─────────────────────────────────────────────── */
+
+/* ── Submit (primary action) */
+.btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 20px;
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+  border: 0.5px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
+}
+
+.btn-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Cancel / secondary */
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.btn-cancel:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Reset (destructive-secondary) */
+.btn-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  background: var(--color-bg-primary);
+  color: var(--color-warning);
+  border: 0.5px solid var(--color-warning-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-reset:hover:not(:disabled) {
+  background: var(--color-warning-bg);
+}
+
+.btn-reset:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Back button (top-right of page-header) */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+/* ── Edit (top-right of view page) */
+.btn-edit-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 0.5px solid #c4d9f0;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.btn-edit-top:hover {
+  background: #d0e6f7;
+  color: var(--color-accent-dark);
+}
+
+/* ── Primary CTA (list header "Register VAT") */
+.btn-add-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+  border: 0.5px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-add-primary:hover {
+  background: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Desktop-only visibility for add button (FAB shows on mobile) */
+.desktop-add-btn {
+  display: none;
+}
+
+/* ── Export button */
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-export:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+/* ── Table action buttons */
+.action-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 0.5px solid #c4d9f0;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-view:hover {
+  background: #d0e6f7;
+}
+
+.btn-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-edit:hover {
+  background: #e8eef9;
+  color: var(--color-accent);
+}
+
+.btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--color-bg-secondary);
+  color: var(--color-danger);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.btn-delete:hover {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
+}
+
+
+/* ── 10. Status Badges ───────────────────────────────────────── */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.status-active {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.status-inactive {
+  background: var(--color-inactive-bg);
+  color: var(--color-inactive);
+}
+
+.status-pending {
+  background: var(--color-pending-bg);
+  color: var(--color-pending);
+}
+
+.status-suspended {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+
+/* ── 11. VAT Category Badges ─────────────────────────────────── */
+
+.cat-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.cat-standard {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+}
+
+.cat-zero {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+
+.cat-exempt {
+  background: var(--color-orange-light);
+  color: var(--color-orange-dark);
+}
+
+.cat-special {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+
+/* ── 12. Code / BIN / Pill Display ──────────────────────────── */
+
+/* Monospace code chip (TIN, BIN, Reg No) */
+.code-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--color-border-secondary);
+  white-space: nowrap;
+}
+
+.code-badge.green {
+  background: var(--color-teal-light);
+  color: var(--color-teal);
+  border-color: #b0e8db;
+}
+
+/* BIN no. in table rows */
+.bin-code {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* Inline code spans (smaller) */
+.code-sm {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+}
+
+/* VAT Zone pill */
+.zone-badge,
+.zone-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* VAT Circle pill */
+.circle-badge,
+.circle-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--color-border-primary);
+  white-space: nowrap;
+}
+
+/* No-result helper note */
+.no-result-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 12px 16px;
+  background: var(--color-bg-secondary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--radius-md);
+  margin-top: 4px;
+}
+
+.no-result-note i {
+  color: var(--color-orange);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* Expired date highlight */
+.expiry-red {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.expiry-normal {
+  color: var(--color-text-primary);
+}
+
+/* Turnover amount */
+.amt-cell {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ── 13. Data Table (Desktop) ────────────────────────────────── */
+
+.data-table {
+  width: 100%;
+  min-width: 1300px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table thead tr {
+  background: var(--color-bg-secondary);
+  border-bottom: 0.5px solid var(--color-border-primary);
+}
+
+.data-table thead th {
+  padding: 11px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+  white-space: nowrap;
+  border: none;
+}
+
+.data-table tbody tr {
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  transition: background 0.1s;
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-bg-secondary);
+}
+
+.data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.data-table tbody td {
+  padding: 12px 14px;
+  color: var(--color-text-primary);
+  vertical-align: middle;
+  border: none;
+}
+
+/* Avatar + name + sub-text cell */
+.td-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.td-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.td-avatar.vat-avatar {
+  background: var(--color-teal-light);
+  color: var(--color-teal);
+}
+
+.td-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.td-sub {
+  display: block;
+  font-size: 11.5px;
+  color: var(--color-text-secondary);
+  margin-top: 1px;
+}
+
+/* Desktop table wrapper — hidden on mobile */
+.desktop-table {
+  display: none;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+/* ── 14. Mobile Cards ────────────────────────────────────────── */
+
+.mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.mobile-card {
+  background: var(--color-bg-primary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.mobile-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  gap: 10px;
+}
+
+.mobile-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.mobile-avatar.vat-avatar {
+  background: var(--color-teal-light);
+  color: var(--color-teal);
+}
+
+.mobile-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-sub {
+  font-size: 11.5px;
+  color: var(--color-text-secondary);
+  margin-top: 1px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.mobile-card-body {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.mobile-field {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.mobile-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+.mobile-field span {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  text-align: right;
+}
+
+.mobile-card-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-bg-secondary);
+}
+
+.mobile-card-actions .btn-view,
+.mobile-card-actions .btn-edit,
+.mobile-card-actions .btn-delete {
+  flex: 1;
+  justify-content: center;
+}
+
+
+/* ── 15. List Page Search Bar ────────────────────────────────── */
+
+.list-search-bar {
+  padding: 12px 14px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-bg-primary);
+}
+
+.search-field-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-field {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-field i {
+  position: absolute;
+  left: 10px;
+  color: var(--color-text-tertiary);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.search-field input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 34px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-field input:focus {
+  background: var(--color-bg-primary);
+  border-color: var(--color-accent-mid);
+  box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+.search-field input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+
+/* ── 16. View Page Anatomy ───────────────────────────────────── */
+
+/* Coloured hero card at top of view page */
+.view-header-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+  border-radius: var(--radius-lg);
+  padding: 22px 26px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.vat-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.vat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.vat-bin {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: rgba(255, 255, 255, 0.70);
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.vat-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.vat-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Override badge colours on dark bg */
+.view-header-card .cat-badge,
+.view-header-card .zone-pill,
+.view-header-card .circle-pill,
+.view-header-card .status-badge {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+}
+
+.vat-header-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.vat-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.vs-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.vs-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Detail cards grid */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.detail-card {
+  background: var(--color-bg-primary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.detail-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-bg-secondary);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.detail-card-header i {
+  color: var(--color-accent);
+  font-size: 15px;
+}
+
+.detail-body {
+  padding: 4px 16px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  flex-shrink: 0;
+  min-width: 120px;
+}
+
+.detail-value {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  text-align: right;
+}
+
+.detail-value.turnover {
+  color: var(--color-teal);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.address-val {
+  font-size: 12.5px;
+  line-height: 1.6;
+  text-align: right;
+}
+
+
+/* ── 17. Edit Banner ─────────────────────────────────────────── */
+
+.edit-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--color-accent-light);
+  border-bottom: 0.5px solid #c4d9f0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.edit-banner i {
+  font-size: 16px;
+}
+
+.banner-bin {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--color-bg-primary);
+  color: var(--color-accent);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  border: 0.5px solid #c4d9f0;
+}
+
+
+/* ── 18. Loading & Empty States ──────────────────────────────── */
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 14px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 40px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 13.5px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-weight: 500;
+}
+
+
+/* ── 19. Modal ───────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.modal-card {
+  background: var(--color-bg-primary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 28px 28px 24px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Top accent bar */
+.modal-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-accent);
+}
+
+.modal-accent.error {
+  background: var(--color-danger);
+}
+
+.modal-accent.success {
+  background: var(--color-success);
+}
+
+.modal-accent.warning {
+  background: var(--color-orange);
+}
+
+/* Icon circle */
+.modal-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.modal-icon-wrap.error {
+  background: var(--color-danger-bg);
+}
+
+.modal-icon-wrap.success {
+  background: var(--color-success-bg);
+}
+
+.modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.modal-msg {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  max-width: 340px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-modal-cancel {
+  flex: 1;
+  padding: 9px 16px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-modal-cancel:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.btn-modal-confirm {
+  flex: 1;
+  padding: 9px 16px;
+  background: var(--color-accent);
+  color: #fff;
+  border: 0.5px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-modal-confirm:hover {
+  background: var(--color-accent-dark);
+}
+
+.btn-modal-confirm.error {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.btn-modal-confirm.error:hover {
+  background: #8b1a1a;
+}
+
+
+/* ── 20. FAB Button ──────────────────────────────────────────── */
+
+.fab-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(24, 95, 165, 0.40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  transition: var(--transition);
+  z-index: 900;
+}
+
+.fab-btn:hover {
+  background: var(--color-accent-dark);
+  transform: scale(1.05);
+}
+
+/* FAB only visible on mobile */
+.fab-btn {
+  display: flex;
+}
+
+
+/* ── 21. Responsive Breakpoints ──────────────────────────────── */
+
+/* Mobile-first: cards visible, table hidden */
+@media (min-width: 768px) {
+  .desktop-table    { display: block; }
+  .mobile-cards     { display: none; }
+  .desktop-add-btn  { display: inline-flex; }
+  .fab-btn          { display: none; }
+
+  .details-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .desktop-table    { display: none; }
+  .mobile-cards     { display: flex; }
+  .desktop-add-btn  { display: none; }
+  .fab-btn          { display: flex; }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-section {
+    padding: 16px;
+  }
+
+  .form-actions {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+
+  .form-actions .btn-submit {
+    width: 100%;
+    justify-content: center;
+    order: -1;
+  }
+
+  .view-header-card {
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .vat-header-right {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search-field-row {
+    flex-wrap: wrap;
+  }
+}

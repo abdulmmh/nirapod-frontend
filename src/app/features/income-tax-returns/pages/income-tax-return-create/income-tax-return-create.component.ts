@@ -490,7 +490,8 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   // ── Navigation helpers ────────────────────────────────────────────────────
 
   onCancel(): void {
-    this.router.navigate([this.returnUrl]);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    this.router.navigateByUrl(returnUrl || '/income-tax-returns');
   }
   goToList(): void {
     this.router.navigate([this.returnUrl]);

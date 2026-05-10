@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Tin } from '../../../../models/tin.model';
 import { finalize, Subject, takeUntil } from 'rxjs';
@@ -28,6 +28,7 @@ export class TinListComponent implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
+    private route: ActivatedRoute,
     private router: Router,
     private toast: ToastService,
   ) {}
@@ -151,10 +152,20 @@ export class TinListComponent implements OnInit, OnDestroy {
   // ───────────────── Navigation ───────────────────────
 
   view(id: number): void {
-    this.router.navigate(['/tin/view', id]);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/my-portal/tin/view', id]);
+    }
   }
   edit(id: number): void {
-    this.router.navigate(['/tin/edit', id]);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/my-portal/tin/edit', id]);
+    }
   }
 
 
