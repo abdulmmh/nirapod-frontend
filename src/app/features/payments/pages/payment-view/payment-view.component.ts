@@ -85,6 +85,11 @@ export class PaymentViewComponent implements OnInit, OnDestroy {
   }
 
   onBack(): void {
-    this.router.navigate(['/payments']);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/payments']);
+    }
   }
 }

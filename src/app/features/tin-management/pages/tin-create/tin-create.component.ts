@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { TinCreateRequest } from '../../../../models/tin.model';
 import { Taxpayer } from '../../../../models/taxpayer.model';
@@ -48,6 +48,7 @@ export class TinCreateComponent implements OnDestroy {
 
   constructor(
     private http: HttpClient,
+    private route: ActivatedRoute,
     private router: Router,
     private toast: ToastService,
   ) {
@@ -368,7 +369,12 @@ export class TinCreateComponent implements OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/tin']);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/tin']);
+    }
   }
 
   private getEmptyForm(): TinCreateRequest {

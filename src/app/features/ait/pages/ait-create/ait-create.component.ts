@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
@@ -35,6 +35,7 @@ export class AitCreateComponent implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
+    private route: ActivatedRoute,
     private router: Router,
     private toast: ToastService,
     private masterData: MasterDataService,
@@ -214,6 +215,11 @@ export class AitCreateComponent implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/ait']);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/ait']);
+    }
   }
 }

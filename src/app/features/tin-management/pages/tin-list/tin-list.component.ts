@@ -156,15 +156,16 @@ export class TinListComponent implements OnInit, OnDestroy {
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
-      this.router.navigate(['/my-portal/tin/view', id]);
+      this.router.navigate(['/tin/view', id]);
     }
   }
+
   edit(id: number): void {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
-      this.router.navigate(['/my-portal/tin/edit', id]);
+      this.router.navigate(['/tin/edit', id]);
     }
   }
 

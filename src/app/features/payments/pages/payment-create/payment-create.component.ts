@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -41,6 +41,7 @@ export class PaymentCreateComponent implements OnDestroy {
 
   constructor(
     private http: HttpClient,
+    private route: ActivatedRoute,
     private router: Router,
     private toast: ToastService,
     private authService: AuthService
@@ -219,7 +220,12 @@ export class PaymentCreateComponent implements OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/payments']);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/payments']);
+    }
   }
 
   private getEmptyForm(): PaymentCreateRequest {
