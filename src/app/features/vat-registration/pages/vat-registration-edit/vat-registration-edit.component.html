@@ -3,11 +3,10 @@
     <h4>Edit VAT Registration</h4>
     <p>Update VAT registration details.</p>
   </div>
-  <button class="btn-back" (click)="onCancel()">
+  <button class="btn-back" type="button" (click)="onCancel()">
     <i class="bi bi-arrow-left"></i> Back to View
   </button>
 </div>
-
 
 <div class="loading-overlay" *ngIf="isLoading">
   <div class="spinner-border text-success"></div>
@@ -16,13 +15,14 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
   <div class="form-card" *ngIf="!isLoading">
 
+    <!-- Edit Banner -->
     <div class="edit-banner">
       <i class="bi bi-pencil-square"></i>
       Editing: <strong>{{ businessName }}</strong>
       <span class="banner-bin">{{ binNo }}</span>
     </div>
 
-    <!-- Section 1: Business Identity -->
+    <!-- ── Section 1: Business Identity ──────────────────────────────── -->
     <div class="form-section">
       <div class="section-header">
         <div class="section-icon">
@@ -33,21 +33,27 @@
           <span class="section-sub">Basic business and VAT information</span>
         </div>
       </div>
+
       <div class="form-grid">
+
         <div class="form-group">
           <label class="form-label required">TIN Number</label>
           <div class="input-wrap">
             <i class="bi bi-upc-scan input-icon"></i>
-            <input type="text" class="form-input" formControlName="tinNumber" />
+            <input type="text" class="form-input" formControlName="tinNumber"
+              [class.is-invalid]="ctrl('tinNumber')?.invalid && ctrl('tinNumber')?.touched" />
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label required">Business Name</label>
           <div class="input-wrap">
             <i class="bi bi-building input-icon"></i>
-            <input type="text" class="form-input" formControlName="businessName" />
+            <input type="text" class="form-input" formControlName="businessName"
+              [class.is-invalid]="ctrl('businessName')?.invalid && ctrl('businessName')?.touched" />
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Owner Name</label>
           <div class="input-wrap">
@@ -55,15 +61,19 @@
             <input type="text" class="form-input" formControlName="ownerName" />
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label required">VAT Category</label>
           <div class="input-wrap">
             <i class="bi bi-tag-fill input-icon"></i>
-            <select class="form-input form-select" formControlName="vatCategory">
+            <select class="form-input form-select" formControlName="vatCategory"
+              [class.is-invalid]="ctrl('vatCategory')?.invalid && ctrl('vatCategory')?.touched">
+              <option value="">Select Category</option>
               <option *ngFor="let c of vatCategories" [value]="c">{{ c }}</option>
             </select>
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Business Type</label>
           <div class="input-wrap">
@@ -74,6 +84,7 @@
             </select>
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Business Category</label>
           <div class="input-wrap">
@@ -84,6 +95,7 @@
             </select>
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Trade License No.</label>
           <div class="input-wrap">
@@ -91,6 +103,7 @@
             <input type="text" class="form-input" formControlName="tradeLicenseNo" />
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Status</label>
           <div class="input-wrap">
@@ -100,45 +113,76 @@
             </select>
           </div>
         </div>
+
       </div>
     </div>
 
     <div class="section-divider"></div>
 
-    <!-- Section 2: VAT Authority -->
+    <!-- ── Section 2: VAT Authority & Dates ──────────────────────────── -->
     <div class="form-section">
       <div class="section-header">
         <div class="section-icon teal">
           <i class="bi bi-receipt-cutoff"></i>
         </div>
         <div>
-          <h6 class="section-title">VAT Authority & Dates</h6>
-          <span class="section-sub">Zone, circle and registration dates</span>
+          <h6 class="section-title">VAT Authority &amp; Dates</h6>
+          <span class="section-sub">
+            Zone and circle can be updated independently.
+            Changing division updates the location fields only.
+          </span>
         </div>
       </div>
+
       <div class="form-grid">
+
+        <!--
+          VAT Zone: NOT gated on districtId in edit mode.
+          Zone is stored directly (zoneId column) and is independent
+          of the division/district location fields here.
+          The (change) handler loads circles for the selected zone.
+        -->
         <div class="form-group">
           <label class="form-label required">VAT Zone</label>
           <div class="input-wrap">
             <i class="bi bi-grid-fill input-icon"></i>
-            <select class="form-input form-select" formControlName="vatZoneId" (change)="onZoneChange()"
-              [attr.disabled]="!ctrl('districtId')?.value ? true : null">
-              <option [value]="null">{{ loadingZones ? 'Loading...' : 'Select Zone' }}</option>
+            <select
+              class="form-input form-select"
+              formControlName="vatZoneId"
+              (change)="onZoneChange()"
+              [class.is-invalid]="ctrl('vatZoneId')?.invalid && ctrl('vatZoneId')?.touched"
+            >
+              <option [value]="null">Select Zone</option>
               <option *ngFor="let z of vatZones" [value]="z.id">{{ z.name }}</option>
             </select>
           </div>
+          <span class="field-error-msg"
+            *ngIf="ctrl('vatZoneId')?.errors?.['required'] && ctrl('vatZoneId')?.touched">
+            VAT zone is required.
+          </span>
         </div>
+
+        <!-- VAT Circle: still gated on zone (requires a zone to be selected) -->
         <div class="form-group">
           <label class="form-label required">VAT Circle</label>
           <div class="input-wrap">
             <i class="bi bi-circle-fill input-icon"></i>
-            <select class="form-input form-select" formControlName="vatCircleId"
-              [attr.disabled]="!ctrl('vatZoneId')?.value ? true : null">
-              <option [value]="null">{{ loadingCircles ? 'Loading...' : 'Select Circle' }}</option>
+            <select
+              class="form-input form-select"
+              formControlName="vatCircleId"
+              [attr.disabled]="!ctrl('vatZoneId')?.value ? true : null"
+              [class.is-invalid]="ctrl('vatCircleId')?.invalid && ctrl('vatCircleId')?.touched"
+            >
+              <option [value]="null">{{ loadingCircles ? 'Loading circles…' : 'Select Circle' }}</option>
               <option *ngFor="let vc of vatCircles" [value]="vc.id">{{ vc.name }}</option>
             </select>
           </div>
+          <span class="field-error-msg"
+            *ngIf="ctrl('vatCircleId')?.errors?.['required'] && ctrl('vatCircleId')?.touched">
+            VAT circle is required.
+          </span>
         </div>
+
         <div class="form-group">
           <label class="form-label">Registration Date</label>
           <div class="input-wrap">
@@ -146,6 +190,7 @@
             <input type="date" class="form-input" formControlName="registrationDate" />
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Effective Date</label>
           <div class="input-wrap">
@@ -153,6 +198,7 @@
             <input type="date" class="form-input" formControlName="effectiveDate" />
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Expiry Date</label>
           <div class="input-wrap">
@@ -160,65 +206,97 @@
             <input type="date" class="form-input" formControlName="expiryDate" />
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Annual Turnover (৳)</label>
           <div class="input-wrap">
             <i class="bi bi-currency-dollar input-icon"></i>
-            <input type="number" class="form-input" formControlName="annualTurnover" />
+            <input type="number" class="form-input" formControlName="annualTurnover" min="0" />
           </div>
         </div>
+
       </div>
     </div>
 
     <div class="section-divider"></div>
 
-    <!-- Section 3: Contact -->
+    <!-- ── Section 3: Contact & Location ─────────────────────────────── -->
     <div class="form-section">
       <div class="section-header">
         <div class="section-icon orange">
           <i class="bi bi-geo-alt-fill"></i>
         </div>
         <div>
-          <h6 class="section-title">Contact & Location</h6>
+          <h6 class="section-title">Contact &amp; Location</h6>
           <span class="section-sub">Contact details and address</span>
         </div>
       </div>
+
       <div class="form-grid">
+
         <div class="form-group">
           <label class="form-label">Email</label>
           <div class="input-wrap">
             <i class="bi bi-envelope-fill input-icon"></i>
-            <input type="email" class="form-input" formControlName="email" />
+            <input type="email" class="form-input" formControlName="email"
+              [class.is-invalid]="ctrl('email')?.invalid && ctrl('email')?.touched" />
           </div>
+          <span class="field-error-msg"
+            *ngIf="ctrl('email')?.errors?.['email'] && ctrl('email')?.touched">
+            Enter a valid email address.
+          </span>
         </div>
+
         <div class="form-group">
           <label class="form-label required">Phone</label>
           <div class="input-wrap">
             <i class="bi bi-telephone-fill input-icon"></i>
-            <input type="text" class="form-input" formControlName="phone" />
+            <input type="text" class="form-input" formControlName="phone"
+              [class.is-invalid]="ctrl('phone')?.invalid && ctrl('phone')?.touched" />
           </div>
+          <span class="field-error-msg"
+            *ngIf="ctrl('phone')?.errors?.['required'] && ctrl('phone')?.touched">
+            Phone is required.
+          </span>
         </div>
+
+        <!--
+          Division: reactive cascade fires via setupCascadeListeners().
+          No (change) handler — the valueChanges listener handles it.
+        -->
         <div class="form-group">
           <label class="form-label">Division</label>
           <div class="input-wrap">
             <i class="bi bi-map-fill input-icon"></i>
-            <select class="form-input form-select" formControlName="divisionId" (change)="onDivisionChange()">
+            <select class="form-input form-select" formControlName="divisionId">
               <option [value]="null">Select Division</option>
               <option *ngFor="let d of divisions" [value]="d.id">{{ d.name }}</option>
             </select>
           </div>
         </div>
+
+        <!--
+          District: populated by the reactive division cascade.
+          Gated on divisionId being selected (no division → no districts to show).
+          Does NOT gate zone selection — zone is independent in edit mode.
+        -->
         <div class="form-group">
           <label class="form-label">District</label>
           <div class="input-wrap">
             <i class="bi bi-geo-fill input-icon"></i>
-            <select class="form-input form-select" formControlName="districtId" (change)="onDistrictChange()"
-              [attr.disabled]="!ctrl('divisionId')?.value ? true : null">
-              <option [value]="null">{{ loadingDistricts ? 'Loading...' : 'Select District' }}</option>
+            <select
+              class="form-input form-select"
+              formControlName="districtId"
+              [attr.disabled]="!ctrl('divisionId')?.value ? true : null"
+            >
+              <option [value]="null">
+                {{ loadingDistricts ? 'Loading districts…' : 'Select District' }}
+              </option>
               <option *ngFor="let d of districts" [value]="d.id">{{ d.name }}</option>
             </select>
           </div>
         </div>
+
         <div class="form-group full-width">
           <label class="form-label">Address</label>
           <div class="input-wrap">
@@ -226,6 +304,7 @@
             <textarea class="form-input form-textarea" formControlName="address" rows="2"></textarea>
           </div>
         </div>
+
         <div class="form-group full-width">
           <label class="form-label">Remarks</label>
           <div class="input-wrap">
@@ -233,17 +312,22 @@
             <textarea class="form-input form-textarea" formControlName="remarks" rows="2"></textarea>
           </div>
         </div>
+
       </div>
     </div>
 
-    <!-- Actions -->
+    <!-- ── Form Actions ───────────────────────────────────────────────── -->
     <div class="form-actions">
-      <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
+      <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
         <i class="bi bi-x-lg"></i> Cancel
       </button>
-      <button class="btn-submit" type="submit" [disabled]="isSaving || form.invalid">
-        <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update VAT Registration</span>
-        <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+      <button type="submit" class="btn-submit" [disabled]="isSaving || form.invalid">
+        <span *ngIf="!isSaving">
+          <i class="bi bi-check-lg"></i> Update VAT Registration
+        </span>
+        <span *ngIf="isSaving">
+          <span class="spinner-border spinner-border-sm me-2"></span>Updating…
+        </span>
       </button>
     </div>
 
