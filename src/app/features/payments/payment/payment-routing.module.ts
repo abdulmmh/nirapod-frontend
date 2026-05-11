@@ -19,7 +19,7 @@ const routes: Routes = [
         path: 'create',
         component: PaymentCreateComponent,
         canActivate: [AuthGuard],
-        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
       },
       {
         path: 'view/:id',
