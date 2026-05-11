@@ -331,7 +331,9 @@ export class TinEditComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('TIN record updated successfully!');
-          this.router.navigate(['/tin/view', this.tinId]);
+          this.router.navigate(['../../view', this.tinId], {
+            relativeTo: this.route
+          });
         },
         error: () => {
           this.toast.error('Failed to update TIN record. Please try again.');
@@ -340,6 +342,8 @@ export class TinEditComponent implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/tin/view', this.tinId]);
+    this.router.navigate(['../../view', this.tinId], {
+      relativeTo: this.route
+    });
   }
 }

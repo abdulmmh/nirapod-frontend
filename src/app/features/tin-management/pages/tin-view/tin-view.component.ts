@@ -132,16 +132,21 @@ export class TinViewComponent implements OnInit, OnDestroy {
 
   onEdit(): void {
     if (this.tin?.id) {
-      this.router.navigate(['/tin/edit', this.tin.id]);
+      this.router.navigate(['edit', this.tin.id], {
+        relativeTo: this.route
+      });
     }
   }
 
   onBack(): void {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
-      this.router.navigate(['/tin']);
+      this.router.navigate(['../..'], {
+        relativeTo: this.route
+      });
     }
   }
 

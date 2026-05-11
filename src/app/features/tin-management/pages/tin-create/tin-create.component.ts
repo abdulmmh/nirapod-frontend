@@ -370,10 +370,13 @@ export class TinCreateComponent implements OnDestroy {
 
   onCancel(): void {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
-      this.router.navigate(['/tin']);
+      this.router.navigate(['..'], {
+        relativeTo: this.route
+      });
     }
   }
 
