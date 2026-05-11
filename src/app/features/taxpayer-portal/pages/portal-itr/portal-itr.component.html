@@ -7,7 +7,7 @@
     <div>
       <h2 class="itr-title">Income Tax Returns</h2>
       <p class="itr-sub">
-        View and file your income tax returns — assessment year {{ currentUser?.fullName ? '' : '' }}
+        View and file your annual income tax returns
       </p>
     </div>
   </div>
@@ -144,9 +144,12 @@
         <div class="itr-stat-label">Net tax payable</div>
         <div class="itr-stat-value tax">{{ formatCurrency(netPayableOf(r)) }}</div>
       </div>
-      <div class="itr-stat" *ngIf="refundableOf(r) > 0">
+      <div class="itr-stat">
         <div class="itr-stat-label">Refundable</div>
-        <div class="itr-stat-value refund">{{ formatCurrency(refundableOf(r)) }}</div>
+        <div class="itr-stat-value refund" *ngIf="refundableOf(r) > 0">
+          {{ formatCurrency(refundableOf(r)) }}
+        </div>
+        <div class="itr-stat-value" *ngIf="refundableOf(r) === 0" style="color:#aaa">—</div>
       </div>
     </div>
 

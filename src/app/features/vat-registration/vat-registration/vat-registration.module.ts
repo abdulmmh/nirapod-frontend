@@ -5,13 +5,13 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { VatRegistrationRoutingModule } from './vat-registration-routing.module';
 
-import { VatRegistrationListComponent } from '../pages/vat-registration-list/vat-registration-list.component';
-import { VatRegistrationCreateComponent } from '../pages/vat-registration-create/vat-registration-create.component';
-import { VatRegistrationViewComponent } from '../pages/vat-registration-view/vat-registration-view.component';
-import { VatRegistrationEditComponent } from '../pages/vat-registration-edit/vat-registration-edit.component';
-import { TaxpayerSearchComponent } from '../components/taxpayer-search/taxpayer-search.component';
-import { BusinessPickerComponent } from '../components/business-picker/business-picker.component';
-
+import { VatRegistrationListComponent }    from '../pages/vat-registration-list/vat-registration-list.component';
+import { VatRegistrationCreateComponent }  from '../pages/vat-registration-create/vat-registration-create.component';
+import { VatRegistrationViewComponent }    from '../pages/vat-registration-view/vat-registration-view.component';
+import { VatRegistrationEditComponent }    from '../pages/vat-registration-edit/vat-registration-edit.component';
+import { VatRegistrationSuccessComponent } from '../pages/vat-registration-success/vat-registration-success.component';
+import { TaxpayerSearchComponent }         from '../components/taxpayer-search/taxpayer-search.component';
+import { BusinessPickerComponent }         from '../components/business-picker/business-picker.component';
 
 @NgModule({
   declarations: [
@@ -19,8 +19,9 @@ import { BusinessPickerComponent } from '../components/business-picker/business-
     VatRegistrationCreateComponent,
     VatRegistrationViewComponent,
     VatRegistrationEditComponent,
+    VatRegistrationSuccessComponent,   
 
-    // Child components 
+    // Child components
     TaxpayerSearchComponent,
     BusinessPickerComponent,
   ],
@@ -30,7 +31,7 @@ import { BusinessPickerComponent } from '../components/business-picker/business-
     ReactiveFormsModule,
     RouterModule,
     SharedModule,
-    VatRegistrationRoutingModule
-  ]
+    VatRegistrationRoutingModule,
+  ],
 })
-export class VatRegistrationModule { }
+export class VatRegistrationModule {}

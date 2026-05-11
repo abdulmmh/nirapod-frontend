@@ -1,8 +1,4 @@
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -29,7 +25,10 @@ import { ToastService } from '../../../../shared/toast/toast.service';
 import { MasterDataService } from '../../../../core/services/master-data.service';
 import { Division, District } from '../../../../models/master-data.model';
 import { BusinessVatStatus } from '../../../../models/business.model';
-import { VatRegistrationCreateRequest } from '../../../../models/vat-registration.model';
+import {
+  VatRegistration,
+  VatRegistrationCreateRequest,
+} from '../../../../models/vat-registration.model';
 
 type WizardStep = 1 | 2 | 3;
 
@@ -49,7 +48,6 @@ interface VatRegDraft {
   styleUrls: ['./vat-registration-create.component.css'],
 })
 export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
-
   // ── Wizard state ────────────────────────────────────────────────────────
   currentStep: WizardStep = 1;
 
@@ -66,17 +64,22 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   isLoading = false;
 
   // ── Static dropdowns ────────────────────────────────────────────────────
-  readonly vatCategories: string[] = ['Standard', 'Zero Rated', 'Exempt', 'Special'];
+  readonly vatCategories: string[] = [
+    'Standard',
+    'Zero Rated',
+    'Exempt',
+    'Special',
+  ];
 
   // ── Dynamic master-data dropdowns ───────────────────────────────────────
   divisions: Division[] = [];
   districts: District[] = [];
-  vatZones:  any[] = [];
+  vatZones: any[] = [];
   vatCircles: any[] = [];
 
   loadingDistricts = false;
-  loadingZones     = false;
-  loadingCircles   = false;
+  loadingZones = false;
+  loadingCircles = false;
 
   // ── Cascade-restore pending values ──────────────────────────────────────
   /** Set before patching divisionId so the district subscriber can auto-select. */
@@ -93,16 +96,16 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   private _pendingDraft: VatRegDraft | null = null;
 
   // ── Review modal ────────────────────────────────────────────────────────
-  showReviewModal     = false;
+  showReviewModal = false;
   declarationAccepted = false;
 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private fb:         FormBuilder,
-    private http:       HttpClient,
-    private router:     Router,
-    private toast:      ToastService,
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
     private masterData: MasterDataService,
   ) {}
 
@@ -126,17 +129,17 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   private buildForm(): void {
     this.form = this.fb.group(
       {
-        taxpayerId:       [null],
-        businessId:       [null],
-        vatZoneId:        [null, Validators.required],
-        vatCircleId:      [null, Validators.required],
-        districtId:       [null],
-        divisionId:       [null],
-        vatCategory:      ['', Validators.required],
+        taxpayerId: [null],
+        businessId: [null],
+        vatZoneId: [null, Validators.required],
+        vatCircleId: [null, Validators.required],
+        districtId: [null],
+        divisionId: [null],
+        vatCategory: ['', Validators.required],
         registrationDate: [new Date().toISOString().split('T')[0]],
-        effectiveDate:    [''],
-        expiryDate:       [''],
-        remarks:          [''],
+        effectiveDate: [''],
+        expiryDate: [''],
+        remarks: [''],
       },
       { validators: this.effectiveDateValidator() },
     );
@@ -169,93 +172,101 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     this.masterData
       .getDivisions()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => (this.divisions = data));
+      .subscribe((data) => (this.divisions = data));
   }
 
   // ── Cascade: Division → District → Zone → Circle ─────────────────────────
 
   private setupCascadeListeners(): void {
-
     // Division → Districts
-    this.form.get('divisionId')!.valueChanges.pipe(
-      takeUntil(this.destroy$),
-      tap(() => {
-        this.districts  = [];
-        this.vatZones   = [];
-        this.vatCircles = [];
-        this.form.patchValue(
-          { districtId: null, vatZoneId: null, vatCircleId: null },
-          { emitEvent: false },
-        );
-      }),
-      filter(id => !!id),
-      switchMap(id => {
-        this.loadingDistricts = true;
-        return this.masterData.getDistrictsByDivision(id).pipe(
-          catchError(() => of([])),
-          finalize(() => (this.loadingDistricts = false)),
-        );
-      }),
-    ).subscribe(districts => {
-      this.districts = districts;
-      // Apply pending districtId from draft restore or business selection.
-      if (this.pendingDistrictId !== null) {
-        this.form.patchValue({ districtId: this.pendingDistrictId });
-        this.pendingDistrictId = null;
-      }
-    });
+    this.form
+      .get('divisionId')!
+      .valueChanges.pipe(
+        takeUntil(this.destroy$),
+        tap(() => {
+          this.districts = [];
+          this.vatZones = [];
+          this.vatCircles = [];
+          this.form.patchValue(
+            { districtId: null, vatZoneId: null, vatCircleId: null },
+            { emitEvent: false },
+          );
+        }),
+        filter((id) => !!id),
+        switchMap((id) => {
+          this.loadingDistricts = true;
+          return this.masterData.getDistrictsByDivision(id).pipe(
+            catchError(() => of([])),
+            finalize(() => (this.loadingDistricts = false)),
+          );
+        }),
+      )
+      .subscribe((districts) => {
+        this.districts = districts;
+        // Apply pending districtId from draft restore or business selection.
+        if (this.pendingDistrictId !== null) {
+          this.form.patchValue({ districtId: this.pendingDistrictId });
+          this.pendingDistrictId = null;
+        }
+      });
 
     // District → Tax Zones
-    this.form.get('districtId')!.valueChanges.pipe(
-      takeUntil(this.destroy$),
-      tap(() => {
-        this.vatZones   = [];
-        this.vatCircles = [];
-        this.form.patchValue(
-          { vatZoneId: null, vatCircleId: null },
-          { emitEvent: false },
-        );
-      }),
-      filter(id => !!id),
-      switchMap(id => {
-        this.loadingZones = true;
-        return this.masterData.getTaxZonesByDistrict(id).pipe(
-          catchError(() => of([])),
-          finalize(() => (this.loadingZones = false)),
-        );
-      }),
-    ).subscribe(zones => {
-      this.vatZones = zones;
-      // Apply pending vatZoneId from draft restore.
-      if (this.pendingVatZoneId !== null) {
-        this.form.patchValue({ vatZoneId: this.pendingVatZoneId });
-        this.pendingVatZoneId = null;
-      }
-    });
+    this.form
+      .get('districtId')!
+      .valueChanges.pipe(
+        takeUntil(this.destroy$),
+        tap(() => {
+          this.vatZones = [];
+          this.vatCircles = [];
+          this.form.patchValue(
+            { vatZoneId: null, vatCircleId: null },
+            { emitEvent: false },
+          );
+        }),
+        filter((id) => !!id),
+        switchMap((id) => {
+          this.loadingZones = true;
+          return this.masterData.getTaxZonesByDistrict(id).pipe(
+            catchError(() => of([])),
+            finalize(() => (this.loadingZones = false)),
+          );
+        }),
+      )
+      .subscribe((zones) => {
+        this.vatZones = zones;
+        // Apply pending vatZoneId from draft restore.
+        if (this.pendingVatZoneId !== null) {
+          this.form.patchValue({ vatZoneId: this.pendingVatZoneId });
+          this.pendingVatZoneId = null;
+        }
+      });
 
     // Zone → Circles
-    this.form.get('vatZoneId')!.valueChanges.pipe(
-      takeUntil(this.destroy$),
-      tap(() => {
-        this.vatCircles = [];
-        this.form.patchValue({ vatCircleId: null }, { emitEvent: false });
-      }),
-      filter(id => !!id),
-      switchMap(id => {
-        this.loadingCircles = true;
-        return this.masterData.getTaxCirclesByZone(id).pipe(
-          catchError(() => of([])),
-          finalize(() => (this.loadingCircles = false)),
-        );
-      }),
-    ).subscribe(circles => {
-      this.vatCircles = circles;
-      // Apply pending vatCircleId from draft restore.
-      if (this.pendingVatCircleId !== null) {
-        this.form.patchValue({ vatCircleId: this.pendingVatCircleId });
-        this.pendingVatCircleId = null;
-      }
-    });
+    this.form
+      .get('vatZoneId')!
+      .valueChanges.pipe(
+        takeUntil(this.destroy$),
+        tap(() => {
+          this.vatCircles = [];
+          this.form.patchValue({ vatCircleId: null }, { emitEvent: false });
+        }),
+        filter((id) => !!id),
+        switchMap((id) => {
+          this.loadingCircles = true;
+          return this.masterData.getTaxCirclesByZone(id).pipe(
+            catchError(() => of([])),
+            finalize(() => (this.loadingCircles = false)),
+          );
+        }),
+      )
+      .subscribe((circles) => {
+        this.vatCircles = circles;
+        // Apply pending vatCircleId from draft restore.
+        if (this.pendingVatCircleId !== null) {
+          this.form.patchValue({ vatCircleId: this.pendingVatCircleId });
+          this.pendingVatCircleId = null;
+        }
+      });
   }
 
   // ── Draft: Auto-save ──────────────────────────────────────────────────────
@@ -265,22 +276,21 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
    * Only persists if a taxpayer has already been selected (Step 1+ complete).
    */
   private setupDraftAutoSave(): void {
-    this.form.valueChanges.pipe(
-      debounceTime(800),
-      takeUntil(this.destroy$),
-    ).subscribe(() => this.saveDraft());
+    this.form.valueChanges
+      .pipe(debounceTime(800), takeUntil(this.destroy$))
+      .subscribe(() => this.saveDraft());
   }
 
   private saveDraft(): void {
     // Nothing worth saving until at least a taxpayer is chosen.
     if (!this.selectedTaxpayer) return;
     const draft: VatRegDraft = {
-      savedAt:         new Date().toISOString(),
-      currentStep:     this.currentStep,
+      savedAt: new Date().toISOString(),
+      currentStep: this.currentStep,
       selectedTaxpayer: this.selectedTaxpayer,
-      businesses:      this.businesses,
+      businesses: this.businesses,
       selectedBusiness: this.selectedBusiness,
-      formValues:      this.form.getRawValue(),
+      formValues: this.form.getRawValue(),
     };
     try {
       localStorage.setItem(this.DRAFT_KEY, JSON.stringify(draft));
@@ -319,31 +329,34 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
    * patching divisionId — the reactive subscribers handle the rest.
    */
   private applyDraft(draft: VatRegDraft): void {
-    this.selectedTaxpayer  = draft.selectedTaxpayer;
-    this.businesses        = draft.businesses ?? [];
-    this.selectedBusiness  = draft.selectedBusiness;
-    this.currentStep       = draft.currentStep ?? 1;
+    this.selectedTaxpayer = draft.selectedTaxpayer;
+    this.businesses = draft.businesses ?? [];
+    this.selectedBusiness = draft.selectedBusiness;
+    this.currentStep = draft.currentStep ?? 1;
 
     const fv = draft.formValues;
 
     // Patch non-cascade fields without emitting (avoids premature cascade triggers).
-    this.form.patchValue({
-      taxpayerId:       fv['taxpayerId'],
-      businessId:       fv['businessId'],
-      vatCategory:      fv['vatCategory'],
-      registrationDate: fv['registrationDate'],
-      effectiveDate:    fv['effectiveDate'],
-      expiryDate:       fv['expiryDate'],
-      remarks:          fv['remarks'],
-    }, { emitEvent: false });
+    this.form.patchValue(
+      {
+        taxpayerId: fv['taxpayerId'],
+        businessId: fv['businessId'],
+        vatCategory: fv['vatCategory'],
+        registrationDate: fv['registrationDate'],
+        effectiveDate: fv['effectiveDate'],
+        expiryDate: fv['expiryDate'],
+        remarks: fv['remarks'],
+      },
+      { emitEvent: false },
+    );
 
     // Arm the pending cascade values, then trigger from the top.
     // Division change → loads districts → applies pendingDistrictId
     //   District change → loads zones → applies pendingVatZoneId
     //     Zone change → loads circles → applies pendingVatCircleId
     if (fv['divisionId']) {
-      this.pendingDistrictId  = fv['districtId']  ?? null;
-      this.pendingVatZoneId   = fv['vatZoneId']   ?? null;
+      this.pendingDistrictId = fv['districtId'] ?? null;
+      this.pendingVatZoneId = fv['vatZoneId'] ?? null;
       this.pendingVatCircleId = fv['vatCircleId'] ?? null;
       // Emit event so the cascade switchMap fires.
       this.form.patchValue({ divisionId: fv['divisionId'] });
@@ -356,20 +369,24 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       this.applyDraft(this._pendingDraft);
       this.toast.info('Draft restored. Continue where you left off.');
     }
-    this._pendingDraft  = null;
+    this._pendingDraft = null;
     this.showDraftBanner = false;
   }
 
   /** Officer discards — clear localStorage and hide the banner. */
   discardDraft(): void {
-    this._pendingDraft  = null;
+    this._pendingDraft = null;
     this.showDraftBanner = false;
     this.clearDraft();
     this.toast.info('Draft discarded. Starting fresh.');
   }
 
   private clearDraft(): void {
-    try { localStorage.removeItem(this.DRAFT_KEY); } catch { /* ignore */ }
+    try {
+      localStorage.removeItem(this.DRAFT_KEY);
+    } catch {
+      /* ignore */
+    }
   }
 
   /** Human-readable timestamp shown in the draft banner. */
@@ -379,12 +396,13 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       if (!raw) return '';
       const draft: VatRegDraft = JSON.parse(raw);
       if (!draft.savedAt) return '';
-      const diffMs   = Date.now() - new Date(draft.savedAt).getTime();
+      const diffMs = Date.now() - new Date(draft.savedAt).getTime();
       const diffMins = Math.floor(diffMs / 60_000);
-      if (diffMins < 1)  return 'just now';
-      if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+      if (diffMins < 1) return 'just now';
+      if (diffMins < 60)
+        return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
       const diffHrs = Math.floor(diffMins / 60);
-      if (diffHrs  < 24) return `${diffHrs} hour${diffHrs > 1 ? 's' : ''} ago`;
+      if (diffHrs < 24) return `${diffHrs} hour${diffHrs > 1 ? 's' : ''} ago`;
       return new Date(draft.savedAt).toLocaleDateString();
     } catch {
       return '';
@@ -401,9 +419,15 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     );
   }
 
-  get stepOneComplete(): boolean { return this.selectedTaxpayer !== null; }
-  get stepTwoComplete(): boolean { return this.isCompany || this.selectedBusiness !== null; }
-  get canSubmit():       boolean { return this.form.valid && this.stepOneComplete && this.stepTwoComplete; }
+  get stepOneComplete(): boolean {
+    return this.selectedTaxpayer !== null;
+  }
+  get stepTwoComplete(): boolean {
+    return this.isCompany || this.selectedBusiness !== null;
+  }
+  get canSubmit(): boolean {
+    return this.form.valid && this.stepOneComplete && this.stepTwoComplete;
+  }
 
   /** Public display name — used by both the wizard and the review modal. */
   get displayName(): string {
@@ -414,8 +438,8 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     if (!tp) return '';
     const type = tp.taxpayerType?.typeName?.toLowerCase() ?? '';
     return type.includes('company')
-      ? tp.companyName ?? 'Unknown Company'
-      : tp.fullName    ?? 'Unknown';
+      ? (tp.companyName ?? 'Unknown Company')
+      : (tp.fullName ?? 'Unknown');
   }
 
   // ── Step 1: Taxpayer selection ────────────────────────────────────────────
@@ -436,14 +460,16 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   }
 
   onTaxpayerCleared(): void {
-    this.selectedTaxpayer  = null;
-    this.selectedBusiness  = null;
-    this.businesses        = [];
-    this.currentStep       = 1;
-    this.districts         = [];
-    this.vatZones          = [];
-    this.vatCircles        = [];
-    this.form.reset({ registrationDate: new Date().toISOString().split('T')[0] });
+    this.selectedTaxpayer = null;
+    this.selectedBusiness = null;
+    this.businesses = [];
+    this.currentStep = 1;
+    this.districts = [];
+    this.vatZones = [];
+    this.vatCircles = [];
+    this.form.reset({
+      registrationDate: new Date().toISOString().split('T')[0],
+    });
     this.clearDraft();
     this.toast.info('Taxpayer cleared. Starting over.');
   }
@@ -452,16 +478,18 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
 
   private loadBusinesses(taxpayerId: number): void {
     this.loadingBusinesses = true;
-    this.businesses        = [];
+    this.businesses = [];
 
     this.http
-      .get<BusinessVatStatus[]>(API_ENDPOINTS.BUSINESSES.BY_TAXPAYER_VAT_STATUS(taxpayerId))
+      .get<BusinessVatStatus[]>(
+        API_ENDPOINTS.BUSINESSES.BY_TAXPAYER_VAT_STATUS(taxpayerId),
+      )
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.loadingBusinesses = false)),
       )
       .subscribe({
-        next: data => {
+        next: (data) => {
           this.businesses = data;
           if (data.length === 0) {
             this.toast.warning(
@@ -482,7 +510,9 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       this.form.patchValue({ divisionId: b.divisionId });
     }
 
-    this.toast.success(`"${b.businessName}" selected. Pick the VAT Zone and Circle to continue.`);
+    this.toast.success(
+      `"${b.businessName}" selected. Pick the VAT Zone and Circle to continue.`,
+    );
     this.currentStep = 3;
     this.saveDraft();
   }
@@ -513,22 +543,22 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
 
   get reviewZoneName(): string {
     const id = this.ctrl('vatZoneId')?.value;
-    return this.vatZones.find(z => z.id == id)?.name ?? '—';
+    return this.vatZones.find((z) => z.id == id)?.name ?? '—';
   }
 
   get reviewCircleName(): string {
     const id = this.ctrl('vatCircleId')?.value;
-    return this.vatCircles.find(c => c.id == id)?.name ?? '—';
+    return this.vatCircles.find((c) => c.id == id)?.name ?? '—';
   }
 
   get reviewDistrictName(): string {
     const id = this.ctrl('districtId')?.value;
-    return this.districts.find(d => d.id == id)?.name ?? '—';
+    return this.districts.find((d) => d.id == id)?.name ?? '—';
   }
 
   get reviewDivisionName(): string {
     const id = this.ctrl('divisionId')?.value;
-    return this.divisions.find(d => d.id == id)?.name ?? '—';
+    return this.divisions.find((d) => d.id == id)?.name ?? '—';
   }
 
   // ── Review modal — open / close ───────────────────────────────────────────
@@ -541,12 +571,14 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   onOpenReview(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.toast.warning('Please complete all required fields before reviewing.');
+      this.toast.warning(
+        'Please complete all required fields before reviewing.',
+      );
       return;
     }
     if (!this.canSubmit) return;
     this.declarationAccepted = false;
-    this.showReviewModal     = true;
+    this.showReviewModal = true;
   }
 
   onCloseReview(): void {
@@ -563,34 +595,39 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     if (!this.declarationAccepted || this.isLoading) return;
 
     this.showReviewModal = false;
-    this.isLoading       = true;
+    this.isLoading = true;
 
     const raw = this.form.getRawValue();
     const payload: VatRegistrationCreateRequest = {
-      taxpayerId:       raw.taxpayerId,
-      businessId:       raw.businessId    ?? null,
-      vatZoneId:        raw.vatZoneId,
-      vatCircleId:      raw.vatCircleId,
-      districtId:       raw.districtId    ?? null,
-      divisionId:       raw.divisionId    ?? null,
-      vatCategory:      raw.vatCategory,
-      registrationDate: raw.registrationDate,
-      effectiveDate:    raw.effectiveDate  || undefined,
-      expiryDate:       raw.expiryDate     || undefined,
-      remarks:          raw.remarks        || undefined,
+      taxpayerId: raw['taxpayerId'],
+      businessId: raw['businessId'] ?? null,
+      vatZoneId: raw['vatZoneId'],
+      vatCircleId: raw['vatCircleId'],
+      districtId: raw['districtId'] ?? null,
+      divisionId: raw['divisionId'] ?? null,
+      vatCategory: raw['vatCategory'],
+      registrationDate: raw['registrationDate'],
+      effectiveDate: raw['effectiveDate'] || undefined,
+      expiryDate: raw['expiryDate'] || undefined,
+      remarks: raw['remarks'] || undefined,
     };
 
+    // ↓ NOTE: post<VatRegistration> so `created` is typed
     this.http
-      .post(API_ENDPOINTS.VAT_REGISTRATIONS.CREATE, payload)
+      .post<VatRegistration>(API_ENDPOINTS.VAT_REGISTRATIONS.CREATE, payload)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false)),
       )
       .subscribe({
-        next: () => {
+        next: (created) => {
           this.clearDraft();
-          this.toast.success('VAT Registration submitted successfully!');
-          setTimeout(() => this.router.navigate(['/vat-registration']), 1500);
+          // Navigate to success page, passing the full registration via router state.
+          // history.state is used instead of URL params so the BIN is never exposed
+          // in the address bar or browser history as a query string.
+          this.router.navigate(['/vat-registration/success'], {
+            state: { registration: created },
+          });
         },
         error: () => {},
       });
@@ -599,19 +636,21 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   // ── Reset / Cancel ────────────────────────────────────────────────────────
 
   onReset(): void {
-    this.selectedTaxpayer  = null;
-    this.selectedBusiness  = null;
-    this.businesses        = [];
-    this.currentStep       = 1;
-    this.pendingDistrictId  = null;
-    this.pendingVatZoneId   = null;
+    this.selectedTaxpayer = null;
+    this.selectedBusiness = null;
+    this.businesses = [];
+    this.currentStep = 1;
+    this.pendingDistrictId = null;
+    this.pendingVatZoneId = null;
     this.pendingVatCircleId = null;
-    this.districts         = [];
-    this.vatZones          = [];
-    this.vatCircles        = [];
-    this.showReviewModal   = false;
+    this.districts = [];
+    this.vatZones = [];
+    this.vatCircles = [];
+    this.showReviewModal = false;
     this.declarationAccepted = false;
-    this.form.reset({ registrationDate: new Date().toISOString().split('T')[0] });
+    this.form.reset({
+      registrationDate: new Date().toISOString().split('T')[0],
+    });
     this.clearDraft();
     this.toast.info('Form reset.');
   }
