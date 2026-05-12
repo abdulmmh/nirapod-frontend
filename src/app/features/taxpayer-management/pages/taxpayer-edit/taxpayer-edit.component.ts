@@ -363,19 +363,27 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
         next: () => {
           this.toast.success('Taxpayer updated successfully!');
           timer(1500)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(() => this.router.navigate(['../../view', this.taxpayerId], {
-              relativeTo: this.route
-            }));
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+            if (returnUrl) {
+              this.router.navigateByUrl(returnUrl);
+            } else {
+              this.router.navigate(['/taxpayers/view', this.taxpayerId]);
+            }
+          });
         },
         error: () => this.toast.error('Failed to update taxpayer.'),
       });
   }
 
   onCancel(): void {
-    this.router.navigate(['../../view', this.taxpayerId], {
-      relativeTo: this.route
-    });
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/taxpayers/view', this.taxpayerId]);
+    }
   }
 
   onFileSelected(event: Event): void {

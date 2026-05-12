@@ -245,9 +245,8 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
 
   goToIT10B(): void {
     if (this.itr?.id) {
-      // Pass returnUrl forward to IT10B page so its back button also works
       this.router.navigate(
-        ['/income-tax-returns', this.itr.id, 'it10b'],
+        ['/my-portal/income-tax-returns', this.itr.id, 'it10b'],
         {
           queryParams: {
             returnNo:  this.itr.returnNo,

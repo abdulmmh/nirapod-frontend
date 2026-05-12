@@ -493,6 +493,7 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
     this.router.navigateByUrl(returnUrl || '/income-tax-returns');
   }
+
   goToList(): void {
     this.router.navigate([this.returnUrl]);
   }
@@ -501,7 +502,7 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
     if (this.successData) {
       // Pass returnUrl forward so the view page also knows where to go back
       this.router.navigate(
-        ['/income-tax-returns/view', this.successData.returnId],
+        ['/my-portal/income-tax-returns/view', this.successData.returnId],
         { queryParams: { returnUrl: this.returnUrl } }
       );
     }
