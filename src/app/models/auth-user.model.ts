@@ -9,6 +9,7 @@ export interface AuthUser {
   role: Role;
   token?: string;
   photoUrl?: string; 
+  approvalStatus?: string;
 }
 
 export interface LoginRequest {

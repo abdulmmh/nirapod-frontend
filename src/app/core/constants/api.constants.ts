@@ -23,6 +23,10 @@ export const API_ENDPOINTS = {
     GET:    (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
     UPLOAD_PHOTO: (id: number) => `${API_BASE_URL}/taxpayers/${id}/photo`,
     GET_PHOTO:    (id: number) => `${API_BASE_URL}/taxpayers/${id}/photo`,
+    PENDING: `${API_BASE_URL}/taxpayers/pending`,
+    APPROVE: (id: number) => `${API_BASE_URL}/taxpayers/${id}/approve`,
+    REJECT:  (id: number) => `${API_BASE_URL}/taxpayers/${id}/reject`,
+    MY_APPLICATION: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
     EXPORT: `${API_BASE_URL}/taxpayers/export`,
   },
 

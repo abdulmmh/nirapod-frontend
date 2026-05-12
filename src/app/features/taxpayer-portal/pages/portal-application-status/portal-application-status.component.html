@@ -1,0 +1,166 @@
+<div class="status-shell">
+
+  <!-- Nav -->
+  <header class="status-nav">
+    <div class="nav-brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="8" fill="rgba(255,255,255,0.15)"/>
+        <path d="M14 4L24 9V14C24 19.5 19.5 24 14 24C8.5 24 4 19.5 4 14V9L14 4Z"
+              fill="rgba(255,255,255,0.9)"/>
+        <path d="M10 14L13 17L18 11" stroke="#1a7a4a" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div class="brand-name">NBR Portal</div>
+        <div class="brand-sub">Government of Bangladesh</div>
+      </div>
+    </div>
+    <button class="btn-logout" (click)="logout()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Sign out
+    </button>
+  </header>
+
+  <!-- Loading -->
+  <div class="loading-wrap" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading your application...</p>
+  </div>
+
+  <div class="status-body" *ngIf="!isLoading">
+
+    <!-- PENDING_REVIEW -->
+    <ng-container *ngIf="isPending">
+      <div class="status-card">
+        <div class="status-icon pending">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="22" stroke="#e67e22" stroke-width="2.5"/>
+            <path d="M24 14v12l7 4" stroke="#e67e22" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1 class="status-title">Application Under Review</h1>
+        <p class="status-sub">
+          Your registration has been submitted and is currently being reviewed
+          by our officers. This typically takes <strong>2–5 working days</strong>.
+        </p>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Applicant</div>
+            <div class="info-value">{{ displayName }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Status</div>
+            <div class="info-value">
+              <span class="badge pending-badge">Pending Review</span>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Type</div>
+            <div class="info-value">{{ taxpayer?.taxpayerType?.typeName || '—' }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Application Ref</div>
+            <div class="info-value mono">#{{ taxpayer?.id || '—' }}</div>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="tl-item done">
+            <div class="tl-dot done-dot">✓</div>
+            <div class="tl-body">
+              <div class="tl-title">Application Submitted</div>
+              <div class="tl-sub">Your registration form has been received</div>
+            </div>
+          </div>
+          <div class="tl-item active">
+            <div class="tl-dot active-dot"></div>
+            <div class="tl-body">
+              <div class="tl-title">Under Officer Review</div>
+              <div class="tl-sub">An NBR officer is reviewing your documents</div>
+            </div>
+          </div>
+          <div class="tl-item todo">
+            <div class="tl-dot todo-dot"></div>
+            <div class="tl-body">
+              <div class="tl-title">TIN Issuance</div>
+              <div class="tl-sub">Your TIN will be issued upon approval</div>
+            </div>
+          </div>
+          <div class="tl-item todo">
+            <div class="tl-dot todo-dot"></div>
+            <div class="tl-body">
+              <div class="tl-title">Portal Access Granted</div>
+              <div class="tl-sub">Full portal access will be activated</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-box">
+          <div class="help-icon">💡</div>
+          <div>
+            <strong>Need help?</strong> Contact your nearest NBR office or
+            call the helpdesk at <strong>16579</strong> with your application
+            reference number.
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- REJECTED -->
+    <ng-container *ngIf="isRejected">
+      <div class="status-card">
+        <div class="status-icon rejected">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="22" stroke="#c0392b" stroke-width="2.5"/>
+            <path d="M16 16l16 16M32 16L16 32" stroke="#c0392b" stroke-width="2.5"
+                  stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h1 class="status-title">Application Rejected</h1>
+        <p class="status-sub">
+          Unfortunately, your registration application could not be approved
+          at this time. Please review the reason below and reapply.
+        </p>
+
+        <div class="reject-reason" *ngIf="reviewNotes">
+          <div class="rr-label">Reason for rejection</div>
+          <div class="rr-text">{{ reviewNotes }}</div>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Applicant</div>
+            <div class="info-value">{{ displayName }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Status</div>
+            <div class="info-value">
+              <span class="badge rejected-badge">Rejected</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-box error">
+          <div class="help-icon">📞</div>
+          <div>
+            To appeal this decision or reapply, contact your nearest NBR
+            office with your application reference <strong>#{{ taxpayer?.id }}</strong>.
+            Helpdesk: <strong>16579</strong>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <footer class="status-footer">
+    <span>© {{ currentYear }} National Board of Revenue, Bangladesh</span>
+    <span>·</span>
+    <span>Secure Government Portal</span>
+  </footer>
+</div>

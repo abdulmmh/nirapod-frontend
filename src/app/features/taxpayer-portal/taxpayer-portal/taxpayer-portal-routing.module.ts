@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { PortalLayoutComponent } from '../layout/portal-layout/portal-layout.component';
 import { PortalHomeComponent } from '../pages/portal-home/portal-home.component';
 import { PortalItrComponent } from '../pages/portal-itr/portal-itr.component';
+import { PortalApplicationStatusComponent } from '../pages/portal-application-status/portal-application-status.component';
 
 const routes: Routes = [
   {
@@ -11,6 +12,7 @@ const routes: Routes = [
     children: [
       { path: '', component: PortalHomeComponent },
       { path: 'itr', component: PortalItrComponent },
+      { path: 'application-status', component: PortalApplicationStatusComponent },
 
       // Existing modules — portal layout এর ভেতরে
 

@@ -30,12 +30,30 @@ export class AuthGuard implements CanActivate, CanActivateChild {
       return false;
     }
 
-    const userRole = this.authService.userRole;
+    const userRole     = this.authService.userRole;
+    const approvalStatus = this.authService.currentUser?.approvalStatus;
 
-    // TAXPAYER শুধু /my-portal এ যাবে
-    if (userRole === Role.TAXPAYER && !state.url.startsWith('/my-portal')) {
-      this.router.navigate(['/my-portal']);
-      return false;
+    if (userRole === Role.TAXPAYER) {
+
+      // PENDING_REVIEW — শুধু application-status page এ যাবে
+      if (approvalStatus === 'PENDING_REVIEW' &&
+          !state.url.startsWith('/my-portal/application-status')) {
+        this.router.navigate(['/my-portal/application-status']);
+        return false;
+      }
+
+      // REJECTED — শুধু application-status page এ যাবে
+      if (approvalStatus === 'REJECTED' &&
+          !state.url.startsWith('/my-portal/application-status')) {
+        this.router.navigate(['/my-portal/application-status']);
+        return false;
+      }
+
+      // APPROVED — শুধু /my-portal/* এ যাবে
+      if (!state.url.startsWith('/my-portal')) {
+        this.router.navigate(['/my-portal']);
+        return false;
+      }
     }
 
     const requiredRoles = this.collectRequiredRoles(state);
