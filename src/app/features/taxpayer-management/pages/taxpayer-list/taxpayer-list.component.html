@@ -110,7 +110,7 @@
               </button>
 
               <button *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(tp.id)">
-                <i class="bi bi-trash-fill"></i> Delete
+                <i class="bi bi-trash-fill"></i> 
               </button>
               <ng-container *ngIf="tp.approvalStatus === 'PENDING_REVIEW'">
                 <button 
