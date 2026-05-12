@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin, of, Subject, takeUntil } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+
 import { AuthService } from '../../../../core/services/auth.service';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from 'src/app/models/taxpayer.model';
-import { Subject, takeUntil } from 'rxjs';
-import { Router, ActivatedRoute } from '@angular/router';
+import { IncomeTaxReturn } from 'src/app/models/income-tax-return.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-portal-home',
@@ -17,33 +20,44 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
   isLoading = true;
   menuItems: { label: string; route: string; icon: string }[] = [];
 
-  private readonly RETURN_URL = '/my-portal';
+  // ── ITR stats ─────────────────────────────────────────────────
+  itrReturns: IncomeTaxReturn[] = [];
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute,
     private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     const user = this.authService.currentUser;
-    if (user?.taxpayerId) {
-      this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(user.taxpayerId))
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (data) => {
-            this.taxpayer = data;
-            this.buildMenu(data.taxpayerType?.category ?? '');
-            this.isLoading = false;
-          },
-          error: () => { this.isLoading = false; }
-        });
-    } else {
+
+    if (!user?.taxpayerId) {
       this.isLoading = false;
+      return;
     }
+
+    // Load taxpayer profile AND ITR list in parallel
+    forkJoin({
+      taxpayer: this.http.get<Taxpayer>(
+        API_ENDPOINTS.TAXPAYERS.GET(user.taxpayerId)
+      ),
+      returns: this.http.get<IncomeTaxReturn[]>(
+        API_ENDPOINTS.INCOME_TAX_RETURNS.LIST
+      ).pipe(catchError(() => of([])))   // ITR fail হলেও page load হবে
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: ({ taxpayer, returns }) => {
+        this.taxpayer   = taxpayer;
+        this.itrReturns = returns;
+        this.buildMenu(taxpayer.taxpayerType?.category ?? '');
+        this.isLoading  = false;
+      },
+      error: () => { this.isLoading = false; }
+    });
   }
 
   ngOnDestroy(): void {
@@ -51,35 +65,105 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private buildMenu(category: string): void {
-  if (category === 'Individual') {
-    this.menuItems = [
-      { label: 'My TIN',            route: '/my-portal/tin',  icon: '🪪' },
-      { label: 'Income Tax Return', route: '/my-portal/itr',  icon: '📋' },
-      { label: 'AIT',               route: '/my-portal/ait',  icon: '📊' },
-      { label: 'Payments',          route: '/my-portal/payments', icon: '💳' },
-      { label: 'Notices',           route: '/my-portal/notices',  icon: '🔔' },
-    ];
-  } else if (category === 'Business') {
-    this.menuItems = [
-      { label: 'My TIN',           route: '/my-portal/tin',              icon: '🪪' },
-      { label: 'VAT Registration', route: '/my-portal/vat-registration', icon: '🏢' },
-      { label: 'VAT Returns',      route: '/my-portal/vat-returns',      icon: '📋' },
-      { label: 'Payments',         route: '/my-portal/payments',         icon: '💳' },
-      { label: 'Notices',          route: '/my-portal/notices',          icon: '🔔' },
-    ];
-  } else if (category === 'Organization') {
-    this.menuItems = [
-      { label: 'My TIN',            route: '/my-portal/tin',       icon: '🪪' },
-      { label: 'Income Tax Return', route: '/my-portal/itr',       icon: '📋' },
-      { label: 'Documents',         route: '/my-portal/documents', icon: '📁' },
-      { label: 'Payments',          route: '/my-portal/payments',  icon: '💳' },
-      { label: 'Notices',           route: '/my-portal/notices',   icon: '🔔' },
-    ];
-  }
-}
+  // ── Stats computed from ITR data ──────────────────────────────
 
-  // ── Display helpers ──────────────────────────────────────────
+  /** মোট কতটা return file করা হয়েছে */
+  get totalReturnsFiled(): number {
+    return this.itrReturns.length;
+  }
+
+  /**
+   * Outstanding dues — সব pending/submitted return-এর
+   * net tax payable যোগ করো (paid amount বাদ দিয়ে)
+   */
+  get outstandingDues(): number {
+    return this.itrReturns
+      .filter(r => r.status !== 'Accepted')
+      .reduce((sum, r) => {
+        const netPayable = r.netTaxPayable
+          ?? Math.max(0, (r.grossTax ?? 0) - (r.taxRebate ?? 0));
+        const paid = (r.advanceTaxPaid ?? 0)
+          + (r.withholdingTax ?? 0)
+          + (r.taxPaid ?? 0);
+        return sum + Math.max(0, netPayable - paid);
+      }, 0);
+  }
+
+  /**
+   * Compliance score — accepted returns / total returns * 100
+   * 0 returns হলে 100% (no obligation yet)
+   */
+  get complianceScore(): number {
+    if (this.itrReturns.length === 0) return 100;
+    const accepted = this.itrReturns.filter(r => r.status === 'Accepted').length;
+    return Math.round((accepted / this.itrReturns.length) * 100);
+  }
+
+  get complianceColor(): string {
+    if (this.complianceScore >= 80) return '#1a7a4a';
+    if (this.complianceScore >= 50) return '#e67e22';
+    return '#c0392b';
+  }
+
+  /**
+   * Last activity — most recent return-এর submission date
+   */
+  get lastActivity(): string {
+    if (this.itrReturns.length === 0) return '—';
+
+    const sorted = [...this.itrReturns]
+      .filter(r => !!r.submissionDate)
+      .sort((a, b) =>
+        new Date(b.submissionDate!).getTime() -
+        new Date(a.submissionDate!).getTime()
+      );
+
+    if (!sorted.length) return '—';
+
+    const date = new Date(sorted[0].submissionDate!);
+    return date.toLocaleDateString('en-BD', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    });
+  }
+
+  /** Outstanding dues formatted */
+  formatDues(amount: number): string {
+    if (amount === 0) return '৳ 0';
+    if (amount >= 100_000) return `৳ ${(amount / 100_000).toFixed(1)}L`;
+    return `৳ ${amount.toLocaleString('en-BD')}`;
+  }
+
+  // ── Menu ──────────────────────────────────────────────────────
+
+  private buildMenu(category: string): void {
+    if (category === 'Individual') {
+      this.menuItems = [
+        { label: 'My TIN',            route: '/my-portal/tin',      icon: '🪪' },
+        { label: 'Income Tax Return', route: '/my-portal/itr',      icon: '📋' },
+        { label: 'AIT',               route: '/my-portal/ait',      icon: '📊' },
+        { label: 'Payments',          route: '/my-portal/payments', icon: '💳' },
+        { label: 'Notices',           route: '/my-portal/notices',  icon: '🔔' },
+      ];
+    } else if (category === 'Business') {
+      this.menuItems = [
+        { label: 'My TIN',           route: '/my-portal/tin',              icon: '🪪' },
+        { label: 'VAT Registration', route: '/my-portal/vat-registration', icon: '🏢' },
+        { label: 'VAT Returns',      route: '/my-portal/vat-returns',      icon: '📋' },
+        { label: 'Payments',         route: '/my-portal/payments',         icon: '💳' },
+        { label: 'Notices',          route: '/my-portal/notices',          icon: '🔔' },
+      ];
+    } else if (category === 'Organization') {
+      this.menuItems = [
+        { label: 'My TIN',            route: '/my-portal/tin',       icon: '🪪' },
+        { label: 'Income Tax Return', route: '/my-portal/itr',       icon: '📋' },
+        { label: 'Documents',         route: '/my-portal/documents', icon: '📁' },
+        { label: 'Payments',          route: '/my-portal/payments',  icon: '💳' },
+        { label: 'Notices',           route: '/my-portal/notices',   icon: '🔔' },
+      ];
+    }
+  }
+
+  // ── Display helpers ───────────────────────────────────────────
 
   get displayName(): string {
     return this.taxpayer?.fullName
@@ -100,47 +184,33 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
       : null;
   }
 
-  // ── Profile Completion ───────────────────────────────────────
+  // ── Profile Completion ────────────────────────────────────────
 
   get profileCompletion(): number {
     if (!this.taxpayer) return 0;
     const tp = this.taxpayer;
     const category = tp.taxpayerType?.category?.toLowerCase() || '';
-
     let fields: boolean[];
 
     if (category === 'individual') {
       fields = [
-        !!tp.fullName,
-        !!tp.nid,
-        !!tp.dateOfBirth,
-        !!tp.gender,
-        !!tp.phone,
-        !!tp.email,
-        !!tp.profession,
-        !!tp.fathersName,
-        !!tp.mothersName,
-        !!tp.presentAddress?.district,
-        !!tp.presentAddress?.division,
+        !!tp.fullName, !!tp.nid, !!tp.dateOfBirth, !!tp.gender,
+        !!tp.phone, !!tp.email, !!tp.profession,
+        !!tp.fathersName, !!tp.mothersName,
+        !!tp.presentAddress?.district, !!tp.presentAddress?.division,
         !!tp.photoPath,
       ];
     } else {
       fields = [
-        !!tp.companyName,
-        !!tp.rjscNo,
-        !!tp.natureOfBusiness,
-        !!tp.authorizedPersonName,
-        !!tp.authorizedPersonNid,
-        !!tp.phone,
-        !!tp.email,
-        !!tp.presentAddress?.district,
-        !!tp.presentAddress?.division,
+        !!tp.companyName, !!tp.rjscNo, !!tp.natureOfBusiness,
+        !!tp.authorizedPersonName, !!tp.authorizedPersonNid,
+        !!tp.phone, !!tp.email,
+        !!tp.presentAddress?.district, !!tp.presentAddress?.division,
         !!tp.photoPath,
       ];
     }
 
-    const filled = fields.filter(Boolean).length;
-    return Math.round((filled / fields.length) * 100);
+    return Math.round((fields.filter(Boolean).length / fields.length) * 100);
   }
 
   get completionColor(): string {

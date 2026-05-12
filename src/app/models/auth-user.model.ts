@@ -4,6 +4,7 @@ export interface AuthUser {
   id: number;
   taxpayerId?: number;
   taxpayerType?: string;
+  tinNumber?:    string;   
   fullName: string;
   email: string;
   role: Role;

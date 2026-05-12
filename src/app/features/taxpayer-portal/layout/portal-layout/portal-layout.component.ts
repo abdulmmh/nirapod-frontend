@@ -40,6 +40,10 @@ export class PortalLayoutComponent {
     if (url.includes('/vat-registration')) return 'VAT Registration';
     if (url.includes('/documents')) return 'Documents';
     if (url.includes('/ait')) return 'AIT';
+    if (url.includes('/refunds'))         return 'Refund Tracker';
+    if (url.includes('/audit'))           return 'Audit Status';
+    if (url.includes('/challan'))         return 'Challan';
+    return '';
     return '';
   }
 

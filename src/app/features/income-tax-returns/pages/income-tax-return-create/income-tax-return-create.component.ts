@@ -291,8 +291,14 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   private prefillForTaxpayerRole(): void {
     if (!this.isTaxpayerRole) return;
     const user = this.authService.currentUser!;
-    this.step1Form.patchValue({ taxpayerName: user.fullName });
+    this.step1Form.patchValue({
+      taxpayerName: user.fullName,
+      tinNumber:    user.tinNumber ?? '',  
+    });
     this.step1Form.get('taxpayerName')?.disable();
+    if (user.tinNumber) {
+      this.step1Form.get('tinNumber')?.disable();
+    }
   }
 
   // ── Taxpayer search (officer path) ────────────────────────────────────────
@@ -355,6 +361,7 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
       : tp.fullName    || 'Unknown Individual';
   }
 
+  
   // ── Wizard navigation ─────────────────────────────────────────────────────
 
   goToStep(target: number): void {

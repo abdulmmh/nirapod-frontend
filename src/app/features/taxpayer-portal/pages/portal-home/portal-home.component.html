@@ -60,27 +60,43 @@
     Your profile is complete!
   </div>
 
-  <!-- Stats Row -->
+ <!-- Stats Row — replace the existing stats-row div with this -->
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-label">Compliance score</div>
-      <div class="stat-value green">—</div>
-      <div class="stat-sub">Not calculated yet</div>
+      <div class="stat-value green"
+           [ngStyle]="{'color': complianceColor}">
+        {{ itrReturns.length === 0 ? '—' : complianceScore + '%' }}
+      </div>
+      <div class="stat-sub">
+        {{ itrReturns.length === 0 ? 'No returns filed yet' : complianceScore >= 80 ? 'Good standing' : 'Needs attention' }}
+      </div>
     </div>
+
     <div class="stat-card">
       <div class="stat-label">Returns filed</div>
-      <div class="stat-value">—</div>
-      <div class="stat-sub">No data yet</div>
+      <div class="stat-value">{{ totalReturnsFiled }}</div>
+      <div class="stat-sub">
+        {{ totalReturnsFiled === 0 ? 'No returns yet' : 'Income tax returns' }}
+      </div>
     </div>
+
     <div class="stat-card">
       <div class="stat-label">Outstanding dues</div>
-      <div class="stat-value red">—</div>
-      <div class="stat-sub">No dues found</div>
+      <div class="stat-value red">
+        {{ outstandingDues === 0 ? '৳ 0' : formatDues(outstandingDues) }}
+      </div>
+      <div class="stat-sub">
+        {{ outstandingDues === 0 ? 'No dues found' : 'Pending payment' }}
+      </div>
     </div>
+
     <div class="stat-card">
       <div class="stat-label">Last activity</div>
-      <div class="stat-value small">—</div>
-      <div class="stat-sub">No activity yet</div>
+      <div class="stat-value small">{{ lastActivity }}</div>
+      <div class="stat-sub">
+        {{ itrReturns.length === 0 ? 'No activity yet' : 'Last ITR filed' }}
+      </div>
     </div>
   </div>
 

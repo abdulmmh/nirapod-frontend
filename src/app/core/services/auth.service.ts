@@ -53,7 +53,8 @@ export class AuthService {
       token:        response.token    ?? '',
       taxpayerId:   response.taxpayerId  ?? null,
       taxpayerType: response.taxpayerType ?? null,
-      photoUrl:     response.photoUrl    ?? null,  // ← যোগ করো
+      tinNumber:    response.tinNumber    ?? null,
+      photoUrl:     response.photoUrl    ?? null, 
     };
     localStorage.setItem('current_user', JSON.stringify(user));
     if (user.token) localStorage.setItem('auth_token', user.token);
