@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Payment, PaymentStatusUpdate } from '../../../../models/payment.model';
@@ -92,7 +92,11 @@ export class PaymentEditComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('Payment updated successfully!');
-          setTimeout(() => this.router.navigate(['/payments', 'view', this.paymentId]), 1500);
+          timer(1500)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['../../view', this.paymentId], {
+              relativeTo: this.route
+            }));
         },
         error: (err) => {
           const msg = err?.error?.message || 'Failed to update payment. Please try again.';
@@ -102,6 +106,8 @@ export class PaymentEditComponent implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/payments', 'view', this.paymentId]);
+    this.router.navigate(['../../view', this.paymentId], {
+      relativeTo: this.route
+    });
   }
 }

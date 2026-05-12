@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, Subject } from 'rxjs';
+import { forkJoin, Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
 import { AitCreateRequest, AitSourceType, AitStatus } from '../../../../models/ait.model';
@@ -198,7 +198,11 @@ export class AitCreateComponent implements OnInit, OnDestroy {
 
   private handleSuccess(): void {
     this.toast.success('AIT record created successfully!');
-    this.onReset();
+    timer(1500)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.router.navigate(['..'],
+        { relativeTo: this.route }
+      ));
   }
 
   private handleError(error: unknown): void {
@@ -219,7 +223,9 @@ export class AitCreateComponent implements OnInit, OnDestroy {
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
-      this.router.navigate(['/ait']);
+      this.router.navigate(['..'], {
+        relativeTo: this.route
+      });
     }
   }
 }

@@ -49,9 +49,9 @@
       </div>
     </div>
 
-    <a [routerLink]="['/taxpayers/edit', taxpayer?.id]" class="complete-btn">
+    <button (click)="onComplete()" class="complete-btn">
       Complete Profile →
-    </a>
+    </button>
   </div>
 
   <!-- Profile Complete Banner -->

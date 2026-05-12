@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { MasterDataService } from 'src/app/core/services/master-data.service';
 import { TaxpayerType } from 'src/app/models/master-data.model';
 
@@ -362,14 +362,20 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('Taxpayer updated successfully!');
-          this.router.navigate(['/taxpayers', 'view', this.taxpayerId]);
+          timer(1500)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['../../view', this.taxpayerId], {
+              relativeTo: this.route
+            }));
         },
         error: () => this.toast.error('Failed to update taxpayer.'),
       });
   }
 
   onCancel(): void {
-    this.router.navigate(['/taxpayers', 'view', this.taxpayerId]);
+    this.router.navigate(['../../view', this.taxpayerId], {
+      relativeTo: this.route
+    });
   }
 
   onFileSelected(event: Event): void {

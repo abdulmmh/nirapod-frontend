@@ -353,7 +353,9 @@ export class TinCreateComponent implements OnDestroy {
           this.toast.success('TIN issued successfully!');
           timer(1500)
             .pipe(takeUntil(this.destroy$))
-            .subscribe(() => this.router.navigate(['/tin']));
+            .subscribe(() => this.router.navigate(['..'],
+              { relativeTo: this.route }
+            ));
         },
         error: (err) => {
             if (err?.status === 400) {

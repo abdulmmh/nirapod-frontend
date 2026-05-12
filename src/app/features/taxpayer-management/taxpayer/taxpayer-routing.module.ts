@@ -13,27 +13,27 @@ const routes: Routes = [
     path: '',
     component: TaxpayerListComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.DATA_ENTRY_OPERATOR] }
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.DATA_ENTRY_OPERATOR, Role.TAXPAYER] }
   },
   {
     path: 'create',
     component: TaxpayerCreateComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.DATA_ENTRY_OPERATOR] }
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.DATA_ENTRY_OPERATOR, Role.TAXPAYER] }
   },
   {
     path: 'view/:id',
     component: TaxpayerViewComponent,
     canActivate: [AuthGuard],
     data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.DATA_ENTRY_OPERATOR,
-      Role.AUDITOR
+      Role.AUDITOR, Role.TAXPAYER 
     ] }
   },
   {
     path: 'edit/:id',
     component: TaxpayerEditComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
   },
 
 ];

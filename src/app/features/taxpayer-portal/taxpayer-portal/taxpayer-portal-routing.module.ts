@@ -13,6 +13,12 @@ const routes: Routes = [
       { path: 'itr', component: PortalItrComponent },
 
       // Existing modules — portal layout এর ভেতরে
+
+      { path: 'taxpayers', 
+        loadChildren: () =>
+          import('../../../features/taxpayer-management/taxpayer/taxpayer.module')
+            .then(m => m.TaxpayerModule)
+      },
       {
         path: 'tin',
         loadChildren: () =>

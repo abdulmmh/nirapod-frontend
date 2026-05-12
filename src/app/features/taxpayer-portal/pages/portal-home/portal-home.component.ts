@@ -4,6 +4,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from 'src/app/models/taxpayer.model';
 import { Subject, takeUntil } from 'rxjs';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-portal-home',
@@ -16,10 +17,14 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
   isLoading = true;
   menuItems: { label: string; route: string; icon: string }[] = [];
 
+  private readonly RETURN_URL = '/my-portal';
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute,
     private http: HttpClient
   ) {}
 
@@ -181,5 +186,14 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  onComplete(): void {
+    if (this.taxpayer?.id) {
+      this.router.navigate(
+        ['/my-portal/taxpayers/edit', this.taxpayer.id],
+        { queryParams: { returnUrl: '/my-portal' } }
+      );
+    }
   }
 }

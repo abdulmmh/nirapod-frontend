@@ -229,7 +229,9 @@ export class AitEditComponent implements OnInit, OnDestroy {
 
   private handleUpdateSuccess(): void {
     this.toast.success('AIT record updated successfully');
-    this.router.navigate(['/ait/view', this.aitId]);
+    this.router.navigate(['../../view', this.aitId], {
+      relativeTo: this.route
+    });
   }
 
   private handleUpdateError(error: unknown): void {
@@ -238,7 +240,9 @@ export class AitEditComponent implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/ait/view', this.aitId]);
+    this.router.navigate(['../../view', this.aitId], {
+      relativeTo: this.route
+    });
   }
 
   private getEmptyForm(): AitCreateRequest {

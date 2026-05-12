@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { PaymentCreateRequest } from '../../../../models/payment.model';
@@ -199,7 +199,11 @@ export class PaymentCreateComponent implements OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('Payment recorded successfully!');
-          setTimeout(() => this.router.navigate(['/payments']), 1500);
+          timer(1500)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['..'],
+              { relativeTo: this.route }
+            ));
         },
         error: (err) => {
           const msg = err?.error?.message || 'Failed to record payment. Please try again.';
@@ -221,10 +225,13 @@ export class PaymentCreateComponent implements OnDestroy {
 
   onCancel(): void {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
-      this.router.navigate(['/payments']);
+      this.router.navigate(['..'], {
+        relativeTo: this.route
+      });
     }
   }
 

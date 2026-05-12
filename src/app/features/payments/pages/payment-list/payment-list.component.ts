@@ -109,20 +109,14 @@ export class PaymentListComponent implements OnInit, OnDestroy {
   // ── Navigation ──
 
   viewPayment(id: number): void {
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-    if (returnUrl) {
-      this.router.navigateByUrl(returnUrl);
-    } else {
-      this.router.navigate(['/payments/view', id]);
-    }
+    this.router.navigate(['view', id], {
+      relativeTo: this.route
+    });
   }
   editPayment(id: number): void {
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-    if (returnUrl) {
-      this.router.navigateByUrl(returnUrl);
-    } else {
-      this.router.navigate(['/payments/edit', id]);
-    }
+    this.router.navigate(['edit', id], {
+      relativeTo: this.route
+    });
   }
 
   // ── UI Helpers ──

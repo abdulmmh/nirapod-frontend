@@ -81,15 +81,22 @@ export class PaymentViewComponent implements OnInit, OnDestroy {
   }
 
   onEdit(): void {
-    this.router.navigate(['/payments', 'edit', this.payment?.id]);
+    if (this.payment?.id) {
+      this.router.navigate(['edit', this.payment.id], {
+        relativeTo: this.route
+      });
+    }
   }
 
   onBack(): void {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
-      this.router.navigate(['/payments']);
+      this.router.navigate(['../..'], {
+        relativeTo: this.route
+      });
     }
-  }
+  } 
 }

@@ -35,7 +35,7 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
   ],
 
   [Role.TAXPAYER]: [
-    'dashboard', 'my-profile', 'vat-returns', 'income-tax',
+    'dashboard','taxpayers', 'my-profile', 'vat-returns', 'income-tax',
     'payments', 'notices', 'refunds'
   ],
 

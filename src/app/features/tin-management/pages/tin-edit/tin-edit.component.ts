@@ -4,7 +4,7 @@ import { Tin } from '../../../../models/tin.model';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 
 interface Division {
   id: number;
@@ -331,9 +331,11 @@ export class TinEditComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('TIN record updated successfully!');
-          this.router.navigate(['../../view', this.tinId], {
-            relativeTo: this.route
-          });
+          timer(1500)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['../../view', this.tinId], {
+              relativeTo: this.route
+            }));
         },
         error: () => {
           this.toast.error('Failed to update TIN record. Please try again.');
