@@ -121,36 +121,54 @@ export class NoticeViewComponent implements OnInit {
 
   submitResponse(): void {
     if (!this.responseNote.trim() || !this.notice) return;
-    const responseDate = new Date().toISOString().split('T')[0];
-    const updatedNotice: Notice = {
-      ...this.notice,
-      status: 'Responded',
-      responseNote: this.responseNote.trim(),
-      responseDate,
+
+    const payload = {
+      taxpayerId:     this.notice.taxpayerId,
+      subject:        this.notice.subject,
+      body:           this.notice.body,
+      noticeType:     this.notice.noticeType,
+      priority:       this.notice.priority,
+      targetType:     this.notice.targetType,
+      issuedBy:       this.notice.issuedBy,
+      issuedDate:     this.notice.issuedDate,
+      dueDate:        this.notice.dueDate,
+      attachmentName: this.notice.attachmentName,
+      status:         'Responded',
+      responseNote:   this.responseNote.trim(),
+      responseDate:   new Date().toISOString().split('T')[0],
     };
 
-    this.http
-      .put<Notice>(API_ENDPOINTS.NOTICES.UPDATE(this.notice.id), updatedNotice)
+    this.http.put<any>(API_ENDPOINTS.NOTICES.UPDATE(this.notice.id), payload)
       .subscribe({
-        next: (data) => {
-          this.notice = data ?? updatedNotice;
+        next: () => {
+          this.notice = { 
+            ...this.notice!, 
+            status: 'Responded',
+            responseNote: this.responseNote.trim()
+          };
           this.showResponse = false;
           this.responseNote = '';
           this.toast.success('Response submitted successfully.');
         },
         error: () => {
-          // Fallback keeps UI usable before backend is ready.
-          this.notice = updatedNotice;
-          this.showResponse = false;
-          this.responseNote = '';
-          this.toast.warning('Response saved locally. Server update failed.');
-        },
-      });
+          this.toast.error('Failed to submit response.');
+        }
+    });
   }
 
   onBack(): void {
-    this.router.navigate(['/notices']);
-  }
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      const currentUrl = this.router.url;
+      if (currentUrl.includes('/my-portal')) {
+        this.router.navigate(['/my-portal/notices']);
+      } else {
+        this.router.navigate(['/notices']);
+      }
+    }
+}
 
   private markAsReadIfNeeded(): void {
     if (!this.notice || this.notice.status !== 'Unread') return;

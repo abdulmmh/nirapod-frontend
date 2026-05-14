@@ -24,7 +24,7 @@
        [class.done]="currentStep > 2"
        [class.skipped]="isCompany && currentStep > 1">
     <div class="ws-circle">
-      <i class="bi bi-check-lg"        *ngIf="currentStep > 2"></i>
+      <i class="bi bi-check-lg"          *ngIf="currentStep > 2"></i>
       <i class="bi bi-skip-forward-fill" *ngIf="isCompany && currentStep > 1 && currentStep <= 2"></i>
       <span *ngIf="currentStep <= 2 && !isCompany">2</span>
       <span *ngIf="isCompany && currentStep === 1">2</span>
@@ -71,13 +71,8 @@
         <h6 class="section-title">Step 1 — Find Taxpayer</h6>
         <span class="section-sub">Search by TIN, NID, or name</span>
       </div>
-      <button
-        *ngIf="stepOneComplete && currentStep > 1"
-        type="button"
-        class="btn-edit-step"
-        (click)="onTaxpayerCleared()"
-        title="Change taxpayer selection"
-      >
+      <button *ngIf="stepOneComplete && currentStep > 1" type="button"
+        class="btn-edit-step" (click)="onTaxpayerCleared()">
         <i class="bi bi-pencil-fill"></i> Change
       </button>
     </div>
@@ -85,8 +80,8 @@
     <app-taxpayer-search
       [selectedTaxpayer]="selectedTaxpayer"
       (taxpayerSelected)="onTaxpayerSelected($event)"
-      (taxpayerCleared)="onTaxpayerCleared()"
-    ></app-taxpayer-search>
+      (taxpayerCleared)="onTaxpayerCleared()">
+    </app-taxpayer-search>
   </div>
 
   <!-- ══ STEP 2 — Business Picker ══════════════════════════════════════════ -->
@@ -101,23 +96,17 @@
           <h6 class="section-title">Step 2 — Select Business</h6>
           <span class="section-sub">Choose which business to register for VAT</span>
         </div>
-        <button
-          *ngIf="selectedBusiness && currentStep === 3"
-          type="button"
-          class="btn-edit-step"
-          (click)="currentStep = 2; selectedBusiness = null"
-          title="Change business selection"
-        >
+        <button *ngIf="selectedBusiness && currentStep === 3" type="button"
+          class="btn-edit-step" (click)="currentStep = 2; selectedBusiness = null">
           <i class="bi bi-pencil-fill"></i> Change
         </button>
       </div>
-
       <app-business-picker
         [businesses]="businesses"
         [loading]="loadingBusinesses"
         [selected]="selectedBusiness"
-        (businessSelected)="onBusinessSelected($event)"
-      ></app-business-picker>
+        (businessSelected)="onBusinessSelected($event)">
+      </app-business-picker>
     </div>
   </ng-container>
 
@@ -155,8 +144,6 @@
         </div>
 
         <div class="form-grid">
-
-          <!-- Division — locked -->
           <div class="form-group">
             <label class="form-label">Division <span class="auto-label">Auto</span></label>
             <div class="input-wrap locked">
@@ -169,7 +156,6 @@
             </div>
           </div>
 
-          <!-- District — locked -->
           <div class="form-group">
             <label class="form-label">District <span class="auto-label">Auto</span></label>
             <div class="input-wrap locked">
@@ -182,16 +168,12 @@
             </div>
           </div>
 
-          <!-- VAT Zone -->
           <div class="form-group">
             <label class="form-label required">VAT Zone</label>
             <div class="input-wrap">
               <i class="bi bi-grid-fill input-icon"></i>
-              <select
-                class="form-input form-select"
-                formControlName="vatZoneId"
-                [class.is-invalid]="ctrl('vatZoneId')?.invalid && ctrl('vatZoneId')?.touched"
-              >
+              <select class="form-input form-select" formControlName="vatZoneId"
+                [class.is-invalid]="ctrl('vatZoneId')?.invalid && ctrl('vatZoneId')?.touched">
                 <option [value]="null">
                   {{ loadingZones ? 'Loading zones…' : vatZones.length === 0 ? 'Select a district first' : 'Select Zone' }}
                 </option>
@@ -204,17 +186,13 @@
             </span>
           </div>
 
-          <!-- VAT Circle -->
           <div class="form-group">
             <label class="form-label required">VAT Circle</label>
             <div class="input-wrap">
               <i class="bi bi-circle-fill input-icon"></i>
-              <select
-                class="form-input form-select"
-                formControlName="vatCircleId"
+              <select class="form-input form-select" formControlName="vatCircleId"
                 [attr.disabled]="!ctrl('vatZoneId')?.value ? true : null"
-                [class.is-invalid]="ctrl('vatCircleId')?.invalid && ctrl('vatCircleId')?.touched"
-              >
+                [class.is-invalid]="ctrl('vatCircleId')?.invalid && ctrl('vatCircleId')?.touched">
                 <option [value]="null">{{ loadingCircles ? 'Loading circles…' : 'Select Circle' }}</option>
                 <option *ngFor="let c of vatCircles" [value]="c.id">{{ c.name }}</option>
               </select>
@@ -224,7 +202,6 @@
               VAT circle is required.
             </span>
           </div>
-
         </div>
       </div>
 
@@ -232,6 +209,16 @@
 
       <!-- ── 3b: Auto-filled business details ─────────────────────────── -->
       <div class="form-section" *ngIf="selectedBusiness">
+
+        <!-- Business verified notice — matches mockup info-box -->
+        <div class="verified-notice">
+          <i class="bi bi-patch-check-fill"></i>
+          <span>
+            Your business <strong>{{ selectedBusiness.businessName }}</strong> has been
+            verified. Fill in VAT-specific details below to generate your BIN.
+          </span>
+        </div>
+
         <div class="section-header">
           <div class="section-icon teal">
             <i class="bi bi-building-fill"></i>
@@ -243,10 +230,7 @@
             <span class="section-sub">
               Read-only — sourced from the business record.
               <a [routerLink]="['/businesses/edit', editBusinessId]"
-                 class="update-link ms-1"
-                 title="Correct business data">
-                <i class="bi bi-pencil-fill"></i> Request Update
-              </a>
+                 class="update-link ms-1"><i class="bi bi-pencil-fill"></i> Request Update</a>
             </span>
           </div>
         </div>
@@ -288,10 +272,7 @@
             <label class="form-label">
               Address <span class="auto-label">Auto</span>
               <a [routerLink]="['/businesses/edit', editBusinessId]"
-                 class="update-link ms-2"
-                 title="Update address">
-                <i class="bi bi-pencil-fill"></i> Request Update
-              </a>
+                 class="update-link ms-2"><i class="bi bi-pencil-fill"></i> Request Update</a>
             </label>
             <div class="input-wrap locked">
               <i class="bi bi-geo-alt-fill input-icon textarea-icon"></i>
@@ -303,7 +284,7 @@
         </div>
       </div>
 
-      <!-- Company auto-fill -->
+      <!-- Company auto-fill details -->
       <ng-container *ngIf="isCompany">
         <div class="section-divider"></div>
         <div class="form-section">
@@ -332,69 +313,81 @@
 
       <div class="section-divider"></div>
 
-      <!-- ── 3c: VAT Classification & Dates ───────────────────────────── -->
+      <!-- ── 3c: VAT Category & Turnover ──────────────────────────────── -->
       <div class="form-section">
         <div class="section-header">
           <div class="section-icon orange">
-            <i class="bi bi-calendar3-range"></i>
+            <i class="bi bi-tag-fill"></i>
           </div>
           <div>
-            <h6 class="section-title">VAT Classification &amp; Dates</h6>
-            <span class="section-sub">Select category and set registration dates</span>
+            <h6 class="section-title">VAT Category &amp; Turnover</h6>
+            <span class="section-sub">Select the applicable VAT scheme for this business</span>
           </div>
+        </div>
+
+        <!-- VAT Category — radio cards matching the mockup -->
+        <div class="form-group full-width" style="margin-bottom:16px;">
+          <label class="form-label required">VAT Category</label>
+          <div class="radio-group" role="radiogroup">
+            <label class="radio-opt"
+              *ngFor="let cat of vatCategoryOptions"
+              [class.selected]="ctrl('vatCategory')?.value === cat.value"
+              [class.is-invalid]="ctrl('vatCategory')?.invalid && ctrl('vatCategory')?.touched">
+              <input type="radio"
+                class="radio-input-hidden"
+                formControlName="vatCategory"
+                [value]="cat.value" />
+              <div class="radio-dot">
+                <div class="radio-dot-inner"></div>
+              </div>
+              <span class="radio-opt-label">{{ cat.label }}</span>
+            </label>
+          </div>
+          <span class="field-error-msg"
+            *ngIf="ctrl('vatCategory')?.errors?.['required'] && ctrl('vatCategory')?.touched">
+            VAT category is required.
+          </span>
         </div>
 
         <div class="form-grid">
 
-          <!-- VAT Category -->
+          <!-- Annual Turnover — currency prefix, auto-filled from business -->
+          <div class="form-group" *ngIf="selectedBusiness">
+            <label class="form-label">
+              Annual Turnover (BDT) <span class="auto-label">Auto</span>
+            </label>
+            <div class="input-prefix locked">
+              <span class="prefix-symbol">৳</span>
+              <input type="text" class="form-input prefix-input"
+                [value]="formatTurnoverDisplay(selectedBusiness.annualTurnover)"
+                readonly />
+              <i class="bi bi-lock-fill lock-icon" style="position:relative;right:auto;padding:0 10px;color:var(--color-text-tertiary);font-size:12px;"></i>
+            </div>
+            <span class="field-hint">Sourced from the business registration record</span>
+          </div>
+
+          <!-- Annual Turnover — editable for company taxpayers -->
+          <div class="form-group" *ngIf="isCompany">
+            <label class="form-label required">Annual Turnover (BDT)</label>
+            <div class="input-prefix">
+              <span class="prefix-symbol">৳</span>
+              <input type="number" class="form-input prefix-input"
+                formControlName="annualTurnover"
+                placeholder="0"
+                min="0" />
+            </div>
+            <span class="field-hint">Must exceed ৳30 lakh for mandatory registration</span>
+          </div>
+
+          <!-- VAT Return Period -->
           <div class="form-group">
-            <label class="form-label required">VAT Category</label>
+            <label class="form-label required">VAT Return Period</label>
             <div class="input-wrap">
-              <i class="bi bi-tag-fill input-icon"></i>
-              <select
-                class="form-input form-select"
-                formControlName="vatCategory"
-                [class.is-invalid]="ctrl('vatCategory')?.invalid && ctrl('vatCategory')?.touched"
-              >
-                <option value="">Select Category</option>
-                <option *ngFor="let c of vatCategories" [value]="c">{{ c }}</option>
+              <i class="bi bi-calendar-week input-icon"></i>
+              <select class="form-input form-select" formControlName="returnPeriod">
+                <option value="Monthly">Monthly</option>
+                <option value="Quarterly">Quarterly</option>
               </select>
-            </div>
-            <span class="field-error-msg"
-              *ngIf="ctrl('vatCategory')?.errors?.['required'] && ctrl('vatCategory')?.touched">
-              VAT category is required.
-            </span>
-          </div>
-
-          <!-- Registration Date -->
-          <div class="form-group">
-            <label class="form-label">Registration Date</label>
-            <div class="input-wrap">
-              <i class="bi bi-calendar3 input-icon"></i>
-              <input type="date" class="form-input" formControlName="registrationDate" />
-            </div>
-          </div>
-
-          <!-- Effective Date -->
-          <div class="form-group">
-            <label class="form-label">Effective Date</label>
-            <div class="input-wrap">
-              <i class="bi bi-calendar-check input-icon"></i>
-              <input type="date" class="form-input" formControlName="effectiveDate"
-                [class.is-invalid]="ctrl('effectiveDate')?.errors?.['beforeRegistration'] && ctrl('effectiveDate')?.touched" />
-            </div>
-            <span class="field-error-msg"
-              *ngIf="ctrl('effectiveDate')?.errors?.['beforeRegistration'] && ctrl('effectiveDate')?.touched">
-              Effective date cannot be earlier than the registration date.
-            </span>
-          </div>
-
-          <!-- Expiry Date -->
-          <div class="form-group">
-            <label class="form-label">Expiry Date <span class="optional">(optional)</span></label>
-            <div class="input-wrap">
-              <i class="bi bi-calendar-x input-icon"></i>
-              <input type="date" class="form-input" formControlName="expiryDate" />
             </div>
           </div>
 
@@ -403,7 +396,54 @@
 
       <div class="section-divider"></div>
 
-      <!-- ── 3d: Remarks ──────────────────────────────────────────────── -->
+      <!-- ── 3d: Dates ─────────────────────────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;">
+            <i class="bi bi-calendar3-range"></i>
+          </div>
+          <div>
+            <h6 class="section-title">Registration Dates</h6>
+            <span class="section-sub">Set registration and effective dates</span>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Registration Date</label>
+            <div class="input-wrap">
+              <i class="bi bi-calendar3 input-icon"></i>
+              <input type="date" class="form-input" formControlName="registrationDate" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Effective Date</label>
+            <div class="input-wrap">
+              <i class="bi bi-calendar-check input-icon"></i>
+              <input type="date" class="form-input" formControlName="effectiveDate"
+                [class.is-invalid]="ctrl('effectiveDate')?.errors?.['beforeRegistration'] && ctrl('effectiveDate')?.touched" />
+            </div>
+            <span class="field-hint">Date from which VAT obligation starts</span>
+            <span class="field-error-msg"
+              *ngIf="ctrl('effectiveDate')?.errors?.['beforeRegistration'] && ctrl('effectiveDate')?.touched">
+              Effective date cannot be earlier than the registration date.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Expiry Date <span class="optional">(optional)</span></label>
+            <div class="input-wrap">
+              <i class="bi bi-calendar-x input-icon"></i>
+              <input type="date" class="form-input" formControlName="expiryDate" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- ── 3e: Remarks ───────────────────────────────────────────────── -->
       <div class="form-section">
         <div class="form-grid">
           <div class="form-group full-width">
@@ -429,15 +469,9 @@
           style="border-color:var(--color-border-primary);color:var(--color-accent)">
           <i class="bi bi-arrow-left"></i> Back
         </button>
-        <button
-          type="button"
-          class="btn-submit"
-          (click)="onOpenReview()"
-          [disabled]="isLoading || !canSubmit"
-        >
-          <span *ngIf="!isLoading">
-            <i class="bi bi-eye-fill"></i> Review &amp; Submit
-          </span>
+        <button type="button" class="btn-submit"
+          (click)="onOpenReview()" [disabled]="isLoading || !canSubmit">
+          <span *ngIf="!isLoading"><i class="bi bi-eye-fill"></i> Review &amp; Submit</span>
           <span *ngIf="isLoading">
             <span class="spinner-border spinner-border-sm me-2"></span>Registering…
           </span>
@@ -445,12 +479,12 @@
       </div>
 
     </form>
-  </ng-container><!-- /Step 3 -->
+  </ng-container>
 
 </div><!-- /form-card -->
 
 
-<!-- ══ Review Modal ═══════════════════════════════════════════════════════ -->
+<!-- ══ Review Modal — tabular layout matching mockup Image 1 ════════════ -->
 <div class="modal-overlay" *ngIf="showReviewModal" (click)="onCloseReview()">
   <div class="modal-card review-modal-card" (click)="$event.stopPropagation()">
 
@@ -458,135 +492,128 @@
 
     <!-- Header -->
     <div class="review-modal-header">
-      <div class="modal-icon-wrap" style="margin-bottom:0;width:44px;height:44px;flex-shrink:0;">
-        <i class="bi bi-receipt-cutoff" style="font-size:18px;color:var(--color-accent)"></i>
+      <div class="modal-icon-wrap"
+        style="margin-bottom:0;width:40px;height:40px;flex-shrink:0;">
+        <i class="bi bi-clock-history"
+          style="font-size:17px;color:var(--color-accent)"></i>
       </div>
       <div>
         <p class="modal-title" style="text-align:left;margin-bottom:2px;">
-          Review VAT Registration
+          Review &amp; Confirm
         </p>
         <p style="font-size:12px;color:var(--color-text-secondary);margin:0;">
-          Verify all details carefully before confirming.
+          Verify all information before submission
         </p>
       </div>
     </div>
 
-    <!-- Scrollable summary body -->
+    <!-- Scrollable tabular summary -->
     <div class="review-scroll-body">
 
-      <!-- Taxpayer -->
-      <div class="review-section">
-        <span class="review-section-label">
-          <i class="bi bi-person-fill"></i> Taxpayer
-        </span>
-        <div class="review-row">
-          <span class="review-key">Name</span>
-          <span class="review-val fw-bold">{{ displayName }}</span>
+      <!-- Business Information -->
+      <div class="summary-section">
+        <span class="summary-section-label">Business Information</span>
+        <div class="summary-row">
+          <span class="summary-key">Business name</span>
+          <span class="summary-val fw-bold">{{ autoBusinessName }}</span>
         </div>
-        <div class="review-row">
-          <span class="review-key">TIN</span>
-          <span class="review-val">
-            <span class="code-badge">{{ selectedTaxpayer?.tinNumber }}</span>
+        <div class="summary-row">
+          <span class="summary-key">TIN</span>
+          <span class="summary-val" style="font-family:var(--font-mono)">
+            {{ selectedTaxpayer?.tinNumber }}
           </span>
         </div>
-        <div class="review-row">
-          <span class="review-key">Type</span>
-          <span class="review-val">{{ selectedTaxpayer?.taxpayerType?.typeName }}</span>
+        <div class="summary-row" *ngIf="selectedTaxpayer?.taxpayerType?.typeName">
+          <span class="summary-key">Taxpayer type</span>
+          <span class="summary-val">{{ selectedTaxpayer?.taxpayerType?.typeName }}</span>
         </div>
+        <ng-container *ngIf="selectedBusiness">
+          <div class="summary-row" *ngIf="selectedBusiness.ownerName">
+            <span class="summary-key">Owner</span>
+            <span class="summary-val">{{ selectedBusiness.ownerName }}</span>
+          </div>
+          <div class="summary-row" *ngIf="selectedBusiness.tradeLicenseNo">
+            <span class="summary-key">Trade license</span>
+            <span class="summary-val" style="font-family:var(--font-mono)">
+              {{ selectedBusiness.tradeLicenseNo }}
+            </span>
+          </div>
+          <div class="summary-row" *ngIf="selectedBusiness.address">
+            <span class="summary-key">Address</span>
+            <span class="summary-val">{{ selectedBusiness.address }}</span>
+          </div>
+        </ng-container>
       </div>
 
-      <!-- Business (non-company only) -->
-      <div class="review-section" *ngIf="selectedBusiness">
-        <span class="review-section-label">
-          <i class="bi bi-building-fill"></i> Business
-        </span>
-        <div class="review-row">
-          <span class="review-key">Business Name</span>
-          <span class="review-val fw-bold">{{ selectedBusiness.businessName }}</span>
-        </div>
-        <div class="review-row" *ngIf="selectedBusiness.ownerName">
-          <span class="review-key">Owner</span>
-          <span class="review-val">{{ selectedBusiness.ownerName }}</span>
-        </div>
-        <div class="review-row" *ngIf="selectedBusiness.tradeLicenseNo">
-          <span class="review-key">Trade License</span>
-          <span class="review-val">
-            <span class="code-badge">{{ selectedBusiness.tradeLicenseNo }}</span>
-          </span>
-        </div>
-        <div class="review-row" *ngIf="selectedBusiness.phone">
-          <span class="review-key">Phone</span>
-          <span class="review-val">{{ selectedBusiness.phone }}</span>
-        </div>
-      </div>
-
-      <!-- VAT Authority -->
-      <div class="review-section">
-        <span class="review-section-label">
-          <i class="bi bi-diagram-3-fill"></i> VAT Authority
-        </span>
-        <div class="review-row">
-          <span class="review-key">Division</span>
-          <span class="review-val">{{ reviewDivisionName }}</span>
-        </div>
-        <div class="review-row">
-          <span class="review-key">District</span>
-          <span class="review-val">{{ reviewDistrictName }}</span>
-        </div>
-        <div class="review-row">
-          <span class="review-key">VAT Zone</span>
-          <span class="review-val">
-            <span class="zone-pill">{{ reviewZoneName }}</span>
-          </span>
-        </div>
-        <div class="review-row">
-          <span class="review-key">VAT Circle</span>
-          <span class="review-val">
-            <span class="circle-pill">{{ reviewCircleName }}</span>
-          </span>
-        </div>
-      </div>
-
-      <!-- VAT Classification & Dates -->
-      <div class="review-section">
-        <span class="review-section-label">
-          <i class="bi bi-calendar3-range"></i> Classification &amp; Dates
-        </span>
-        <div class="review-row">
-          <span class="review-key">VAT Category</span>
-          <span class="review-val">
+      <!-- VAT Details -->
+      <div class="summary-section">
+        <span class="summary-section-label">VAT Details</span>
+        <div class="summary-row">
+          <span class="summary-key">Category</span>
+          <span class="summary-val">
             <span class="cat-badge"
               [ngClass]="{
                 'cat-standard': ctrl('vatCategory')?.value === 'Standard',
                 'cat-zero':     ctrl('vatCategory')?.value === 'Zero Rated',
                 'cat-exempt':   ctrl('vatCategory')?.value === 'Exempt',
                 'cat-special':  ctrl('vatCategory')?.value === 'Special'
-              }">
-              {{ ctrl('vatCategory')?.value }}
-            </span>
+              }">{{ vatCategoryLabel }}</span>
           </span>
         </div>
-        <div class="review-row">
-          <span class="review-key">Registration Date</span>
-          <span class="review-val">{{ ctrl('registrationDate')?.value }}</span>
+        <div class="summary-row" *ngIf="selectedBusiness">
+          <span class="summary-key">Annual turnover</span>
+          <span class="summary-val" style="color:var(--color-teal);font-weight:700">
+            ৳ {{ formatTurnoverDisplay(selectedBusiness.annualTurnover) }}
+          </span>
         </div>
-        <div class="review-row" *ngIf="ctrl('effectiveDate')?.value">
-          <span class="review-key">Effective Date</span>
-          <span class="review-val">{{ ctrl('effectiveDate')?.value }}</span>
+        <div class="summary-row">
+          <span class="summary-key">VAT Zone</span>
+          <span class="summary-val">{{ reviewZoneName }}</span>
         </div>
-        <div class="review-row" *ngIf="ctrl('expiryDate')?.value">
-          <span class="review-key">Expiry Date</span>
-          <span class="review-val">{{ ctrl('expiryDate')?.value }}</span>
+        <div class="summary-row">
+          <span class="summary-key">VAT Circle</span>
+          <span class="summary-val">{{ reviewCircleName }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-key">District / Division</span>
+          <span class="summary-val">{{ reviewDistrictName }}, {{ reviewDivisionName }}</span>
+        </div>
+        <div class="summary-row" *ngIf="ctrl('effectiveDate')?.value">
+          <span class="summary-key">Effective date</span>
+          <span class="summary-val">{{ ctrl('effectiveDate')?.value }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-key">Return period</span>
+          <span class="summary-val">{{ ctrl('returnPeriod')?.value }}</span>
+        </div>
+        <div class="summary-row" *ngIf="ctrl('expiryDate')?.value">
+          <span class="summary-key">Expiry date</span>
+          <span class="summary-val">{{ ctrl('expiryDate')?.value }}</span>
+        </div>
+      </div>
+
+      <!-- Documents — stub (Phase 6: document upload) -->
+      <div class="summary-section">
+        <span class="summary-section-label">Documents</span>
+        <div class="summary-row">
+          <span class="summary-key">Trade license</span>
+          <span class="summary-val doc-pending">— Not uploaded</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-key">TIN certificate</span>
+          <span class="summary-val doc-pending">— Not uploaded</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-key">NID (authorized)</span>
+          <span class="summary-val doc-pending">— Not uploaded</span>
         </div>
       </div>
 
       <!-- Remarks -->
-      <div class="review-section" *ngIf="ctrl('remarks')?.value">
-        <span class="review-section-label">
-          <i class="bi bi-pencil-square"></i> Remarks
-        </span>
-        <div class="review-row" style="align-items:flex-start;">
-          <span class="review-val" style="text-align:left;font-weight:400;color:var(--color-text-secondary)">
+      <div class="summary-section" *ngIf="ctrl('remarks')?.value">
+        <span class="summary-section-label">Remarks</span>
+        <div class="summary-row">
+          <span class="summary-val" style="text-align:left;font-weight:400;color:var(--color-text-secondary)">
             {{ ctrl('remarks')?.value }}
           </span>
         </div>
@@ -597,23 +624,21 @@
     <!-- Legal Declaration -->
     <div class="review-declaration">
       <label class="declaration-label">
-        <input
-          type="checkbox"
+        <input type="checkbox"
           [(ngModel)]="declarationAccepted"
-          [ngModelOptions]="{ standalone: true }"
-        />
+          [ngModelOptions]="{ standalone: true }" />
         <span>
-          I hereby certify that all information provided above is accurate and complete
-          to the best of my knowledge. I understand that submitting false or misleading
-          information may result in legal consequences under the VAT Act.
+          I hereby declare that all information provided is true, accurate, and complete.
+          I understand that any false declaration may lead to rejection or legal action
+          under the VAT Act.
         </span>
       </label>
     </div>
 
     <!-- Actions -->
     <div class="modal-actions" style="margin-top:0;">
-      <button type="button" class="btn-modal-cancel" (click)="onCloseReview()"
-        [disabled]="isLoading">
+      <button type="button" class="btn-modal-cancel"
+        (click)="onCloseReview()" [disabled]="isLoading">
         <i class="bi bi-x-lg"></i> Cancel
       </button>
       <button type="button" class="btn-modal-confirm"

@@ -5,6 +5,8 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
+import { District, Division, TaxCircle, TaxZone } from 'src/app/models/master-data.model';
+import { MasterDataService } from '../../../../core/services/master-data.service';
 
 @Component({
   selector: 'app-taxpayer-list',
@@ -25,6 +27,19 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   showApproveModal = false;
   showRejectModal = false;
   pendingApprovalId: number | null = null;
+  divisions: Division[] = [];
+  districts: District[] = [];
+  allDistricts: District[] = [];
+  taxZones: TaxZone[] = [];
+  taxCircles: TaxCircle[] = [];
+  loadingDistricts = false;
+  loadingZones = false;
+  loadingCircles = false;
+  selectedDivisionId: number | null = null;
+  selectedTaxpayerForApproval: any = null;
+  selectedDistrictId: number | null = null;
+  approveDistrict = '';
+  approveDivision = '';
   rejectNotes = '';
   approveZone = '';
   approveCircle = '';
@@ -39,6 +54,7 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private router: Router,
     private toast: ToastService,
+    private masterData: MasterDataService
   ) {}
 
   // ─────────────── Lifecycle  ───────────────────
@@ -204,9 +220,99 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   openApprove(id: number | undefined): void {
     if (!id) return;
     this.pendingApprovalId = id;
-    this.approveZone = '';
+    this.approveZone   = '';
     this.approveCircle = '';
+    this.taxZones      = [];
+    this.taxCircles    = [];
     this.showApproveModal = true;
+
+    // Taxpayer find করো
+    this.selectedTaxpayerForApproval = 
+      this.taxpayers.find(tp => tp.id === id) || null;
+
+    // Address আছে → district দিয়ে zones pre-load
+    const district = 
+      this.selectedTaxpayerForApproval?.presentAddress?.district;
+
+    if (district) {
+      this.loadingZones = true;
+      this.http.get<any[]>(API_ENDPOINTS.MASTER_DATA.DISTRICTS)
+        .subscribe(districts => {
+          const matched = districts.find(
+            d => d.name.toLowerCase() === district.toLowerCase()
+          );
+          if (matched) {
+            this.masterData.getTaxZonesByDistrict(matched.id)
+              .pipe(finalize(() => this.loadingZones = false))
+              .subscribe(zones => 
+                this.taxZones = zones.filter((z: any) => !!z.name)
+              );
+          } else {
+            this.loadingZones = false;
+          }
+        });
+    }
+  }
+
+  onApproveDivisionChange(): void {
+    this.approveDistrict = '';
+    this.approveZone     = '';
+    this.approveCircle   = '';
+    this.districts       = [];
+    this.taxZones        = [];
+    this.taxCircles      = [];
+
+    if (!this.selectedDivisionId) return;
+
+    this.approveDivision = this.divisions.find(
+      d => d.id === this.selectedDivisionId
+    )?.name || '';
+
+    this.loadingDistricts = true;
+    this.masterData.getDistrictsByDivision(this.selectedDivisionId)
+      .pipe(finalize(() => this.loadingDistricts = false))
+      .subscribe(data => this.districts = data);
+  }
+
+  onApproveDistrictChange(): void {
+    this.approveZone    = '';
+    this.approveCircle  = '';
+    this.taxZones       = [];
+    this.taxCircles     = [];
+
+    const district = this.districts.find(d => d.name === this.approveDistrict);
+    if (!district) return;
+
+    this.loadingZones = true;
+    this.masterData.getTaxZonesByDistrict(district.id)
+      .pipe(finalize(() => this.loadingZones = false))
+      .subscribe(data => this.taxZones = data.filter((z: any) => !!z.name));
+  }
+
+  onApproveDistrictIdChange(): void {
+    this.approveZone   = '';
+    this.approveCircle = '';
+    this.taxZones      = [];
+    this.taxCircles    = [];
+    if (!this.selectedDistrictId) return;
+
+    this.loadingZones = true;
+    this.masterData.getTaxZonesByDistrict(this.selectedDistrictId)
+      .pipe(finalize(() => this.loadingZones = false))
+      .subscribe(data => this.taxZones = data.filter((z: any) => !!z.name));
+  }
+
+  onApproveZoneChange(): void {
+    this.approveCircle = '';
+    this.taxCircles    = [];
+
+    const zone = this.taxZones.find((z: any) => z.name === this.approveZone);
+    if (!zone) return;
+
+    this.loadingCircles = true;
+    this.masterData.getTaxCirclesByZone(zone.id)
+      .pipe(finalize(() => this.loadingCircles = false))
+      .subscribe(data => this.taxCircles = data.filter((c: any) => !!c.name));
   }
 
   closeApprove(): void {
@@ -216,8 +322,26 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
 
   confirmApprove(): void {
     if (!this.pendingApprovalId) return;
+
+    const taxpayer = this.taxpayers.find(
+      tp => tp.id === this.pendingApprovalId
+    );
+
+    // Address check
+    const hasAddress = !!(
+      taxpayer?.presentAddress?.district &&
+      taxpayer?.presentAddress?.division
+    );
+
+    if (!hasAddress) {
+      // Notice পাঠাও taxpayer কে
+      this.sendAddressNotice(this.pendingApprovalId);
+      return;
+    }
+
+    // Normal approval flow
     if (!this.approveZone || !this.approveCircle) {
-      this.toast.warning('Please enter Tax Zone and Tax Circle.');
+      this.toast.warning('Please select Tax Zone and Tax Circle.');
       return;
     }
 
@@ -225,8 +349,8 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     const url = `${API_ENDPOINTS.TAXPAYERS.LIST}/${this.pendingApprovalId}/approve`;
 
     this.http.put(url, {
-      taxZone: this.approveZone,
-      taxCircle: this.approveCircle,
+      taxZone:    this.approveZone,
+      taxCircle:  this.approveCircle,
       reviewNotes: 'Approved'
     }).pipe(
       takeUntil(this.destroy$),
@@ -237,7 +361,31 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
         this.closeApprove();
         this.fetchTaxpayer();
       },
-      error: () => this.toast.error('Approval failed. Please try again.')
+      error: () => this.toast.error('Approval failed.')
+    });
+  }
+
+  private sendAddressNotice(taxpayerId: number): void {
+    this.isProcessing = true;
+
+    this.http.post(API_ENDPOINTS.NOTICES.CREATE, {
+      taxpayerId: taxpayerId,
+      title:      'Action Required: Complete Your Profile',
+      message:    'Your registration application is pending approval. ' +
+                  'Please complete your profile by adding your present address ' +
+                  '(Division and District) to proceed with TIN issuance.',
+      noticeType: 'Profile Completion',
+      priority:   'High',
+      status:     'Active'
+    }).pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isProcessing = false)
+    ).subscribe({
+      next: () => {
+        this.toast.success('Notice sent to taxpayer to complete their profile.');
+        this.closeApprove();
+      },
+      error: () => this.toast.error('Failed to send notice.')
     });
   }
 
@@ -309,6 +457,13 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   }
 
   // ─────────────────── UI Helpers ─────────────────────────
+
+  selectedTaxpayerHasAddress(): boolean {
+    return !!(
+      this.selectedTaxpayerForApproval?.presentAddress?.district &&
+      this.selectedTaxpayerForApproval?.presentAddress?.division
+    );
+  }
 
   getStatusClass(status: string): string {
     const map: Record<string, string> = {

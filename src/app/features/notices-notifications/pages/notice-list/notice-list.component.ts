@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Notice } from '../../../../models/notice.model';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -170,6 +170,7 @@ export class NoticeListComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private route: ActivatedRoute,
     public authService: AuthService,
     private toast: ToastService,
   ) {}
@@ -270,7 +271,9 @@ export class NoticeListComponent implements OnInit {
   }
 
   viewNotice(id: number): void {
-    this.router.navigate(['/notices', id]);
+   this.router.navigate(['view', id], {
+      relativeTo: this.route
+    });
   }
 
   confirmDelete(id: number): void {

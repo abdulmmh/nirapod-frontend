@@ -1,15 +1,15 @@
 /* vat-registration-create.component.css
-   Component-specific styles only.
-   All shared utilities (section-icon variants, form controls, buttons,
-   badges, modal base) live in global styles.css.
-
    Sections:
    1. Wizard Step Indicator
    2. Step Edit Button
    3. Company Notice
    4. Update Link
-   5. Draft Recovery Banner        ← NEW Phase 2
-   6. Review Modal Overrides       ← NEW Phase 2
+   5. Draft Recovery Banner
+   6. VAT Category Radio Cards       ← NEW (matches mockup)
+   7. Currency Prefix Input           ← NEW (matches mockup)
+   8. Field Hint Text                 ← NEW (matches mockup)
+   9. Business Verified Info-Box      ← NEW (matches mockup)
+  10. Review Modal — Tabular Layout   ← REDESIGNED (matches mockup Image 1)
 */
 
 
@@ -207,9 +207,7 @@
   white-space: nowrap;
 }
 
-.draft-btn-continue:hover {
-  background: var(--color-orange-dark);
-}
+.draft-btn-continue:hover { background: var(--color-orange-dark); }
 
 .draft-btn-discard {
   display: inline-flex;
@@ -234,30 +232,211 @@
 }
 
 
-/* ── 6. Review Modal Overrides ───────────────────────────────── */
-
+/* ── 6. VAT Category Radio Cards ─────────────────────────────── */
 /*
-  Base .modal-overlay, .modal-card, .modal-accent, .modal-actions,
-  .btn-modal-cancel and .btn-modal-confirm are all defined in styles.css.
-  These rules only extend or override for the review-specific layout.
+  Matches the mockup's .radio-group / .radio-opt pattern exactly.
+  Each card is a <label> wrapping a visually-hidden radio input.
+  The reactive form binding comes from formControlName on the input;
+  the visual state is driven by [class.selected] on the label.
 */
 
-/* Wider card — global default is 420px max-width */
+.radio-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.radio-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  flex: 1;
+  min-width: 140px;
+  transition: border-color 0.1s, background 0.1s, color 0.1s;
+  user-select: none;
+}
+
+.radio-opt:hover {
+  border-color: var(--color-accent-mid);
+  background: var(--color-accent-light);
+}
+
+.radio-opt.selected {
+  border-color: var(--color-accent-mid);
+  background: var(--color-accent-light);
+  color: var(--color-accent-dark);
+  font-weight: 600;
+}
+
+/* Visually hide the native radio while keeping it accessible */
+.radio-input-hidden {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* The circular radio indicator */
+.radio-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.1s;
+}
+
+.radio-opt.selected .radio-dot {
+  border-color: var(--color-accent-mid);
+}
+
+/* Inner filled dot — hidden when not selected */
+.radio-dot-inner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent-mid);
+  display: none;
+}
+
+.radio-opt.selected .radio-dot-inner {
+  display: block;
+}
+
+.radio-opt-label {
+  line-height: 1.3;
+}
+
+
+/* ── 7. Currency Prefix Input ────────────────────────────────── */
+/*
+  Matches the mockup's .input-prefix pattern.
+  The prefix span and the input share a single border by wrapping them
+  in a container that itself has the border.
+*/
+
+.input-prefix {
+  display: flex;
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input-prefix:focus-within {
+  border-color: var(--color-accent-mid);
+  box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+.input-prefix.locked {
+  background: var(--color-bg-secondary);
+}
+
+.prefix-symbol {
+  padding: 0 10px;
+  background: var(--color-bg-secondary);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  border-right: 0.5px solid var(--color-border-primary);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-sans);
+}
+
+/* The input inside .input-prefix strips its own border */
+.prefix-input {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  flex: 1;
+  min-width: 0;
+  padding-left: 10px !important;
+}
+
+.prefix-input:focus {
+  box-shadow: none !important;
+  outline: none;
+}
+
+.prefix-input[readonly] {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+
+/* ── 8. Field Hint Text ──────────────────────────────────────── */
+
+.field-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+
+/* ── 9. Business Verified Info-Box ───────────────────────────── */
+/*
+  Matches the mockup's .info-box: blue left-border notice.
+*/
+
+.verified-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #E6F1FB;
+  border-left: 3px solid var(--color-accent-mid);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 12.5px;
+  color: var(--color-accent-dark);
+  line-height: 1.6;
+}
+
+.verified-notice i {
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--color-accent-mid);
+}
+
+
+/* ── 10. Review Modal — Tabular Summary Layout ───────────────── */
+/*
+  Replaces the previous icon-card layout with the clean tabular
+  summary-row design from the mockup (Image 1).
+
+  Base .modal-overlay / .modal-card / .modal-actions are in styles.css.
+  These rules override sizing and add the summary anatomy.
+*/
+
 .review-modal-card {
-  max-width: 600px;
+  max-width: 560px;
   padding: 0;
   text-align: left;
   align-items: stretch;
 }
 
-/* Re-position the accent bar so it flows in the flex column */
 .review-modal-card .modal-accent {
   position: relative;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   flex-shrink: 0;
 }
 
-/* Header: icon + title side-by-side */
+/* Header row */
 .review-modal-header {
   display: flex;
   align-items: center;
@@ -266,79 +445,74 @@
   border-bottom: 0.5px solid var(--color-border-tertiary);
 }
 
-/* Scrollable summary region */
+/* Scrollable summary body */
 .review-scroll-body {
   overflow-y: auto;
-  max-height: 52vh;
-  padding: 4px 0;
+  max-height: 55vh;
+  padding: 0;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border-primary) transparent;
 }
 
 .review-scroll-body::-webkit-scrollbar       { width: 4px; }
 .review-scroll-body::-webkit-scrollbar-track { background: transparent; }
-.review-scroll-body::-webkit-scrollbar-thumb {
-  background: var(--color-border-primary);
-  border-radius: 4px;
-}
+.review-scroll-body::-webkit-scrollbar-thumb { background: var(--color-border-primary); border-radius: 4px; }
 
-/* A labelled group within the scroll body */
-.review-section {
-  padding: 10px 22px 4px;
+/* One logical block within the summary */
+.summary-section {
+  padding: 14px 22px 8px;
   border-bottom: 0.5px solid var(--color-border-tertiary);
 }
 
-.review-section:last-child {
-  border-bottom: none;
-}
+.summary-section:last-child { border-bottom: none; }
 
-/* Pill label above each section */
-.review-section-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10.5px;
-  font-weight: 700;
+/* Uppercase section label — matches mockup exactly */
+.summary-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--color-text-secondary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  display: block;
 }
 
-.review-section-label i {
-  font-size: 12px;
-  color: var(--color-accent);
-}
-
-/* Key / value pair */
-.review-row {
+/* Key/value pair row — matches mockup .summary-row */
+.summary-row {
   display: flex;
-  align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
-  padding: 6px 0;
+  align-items: baseline;
+  padding: 7px 0;
   border-bottom: 0.5px solid var(--color-border-tertiary);
+  font-size: 13px;
+  gap: 16px;
 }
 
-.review-row:last-child {
-  border-bottom: none;
-  padding-bottom: 10px;
-}
+.summary-row:last-child { border-bottom: none; }
 
-.review-key {
-  font-size: 12px;
+.summary-key {
   color: var(--color-text-secondary);
-  font-weight: 500;
   flex-shrink: 0;
-  min-width: 110px;
 }
 
-.review-val {
-  font-size: 12.5px;
+.summary-val {
   color: var(--color-text-primary);
-  font-weight: 600;
+  font-weight: 500;
   text-align: right;
   word-break: break-word;
+  max-width: 60%;
+}
+
+/* Uploaded document status */
+.doc-uploaded {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+/* Not-uploaded stub */
+.doc-pending {
+  color: var(--color-text-tertiary);
+  font-style: italic;
 }
 
 /* Legal declaration block */
@@ -373,7 +547,6 @@
   user-select: none;
 }
 
-/* Actions row inside review modal */
 .review-modal-card .modal-actions {
   padding: 14px 22px;
   border-top: none;
@@ -397,7 +570,9 @@
   .draft-btn-continue,
   .draft-btn-discard    { flex: 1; justify-content: center; }
 
+  .radio-group          { flex-direction: column; }
+  .radio-opt            { min-width: unset; }
+
   .review-modal-card    { max-width: 100%; }
-  .review-scroll-body   { max-height: 44vh; }
-  .review-key           { min-width: 90px; }
+  .review-scroll-body   { max-height: 46vh; }
 }

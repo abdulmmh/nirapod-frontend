@@ -185,10 +185,13 @@ export const API_ENDPOINTS = {
 
   // Auth
   AUTH: {
-    LOGIN:   `${API_BASE_URL}/auth/login`,
-    LOGOUT:  `${API_BASE_URL}/auth/logout`,
-    PROFILE: `${API_BASE_URL}/auth/profile`,
-    REGISTER: `${API_BASE_URL}/public/register`,
+    LOGIN:           `${API_BASE_URL}/auth/login`,
+    LOGOUT:          `${API_BASE_URL}/auth/logout`,
+    PROFILE:         `${API_BASE_URL}/auth/profile`,
+    REGISTER:        `${API_BASE_URL}/public/register`,
+    VERIFY_EMAIL:    `${API_BASE_URL}/auth/verify-email`,
+    FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
+    RESET_PASSWORD:  `${API_BASE_URL}/auth/reset-password`,
   },
 
   // TaxStructures

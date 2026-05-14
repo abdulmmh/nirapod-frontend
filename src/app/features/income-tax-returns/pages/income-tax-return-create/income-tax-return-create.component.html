@@ -637,19 +637,21 @@
      PANE 6 — Review & Submit
 ════════════════════════════════════════════════════════════════ -->
 <div [hidden]="currentStep !== 6" [formGroup]="step6Form">
-
+ 
   <div class="alert alert-warn">
     <div>⚠</div>
-    <div>Once submitted, this ITR is <strong>permanently locked</strong>. File an amended return for corrections before the deadline ({{ dueDate || '—' }}).</div>
+    <div>Once submitted, this ITR is <strong>permanently locked</strong>.
+      If corrections are needed, file an amended return from the return details page
+      before the deadline ({{ dueDate || '—' }}).</div>
   </div>
-
+ 
+  <!-- ── Final summary ── -->
   <div class="card">
     <div class="card-hdr">
       <div class="card-title">Final summary — ITR FY {{ filingYear }}</div>
     </div>
     <div class="card-p">
-
-      <!-- Summary stats -->
+ 
       <div class="grid3" style="margin-bottom:14px">
         <div class="stat-box">
           <div class="stat-label">Total income</div>
@@ -664,66 +666,170 @@
           <div class="stat-value">{{ fmt(taxResult <= 0 ? refundable : balanceDue) }}</div>
         </div>
       </div>
-
-      <!-- Review detail rows -->
+ 
       <div class="review-detail">
-        <div class="review-row">
-          <span class="rew-k">TIN</span>
-          <span class="rew-v">{{ step1Form.getRawValue().tinNumber || '—' }}</span>
+        <div class="review-row"><span class="rew-k">TIN</span><span class="rew-v">{{ step1Form.getRawValue().tinNumber || '—' }}</span></div>
+        <div class="review-row"><span class="rew-k">Taxpayer</span><span class="rew-v">{{ step1Form.getRawValue().taxpayerName }}</span></div>
+        <div class="review-row"><span class="rew-k">Category</span><span class="rew-v">{{ step1Form.getRawValue().itrCategory }}</span></div>
+        <div class="review-row"><span class="rew-k">Assessment year</span><span class="rew-v">{{ step1Form.getRawValue().assessmentYear }}</span></div>
+        <div class="review-row"><span class="rew-k">Gross income</span><span class="rew-v">{{ fmt(totalGrossIncome) }}</span></div>
+        <div class="review-row"><span class="rew-k">HRA exemption</span><span class="rew-v" style="color:#1D9E75">− {{ fmt(hraExemption) }}</span></div>
+        <div class="review-row"><span class="rew-k">Taxable income</span><span class="rew-v font-bold">{{ fmt(localTaxableIncome) }}</span></div>
+        <div class="review-row"><span class="rew-k">Gross tax</span><span class="rew-v">{{ fmt(localGrossTax) }}</span></div>
+        <div class="review-row"><span class="rew-k">Investment rebate (15%)</span><span class="rew-v" style="color:#1D9E75">− {{ fmt(taxRebate) }}</span></div>
+        <div class="review-row"><span class="rew-k">Net tax liability</span><span class="rew-v font-bold">{{ fmt(localNetTax) }}</span></div>
+        <div class="review-row"><span class="rew-k">TDS &amp; AIT paid</span><span class="rew-v" style="color:#1D9E75">− {{ fmt(totalTds) }}</span></div>
+        <div class="review-row" *ngIf="totalAssets > 0"><span class="rew-k">Net worth (IT-10B)</span><span class="rew-v">{{ fmt(netWorth) }}</span></div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ══════════════════════════════════════════════════════════
+       PAYMENT SECTION — শুধু tax due থাকলে দেখাবে
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="card" *ngIf="showPaymentSection">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-red">
+          <i class="bi bi-credit-card-fill" style="font-size:12px;color:#A32D2D"></i>
         </div>
-        <div class="review-row">
-          <span class="rew-k">Taxpayer</span>
-          <span class="rew-v">{{ step1Form.getRawValue().taxpayerName }}</span>
-        </div>
-        <div class="review-row">
-          <span class="rew-k">Category</span>
-          <span class="rew-v">{{ step1Form.getRawValue().itrCategory }}</span>
-        </div>
-        <div class="review-row">
-          <span class="rew-k">Assessment year</span>
-          <span class="rew-v">{{ step1Form.getRawValue().assessmentYear }}</span>
-        </div>
-        <div class="review-row">
-          <span class="rew-k">Gross income</span>
-          <span class="rew-v">{{ fmt(totalGrossIncome) }}</span>
-        </div>
-        <div class="review-row">
-          <span class="rew-k">HRA exemption</span>
-          <span class="rew-v" style="color:#1D9E75">− {{ fmt(hraExemption) }}</span>
-        </div>
-        <div class="review-row">
-          <span class="rew-k">Taxable income</span>
-          <span class="rew-v font-bold">{{ fmt(localTaxableIncome) }}</span>
-        </div>
-        <div class="review-row">
-          <span class="rew-k">Gross tax</span>
-          <span class="rew-v">{{ fmt(localGrossTax) }}</span>
-        </div>
-        <div class="review-row">
-          <span class="rew-k">Investment rebate (15%)</span>
-          <span class="rew-v" style="color:#1D9E75">− {{ fmt(taxRebate) }}</span>
-        </div>
-        <div class="review-row">
-          <span class="rew-k">Net tax liability</span>
-          <span class="rew-v font-bold">{{ fmt(localNetTax) }}</span>
-        </div>
-        <div class="review-row">
-          <span class="rew-k">TDS &amp; AIT paid</span>
-          <span class="rew-v" style="color:#1D9E75">− {{ fmt(totalTds) }}</span>
-        </div>
-        <div class="review-row" *ngIf="totalAssets > 0">
-          <span class="rew-k">Net worth (IT-10B)</span>
-          <span class="rew-v">{{ fmt(netWorth) }}</span>
+        <div>
+          <div class="card-title">Tax payment</div>
+          <div class="card-sub">
+            Tax due: <strong style="color:#A32D2D">{{ fmt(balanceDue) }}</strong>
+            — Select payment method and enter details
+          </div>
         </div>
       </div>
-
-      <!-- Declaration -->
+      <span class="badge b-red" *ngIf="!isPaymentValid">⚠ Required</span>
+      <span class="badge b-ok" *ngIf="isPaymentValid">✓ Done</span>
+    </div>
+    <div class="card-p">
+ 
+      <!-- Payment method selection -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;color:var(--ts);font-weight:600;margin-bottom:10px;">
+          Select payment method
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label *ngFor="let m of paymentMethods"
+                 class="payment-method-btn"
+                 [class.selected]="selectedPaymentMethod === m.value"
+                 [class.disabled]="!m.available"
+                 [title]="!m.available ? 'Coming soon' : ''">
+            <input type="radio" formControlName="paymentMethod"
+                   [value]="m.value" [disabled]="!m.available"
+                   style="display:none" />
+            {{ m.label }}
+            <span *ngIf="!m.available" style="font-size:10px;opacity:0.6"> — Soon</span>
+          </label>
+        </div>
+      </div>
+ 
+      <!-- ── Bank Challan fields ── -->
+      <div *ngIf="isChallanMethod" class="payment-fields">
+        <div class="alert alert-info" style="margin-bottom:14px">
+          <div>ℹ</div>
+          <div>Pay at any scheduled bank using a treasury challan form.
+            The bank will give you a challan number — enter it below.</div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Bank name <span class="req">*</span></label>
+            <select formControlName="challanBank">
+              <option value="">— Select bank —</option>
+              <option *ngFor="let b of banks" [value]="b">{{ b }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Challan number <span class="req">*</span></label>
+            <input type="text" formControlName="challanNo"
+                   placeholder="e.g. CHAL-2025-001234" />
+          </div>
+          <div class="field">
+            <label>Payment date <span class="req">*</span></label>
+            <input type="date" formControlName="challanDate" />
+          </div>
+          <div class="field">
+            <label>Amount paid (৳) <span class="req">*</span></label>
+            <input type="number" formControlName="challanAmount"
+                   min="0" placeholder="0" />
+            <span class="hint" *ngIf="step6Form.value.challanAmount > 0 &&
+              step6Form.value.challanAmount < balanceDue"
+              style="color:#e67e22">
+              ⚠ Amount is less than tax due ({{ fmt(balanceDue) }})
+            </span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- ── MFS fields (bKash / Nagad / Rocket) ── -->
+      <div *ngIf="isMfsMethod" class="payment-fields">
+        <div class="alert alert-info" style="margin-bottom:14px">
+          <div>ℹ</div>
+          <div>
+            Send payment to the NBR
+            <strong *ngIf="selectedPaymentMethod === 'bkash'">bKash</strong>
+            <strong *ngIf="selectedPaymentMethod === 'nagad'">Nagad</strong>
+            <strong *ngIf="selectedPaymentMethod === 'rocket'">Rocket</strong>
+            merchant number. Enter the transaction ID from your confirmation SMS.
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Transaction ID <span class="req">*</span></label>
+            <input type="text" formControlName="mfsNumber"
+                   placeholder="e.g. TXN8CH2XXXXXX" />
+          </div>
+          <div class="field">
+            <label>Amount sent (৳) <span class="req">*</span></label>
+            <input type="number" formControlName="mfsAmount"
+                   min="0" placeholder="0" />
+          </div>
+          <div class="field">
+            <label>Payment date <span class="req">*</span></label>
+            <input type="date" formControlName="mfsDate" />
+          </div>
+        </div>
+      </div>
+ 
+      <!-- ── Card — coming soon placeholder ── -->
+      <div *ngIf="isCardMethod" class="payment-fields">
+        <div class="alert alert-warn">
+          <div>🚧</div>
+          <div>Online card payment gateway is under development.
+            Please use bank challan or MFS for now.</div>
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <!-- ── Refund case — no payment needed ── -->
+  <div class="card" *ngIf="!showPaymentSection && taxResult <= 0">
+    <div class="card-p" style="display:flex;align-items:center;gap:12px;">
+      <div style="font-size:24px">🎉</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#1a7a4a">
+          No payment required
+        </div>
+        <div style="font-size:13px;color:#888;margin-top:2px">
+          You have a refund of <strong style="color:#1a7a4a">{{ fmt(refundable) }}</strong>
+          — it will be processed after your return is accepted.
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ── Declaration ── -->
+  <div class="card">
+    <div class="card-p">
       <div class="declaration-box">
         <div class="decl-title">Verification &amp; declaration</div>
         <div class="decl-body">
           I, <strong>{{ step1Form.getRawValue().taxpayerName || '...' }}</strong>
-          (TIN: {{ step1Form.getRawValue().tinNumber || '...' }}), solemnly declare that the information
-          furnished in this return of income for the assessment year
+          (TIN: {{ step1Form.getRawValue().tinNumber || '...' }}), solemnly declare that the
+          information furnished in this return of income for the assessment year
           {{ step1Form.getRawValue().assessmentYear }} is correct and complete
           to the best of my knowledge and belief.
         </div>
@@ -737,7 +843,6 @@
             placeholder="Any additional notes for the record…"></textarea>
         </div>
       </div>
-
     </div>
     <div class="footer">
       <button class="btn btn-ghost" (click)="prevStep()" [disabled]="isLoading">← Back</button>
@@ -757,7 +862,7 @@
 ════════════════════════════════════════════════════════════════ -->
 <div *ngIf="currentStep === 7 && successData">
   <div class="card">
-    <div class="success-screen">
+    <div class="success-screen" id="print-area">
       <div class="success-icon">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
              stroke="#3B6D11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -768,14 +873,16 @@
       <div class="success-sub">
         Your return for FY {{ filingYear }} has been submitted.
         <ng-container *ngIf="taxResult <= 0">
-          Refund of <strong>{{ fmt(refundable) }}</strong> will be processed within 30 working days.
+          Refund of <strong>{{ fmt(refundable) }}</strong> will be processed
+          within 30 working days after acceptance.
         </ng-container>
         <ng-container *ngIf="taxResult > 0">
-          Balance due of <strong>{{ fmt(balanceDue) }}</strong> should be cleared via treasury challan.
+          Balance due of <strong>{{ fmt(balanceDue) }}</strong> has been recorded.
+          Your return will be reviewed by the tax officer.
         </ng-container>
       </div>
-
-      <!-- Acknowledgment box -->
+ 
+      <!-- Acknowledgement box -->
       <div class="ack-box">
         <div class="ack-row">
           <span>Acknowledgement no.</span>
@@ -784,6 +891,14 @@
         <div class="ack-row">
           <span>Assessment year</span>
           <span class="ack-val">{{ step1Form.getRawValue().assessmentYear }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Taxpayer</span>
+          <span class="ack-val">{{ step1Form.getRawValue().taxpayerName }}</span>
+        </div>
+        <div class="ack-row">
+          <span>TIN</span>
+          <span class="ack-val mono">{{ step1Form.getRawValue().tinNumber }}</span>
         </div>
         <div class="ack-row">
           <span>Total income declared</span>
@@ -801,6 +916,25 @@
           <span>Balance due</span>
           <span class="ack-val" style="color:#A32D2D">{{ fmt(balanceDue) }}</span>
         </div>
+ 
+        <!-- Payment info যোগ হলে দেখাবে -->
+        <ng-container *ngIf="step6Form.value.challanNo">
+          <div class="ack-row">
+            <span>Challan no.</span>
+            <span class="ack-val mono">{{ step6Form.value.challanNo }}</span>
+          </div>
+          <div class="ack-row">
+            <span>Bank</span>
+            <span class="ack-val">{{ step6Form.value.challanBank }}</span>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="step6Form.value.mfsNumber">
+          <div class="ack-row">
+            <span>MFS transaction ID</span>
+            <span class="ack-val mono">{{ step6Form.value.mfsNumber }}</span>
+          </div>
+        </ng-container>
+ 
         <div class="ack-row">
           <span>Filed at</span>
           <span class="ack-val">{{ successData.filedAt }}</span>
@@ -810,9 +944,13 @@
           <span><span class="badge b-ok">Submitted</span></span>
         </div>
       </div>
-
+ 
+      <!-- Action buttons -->
       <div class="success-actions">
         <button class="btn btn-sm" (click)="goToList()">← Back to list</button>
+        <button class="btn btn-sm" (click)="printAcknowledgement()">
+          🖨 Print
+        </button>
         <button class="btn btn-primary btn-sm" (click)="goToView()">
           <i class="bi bi-eye-fill"></i> View return
         </button>

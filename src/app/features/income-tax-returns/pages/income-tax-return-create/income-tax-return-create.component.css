@@ -795,6 +795,91 @@
   flex-wrap: wrap;
 }
 
+/* ── Payment method buttons ── */
+.payment-method-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: var(--rmd);
+  border: 1.5px solid var(--bs);
+  background: var(--cp);
+  color: var(--tp);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+ 
+.payment-method-btn:hover:not(.disabled) {
+  border-color: var(--blue-text);
+  background: var(--blue-bg);
+}
+ 
+.payment-method-btn.selected {
+  border-color: var(--blue-text);
+  background: var(--blue-bg);
+  color: var(--blue-dark);
+  font-weight: 600;
+}
+ 
+.payment-method-btn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+ 
+/* ── Payment fields container ── */
+.payment-fields {
+  animation: fadeIn 0.2s ease;
+}
+ 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+@media print {
+  .itr-topbar,
+  .step-rail,
+  .portal-nav,
+  .portal-footer,
+  .portal-breadcrumb,
+  .success-actions,
+  .btn,
+  header,
+  footer,
+  nav {
+    display: none !important;
+  }
+ 
+
+  body * { visibility: hidden; }
+  #print-area,
+  #print-area * { visibility: visible; }
+ 
+  #print-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+ 
+
+  .ack-box {
+    border: 1px solid #ccc !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+ 
+  .success-title {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .grid2, .grid3 { grid-template-columns: 1fr; }

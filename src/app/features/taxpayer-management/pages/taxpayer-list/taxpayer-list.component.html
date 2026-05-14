@@ -211,36 +211,113 @@
   </div>
 </div>
 
+
 <!-- Approve Modal -->
 <div class="modal-overlay" *ngIf="showApproveModal">
-  <div class="modal-card">
+  <div class="modal-card" style="max-width: 480px;">
     <div class="modal-accent success"></div>
     <div class="modal-icon-wrap success">
-      <i class="bi bi-check-circle-fill" style="color:#1a7a4a; font-size:22px;"></i>
+      <i class="bi bi-check-circle-fill" 
+         style="color:#1a7a4a; font-size:22px;"></i>
     </div>
     <p class="modal-title">Approve Application</p>
-    <p class="modal-msg">Assign Tax Zone and Circle to issue TIN.</p>
 
-    <div class="modal-form">
-      <div class="modal-field">
-        <label>Tax Zone *</label>
-        <input type="text" [(ngModel)]="approveZone" placeholder="e.g. Dhaka Zone-1"/>
+    <!-- Address missing warning -->
+    <ng-container *ngIf="!selectedTaxpayerHasAddress()">
+      <div class="address-missing-warn">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+          <strong>Profile Incomplete</strong>
+          <p>This taxpayer has not provided their address. 
+             Approval requires Division and District.</p>
+        </div>
       </div>
-      <div class="modal-field">
-        <label>Tax Circle *</label>
-        <input type="text" [(ngModel)]="approveCircle" placeholder="e.g. Circle-5"/>
-      </div>
-    </div>
 
-    <div class="modal-actions">
-      <button class="btn-modal-cancel" (click)="closeApprove()">Cancel</button>
-      <button class="btn-modal-confirm success" 
-              (click)="confirmApprove()"
-              [disabled]="isProcessing">
-        <i class="bi bi-check-circle-fill"></i> 
-        {{ isProcessing ? 'Processing...' : 'Approve & Issue TIN' }}
-      </button>
-    </div>
+      <p class="modal-msg">
+        A notice will be sent to the taxpayer requesting 
+        them to complete their profile before approval.
+      </p>
+
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="closeApprove()">
+          Cancel
+        </button>
+        <button class="btn-modal-confirm warning"
+                (click)="confirmApprove()"
+                [disabled]="isProcessing">
+          <i class="bi bi-bell-fill"></i>
+          {{ isProcessing ? 'Sending...' : 'Send Notice & Close' }}
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Normal approval — address exists -->
+    <ng-container *ngIf="selectedTaxpayerHasAddress()">
+      <!-- Address info -->
+      <div class="taxpayer-address-info">
+        <div class="tai-label">Taxpayer's Registered Address</div>
+        <div class="tai-row">
+          <span class="tai-key">Division</span>
+          <span class="tai-val">
+            {{ selectedTaxpayerForApproval?.presentAddress?.division }}
+          </span>
+        </div>
+        <div class="tai-row">
+          <span class="tai-key">District</span>
+          <span class="tai-val">
+            {{ selectedTaxpayerForApproval?.presentAddress?.district }}
+          </span>
+        </div>
+      </div>
+
+      <p class="modal-msg">
+        Assign Tax Zone and Circle based on taxpayer's district.
+      </p>
+
+      <div class="modal-form">
+        <div class="modal-field">
+          <label>Tax Zone *</label>
+          <select [(ngModel)]="approveZone"
+                  (ngModelChange)="onApproveZoneChange()"
+                  [disabled]="taxZones.length === 0 || loadingZones">
+            <option value="">
+              {{ loadingZones ? 'Loading...' : 
+                 taxZones.length === 0 ? 'No zones found' : 'Select Tax Zone' }}
+            </option>
+            <option *ngFor="let z of taxZones" [value]="z.name">
+              {{ z.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label>Tax Circle *</label>
+          <select [(ngModel)]="approveCircle"
+                  [disabled]="taxCircles.length === 0 || loadingCircles">
+            <option value="">
+              {{ loadingCircles ? 'Loading...' :
+                 taxCircles.length === 0 ? 'Select zone first' : 'Select Tax Circle' }}
+            </option>
+            <option *ngFor="let c of taxCircles" [value]="c.name">
+              {{ c.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="closeApprove()">
+          Cancel
+        </button>
+        <button class="btn-modal-confirm success"
+                (click)="confirmApprove()"
+                [disabled]="isProcessing || !approveZone || !approveCircle">
+          <i class="bi bi-check-circle-fill"></i>
+          {{ isProcessing ? 'Processing...' : 'Approve & Issue TIN' }}
+        </button>
+      </div>
+    </ng-container>
+
   </div>
 </div>
 

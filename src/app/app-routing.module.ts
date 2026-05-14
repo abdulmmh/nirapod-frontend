@@ -9,12 +9,18 @@ import { LoginComponent } from './features/auth/pages/login/login.component';
 import { UnauthorizedComponent } from './features/auth/pages/unauthorized/unauthorized.component';
 
 import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home/dashboard-home.component';
+import { VerifyEmailComponent } from './features/auth/pages/verify-email/verify-email.component';
+import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/auth/pages/reset-password/reset-password.component';
 
 const routes: Routes = [
 
   // ── Public ──
   { path: 'auth/login', component: LoginComponent },
   { path: 'unauthorized', component: UnauthorizedComponent },
+  { path: 'auth/verify-email',    component: VerifyEmailComponent },
+  { path: 'auth/forgot-password', component: ForgotPasswordComponent },
+  { path: 'auth/reset-password',  component: ResetPasswordComponent },
   
   // Public Registration
       { path: 'register', 

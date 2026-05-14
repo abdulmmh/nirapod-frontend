@@ -401,6 +401,22 @@
   text-decoration: none;
 }
 
+.forgot-link-wrap {
+  text-align: right;
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
+
+.forgot-link {
+  font-size: 13px;
+  color: #1a3f8f;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.forgot-link:hover { text-decoration: underline; }
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .login-page {

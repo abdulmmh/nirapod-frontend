@@ -1,5 +1,6 @@
 export type VatStatus   = 'Active' | 'Inactive' | 'Pending' | 'Suspended' | 'Cancelled';
 export type VatCategory = 'Standard' | 'Zero Rated' | 'Exempt' | 'Special';
+export type ReturnPeriod = 'Monthly' | 'Quarterly';
 
 
 export interface VatRegistration {
@@ -23,11 +24,7 @@ export interface VatRegistration {
   division:         string;
   vatZone:          string;
   vatCircle:        string;
-  /**
-   * Persisted DB column (`zone_id` on the `vat_registrations` table).
-   * Always present in GET responses — used in the edit component to
-   * restore the Zone → Circle cascade without requiring districtId.
-   */
+  /** Persisted DB column (`zone_id`). Used in edit cascade restore. */
   zoneId:           number;
   status:           VatStatus;
   remarks:          string;
@@ -44,7 +41,8 @@ export interface VatRegistrationCreateRequest {
   divisionId?: number | null;
 
   // VAT classification
-  vatCategory: VatCategory | string;
+  vatCategory:   VatCategory | string;
+  returnPeriod?: ReturnPeriod;     // Monthly | Quarterly — backend addition needed
 
   // Dates
   registrationDate: string;

@@ -22,7 +22,7 @@ const routes: Routes = [
     data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.TAX_OFFICER] }
   },
   {
-    path: ':id',
+    path: 'view/:id',
     component: NoticeViewComponent,
     canActivate: [AuthGuard],
     data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.TAX_OFFICER, Role.AUDITOR, Role.TAXPAYER] }

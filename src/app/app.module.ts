@@ -29,6 +29,9 @@ import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-hom
 // Other Features
 import { ReportsHomeComponent } from './features/reports-analytics/pages/reports-home/reports-home.component';
 import { SettingsHomeComponent } from './features/system-settings/pages/settings-home/settings-home.component';
+import { ResetPasswordComponent } from './features/auth/pages/reset-password/reset-password.component';
+import { VerifyEmailComponent } from './features/auth/pages/verify-email/verify-email.component';
+import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +54,9 @@ import { SettingsHomeComponent } from './features/system-settings/pages/settings
     // Other Features
     ReportsHomeComponent,
     SettingsHomeComponent,
+    ResetPasswordComponent,
+    VerifyEmailComponent,
+    ForgotPasswordComponent,
 
 
   ],

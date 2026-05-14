@@ -147,8 +147,18 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
     });
 
     this.step6Form = this.fb.group({
-      declaration: [false, Validators.requiredTrue],
-      remarks:     [''],
+      declaration:   [false, Validators.requiredTrue],
+      remarks:       [''],
+ 
+      // Payment fields
+      paymentMethod: [''],        
+      challanBank:   [''],
+      challanNo:     [''],
+      challanDate:   [''],
+      challanAmount: [0, Validators.min(0)],
+      mfsNumber:     [''],        
+      mfsAmount:     [0, Validators.min(0)],
+      mfsDate:       [''],
     });
   }
 
@@ -252,6 +262,65 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   get isCompanyCategory(): boolean {
     return this.step1Form?.get('itrCategory')?.value === 'Company';
   }
+
+   get showPaymentSection(): boolean {
+    return this.taxResult > 0;
+  }
+ 
+  get selectedPaymentMethod(): string {
+    return this.step6Form.get('paymentMethod')?.value || '';
+  }
+ 
+  get isChallanMethod(): boolean {
+    return this.selectedPaymentMethod === 'challan';
+  }
+ 
+  get isMfsMethod(): boolean {
+    return ['bkash', 'nagad', 'rocket'].includes(this.selectedPaymentMethod);
+  }
+ 
+  get isCardMethod(): boolean {
+    return this.selectedPaymentMethod === 'card';
+  }
+
+    get isPaymentValid(): boolean {
+    // Tax নেই — payment লাগবে না
+    if (!this.showPaymentSection) return true;
+ 
+    // Method select না হলে invalid
+    if (!this.selectedPaymentMethod) return false;
+ 
+    const v = this.step6Form.value;
+ 
+    if (this.isChallanMethod) {
+      return !!(v.challanBank && v.challanNo && v.challanDate && v.challanAmount > 0);
+    }
+ 
+    if (this.isMfsMethod) {
+      return !!(v.mfsNumber && v.mfsAmount > 0 && v.mfsDate);
+    }
+ 
+    if (this.isCardMethod) {
+      // Card — online gateway, এখন placeholder
+      return true;
+    }
+ 
+    return false;
+  }
+ 
+  readonly paymentMethods = [
+    { value: 'challan', label: '🏦 Bank challan (offline)', available: true  },
+    { value: 'bkash',   label: '📱 bKash',                  available: true  },
+    { value: 'nagad',   label: '📱 Nagad',                  available: true  },
+    { value: 'rocket',  label: '📱 Rocket',                 available: true  },
+    { value: 'card',    label: '💳 Debit / Credit card',    available: false },
+  ];
+ 
+  readonly banks = [
+    'Sonali Bank', 'Agrani Bank', 'Janata Bank', 'Rupali Bank',
+    'Dutch-Bangla Bank', 'BRAC Bank', 'Islami Bank', 'Prime Bank',
+    'Eastern Bank', 'Mercantile Bank', 'Other'
+  ];
 
   // ── Fiscal year loader ────────────────────────────────────────────────────
 
@@ -418,6 +487,15 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.isPaymentValid) {
+      this.toast.warning(
+        this.showPaymentSection
+          ? 'Please complete the payment details before submitting.'
+          : ''
+      );
+      return;
+    }
+
     this.isLoading = true;
     const s1 = this.step1Form.getRawValue(); // includes disabled fields
 
@@ -442,6 +520,16 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
       submittedBy:    this.authService.currentUser?.fullName ?? '',
       // Fix: TAXPAYER role gets their taxpayerId from the auth session
       taxpayerId: this.selectedTaxpayer?.id ?? this.authService.currentUser?.taxpayerId,
+
+            // Payment info
+      paymentMethod:  this.step6Form.value.paymentMethod  || '',
+      challanNo:      this.step6Form.value.challanNo      || '',
+      challanBank:    this.step6Form.value.challanBank     || '',
+      challanDate:    this.step6Form.value.challanDate     || '',
+      challanAmount:  this.step6Form.value.challanAmount   || 0,
+      mfsNumber:      this.step6Form.value.mfsNumber       || '',
+      mfsAmount:      this.step6Form.value.mfsAmount       || 0,
+      mfsDate:        this.step6Form.value.mfsDate         || '',
     };
 
     this.http.post<any>(API_ENDPOINTS.INCOME_TAX_RETURNS.CREATE, payload)
@@ -513,6 +601,10 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
         { queryParams: { returnUrl: this.returnUrl } }
       );
     }
+  }
+
+  printAcknowledgement(): void {
+    window.print();
   }
 
   // ── Formatting helpers ────────────────────────────────────────────────────

@@ -93,12 +93,23 @@ export class AitViewComponent implements OnInit {
   // ───────────────────── Navigation ────────────────────────  
 
   onEdit(): void {
-    if (!this.ait?.id) return;
-    this.router.navigate(['/ait/edit', this.ait.id]);
+    if (this.ait?.id) {
+      this.router.navigate(['edit', this.ait.id], {
+        relativeTo: this.route
+      });
+    }
   }
 
   onBack(): void {
-    this.router.navigate(['/ait']);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['../..'], {
+        relativeTo: this.route
+      });
+    }
   }
 
   // ─────────────────────  UI Helpers  ───────────────────────

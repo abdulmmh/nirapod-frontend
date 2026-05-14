@@ -1,0 +1,20 @@
+<div class="verify-shell">
+  <div class="verify-card">
+    <div *ngIf="isLoading" class="spinner"></div>
+
+    <ng-container *ngIf="!isLoading">
+      <div *ngIf="success" class="success-icon">✓</div>
+      <div *ngIf="!success" class="error-icon">✗</div>
+
+      <h2>{{ success ? 'Email Verified!' : 'Verification Failed' }}</h2>
+      <p>{{ message }}</p>
+
+      <button *ngIf="success" (click)="goToLogin()">
+        Proceed to Login
+      </button>
+      <button *ngIf="!success" (click)="goToLogin()">
+        Back to Login
+      </button>
+    </ng-container>
+  </div>
+</div>
