@@ -84,10 +84,16 @@ export class LoginComponent {
           //   this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
           // this.router.navigateByUrl(returnUrl);
         },
-        error: () => {
+        error: (err) => {
           this.isLoading = false;
-          this.errorMsg = 'Invalid email or password. Please try again.';
-          this.toast.error('Invalid email or password. Please try again.');
+          if (err?.error?.requiresVerification) {
+            this.toast.warning('Please verify your email first.');
+            this.router.navigate(['/auth/verify-otp'], {
+              queryParams: { email: err.error.email }
+            });
+          } else {
+            this.toast.error(err?.error?.message || 'Login failed.');
+          }
         },
       });
   }

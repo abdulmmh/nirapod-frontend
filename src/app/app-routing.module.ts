@@ -12,6 +12,7 @@ import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-hom
 import { VerifyEmailComponent } from './features/auth/pages/verify-email/verify-email.component';
 import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/auth/pages/reset-password/reset-password.component';
+import { VerifyOtpComponent } from './features/auth/pages/verify-otp/verify-otp.component';
 
 const routes: Routes = [
 
@@ -21,6 +22,7 @@ const routes: Routes = [
   { path: 'auth/verify-email',    component: VerifyEmailComponent },
   { path: 'auth/forgot-password', component: ForgotPasswordComponent },
   { path: 'auth/reset-password',  component: ResetPasswordComponent },
+  { path: 'auth/verify-otp', component: VerifyOtpComponent },
   
   // Public Registration
       { path: 'register', 

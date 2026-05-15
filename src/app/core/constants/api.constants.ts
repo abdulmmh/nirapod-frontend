@@ -192,6 +192,8 @@ export const API_ENDPOINTS = {
     VERIFY_EMAIL:    `${API_BASE_URL}/auth/verify-email`,
     FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
     RESET_PASSWORD:  `${API_BASE_URL}/auth/reset-password`,
+    VERIFY_OTP:  `${API_BASE_URL}/auth/verify-otp`,
+    RESEND_OTP:  `${API_BASE_URL}/auth/resend-otp`,
   },
 
   // TaxStructures

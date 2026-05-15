@@ -32,6 +32,7 @@ import { SettingsHomeComponent } from './features/system-settings/pages/settings
 import { ResetPasswordComponent } from './features/auth/pages/reset-password/reset-password.component';
 import { VerifyEmailComponent } from './features/auth/pages/verify-email/verify-email.component';
 import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
+import { VerifyOtpComponent } from './features/auth/pages/verify-otp/verify-otp.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/f
     ResetPasswordComponent,
     VerifyEmailComponent,
     ForgotPasswordComponent,
+    VerifyOtpComponent,
 
 
   ],

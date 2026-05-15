@@ -1,0 +1,64 @@
+<div class="auth-shell">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <div class="auth-icon otp-icon">
+        <i class="bi bi-shield-lock-fill"></i>
+      </div>
+      <h2>Verify Your Email</h2>
+      <p>
+        We've sent a 6-digit verification code to<br>
+        <strong>{{ email }}</strong>
+      </p>
+    </div>
+
+    <div class="otp-input-wrap">
+      <input
+        type="text"
+        class="otp-input"
+        maxlength="6"
+        placeholder="Enter 6-digit OTP"
+        [(ngModel)]="otp"
+        (keyup.enter)="onVerify()"
+        autocomplete="one-time-code"
+      />
+    </div>
+
+    <button class="btn-primary" (click)="onVerify()" [disabled]="isLoading || otp.length !== 6">
+      <span *ngIf="!isLoading">
+        <i class="bi bi-check-circle-fill"></i> Verify Email
+      </span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Verifying...
+      </span>
+    </button>
+
+    <div class="resend-section">
+      <span *ngIf="!canResend" class="countdown-text">
+        Resend OTP in <strong>{{ countdown }}s</strong>
+      </span>
+      <button
+        *ngIf="canResend"
+        class="btn-resend"
+        (click)="onResend()"
+        [disabled]="isResending"
+      >
+        <i class="bi bi-arrow-repeat"></i>
+        {{ isResending ? 'Sending...' : 'Resend OTP' }}
+      </button>
+    </div>
+
+    <div class="auth-footer">
+      <a (click)="goToLogin()" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Login
+      </a>
+    </div>
+
+  </div>
+
+  <div class="auth-brand">
+    <i class="bi bi-bank2"></i>
+    <span>NBR Portal — Government of Bangladesh</span>
+  </div>
+</div>
