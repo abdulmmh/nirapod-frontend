@@ -20,6 +20,8 @@ import {
   District,
   BusinessType,
   BusinessCategory,
+  TaxZone,
+  TaxCircle
 } from '../../../../models/master-data.model';
 
 @Component({
@@ -47,8 +49,8 @@ export class VatRegistrationEditComponent implements OnInit, OnDestroy {
   districts:          District[]         = [];
   businessTypes:      BusinessType[]     = [];
   businessCategories: BusinessCategory[] = [];
-  vatZones:           any[]              = [];
-  vatCircles:         any[]              = [];
+  vatZones:           TaxZone[]          = [];
+  vatCircles:         TaxCircle[]        = [];
 
   loadingDistricts = false;
   loadingCircles   = false;

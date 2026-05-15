@@ -4,12 +4,23 @@
     <p>Full VAT registration information.</p>
   </div>
   <div class="header-actions">
-    <button class="btn-back" (click)="onBack()">
+    <button class="btn-back" type="button" (click)="onBack()">
       <i class="bi bi-arrow-left"></i> Back
     </button>
-    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+    <button *canDo="'edit'" class="btn-edit-top" type="button" (click)="onEdit()">
       <i class="bi bi-pencil-fill"></i> Edit
     </button>
+    <!-- Review button — only shown for Pending registrations -->
+     <div *ngIf="vat?.status === 'Pending'">
+    <button
+      *canDo="'edit'"
+      class="btn-review-action"
+      type="button"
+      (click)="onOpenReview()"
+    >
+      <i class="bi bi-clipboard2-check-fill"></i> Review Application
+    </button>
+    </div>
   </div>
 </div>
 
@@ -27,14 +38,10 @@
         <div class="vat-bin">{{ vat.binNo }}</div>
         <div class="vat-name">{{ vat.businessName }}</div>
         <div class="vat-meta">
-          <span class="cat-badge" [ngClass]="getCategoryClass(vat.vatCategory)">
-            {{ vat.vatCategory }}
-          </span>
+          <span class="cat-badge" [ngClass]="getCategoryClass(vat.vatCategory)">{{ vat.vatCategory }}</span>
           <span class="zone-pill">{{ vat.vatZone }}</span>
           <span class="circle-pill">{{ vat.vatCircle }}</span>
-          <span class="status-badge" [ngClass]="getStatusClass(vat.status)">
-            {{ vat.status }}
-          </span>
+          <span class="status-badge" [ngClass]="getStatusClass(vat.status)">{{ vat.status }}</span>
         </div>
       </div>
     </div>
@@ -45,15 +52,29 @@
       </div>
       <div class="vat-stat">
         <span class="vs-label">Effective Date</span>
-        <span class="vs-value">{{ vat.effectiveDate }}</span>
+        <span class="vs-value">{{ vat.effectiveDate || '—' }}</span>
       </div>
     </div>
+  </div>
+
+  <!-- Pending review prompt strip -->
+  <div class="review-prompt-strip" *ngIf="vat.status === 'Pending'">
+    <div class="review-prompt-left">
+      <i class="bi bi-hourglass-split"></i>
+      <div>
+        <strong>Awaiting officer review</strong>
+        <span>This registration is pending your decision. Review and approve, request more information, or reject.</span>
+      </div>
+    </div>
+    <button *canDo="'edit'" class="btn-review-action-sm" type="button" (click)="onOpenReview()">
+      <i class="bi bi-clipboard2-check-fill"></i> Review Now
+    </button>
   </div>
 
   <!-- Details Grid -->
   <div class="details-grid">
 
-    <!-- Business Info -->
+    <!-- Business Information -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-building-fill"></i>
@@ -76,11 +97,11 @@
           <span class="detail-label">Owner Name</span>
           <span class="detail-value">{{ vat.ownerName }}</span>
         </div>
-        <div class="detail-row">
+        <div class="detail-row" *ngIf="vat.businessType">
           <span class="detail-label">Business Type</span>
           <span class="detail-value">{{ vat.businessType }}</span>
         </div>
-        <div class="detail-row">
+        <div class="detail-row" *ngIf="vat.businessCategory">
           <span class="detail-label">Category</span>
           <span class="detail-value">{{ vat.businessCategory }}</span>
         </div>
@@ -91,7 +112,7 @@
       </div>
     </div>
 
-    <!-- VAT Details -->
+    <!-- VAT Registration Details -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-receipt-cutoff"></i>
@@ -101,9 +122,7 @@
         <div class="detail-row">
           <span class="detail-label">VAT Category</span>
           <span class="detail-value">
-            <span class="cat-badge" [ngClass]="getCategoryClass(vat.vatCategory)">
-              {{ vat.vatCategory }}
-            </span>
+            <span class="cat-badge" [ngClass]="getCategoryClass(vat.vatCategory)">{{ vat.vatCategory }}</span>
           </span>
         </div>
         <div class="detail-row">
@@ -120,7 +139,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Effective Date</span>
-          <span class="detail-value">{{ vat.effectiveDate }}</span>
+          <span class="detail-value">{{ vat.effectiveDate || '—' }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Expiry Date</span>
@@ -130,18 +149,16 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Annual Turnover</span>
-          <span class="detail-value fw-bold turnover">
-            {{ formatCurrency(vat.annualTurnover) }}
-          </span>
+          <span class="detail-value fw-bold turnover">{{ formatCurrency(vat.annualTurnover) }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Contact -->
+    <!-- Contact & Location -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-geo-alt-fill"></i>
-        <span>Contact & Location</span>
+        <span>Contact &amp; Location</span>
       </div>
       <div class="detail-body">
         <div class="detail-row" *ngIf="vat.email">
@@ -167,28 +184,133 @@
       </div>
     </div>
 
-    <!-- Status -->
+    <!-- Status & Remarks -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-shield-fill-check"></i>
-        <span>Status & Remarks</span>
+        <span>Status &amp; Remarks</span>
       </div>
       <div class="detail-body">
         <div class="detail-row">
           <span class="detail-label">Status</span>
           <span class="detail-value">
-            <span class="status-badge" [ngClass]="getStatusClass(vat.status)">
-              {{ vat.status }}
-            </span>
+            <span class="status-badge" [ngClass]="getStatusClass(vat.status)">{{ vat.status }}</span>
           </span>
         </div>
         <div class="detail-row" *ngIf="vat.remarks">
           <span class="detail-label">Remarks</span>
-          <span class="detail-value">{{ vat.remarks }}</span>
+          <span class="detail-value" style="font-weight:400;color:var(--color-text-secondary)">
+            {{ vat.remarks }}
+          </span>
         </div>
       </div>
     </div>
 
-  </div>
+  </div><!-- /details-grid -->
 
 </ng-container>
+
+
+<!-- ══ Officer Review Modal ══════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showReviewModal" (click)="onCloseReview()">
+  <div class="modal-card review-decision-modal" (click)="$event.stopPropagation()">
+
+    <!-- Top accent — colour driven by decision -->
+    <div class="modal-accent"
+      [class.accent-approve]="reviewDecision === 'Approve'"
+      [class.accent-reject]="reviewDecision === 'Reject'"
+      [class.accent-request]="reviewDecision === 'Request'">
+    </div>
+
+    <!-- Modal Header -->
+    <div class="review-modal-hd">
+      <div class="review-modal-icon">
+        <i class="bi bi-clipboard2-check-fill"></i>
+      </div>
+      <div>
+        <p class="modal-title" style="text-align:left;margin-bottom:2px;">Review Application</p>
+        <p class="review-modal-sub">
+          <span class="code-badge" *ngIf="vat">{{ vat.binNo }}</span>
+          <span *ngIf="vat" style="margin-left:8px;">{{ vat.businessName }}</span>
+        </p>
+      </div>
+      <span class="status-badge status-pending ms-auto" style="flex-shrink:0">Pending</span>
+    </div>
+
+    <!-- Decision Options -->
+    <div class="review-decision-body">
+
+      <p class="review-section-hd">Decision <span style="color:var(--color-danger)">*</span></p>
+
+      <div class="review-decision-group">
+        <div class="review-decision-opt"
+          *ngFor="let opt of reviewOptions"
+          [class.selected]="reviewDecision === opt.key"
+          [class.variant-approve]="opt.variant === 'approve'"
+          [class.variant-request]="opt.variant === 'request'"
+          [class.variant-reject]="opt.variant === 'reject'"
+          (click)="selectDecision(opt.key)">
+
+          <div class="decision-icon" [class]="'decision-icon--' + opt.variant">
+            <i class="bi bi-check-lg"         *ngIf="opt.variant === 'approve'"></i>
+            <i class="bi bi-arrow-return-left" *ngIf="opt.variant === 'request'"></i>
+            <i class="bi bi-x-lg"             *ngIf="opt.variant === 'reject'"></i>
+          </div>
+
+          <div class="decision-text">
+            <span class="decision-label">{{ opt.label }}</span>
+            <span class="decision-sub">{{ opt.sub }}</span>
+          </div>
+
+          <!-- Selection indicator -->
+          <div class="decision-check" *ngIf="reviewDecision === opt.key">
+            <i class="bi bi-check-circle-fill"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remarks -->
+      <div class="review-remarks-wrap">
+        <label class="review-remarks-label">
+          Officer Remarks
+          <span style="color:var(--color-danger)" *ngIf="reviewDecision === 'Reject'"> * (required for rejection)</span>
+          <span class="optional" *ngIf="reviewDecision !== 'Reject'"> (optional)</span>
+        </label>
+        <textarea
+          class="review-remarks-area"
+          rows="3"
+          [(ngModel)]="reviewRemarks"
+          [placeholder]="reviewDecision === 'Reject'
+            ? 'Explain the reason for rejection…'
+            : reviewDecision === 'Request'
+            ? 'Specify what additional information or documents are required…'
+            : 'Optional notes for the officer record…'"
+        ></textarea>
+        <span class="field-error-msg"
+          *ngIf="reviewDecision === 'Reject' && !reviewRemarks.trim()">
+          A rejection reason is required.
+        </span>
+      </div>
+
+    </div><!-- /review-decision-body -->
+
+    <!-- Actions -->
+    <div class="modal-actions" style="padding:14px 22px;background:var(--color-bg-secondary);border-top:0.5px solid var(--color-border-tertiary);">
+      <button type="button" class="btn-modal-cancel"
+        (click)="onCloseReview()" [disabled]="isSubmittingReview">
+        <i class="bi bi-x-lg"></i> Cancel
+      </button>
+      <button type="button"
+        class="btn-modal-confirm review-submit-btn"
+        [class]="reviewButtonClass"
+        (click)="onSubmitReview()"
+        [disabled]="!canSubmitReview || isSubmittingReview">
+        <span *ngIf="!isSubmittingReview">{{ reviewButtonLabel }}</span>
+        <span *ngIf="isSubmittingReview">
+          <span class="spinner-border spinner-border-sm me-1"></span> Submitting…
+        </span>
+      </button>
+    </div>
+
+  </div>
+</div><!-- /review modal -->

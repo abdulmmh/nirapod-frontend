@@ -334,7 +334,6 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     );
 
     if (!hasAddress) {
-      // Notice পাঠাও taxpayer কে
       this.sendAddressNotice(this.pendingApprovalId);
       return;
     }

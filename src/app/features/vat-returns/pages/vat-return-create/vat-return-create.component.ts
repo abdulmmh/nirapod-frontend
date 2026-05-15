@@ -8,8 +8,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subject, timer } from 'rxjs';
 import { distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -102,6 +102,7 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb    : FormBuilder,
+    private route : ActivatedRoute,
     private http  : HttpClient,
     private router: Router,
     private toast : ToastService,
@@ -240,7 +241,11 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('VAT Return filed successfully!');
-          setTimeout(() => this.router.navigate(['/vat-returns']), 1500);
+         timer(1500)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['..'],
+              { relativeTo: this.route }
+            ));
         },
         // 409 Conflict and generic errors are handled by the global HttpInterceptor.
         // This subscriber only needs to react to validation errors (400) that carry
@@ -274,5 +279,15 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
     this.toast.info('Form has been reset.');
   }
 
-  onCancel(): void { this.router.navigate(['/vat-returns']); }
+  onCancel(): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['..'], {
+        relativeTo: this.route
+      });
+    }
+  }
 }

@@ -113,6 +113,8 @@ export class TinListComponent implements OnInit, OnDestroy {
     this.resetDeleteState();
   }
 
+
+
   confirmDeleteExecute(): void {
     if (this.pendingDeleteId === null) return;
     const id = this.pendingDeleteId;
@@ -163,6 +165,11 @@ export class TinListComponent implements OnInit, OnDestroy {
     });
   }
 
+  navigateToCreate(): void {
+    this.router.navigate(['create'], {
+      relativeTo: this.route
+    });
+  }
 
   // ────────────── Actions ─────────────────────────
 

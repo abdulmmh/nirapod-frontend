@@ -3,7 +3,7 @@
     <h4>VAT Registration</h4>
     <p>Manage all VAT registered businesses.</p>
   </div>
-  <a *canDo="'create'" routerLink="/vat-registration/create"
+  <a *canDo="'create'" (click)="navigateToCreate()"
      class="btn-add-primary desktop-add-btn">
     <i class="bi bi-plus-lg"></i> Register VAT
   </a>
@@ -165,7 +165,7 @@
 
 </div>
 
-<button *canDo="'create'" class="fab-btn" routerLink="/vat-registration/create">
+<button *canDo="'create'" class="fab-btn" (click)="navigateToCreate()">
   <i class="bi bi-plus-lg"></i>
 </button>
 

@@ -5,24 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { finalize, Subject, takeUntil, timer } from 'rxjs';
-
-interface Division {
-  id: number;
-  name: string;
-}
-interface District {
-  id: number;
-  name: string;
-}
-interface TaxZone {
-  id: number;
-  name: string;
-}
-interface TaxCircle {
-  id: number;
-  name: string;
-}
-
+import { Division, District, TaxZone, TaxCircle } from 'src/app/models/master-data.model';
 @Component({
   selector: 'app-tin-edit',
   templateUrl: './tin-edit.component.html',

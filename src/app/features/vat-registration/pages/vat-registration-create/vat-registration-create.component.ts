@@ -5,7 +5,7 @@ import {
   AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators,
 } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, of } from 'rxjs';
 import {
   catchError, debounceTime, filter, finalize, switchMap, takeUntil, tap,
@@ -15,7 +15,7 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
 import { MasterDataService } from '../../../../core/services/master-data.service';
-import { Division, District } from '../../../../models/master-data.model';
+import { Division, District, TaxCircle, TaxZone } from '../../../../models/master-data.model';
 import { BusinessVatStatus } from '../../../../models/business.model';
 import {
   VatRegistration,
@@ -89,8 +89,8 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   // ── Dynamic master-data ───────────────────────────────────────────────────
   divisions:  Division[] = [];
   districts:  District[] = [];
-  vatZones:   any[]      = [];
-  vatCircles: any[]      = [];
+  vatZones:   TaxZone[]   = [];
+  vatCircles: TaxCircle[] = [];
 
   loadingDistricts = false;
   loadingZones     = false;
@@ -114,7 +114,8 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb:         FormBuilder,
-    private http:       HttpClient,   // retained for loadBusinesses (TODO Phase 6: BusinessService)
+    private http:       HttpClient, 
+    private route:      ActivatedRoute,
     private router:     Router,
     private toast:      ToastService,
     private masterData: MasterDataService,
@@ -536,8 +537,10 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (created: VatRegistration) => {
+          this.toast.success('VAT registration submitted successfully!');
           this.clearDraft();
-          this.router.navigate(['/vat-registration/success'], {
+          this.router.navigate(['/../success'], {
+            relativeTo: this.route,
             state: { registration: created },
           });
         },
@@ -561,5 +564,15 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     this.clearDraft(); this.toast.info('Form reset.');
   }
 
-  onCancel(): void { this.router.navigate(['/vat-registration']); }
+  onCancel(): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['..'], {
+        relativeTo: this.route
+      });
+    }
+  }
 }

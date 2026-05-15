@@ -195,6 +195,26 @@ export class VatReturnViewComponent implements OnInit, OnDestroy {
   }
 
   fmt(a: number): string { return `৳${a.toLocaleString()}`; }
-  onEdit(): void { this.router.navigate(['/vat-returns/edit', this.vr?.id]); }
-  onBack(): void { this.router.navigate(['/vat-returns']); }
+  
+  // ───────────────────── Navigation ────────────────────────
+
+  onEdit(): void {
+    if (this.vr?.id) {
+      this.router.navigate(['edit', this.vr.id], {
+        relativeTo: this.route
+      });
+    }
+  }
+
+  onBack(): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['../..'], {
+        relativeTo: this.route
+      });
+    }
+  }
 }

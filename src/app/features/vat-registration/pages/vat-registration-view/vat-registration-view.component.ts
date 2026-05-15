@@ -7,6 +7,8 @@ import { VatRegistration } from '../../../../models/vat-registration.model';
 import { VatRegistrationService } from '../../services/vat-registration.service';
 import { ToastService } from '../../../../shared/toast/toast.service';
 
+type ReviewDecision = 'Approve' | 'Request' | 'Reject';
+
 @Component({
   selector: 'app-vat-registration-view',
   templateUrl: './vat-registration-view.component.html',
@@ -16,6 +18,30 @@ export class VatRegistrationViewComponent implements OnInit, OnDestroy {
 
   vat: VatRegistration | null = null;
   isLoading = true;
+
+  // ── Officer Review ─────────────────────────────────────────────────────────
+  showReviewModal    = false;
+  reviewDecision:      ReviewDecision | null = null;
+  reviewRemarks      = '';
+  isSubmittingReview = false;
+
+  readonly reviewOptions: {
+    key: ReviewDecision; label: string; sub: string;
+    variant: 'approve' | 'request' | 'reject';
+  }[] = [
+    {
+      key: 'Approve', label: 'Approve', variant: 'approve',
+      sub: 'Registration is verified and complete. Status will be set to Active.',
+    },
+    {
+      key: 'Request', label: 'Request More Information', variant: 'request',
+      sub: 'Registration stays Pending. Use remarks to specify what is needed.',
+    },
+    {
+      key: 'Reject', label: 'Reject', variant: 'reject',
+      sub: 'Registration cannot be approved. A reason in remarks is required.',
+    },
+  ];
 
   private destroy$ = new Subject<void>();
 
@@ -36,58 +62,132 @@ export class VatRegistrationViewComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ── Data loading ───────────────────────────────────────────────────────────
+  // ── Data ───────────────────────────────────────────────────────────────────
 
   private loadData(id: number): void {
     this.isLoading = true;
     this.vatService.getById(id)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
       .subscribe({
-        // On offline: service returns mock + shows warning toast.
-        // On server error: error handler fires and redirects.
         next:  data => (this.vat = data),
-        error: ()   => {
+        error: () => {
           this.toast.error('Failed to load VAT registration details.');
           this.router.navigate(['/vat-registration']);
         },
       });
   }
 
-  // ── Badge helpers ──────────────────────────────────────────────────────────
+  // ── Review modal ───────────────────────────────────────────────────────────
+
+  onOpenReview(): void {
+    this.reviewDecision  = null;
+    this.reviewRemarks   = this.vat?.remarks ?? '';
+    this.showReviewModal = true;
+  }
+
+  onCloseReview(): void { this.showReviewModal = false; }
+
+  selectDecision(d: ReviewDecision): void { this.reviewDecision = d; }
+
+  get canSubmitReview(): boolean {
+    if (!this.reviewDecision) return false;
+    if (this.reviewDecision === 'Reject' && !this.reviewRemarks.trim()) return false;
+    return true;
+  }
+
+  get reviewButtonLabel(): string {
+    if (!this.reviewDecision) return 'Submit Review';
+    const map: Record<ReviewDecision, string> = {
+      Approve: '✓ Approve Registration',
+      Request: '↩ Send Information Request',
+      Reject:  '✗ Reject Registration',
+    };
+    return map[this.reviewDecision];
+  }
+
+  get reviewButtonClass(): string {
+    if (!this.reviewDecision) return '';
+    const map: Record<ReviewDecision, string> = {
+      Approve: 'btn-review-approve',
+      Request: 'btn-review-request',
+      Reject:  'btn-review-reject',
+    };
+    return map[this.reviewDecision];
+  }
+
+  onSubmitReview(): void {
+    if (!this.canSubmitReview || !this.vat || this.isSubmittingReview) return;
+
+    const statusMap: Record<ReviewDecision, string> = {
+      Approve: 'Active',
+      Request: 'Pending',
+      Reject:  'Cancelled',
+    };
+
+    const payload: Partial<VatRegistration> = {
+      ...this.vat,
+      status:  statusMap[this.reviewDecision!] as any,
+      remarks: this.reviewRemarks.trim() || this.vat.remarks,
+    };
+
+    this.isSubmittingReview = true;
+    this.vatService.update(this.vat.id, payload)
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.isSubmittingReview = false)))
+      .subscribe({
+        next: updated => {
+          this.vat             = updated;
+          this.showReviewModal = false;
+          const messages: Record<ReviewDecision, string> = {
+            Approve: 'Registration approved — status set to Active.',
+            Request: 'Information request recorded. Registration remains Pending.',
+            Reject:  'Registration rejected — status set to Cancelled.',
+          };
+          this.toast.success(messages[this.reviewDecision!]);
+        },
+        error: () => this.toast.error('Failed to submit review. Please try again.'),
+      });
+  }
+
+  // ── Display helpers ────────────────────────────────────────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      Active:    'status-active',
-      Inactive:  'status-inactive',
-      Pending:   'status-pending',
-      Suspended: 'status-suspended',
-      Cancelled: 'status-inactive',
+      Active: 'status-active', Inactive: 'status-inactive',
+      Pending: 'status-pending', Suspended: 'status-suspended', Cancelled: 'status-inactive',
     };
     return map[s] ?? '';
   }
 
   getCategoryClass(c: string): string {
     const map: Record<string, string> = {
-      'Standard':   'cat-standard',
-      'Zero Rated': 'cat-zero',
-      'Exempt':     'cat-exempt',
-      'Special':    'cat-special',
+      'Standard': 'cat-standard', 'Zero Rated': 'cat-zero',
+      'Exempt': 'cat-exempt', 'Special': 'cat-special',
     };
     return map[c] ?? '';
   }
 
-  // ── Display helpers ────────────────────────────────────────────────────────
+  isExpired(date: string): boolean { return !!date && new Date(date) < new Date(); }
+  formatCurrency(a: number): string { return `৳${a.toLocaleString()}`; }
+ 
+  // ───────────────────── Navigation ────────────────────────
 
-  isExpired(date: string): boolean {
-    return !!date && new Date(date) < new Date();
+  onEdit(): void {
+    if (this.vat?.id) {
+      this.router.navigate(['edit', this.vat.id], {
+        relativeTo: this.route
+      });
+    }
   }
 
-  formatCurrency(a: number): string {
-    return `৳${a.toLocaleString()}`;
+  onBack(): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['../..'], {
+        relativeTo: this.route
+      });
+    }
   }
-
-  // ── Navigation ─────────────────────────────────────────────────────────────
-
-  onEdit(): void { this.router.navigate(['/vat-registration/edit', this.vat?.id]); }
-  onBack(): void { this.router.navigate(['/vat-registration']); }
 }

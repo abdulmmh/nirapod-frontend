@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { VatRegistration } from '../../../../models/vat-registration.model';
 
 @Component({
@@ -17,7 +17,7 @@ export class VatRegistrationSuccessComponent implements OnInit {
   /** Clipboard feedback flag — resets to false after 2 seconds. */
   binCopied = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
 
   // ── Lifecycle ───────────────────────────────────────────────────────────
 
@@ -79,11 +79,15 @@ export class VatRegistrationSuccessComponent implements OnInit {
   // ── Navigation ──────────────────────────────────────────────────────────
 
   goToView(): void {
-    this.router.navigate(['/vat-registration/view', this.registration?.id]);
+    this.router.navigate(['view', this.registration?.id], {
+      relativeTo: this.route
+    });
   }
 
   registerAnother(): void {
-    this.router.navigate(['/vat-registration/create']);
+    this.router.navigate(['/../create'], {
+      relativeTo: this.route
+    });
   }
 
   // ── Display helpers ──────────────────────────────────────────────────────

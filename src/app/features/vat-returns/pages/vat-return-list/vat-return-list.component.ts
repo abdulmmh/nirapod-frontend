@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -31,6 +31,7 @@ export class VatReturnListComponent implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
+    private route: ActivatedRoute,
     private router: Router,
     private toast: ToastService
   ) {}
@@ -91,9 +92,26 @@ export class VatReturnListComponent implements OnInit, OnDestroy {
     return `৳${a.toLocaleString()}`;
   }
 
-  view(id: number): void { this.router.navigate(['/vat-returns/view', id]); }
-  edit(id: number): void { this.router.navigate(['/vat-returns/edit', id]); }
 
+  // ───────────────── Navigation ───────────────────────
+
+  view(id: number): void {
+    this.router.navigate(['view', id], {
+      relativeTo: this.route
+    });
+  }
+
+  edit(id: number): void {
+    this.router.navigate(['edit', id], {
+      relativeTo: this.route
+    });
+  }
+
+  navigateToCreate(): void {
+    this.router.navigate(['create'], {
+      relativeTo: this.route
+    });
+  }
 
    // ──────────────── Delete Flow  ─────────────────
 

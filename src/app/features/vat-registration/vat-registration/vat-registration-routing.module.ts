@@ -14,13 +14,13 @@ const routes: Routes = [
     path: '',
     component: VatRegistrationListComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR] },
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] },
   },
   {
     path: 'create',
     component: VatRegistrationCreateComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] },
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] },
   },
   {
     /**
@@ -31,7 +31,7 @@ const routes: Routes = [
     path: 'success',
     component: VatRegistrationSuccessComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] },
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] },
   },
   {
     path: 'view/:id',

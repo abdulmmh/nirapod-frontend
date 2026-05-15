@@ -14,13 +14,13 @@ const routes: Routes = [
         path: '',
         component: VatReturnListComponent,
         canActivate: [AuthGuard],
-        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR] }
+        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] }
       },
       {
         path: 'create',
         component: VatReturnCreateComponent,
         canActivate: [AuthGuard],
-        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
+        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] }
       },
       {
         path: 'view/:id',

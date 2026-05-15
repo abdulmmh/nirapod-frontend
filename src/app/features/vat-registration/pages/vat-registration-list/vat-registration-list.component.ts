@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
@@ -26,6 +26,7 @@ export class VatRegistrationListComponent implements OnInit, OnDestroy {
 
   constructor(
     private vatService: VatRegistrationService,
+    private route:      ActivatedRoute,
     private router:     Router,
     private toast:      ToastService,
   ) {}
@@ -84,13 +85,31 @@ export class VatRegistrationListComponent implements OnInit, OnDestroy {
     if (a >= 100_000) return `৳${(a / 100_000).toFixed(2)}L`;
     return `৳${a.toLocaleString()}`;
   }
+  // ───────────────── Navigation ───────────────────────
 
-  view(id: number): void { this.router.navigate(['/vat-registration/view', id]); }
-  edit(id: number): void { this.router.navigate(['/vat-registration/edit', id]); }
+  view(id: number): void {
+    this.router.navigate(['view', id], {
+      relativeTo: this.route
+    });
+  }
+
+  edit(id: number): void {
+    this.router.navigate(['edit', id], {
+      relativeTo: this.route
+    });
+  }
+
+  navigateToCreate(): void {
+    this.router.navigate(['create'], {
+      relativeTo: this.route
+    });
+  }
+  
 
   confirmDelete(id: number, businessName: string): void {
     this.pendingDeleteId = id; this.pendingDeleteName = businessName; this.showDeleteModal = true;
   }
+  
   cancelDelete(): void { this.resetDeleteState(); }
   confirmDeleteExecute(): void {
     if (this.pendingDeleteId === null) return;
