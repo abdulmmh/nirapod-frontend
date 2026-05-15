@@ -2,6 +2,13 @@ export type RefundStatus = 'Pending' | 'Approved' | 'Rejected' | 'Processing' | 
 export type RefundType   = 'VAT Refund' | 'Income Tax Refund' | 'Excess Payment' | 'Other';
 export type RefundMethod = 'Bank Transfer' | 'Cheque' | 'Adjustment';
 
+export interface ActivityLog {
+  title: string;
+  description?: string;
+  date: string;
+  type: 'filed' | 'assigned' | 'verified' | 'approved' | 'rejected' | 'completed' | 'default';
+}
+
 export interface Refund {
   id: number;
   refundNo: string;
@@ -25,6 +32,7 @@ export interface Refund {
   processedBy: string;
   approvedBy: string;
   remarks: string;
+  activityLog?: ActivityLog[];
 }
 
 export interface RefundCreateRequest {

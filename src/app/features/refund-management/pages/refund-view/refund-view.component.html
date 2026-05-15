@@ -1,81 +1,146 @@
 <div class="page-header">
   <div class="page-header-left">
-    <h4>Refund Details</h4>
-    <p>Full refund claim information.</p>
+    <h4>Refund Tracker</h4>
+    <p>Track your refund claim status and updates.</p>
   </div>
-  <div class="header-actions">
-    <button class="btn-back" (click)="onBack()">
-      <i class="bi bi-arrow-left"></i> Back
-    </button>
-    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
-      <i class="bi bi-pencil-fill"></i> Edit
-    </button>
-  </div>
+  <button class="btn-back" (click)="onBack()">
+    <i class="bi bi-arrow-left"></i> Back
+  </button>
 </div>
 
-<div class="loading-overlay" *ngIf="isLoading">
-  <div class="spinner-border text-primary"></div>
-</div>
+<div class="refund-tracker" *ngIf="!isLoading && refund">
 
-<ng-container *ngIf="!isLoading && refund">
+  <!-- Hero Section -->
+  <div class="refund-hero">
+    <div class="hero-label">Your active refund claim</div>
+    <div class="hero-amt">{{ formatCurrency(refund.claimAmount) }}</div>
+    <div class="hero-row">
+      <div class="hero-meta">Ref: <strong>{{ refund.refundNo }}</strong></div>
+      <div class="hero-meta">Filed: <strong>{{ refund.claimDate }}</strong></div>
+      <div class="hero-meta">Type: <strong>{{ refund.refundType }}</strong></div>
+    </div>
+  </div>
 
-  <!-- Refund Header Card -->
-  <div class="view-header-card">
-    <div class="refund-header-left">
-      <div class="refund-icon"><i class="bi bi-cash-stack"></i></div>
-      <div>
-        <div class="refund-no">{{ refund.refundNo }}</div>
-        <div class="refund-meta">
-          <span class="type-badge" [ngClass]="getTypeClass(refund.refundType)">
-            {{ refund.refundType }}
-          </span>
-          <span class="refund-date">
-            <i class="bi bi-calendar3"></i> {{ refund.claimDate }}
-          </span>
+  <!-- Status Pipeline Card -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Refund status tracker</div>
+      <span class="badge b-info">{{ getCurrentStep() }} of 6</span>
+    </div>
+    <div class="card-p">
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(1), 'pipe-active': getCurrentStep() === 1, 'pipe-todo': getCurrentStep() > 1}">
+            {{ getCurrentStep() === 1 ? '●' : '✓' }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 1, 'pipe-done-label': isStepComplete(1)}">Filed</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(1), 'pc-active': getCurrentStep() === 2, 'pc-todo': getCurrentStep() > 2}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(2), 'pipe-active': getCurrentStep() === 2, 'pipe-todo': getCurrentStep() > 2}">
+            {{ getCurrentStep() === 2 ? '●' : (isStepComplete(2) ? '✓' : '2') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 2, 'pipe-done-label': isStepComplete(2)}">Processing</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(2), 'pc-active': getCurrentStep() === 3, 'pc-todo': getCurrentStep() > 3}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(3), 'pipe-active': getCurrentStep() === 3, 'pipe-todo': getCurrentStep() > 3}">
+            {{ getCurrentStep() === 3 ? '●' : (isStepComplete(3) ? '✓' : '3') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 3, 'pipe-done-label': isStepComplete(3)}">Verification</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(3), 'pc-active': getCurrentStep() === 4, 'pc-todo': getCurrentStep() > 4}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(4), 'pipe-active': getCurrentStep() === 4, 'pipe-todo': getCurrentStep() > 4}">
+            {{ getCurrentStep() === 4 ? '●' : (isStepComplete(4) ? '✓' : '4') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 4, 'pipe-done-label': isStepComplete(4)}">Approval</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(4), 'pc-active': getCurrentStep() === 5, 'pc-todo': getCurrentStep() > 5}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(5), 'pipe-active': getCurrentStep() === 5, 'pipe-todo': getCurrentStep() > 5}">
+            {{ getCurrentStep() === 5 ? '●' : (isStepComplete(5) ? '✓' : '5') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 5, 'pipe-done-label': isStepComplete(5)}">Release</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(5), 'pc-active': getCurrentStep() === 6, 'pc-todo': getCurrentStep() > 6}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(6), 'pipe-active': getCurrentStep() === 6, 'pipe-todo': getCurrentStep() > 6}">
+            {{ getCurrentStep() === 6 ? '●' : (isStepComplete(6) ? '✓' : '6') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 6, 'pipe-done-label': isStepComplete(6)}">Credited</div>
         </div>
       </div>
-    </div>
-    <div class="refund-header-right">
-      <div class="refund-label">Claim Amount</div>
-      <div class="refund-amount">{{ formatCurrency(refund.claimAmount) }}</div>
-      <span class="status-badge" [ngClass]="getStatusClass(refund.status)">
-        {{ refund.status }}
-      </span>
-    </div>
-  </div>
 
-  <!-- Amount Summary Row -->
-  <div class="amount-summary-row">
-    <div class="amount-summary-card">
-      <div class="as-icon claim"><i class="bi bi-file-earmark-text"></i></div>
-      <div class="as-body">
-        <span class="as-label">Claimed</span>
-        <span class="as-value">{{ formatCurrency(refund.claimAmount) }}</span>
+      <div class="eta-box">
+        <div>
+          <div class="eta-key">Current status</div>
+          <div class="eta-val">{{ refund.status }}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="eta-key">Expected credit date</div>
+          <div class="eta-val">{{ refund.paymentDate || 'Pending' }}</div>
+        </div>
       </div>
-    </div>
-    <div class="amount-summary-card">
-      <div class="as-icon approved"><i class="bi bi-check-circle-fill"></i></div>
-      <div class="as-body">
-        <span class="as-label">Approved</span>
-        <span class="as-value approved">
-          {{ refund.approvedAmount > 0 ? formatCurrency(refund.approvedAmount) : '—' }}
-        </span>
-      </div>
-    </div>
-    <div class="amount-summary-card">
-      <div class="as-icon paid"><i class="bi bi-cash-coin"></i></div>
-      <div class="as-body">
-        <span class="as-label">Paid</span>
-        <span class="as-value paid">
-          {{ refund.paidAmount > 0 ? formatCurrency(refund.paidAmount) : '—' }}
-        </span>
+
+      <div class="alert alert-info" *ngIf="refund.processedBy">
+        <div>ℹ</div>
+        <div>Your refund has been assigned to {{ refund.processedBy }}. No action required from you at this stage.</div>
       </div>
     </div>
   </div>
 
-  <!-- Details Grid -->
+  <!-- Activity Timeline -->
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Refund activity log</div></div>
+    <div class="card-p">
+      <div class="timeline" *ngIf="refund.activityLog && refund.activityLog.length > 0">
+        <div class="tl-row" *ngFor="let activity of refund.activityLog">
+          <div class="tl-dot" [ngClass]="getActivityColor(activity.type)"></div>
+          <div class="tl-body">
+            <div class="tl-title">{{ activity.title }}</div>
+            <div class="tl-meta" *ngIf="activity.description">{{ activity.description }}</div>
+          </div>
+          <div class="tl-right">{{ activity.date }}</div>
+        </div>
+      </div>
+      <div *ngIf="!refund.activityLog || refund.activityLog.length === 0" style="text-align:center;color:var(--color-text-secondary);padding:20px">
+        No activity recorded yet
+      </div>
+    </div>
+  </div>
+
+  <!-- Bank Account -->
+  <div class="card" *ngIf="refund.bankName">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-green">
+          <i class="bi bi-bank2" style="color:#3B6D11"></i>
+        </div>
+        <div>
+          <div class="card-title">Refund destination account</div>
+          <div class="card-sub">Amount will be credited here after approval</div>
+        </div>
+      </div>
+      <button *canDo="'edit'" class="btn btn-sm" (click)="onEdit()">Change account</button>
+    </div>
+    <div class="card-p">
+      <div class="grid2">
+        <div class="field"><label>Bank</label><input readonly [value]="refund.bankName"></div>
+        <div class="field"><label>Account number</label><input readonly [value]="refund.accountNo"></div>
+        <div class="field"><label>Branch</label><input readonly [value]="refund.bankBranch"></div>
+        <div class="field"><label>Account holder</label><input readonly [value]="refund.taxpayerName"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid (Collapsible) -->
   <div class="details-grid">
-
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-person-badge-fill"></i>
@@ -90,67 +155,30 @@
           <span class="detail-label">Taxpayer Name</span>
           <span class="detail-value fw-bold">{{ refund.taxpayerName }}</span>
         </div>
-        <div class="detail-row" *ngIf="refund.returnNo">
-          <span class="detail-label">Return No.</span>
-          <span class="detail-value"><span class="code-badge">{{ refund.returnNo }}</span></span>
-        </div>
-        <div class="detail-row" *ngIf="refund.paymentRef">
-          <span class="detail-label">Payment Ref.</span>
-          <span class="detail-value"><span class="code-badge">{{ refund.paymentRef }}</span></span>
-        </div>
       </div>
     </div>
 
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-cash-stack"></i>
-        <span>Refund Information</span>
+        <span>Amount Summary</span>
       </div>
       <div class="detail-body">
         <div class="detail-row">
-          <span class="detail-label">Refund Type</span>
-          <span class="detail-value">
-            <span class="type-badge" [ngClass]="getTypeClass(refund.refundType)">
-              {{ refund.refundType }}
-            </span>
+          <span class="detail-label">Claimed</span>
+          <span class="detail-value fw-bold">{{ formatCurrency(refund.claimAmount) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Approved</span>
+          <span class="detail-value" [style.color]="refund.approvedAmount > 0 ? '#1D9E75' : 'var(--color-text-secondary)'">
+            {{ refund.approvedAmount > 0 ? formatCurrency(refund.approvedAmount) : '—' }}
           </span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Refund Method</span>
-          <span class="detail-value">{{ refund.refundMethod }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Claim Date</span>
-          <span class="detail-value">{{ refund.claimDate }}</span>
-        </div>
-        <div class="detail-row" *ngIf="refund.approvalDate">
-          <span class="detail-label">Approval Date</span>
-          <span class="detail-value">{{ refund.approvalDate }}</span>
-        </div>
-        <div class="detail-row" *ngIf="refund.paymentDate">
-          <span class="detail-label">Payment Date</span>
-          <span class="detail-value">{{ refund.paymentDate }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-card" *ngIf="refund.bankName">
-      <div class="detail-card-header">
-        <i class="bi bi-bank2"></i>
-        <span>Bank Information</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Bank Name</span>
-          <span class="detail-value fw-bold">{{ refund.bankName }}</span>
-        </div>
-        <div class="detail-row" *ngIf="refund.bankBranch">
-          <span class="detail-label">Branch</span>
-          <span class="detail-value">{{ refund.bankBranch }}</span>
-        </div>
-        <div class="detail-row" *ngIf="refund.accountNo">
-          <span class="detail-label">Account No.</span>
-          <span class="detail-value"><span class="code-badge">{{ refund.accountNo }}</span></span>
+          <span class="detail-label">Paid</span>
+          <span class="detail-value" [style.color]="refund.paidAmount > 0 ? '#1D9E75' : 'var(--color-text-secondary)'">
+            {{ refund.paidAmount > 0 ? formatCurrency(refund.paidAmount) : '—' }}
+          </span>
         </div>
       </div>
     </div>
@@ -169,7 +197,7 @@
             </span>
           </span>
         </div>
-        <div class="detail-row">
+        <div class="detail-row" *ngIf="refund.processedBy">
           <span class="detail-label">Processed By</span>
           <span class="detail-value">{{ refund.processedBy }}</span>
         </div>
@@ -183,7 +211,10 @@
         </div>
       </div>
     </div>
-
   </div>
 
-</ng-container>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>

@@ -38,6 +38,32 @@ export class RefundViewComponent implements OnInit {
       processedBy: 'Tax Officer',
       approvedBy: 'Tax Commissioner',
       remarks: '',
+      activityLog: [
+        {
+          title: 'Refund approved and sent to treasury',
+          description: 'Amount ৳ 85,000 sent to Bangladesh Bank treasury',
+          date: '2024-04-05',
+          type: 'approved',
+        },
+        {
+          title: 'VAT documentation verified',
+          description: 'All supporting documents checked and validated',
+          date: '2024-03-28',
+          type: 'verified',
+        },
+        {
+          title: 'Assigned to officer for review',
+          description: 'Refund claim assigned for processing',
+          date: '2024-03-22',
+          type: 'assigned',
+        },
+        {
+          title: 'Refund claim filed',
+          description: 'VAT refund claim received and registered',
+          date: '2024-03-20',
+          type: 'filed',
+        },
+      ],
     },
   ];
 
@@ -88,6 +114,36 @@ export class RefundViewComponent implements OnInit {
 
   formatCurrency(amount: number): string {
     return `৳${amount.toLocaleString()}`;
+  }
+
+  getCurrentStep(): number {
+    if (!this.refund) return 1;
+    const statusStepMap: Record<string, number> = {
+      'Pending': 1,
+      'Processing': 2,
+      'Approved': 4,
+      'Completed': 6,
+      'Rejected': 1,
+      'Cancelled': 1,
+    };
+    return statusStepMap[this.refund.status] || 1;
+  }
+
+  isStepComplete(step: number): boolean {
+    return this.getCurrentStep() > step;
+  }
+
+  getActivityColor(type: string): string {
+    const colorMap: Record<string, string> = {
+      'filed': 'td-green',
+      'assigned': 'td-blue',
+      'verified': 'td-green',
+      'approved': 'td-green',
+      'rejected': 'td-red',
+      'completed': 'td-green',
+      'default': 'td-blue',
+    };
+    return colorMap[type.toLowerCase()] || colorMap['default'];
   }
 
   onEdit(): void {
