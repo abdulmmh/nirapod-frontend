@@ -5,11 +5,12 @@
    3. Company Notice
    4. Update Link
    5. Draft Recovery Banner
-   6. VAT Category Radio Cards       ← NEW (matches mockup)
-   7. Currency Prefix Input           ← NEW (matches mockup)
-   8. Field Hint Text                 ← NEW (matches mockup)
-   9. Business Verified Info-Box      ← NEW (matches mockup)
-  10. Review Modal — Tabular Layout   ← REDESIGNED (matches mockup Image 1)
+   6. VAT Category Radio Cards
+   7. Currency Prefix Input
+   8. Field Hint Text
+   9. Business Verified Info-Box
+  10. Document Upload Section      ← NEW
+  11. Review Modal — Tabular Layout
 */
 
 
@@ -56,8 +57,8 @@
   transition: color 0.25s;
 }
 
-.wizard-step.active  .ws-label { color: var(--color-accent); }
-.wizard-step.done    .ws-label { color: var(--color-teal); }
+.wizard-step.active .ws-label { color: var(--color-accent); }
+.wizard-step.done   .ws-label { color: var(--color-teal); }
 
 .wizard-connector {
   flex: 1;
@@ -90,10 +91,7 @@
   white-space: nowrap;
 }
 
-.btn-edit-step:hover {
-  background: #d0e6f7;
-  color: var(--color-accent-dark);
-}
+.btn-edit-step:hover { background: #d0e6f7; color: var(--color-accent-dark); }
 
 
 /* ── 3. Company Notice ───────────────────────────────────────── */
@@ -111,11 +109,7 @@
   line-height: 1.5;
 }
 
-.company-notice i {
-  font-size: 20px;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
+.company-notice i { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
 
 
 /* ── 4. Update Link ──────────────────────────────────────────── */
@@ -135,11 +129,7 @@
   transition: var(--transition);
 }
 
-.update-link:hover {
-  background: #d0e6f7;
-  text-decoration: none;
-  color: var(--color-accent-dark);
-}
+.update-link:hover { background: #d0e6f7; text-decoration: none; color: var(--color-accent-dark); }
 
 
 /* ── 5. Draft Recovery Banner ────────────────────────────────── */
@@ -163,32 +153,11 @@
   min-width: 0;
 }
 
-.draft-banner-left i {
-  font-size: 18px;
-  color: var(--color-warning);
-  flex-shrink: 0;
-}
+.draft-banner-left i { font-size: 18px; color: var(--color-warning); flex-shrink: 0; }
+.draft-banner-left strong { display: block; font-size: 13px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 1px; }
+.draft-banner-left span   { display: block; font-size: 12px; color: var(--color-text-secondary); }
 
-.draft-banner-left strong {
-  display: block;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin-bottom: 1px;
-}
-
-.draft-banner-left span {
-  display: block;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-.draft-banner-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
+.draft-banner-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 .draft-btn-continue {
   display: inline-flex;
@@ -225,20 +194,10 @@
   white-space: nowrap;
 }
 
-.draft-btn-discard:hover {
-  background: var(--color-bg-secondary);
-  color: var(--color-danger);
-  border-color: var(--color-danger-border);
-}
+.draft-btn-discard:hover { background: var(--color-bg-secondary); color: var(--color-danger); border-color: var(--color-danger-border); }
 
 
 /* ── 6. VAT Category Radio Cards ─────────────────────────────── */
-/*
-  Matches the mockup's .radio-group / .radio-opt pattern exactly.
-  Each card is a <label> wrapping a visually-hidden radio input.
-  The reactive form binding comes from formControlName on the input;
-  the visual state is driven by [class.selected] on the label.
-*/
 
 .radio-group {
   display: flex;
@@ -258,14 +217,11 @@
   color: var(--color-text-primary);
   flex: 1;
   min-width: 140px;
-  transition: border-color 0.1s, background 0.1s, color 0.1s;
+  transition: border-color 0.1s, background 0.1s;
   user-select: none;
 }
 
-.radio-opt:hover {
-  border-color: var(--color-accent-mid);
-  background: var(--color-accent-light);
-}
+.radio-opt:hover { border-color: var(--color-accent-mid); background: var(--color-accent-light); }
 
 .radio-opt.selected {
   border-color: var(--color-accent-mid);
@@ -274,7 +230,6 @@
   font-weight: 600;
 }
 
-/* Visually hide the native radio while keeping it accessible */
 .radio-input-hidden {
   position: absolute;
   opacity: 0;
@@ -283,7 +238,6 @@
   pointer-events: none;
 }
 
-/* The circular radio indicator */
 .radio-dot {
   width: 16px;
   height: 16px;
@@ -296,11 +250,8 @@
   transition: border-color 0.1s;
 }
 
-.radio-opt.selected .radio-dot {
-  border-color: var(--color-accent-mid);
-}
+.radio-opt.selected .radio-dot { border-color: var(--color-accent-mid); }
 
-/* Inner filled dot — hidden when not selected */
 .radio-dot-inner {
   width: 8px;
   height: 8px;
@@ -309,21 +260,11 @@
   display: none;
 }
 
-.radio-opt.selected .radio-dot-inner {
-  display: block;
-}
-
-.radio-opt-label {
-  line-height: 1.3;
-}
+.radio-opt.selected .radio-dot-inner { display: block; }
+.radio-opt-label { line-height: 1.3; }
 
 
 /* ── 7. Currency Prefix Input ────────────────────────────────── */
-/*
-  Matches the mockup's .input-prefix pattern.
-  The prefix span and the input share a single border by wrapping them
-  in a container that itself has the border.
-*/
 
 .input-prefix {
   display: flex;
@@ -338,9 +279,7 @@
   box-shadow: 0 0 0 3px var(--color-accent-light);
 }
 
-.input-prefix.locked {
-  background: var(--color-bg-secondary);
-}
+.input-prefix.locked { background: var(--color-bg-secondary); }
 
 .prefix-symbol {
   padding: 0 10px;
@@ -351,10 +290,8 @@
   white-space: nowrap;
   display: flex;
   align-items: center;
-  font-family: var(--font-sans);
 }
 
-/* The input inside .input-prefix strips its own border */
 .prefix-input {
   border: none !important;
   border-radius: 0 !important;
@@ -364,16 +301,8 @@
   padding-left: 10px !important;
 }
 
-.prefix-input:focus {
-  box-shadow: none !important;
-  outline: none;
-}
-
-.prefix-input[readonly] {
-  background: var(--color-bg-secondary);
-  color: var(--color-text-secondary);
-  cursor: not-allowed;
-}
+.prefix-input:focus       { box-shadow: none !important; outline: none; }
+.prefix-input[readonly]   { background: var(--color-bg-secondary); color: var(--color-text-secondary); cursor: not-allowed; }
 
 
 /* ── 8. Field Hint Text ──────────────────────────────────────── */
@@ -388,9 +317,6 @@
 
 
 /* ── 9. Business Verified Info-Box ───────────────────────────── */
-/*
-  Matches the mockup's .info-box: blue left-border notice.
-*/
 
 .verified-notice {
   display: flex;
@@ -406,22 +332,193 @@
   line-height: 1.6;
 }
 
-.verified-notice i {
-  font-size: 15px;
+.verified-notice i { font-size: 15px; flex-shrink: 0; margin-top: 1px; color: var(--color-accent-mid); }
+
+
+/* ── 10. Document Upload Section ─────────────────────────────── */
+
+.doc-upload-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* One document row */
+.doc-upload-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--color-bg-primary);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  transition: background 0.12s;
+}
+
+.doc-upload-row:last-child  { border-bottom: none; }
+.doc-upload-row:hover       { background: var(--color-bg-secondary); }
+
+/* Left side: icon + label block */
+.doc-upload-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* File type icon */
+.doc-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
   flex-shrink: 0;
-  margin-top: 1px;
-  color: var(--color-accent-mid);
+  transition: var(--transition);
+}
+
+.doc-icon.uploaded {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+/* Text block */
+.doc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.doc-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.doc-filename {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.doc-filesize {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+.doc-hint {
+  font-size: 11.5px;
+  color: var(--color-text-tertiary);
+}
+
+/* Right side: action area */
+.doc-upload-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Uploaded status badge */
+.doc-status-uploaded {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  border: 0.5px solid var(--color-success-border);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+/* Remove button */
+.btn-remove-doc {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.btn-remove-doc:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
+}
+
+/* Upload button — styled label wrapping hidden file input */
+.btn-upload-doc {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--color-bg-primary);
+  color: var(--color-accent);
+  border: 0.5px solid var(--color-accent-mid);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-upload-doc:hover {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent-mid);
+}
+
+/* Visually hidden file input — triggered by the label above */
+.file-input-hidden {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Upload count badge in section header */
+.upload-count-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 1px 8px;
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  border: 0.5px solid var(--color-success-border);
 }
 
 
-/* ── 10. Review Modal — Tabular Summary Layout ───────────────── */
-/*
-  Replaces the previous icon-card layout with the clean tabular
-  summary-row design from the mockup (Image 1).
-
-  Base .modal-overlay / .modal-card / .modal-actions are in styles.css.
-  These rules override sizing and add the summary anatomy.
-*/
+/* ── 11. Review Modal — Tabular Layout ───────────────────────── */
 
 .review-modal-card {
   max-width: 560px;
@@ -436,7 +533,6 @@
   flex-shrink: 0;
 }
 
-/* Header row */
 .review-modal-header {
   display: flex;
   align-items: center;
@@ -445,7 +541,6 @@
   border-bottom: 0.5px solid var(--color-border-tertiary);
 }
 
-/* Scrollable summary body */
 .review-scroll-body {
   overflow-y: auto;
   max-height: 55vh;
@@ -458,7 +553,6 @@
 .review-scroll-body::-webkit-scrollbar-track { background: transparent; }
 .review-scroll-body::-webkit-scrollbar-thumb { background: var(--color-border-primary); border-radius: 4px; }
 
-/* One logical block within the summary */
 .summary-section {
   padding: 14px 22px 8px;
   border-bottom: 0.5px solid var(--color-border-tertiary);
@@ -466,7 +560,6 @@
 
 .summary-section:last-child { border-bottom: none; }
 
-/* Uppercase section label — matches mockup exactly */
 .summary-section-label {
   font-size: 11px;
   font-weight: 600;
@@ -477,7 +570,6 @@
   display: block;
 }
 
-/* Key/value pair row — matches mockup .summary-row */
 .summary-row {
   display: flex;
   justify-content: space-between;
@@ -493,6 +585,7 @@
 .summary-key {
   color: var(--color-text-secondary);
   flex-shrink: 0;
+  min-width: 100px;
 }
 
 .summary-val {
@@ -500,22 +593,25 @@
   font-weight: 500;
   text-align: right;
   word-break: break-word;
-  max-width: 60%;
 }
 
-/* Uploaded document status */
-.doc-uploaded {
+/* Uploaded status in review modal */
+.doc-status-uploaded {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: var(--color-success);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 12.5px;
 }
 
-/* Not-uploaded stub */
+/* Not-uploaded in review modal */
 .doc-pending {
   color: var(--color-text-tertiary);
   font-style: italic;
+  font-weight: 400;
 }
 
-/* Legal declaration block */
 .review-declaration {
   padding: 14px 22px;
   background: var(--color-bg-secondary);
@@ -562,17 +658,22 @@
 /* ── Responsive ──────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
-  .wizard-steps         { padding: 14px 16px 0; }
-  .ws-label             { display: none; }
+  .wizard-steps           { padding: 14px 16px 0; }
+  .ws-label               { display: none; }
 
-  .draft-banner         { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .draft-banner-actions { width: 100%; }
+  .draft-banner           { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .draft-banner-actions   { width: 100%; }
   .draft-btn-continue,
-  .draft-btn-discard    { flex: 1; justify-content: center; }
+  .draft-btn-discard      { flex: 1; justify-content: center; }
 
-  .radio-group          { flex-direction: column; }
-  .radio-opt            { min-width: unset; }
+  .radio-group            { flex-direction: column; }
+  .radio-opt              { min-width: unset; }
 
-  .review-modal-card    { max-width: 100%; }
-  .review-scroll-body   { max-height: 46vh; }
+  .doc-upload-row         { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .doc-upload-right       { width: 100%; justify-content: flex-end; }
+  .doc-filename           { max-width: 100%; }
+
+  .review-modal-card      { max-width: 100%; }
+  .review-scroll-body     { max-height: 46vh; }
+  .summary-key            { min-width: 80px; }
 }

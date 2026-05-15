@@ -24,6 +24,7 @@ import {
 import { VatRegistrationService } from '../../services/vat-registration.service';
 
 type WizardStep = 1 | 2 | 3;
+type DocKey = 'tradeLicense' | 'tinCertificate' | 'nidAuthorized';
 
 interface VatRegDraft {
   savedAt:          string;
@@ -41,7 +42,7 @@ interface VatRegDraft {
 })
 export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
 
-  // ── Wizard state ───────────────────────────────────────────────────────────
+  // ── Wizard ─────────────────────────────────────────────────────────────────
   currentStep: WizardStep = 1;
 
   // ── Taxpayer (Step 1) ──────────────────────────────────────────────────────
@@ -52,11 +53,11 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   selectedBusiness: BusinessVatStatus | null = null;
   loadingBusinesses = false;
 
-  // ── VAT Details form (Step 3) ─────────────────────────────────────────────
+  // ── Form (Step 3) ─────────────────────────────────────────────────────────
   form!: FormGroup;
   isLoading = false;
 
-  // ── VAT category radio options — labels match the mockup ──────────────────
+  // ── VAT category radio options ────────────────────────────────────────────
   readonly vatCategoryOptions: { value: string; label: string }[] = [
     { value: 'Standard',   label: 'Standard rate (15%)' },
     { value: 'Zero Rated', label: 'Zero-rated / Exempt'  },
@@ -64,7 +65,28 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     { value: 'Special',    label: 'Reduced rate'         },
   ];
 
-  // ── Dynamic master-data dropdowns ─────────────────────────────────────────
+  // ── Document upload state ─────────────────────────────────────────────────
+  /**
+   * File objects live in component memory only — they cannot be serialised
+   * to localStorage. Officers must re-attach files after a page refresh.
+   * This is standard behaviour for government document portals.
+   * Actual multipart upload to the backend is deferred to Phase 6.
+   */
+  uploadedFiles: Record<DocKey, File | null> = {
+    tradeLicense:   null,
+    tinCertificate: null,
+    nidAuthorized:  null,
+  };
+
+  readonly documentFields: { key: DocKey; label: string; hint: string }[] = [
+    { key: 'tradeLicense',   label: 'Trade License',           hint: 'PDF or image — max 5 MB' },
+    { key: 'tinCertificate', label: 'TIN Certificate',         hint: 'PDF or image — max 5 MB' },
+    { key: 'nidAuthorized',  label: 'NID (Authorized Person)', hint: 'PDF or image — max 5 MB' },
+  ];
+
+  private readonly MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+  // ── Dynamic master-data ───────────────────────────────────────────────────
   divisions:  Division[] = [];
   districts:  District[] = [];
   vatZones:   any[]      = [];
@@ -79,12 +101,12 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   private pendingVatZoneId:   number | null = null;
   private pendingVatCircleId: number | null = null;
 
-  // ── Draft recovery ─────────────────────────────────────────────────────────
+  // ── Draft ─────────────────────────────────────────────────────────────────
   private readonly DRAFT_KEY = 'nvtms_vat_reg_draft';
   showDraftBanner = false;
   private _pendingDraft: VatRegDraft | null = null;
 
-  // ── Review modal ───────────────────────────────────────────────────────────
+  // ── Review modal ──────────────────────────────────────────────────────────
   showReviewModal     = false;
   declarationAccepted = false;
 
@@ -125,10 +147,8 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
         vatCircleId:      [null, Validators.required],
         districtId:       [null],
         divisionId:       [null],
-        // Category uses radio cards — value matches vatCategoryOptions[].value
         vatCategory:      ['', Validators.required],
         returnPeriod:     ['Monthly', Validators.required],
-        // Company-path only: officer enters turnover (non-company auto-fills from business)
         annualTurnover:   [0],
         registrationDate: [new Date().toISOString().split('T')[0]],
         effectiveDate:    [''],
@@ -240,7 +260,53 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Draft: auto-save ───────────────────────────────────────────────────────
+  // ── Document upload ────────────────────────────────────────────────────────
+
+  onFileSelected(event: Event, key: DocKey): void {
+    const input  = event.target as HTMLInputElement;
+    const file   = input.files?.[0];
+    // Reset the input immediately so the same file can be re-selected after removal
+    input.value  = '';
+    if (!file) return;
+
+    if (file.size > this.MAX_FILE_BYTES) {
+      this.toast.error(`"${file.name}" exceeds the 5 MB limit. Please choose a smaller file.`);
+      return;
+    }
+
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      this.toast.error('Only PDF, JPG, PNG, or WEBP files are accepted.');
+      return;
+    }
+
+    this.uploadedFiles = { ...this.uploadedFiles, [key]: file };
+    this.toast.success(`"${file.name}" attached successfully.`);
+  }
+
+  removeFile(key: DocKey): void {
+    this.uploadedFiles = { ...this.uploadedFiles, [key]: null };
+  }
+
+  isDocUploaded(key: DocKey): boolean {
+    return this.uploadedFiles[key] !== null;
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024)         return `${bytes} B`;
+    if (bytes < 1_048_576)    return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1_048_576).toFixed(1)} MB`;
+  }
+
+  get uploadCount(): number {
+    return Object.values(this.uploadedFiles).filter(Boolean).length;
+  }
+
+  private resetUploadedFiles(): void {
+    this.uploadedFiles = { tradeLicense: null, tinCertificate: null, nidAuthorized: null };
+  }
+
+  // ── Draft ─────────────────────────────────────────────────────────────────
 
   private setupDraftAutoSave(): void {
     this.form.valueChanges.pipe(debounceTime(800), takeUntil(this.destroy$))
@@ -256,11 +322,11 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       businesses:       this.businesses,
       selectedBusiness: this.selectedBusiness,
       formValues:       this.form.getRawValue(),
+      // Note: uploadedFiles (File objects) cannot be serialised — officer
+      // must re-attach documents after restoring a draft from a page refresh.
     };
     try { localStorage.setItem(this.DRAFT_KEY, JSON.stringify(draft)); } catch { /* quota */ }
   }
-
-  // ── Draft: restore ─────────────────────────────────────────────────────────
 
   private restoreDraft(): void {
     try {
@@ -278,20 +344,14 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     this.businesses       = draft.businesses ?? [];
     this.selectedBusiness = draft.selectedBusiness;
     this.currentStep      = draft.currentStep ?? 1;
-
     const fv = draft.formValues;
     this.form.patchValue({
-      taxpayerId:       fv['taxpayerId'],
-      businessId:       fv['businessId'],
-      vatCategory:      fv['vatCategory'],
-      returnPeriod:     fv['returnPeriod']     ?? 'Monthly',
-      annualTurnover:   fv['annualTurnover']   ?? 0,
-      registrationDate: fv['registrationDate'],
-      effectiveDate:    fv['effectiveDate'],
-      expiryDate:       fv['expiryDate'],
-      remarks:          fv['remarks'],
+      taxpayerId: fv['taxpayerId'],   businessId: fv['businessId'],
+      vatCategory: fv['vatCategory'], returnPeriod: fv['returnPeriod'] ?? 'Monthly',
+      annualTurnover: fv['annualTurnover'] ?? 0,
+      registrationDate: fv['registrationDate'], effectiveDate: fv['effectiveDate'],
+      expiryDate: fv['expiryDate'],   remarks: fv['remarks'],
     }, { emitEvent: false });
-
     if (fv['divisionId']) {
       this.pendingDistrictId  = fv['districtId']  ?? null;
       this.pendingVatZoneId   = fv['vatZoneId']   ?? null;
@@ -303,7 +363,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   dismissDraft(): void {
     if (this._pendingDraft) {
       this.applyDraft(this._pendingDraft);
-      this.toast.info('Draft restored. Continue where you left off.');
+      this.toast.info('Draft restored. Please re-attach any documents.');
     }
     this._pendingDraft = null; this.showDraftBanner = false;
   }
@@ -327,7 +387,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       if (mins < 1)  return 'just now';
       if (mins < 60) return `${mins} minute${mins > 1 ? 's' : ''} ago`;
       const hrs = Math.floor(mins / 60);
-      if (hrs < 24)  return `${hrs} hour${hrs > 1 ? 's' : ''} ago`;
+      if (hrs  < 24) return `${hrs} hour${hrs > 1 ? 's' : ''} ago`;
       return new Date(savedAt).toLocaleDateString();
     } catch { return ''; }
   }
@@ -351,7 +411,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       : (tp.fullName    ?? 'Unknown');
   }
 
-  // ── Step 1: Taxpayer ───────────────────────────────────────────────────────
+  // ── Step 1 ─────────────────────────────────────────────────────────────────
 
   onTaxpayerSelected(tp: Taxpayer): void {
     this.selectedTaxpayer = tp;
@@ -370,11 +430,12 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   onTaxpayerCleared(): void {
     this.selectedTaxpayer = null; this.selectedBusiness = null; this.businesses = [];
     this.currentStep = 1; this.districts = []; this.vatZones = []; this.vatCircles = [];
+    this.resetUploadedFiles();
     this.form.reset({ registrationDate: new Date().toISOString().split('T')[0], returnPeriod: 'Monthly' });
     this.clearDraft(); this.toast.info('Taxpayer cleared. Starting over.');
   }
 
-  // ── Step 2: Business ───────────────────────────────────────────────────────
+  // ── Step 2 ─────────────────────────────────────────────────────────────────
 
   private loadBusinesses(taxpayerId: number): void {
     // TODO Phase 6: migrate to BusinessService with mock fallback
@@ -383,10 +444,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       .get<BusinessVatStatus[]>(API_ENDPOINTS.BUSINESSES.BY_TAXPAYER_VAT_STATUS(taxpayerId))
       .pipe(takeUntil(this.destroy$), finalize(() => (this.loadingBusinesses = false)))
       .subscribe({
-        next:  data => {
-          this.businesses = data;
-          if (!data.length) this.toast.warning('No registered businesses for this taxpayer.');
-        },
+        next:  data => { this.businesses = data; if (!data.length) this.toast.warning('No registered businesses for this taxpayer.'); },
         error: () => {},
       });
   }
@@ -399,8 +457,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       this.form.patchValue({ divisionId: b.divisionId });
     }
     this.toast.success(`"${b.businessName}" selected. Pick the VAT Zone and Circle to continue.`);
-    this.currentStep = 3;
-    this.saveDraft();
+    this.currentStep = 3; this.saveDraft();
   }
 
   // ── Step navigation ────────────────────────────────────────────────────────
@@ -420,13 +477,9 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
 
   get editBusinessId(): number | null { return this.selectedBusiness?.id ?? null; }
 
-  /**
-   * Formats a number as a Bangladeshi-style turnover string.
-   * e.g. 4500000 → "45,00,000"
-   */
   formatTurnoverDisplay(amount: number | undefined | null): string {
     if (!amount) return '0';
-    return amount.toLocaleString('en-IN');   // en-IN uses the South Asian grouping (2,2,3)
+    return amount.toLocaleString('en-IN');
   }
 
   // ── Review modal helpers ───────────────────────────────────────────────────
@@ -436,10 +489,6 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   get reviewDistrictName(): string { return this.districts.find(d => d.id == this.ctrl('districtId')?.value)?.name  ?? '—'; }
   get reviewDivisionName(): string { return this.divisions.find(d => d.id == this.ctrl('divisionId')?.value)?.name  ?? '—'; }
 
-  /**
-   * Human-readable category label used in the review summary.
-   * Maps the stored value (e.g. 'Standard') to the mockup label ('Standard rate (15%)').
-   */
   get vatCategoryLabel(): string {
     const v = this.ctrl('vatCategory')?.value;
     return this.vatCategoryOptions.find(o => o.value === v)?.label ?? v ?? '';
@@ -458,11 +507,10 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
 
   onCloseReview(): void { this.showReviewModal = false; }
 
-  // ── Confirm submit ─────────────────────────────────────────────────────────
+  // ── Submit ─────────────────────────────────────────────────────────────────
 
   onConfirmSubmit(): void {
     if (!this.declarationAccepted || this.isLoading) return;
-
     this.showReviewModal = false;
     this.isLoading       = true;
 
@@ -481,6 +529,8 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       expiryDate:       raw['expiryDate']    || undefined,
       remarks:          raw['remarks']       || undefined,
     };
+
+    // TODO Phase 6: attach uploadedFiles as FormData for multipart upload
 
     this.vatService.create(payload)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
@@ -503,10 +553,10 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     this.pendingDistrictId  = null; this.pendingVatZoneId = null; this.pendingVatCircleId = null;
     this.districts = []; this.vatZones = []; this.vatCircles = [];
     this.showReviewModal     = false; this.declarationAccepted = false;
+    this.resetUploadedFiles();
     this.form.reset({
       registrationDate: new Date().toISOString().split('T')[0],
-      returnPeriod: 'Monthly',
-      annualTurnover: 0,
+      returnPeriod: 'Monthly', annualTurnover: 0,
     });
     this.clearDraft(); this.toast.info('Form reset.');
   }
