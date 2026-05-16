@@ -90,6 +90,8 @@ export class VatRegistrationSuccessComponent implements OnInit {
     });
   }
 
+  printPage(): void { window.print(); }
+
   // ── Display helpers ──────────────────────────────────────────────────────
 
   getCategoryClass(category: string): string {

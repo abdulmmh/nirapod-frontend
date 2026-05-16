@@ -6,6 +6,8 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { VatRegistration } from '../../../../models/vat-registration.model';
 import { VatRegistrationService } from '../../services/vat-registration.service';
 import { ToastService } from '../../../../shared/toast/toast.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 type ReviewDecision = 'Approve' | 'Request' | 'Reject';
 
@@ -47,6 +49,7 @@ export class VatRegistrationViewComponent implements OnInit, OnDestroy {
 
   constructor(
     private route:      ActivatedRoute,
+    private http:      HttpClient,
     private router:     Router,
     private vatService: VatRegistrationService,
     private toast:      ToastService,
@@ -118,42 +121,49 @@ export class VatRegistrationViewComponent implements OnInit, OnDestroy {
   onSubmitReview(): void {
     if (!this.canSubmitReview || !this.vat || this.isSubmittingReview) return;
 
-    const statusMap: Record<ReviewDecision, string> = {
-      Approve: 'Active',
-      Request: 'Pending',
-      Reject:  'Cancelled',
-    };
+      const statusMap: Record<ReviewDecision, string> = {
+        Approve: 'Active',
+        Request: 'Pending',
+        Reject:  'Cancelled',
+      };
 
-    const payload: Partial<VatRegistration> = {
-      ...this.vat,
-      status:  statusMap[this.reviewDecision!] as any,
-      remarks: this.reviewRemarks.trim() || this.vat.remarks,
-    };
+      // শুধু status আর remarks — বাকি কিছু না
+      const payload = {
+        status:  statusMap[this.reviewDecision!],
+        remarks: this.reviewRemarks.trim() || '',
+      };
 
-    this.isSubmittingReview = true;
-    this.vatService.update(this.vat.id, payload)
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.isSubmittingReview = false)))
-      .subscribe({
-        next: updated => {
-          this.vat             = updated;
-          this.showReviewModal = false;
-          const messages: Record<ReviewDecision, string> = {
-            Approve: 'Registration approved — status set to Active.',
-            Request: 'Information request recorded. Registration remains Pending.',
-            Reject:  'Registration rejected — status set to Cancelled.',
-          };
-          this.toast.success(messages[this.reviewDecision!]);
-        },
-        error: () => this.toast.error('Failed to submit review. Please try again.'),
-      });
-  }
+      this.isSubmittingReview = true;
+      this.http.patch<VatRegistration>(
+        `${environment.apiUrl}/vat-registrations/${this.vat.id}/status`,
+    payload
+  )
+  .pipe(takeUntil(this.destroy$), finalize(() => (this.isSubmittingReview = false)))
+  .subscribe({
+    next: updated => {
+      this.vat             = updated;
+      this.showReviewModal = false;
+      const messages: Record<ReviewDecision, string> = {
+        Approve: 'Registration approved — status set to Active.',
+        Request: 'Information request recorded.',
+        Reject:  'Registration rejected.',
+      };
+      this.toast.success(messages[this.reviewDecision!]);
+    },
+    error: err => {
+      const msg = err?.error?.message ?? 'Failed to submit review. Please try again.';
+      this.toast.error(msg);
+    },
+  });
+}
 
   // ── Display helpers ────────────────────────────────────────────────────────
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
       Active: 'status-active', Inactive: 'status-inactive',
-      Pending: 'status-pending', Suspended: 'status-suspended', Cancelled: 'status-inactive',
+      Pending: 'status-pending', Suspended: 'status-suspended', 
+      Cancelled: 'status-inactive',
     };
     return map[s] ?? '';
   }
