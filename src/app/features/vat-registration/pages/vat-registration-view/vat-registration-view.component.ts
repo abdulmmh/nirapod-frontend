@@ -7,7 +7,7 @@ import { VatRegistration } from '../../../../models/vat-registration.model';
 import { VatRegistrationService } from '../../services/vat-registration.service';
 import { ToastService } from '../../../../shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 type ReviewDecision = 'Approve' | 'Request' | 'Reject';
 
@@ -135,9 +135,9 @@ export class VatRegistrationViewComponent implements OnInit, OnDestroy {
 
       this.isSubmittingReview = true;
       this.http.patch<VatRegistration>(
-        `${environment.apiUrl}/vat-registrations/${this.vat.id}/status`,
-    payload
-  )
+        `${API_ENDPOINTS.VAT_REGISTRATIONS.LIST}/${this.vat.id}/status`,
+        payload
+      )
   .pipe(takeUntil(this.destroy$), finalize(() => (this.isSubmittingReview = false)))
   .subscribe({
     next: updated => {

@@ -30,7 +30,7 @@
 
         <div class="user-avatar-ring">
           <img *ngIf="currentUser?.photoUrl"
-               [src]="currentUser!.photoUrl"
+               [src]="photoUrl" 
                class="user-photo"/>
           <div *ngIf="!currentUser?.photoUrl" class="user-monogram">
             {{ currentUser?.fullName?.charAt(0) | uppercase }}

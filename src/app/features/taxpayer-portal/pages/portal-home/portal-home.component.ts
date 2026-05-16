@@ -39,14 +39,15 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Load taxpayer profile AND ITR list in parallel
+    const taxpayerId = Number(user.taxpayerId);
+
     forkJoin({
       taxpayer: this.http.get<Taxpayer>(
-        API_ENDPOINTS.TAXPAYERS.GET(user.taxpayerId)
+        API_ENDPOINTS.TAXPAYERS.GET(taxpayerId)
       ),
       returns: this.http.get<IncomeTaxReturn[]>(
         API_ENDPOINTS.INCOME_TAX_RETURNS.LIST
-      ).pipe(catchError(() => of([])))   // ITR fail হলেও page load হবে
+      ).pipe(catchError(() => of([])))
     })
     .pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -67,15 +68,12 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
 
   // ── Stats computed from ITR data ──────────────────────────────
 
-  /** মোট কতটা return file করা হয়েছে */
+
   get totalReturnsFiled(): number {
     return this.itrReturns.length;
   }
 
-  /**
-   * Outstanding dues — সব pending/submitted return-এর
-   * net tax payable যোগ করো (paid amount বাদ দিয়ে)
-   */
+
   get outstandingDues(): number {
     return this.itrReturns
       .filter(r => r.status !== 'Accepted')

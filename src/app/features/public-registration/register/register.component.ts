@@ -71,7 +71,8 @@ export class RegisterComponent implements OnDestroy {
   // ── Final submit ──────────────────────────────────────────────────────────
 
   onSubmit(): void {
-    this.isSubmitting = true;
+    if (this.isSubmitting) return; 
+      this.isSubmitting = true;
 
     const payload: UserRegistrationRequest = {
       taxpayerTypeId:  this.state.taxpayerTypeId!,      
@@ -109,16 +110,16 @@ export class RegisterComponent implements OnDestroy {
       .subscribe({
         next: (response) => {
           this.registrationResponse = response;
-          this.currentStep = 5; // show success screen
+          this.router.navigate(['/auth/verify-otp'], {
+            queryParams: { email: this.state.email }
+          });
         },
-        error: (err) => {
-          // 409 (duplicate email/NID/RJSC) is caught by the global AuthInterceptor
-          // and already shows a toast. Only handle 400 locally.
-          if (err?.status === 400) {
-            this.toast.error(
-              err.error?.message ||
-                'Invalid registration data. Please check all fields.',
-            );
+         error: (err) => {
+          this.isSubmitting = false; // ← error হলে reset
+          if (err?.status === 409) {
+            this.toast.error(err.error?.message || 'Account already exists.');
+          } else if (err?.status === 400) {
+            this.toast.error(err.error?.message || 'Invalid data.');
           }
         },
       });

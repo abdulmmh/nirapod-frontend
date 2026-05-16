@@ -2,7 +2,7 @@ import { Role } from "../core/constants/roles.constants";
 
 export interface AuthUser {
   id: number;
-  taxpayerId?: number;
+  taxpayerId?: number | null;
   taxpayerType?: string;
   tinNumber?:    string;   
   fullName: string;

@@ -46,15 +46,16 @@ export class AuthService {
 
   private handleLoginSuccess(response: any): void {
     const user: AuthUser = {
-      id:           response.id       ?? 1,
-      fullName:     response.fullName ?? '',
-      email:        response.email    ?? '',
-      role:         response.role     ?? Role.GUEST,
-      token:        response.token    ?? '',
-      taxpayerId:   response.taxpayerId  ?? null,
-      taxpayerType: response.taxpayerType ?? null,
-      tinNumber:    response.tinNumber    ?? null,
-      photoUrl:     response.photoUrl    ?? null, 
+      id:             response.id       ?? 1,
+      fullName:       response.fullName ?? '',
+      email:          response.email    ?? '',
+      role:           response.role     ?? Role.GUEST,
+      token:          response.token    ?? '',
+      taxpayerId:     response.taxpayerId != null ? Number(response.taxpayerId) : null,
+      taxpayerType:   response.taxpayerType  ?? null,
+      tinNumber:      response.tinNumber     ?? null,
+      photoUrl:       response.photoUrl      ?? null,
+      approvalStatus: response.approvalStatus ?? null, // ← যোগ করো
     };
     localStorage.setItem('current_user', JSON.stringify(user));
     if (user.token) localStorage.setItem('auth_token', user.token);
@@ -119,7 +120,7 @@ export class AuthService {
 
   updateCurrentUser(user: AuthUser): void {
     localStorage.setItem('current_user', JSON.stringify(user));
-    // যদি BehaviorSubject থাকে:
+
     this.currentUserSubject.next(user);
   }
 
