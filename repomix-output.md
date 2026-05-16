@@ -64,22 +64,26 @@ src/app/features/activity-logs/pages/activity-logs-list/activity-logs-list.compo
 src/app/features/activity-logs/pages/activity-logs-list/activity-logs-list.component.ts
 src/app/features/ait/ait/ait-routing.module.ts
 src/app/features/ait/ait/ait.module.ts
-src/app/features/ait/pages/ait-create/ait-create.component.css
-src/app/features/ait/pages/ait-create/ait-create.component.html
-src/app/features/ait/pages/ait-create/ait-create.component.spec.ts
-src/app/features/ait/pages/ait-create/ait-create.component.ts
-src/app/features/ait/pages/ait-edit/ait-edit.component.css
-src/app/features/ait/pages/ait-edit/ait-edit.component.html
-src/app/features/ait/pages/ait-edit/ait-edit.component.spec.ts
-src/app/features/ait/pages/ait-edit/ait-edit.component.ts
-src/app/features/ait/pages/ait-list/ait-list.component.css
-src/app/features/ait/pages/ait-list/ait-list.component.html
-src/app/features/ait/pages/ait-list/ait-list.component.spec.ts
-src/app/features/ait/pages/ait-list/ait-list.component.ts
-src/app/features/ait/pages/ait-view/ait-view.component.css
-src/app/features/ait/pages/ait-view/ait-view.component.html
-src/app/features/ait/pages/ait-view/ait-view.component.spec.ts
-src/app/features/ait/pages/ait-view/ait-view.component.ts
+src/app/features/ait/components/audit-trail/audit-trail.component.ts
+src/app/features/ait/components/document-viewer/document-viewer.component.ts
+src/app/features/ait/components/kpi-cards/kpi-cards.component.ts
+src/app/features/ait/components/records-table/records-table.component.ts
+src/app/features/ait/components/status-badge/status-badge.component.ts
+src/app/features/ait/models/ait.model.ts
+src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.css
+src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.html
+src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.ts
+src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.css
+src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.html
+src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.ts
+src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.css
+src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.html
+src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.ts
+src/app/features/ait/pages/officer-review/officer-review.component.css
+src/app/features/ait/pages/officer-review/officer-review.component.html
+src/app/features/ait/pages/officer-review/officer-review.component.ts
+src/app/features/ait/services/ait.service.ts
+src/app/features/ait/services/mock-ait-data.service.ts
 src/app/features/audit-management/audit/audit-routing.module.ts
 src/app/features/audit-management/audit/audit.module.ts
 src/app/features/audit-management/pages/audit-create/audit-create.component.css
@@ -564,6 +568,2555 @@ src/test.ts
 
 # Files
 
+## File: src/app/features/ait/components/audit-trail/audit-trail.component.ts
+```typescript
+import { Component, Input } from '@angular/core';
+import { StatusHistoryEvent } from '../../models/ait.model';
+⋮----
+export class AuditTrailComponent
+⋮----
+formatDate(dateStr: string): string
+```
+
+## File: src/app/features/ait/components/document-viewer/document-viewer.component.ts
+```typescript
+import { Component, Input } from '@angular/core';
+import { AitDocument } from '../../models/ait.model';
+⋮----
+export class DocumentViewerComponent
+⋮----
+formatFileSize(bytes: number): string
+⋮----
+formatDate(dateStr: string): string
+```
+
+## File: src/app/features/ait/components/kpi-cards/kpi-cards.component.ts
+```typescript
+import { Component, Input } from '@angular/core';
+⋮----
+export interface KPICard {
+  label: string;
+  value: number | string;
+  description: string;
+  icon: string;
+  iconColor: 'primary' | 'info' | 'success' | 'warning' | 'danger';
+}
+⋮----
+export class KPICardsComponent
+```
+
+## File: src/app/features/ait/components/records-table/records-table.component.ts
+```typescript
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { AitRecord, AitStatus } from '../../models/ait.model';
+⋮----
+export class RecordsTableComponent
+⋮----
+getStatusClass(status: AitStatus): string
+⋮----
+getStatusLabel(status: AitStatus): string
+⋮----
+formatDate(dateStr: string): string
+```
+
+## File: src/app/features/ait/components/status-badge/status-badge.component.ts
+```typescript
+import { Component, Input } from '@angular/core';
+import { AitStatus } from '../../models/ait.model';
+⋮----
+export class StatusBadgeComponent
+⋮----
+getStatusClass(): string
+⋮----
+getStatusLabel(): string
+```
+
+## File: src/app/features/ait/models/ait.model.ts
+```typescript
+export type AitStatus = 'DRAFT' | 'SUBMITTED' | 'PENDING' | 'PAID' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'CREDITED' | 'CANCELLED';
+export type DocumentRequestType = 'INFO' | 'MODIFICATION' | 'CLARIFICATION';
+⋮----
+export interface AitRecord {
+  id?: number;
+  aitReferenceNo?: string;
+  taxpayerId: number;
+  taxpayerName?: string;
+  importDutyRecordId: number;
+  importDutyRefNo?: string;
+  hsCode?: string;
+  taxableValue: number;
+  aitRate: number;
+  calculatedAitAmount: number;
+  approvedAitAmount?: number;
+  status: AitStatus;
+  assignedOfficerId?: number;
+  assignedOfficerName?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+⋮----
+export interface AitDetailResponse extends AitRecord {
+  statusHistory: StatusHistoryEvent[];
+  documents: AitDocument[];
+  pendingRequests: DocumentRequest[];
+}
+⋮----
+export interface StatusHistoryEvent {
+  id: number;
+  fromStatus: AitStatus;
+  toStatus: AitStatus;
+  changedBy: string;
+  changedAt: string;
+  changeReason: string;
+}
+⋮----
+export interface AitDocument {
+  id: number;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  uploadedBy: string;
+  uploadedAt: string;
+}
+⋮----
+export interface DocumentRequest {
+  id: number;
+  requestType: DocumentRequestType;
+  requestedDocuments: string;
+  requestReason: string;
+  requestedBy: string;
+  deadline: string;
+  status: 'PENDING' | 'FULFILLED' | 'OVERDUE';
+}
+⋮----
+export interface CreateAitPayload {
+  taxpayerId: number;
+  importDutyRecordId: number;
+  hsCode?: string;
+  taxableValue: number;
+  aitRate: number;
+}
+⋮----
+export interface ApproveAitPayload {
+  approvedAmount?: number;
+  approvalNotes?: string;
+}
+⋮----
+export interface RejectAitPayload {
+  rejectionReason: string;
+  feedbackForTaxpayer?: string;
+}
+⋮----
+export interface CreditAitPayload {
+  creditAmount: number;
+  creditDate: string;
+}
+```
+
+## File: src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.css
+```css
+:root {
+⋮----
+.wizard-container {
+⋮----
+/* Header */
+.page-header {
+⋮----
+.header-content h1 {
+⋮----
+.subtitle {
+⋮----
+.btn-close-wizard {
+⋮----
+.btn-close-wizard:hover {
+⋮----
+/* Alerts */
+.alert {
+⋮----
+.alert-success {
+⋮----
+.alert-danger {
+⋮----
+.alert strong {
+⋮----
+/* Stepper */
+.stepper-container {
+⋮----
+.stepper {
+⋮----
+.step {
+⋮----
+.step-circle {
+⋮----
+.step-circle:disabled {
+⋮----
+.step.active .step-circle {
+⋮----
+.step.done .step-circle {
+⋮----
+.step-number {
+⋮----
+.step-circle i {
+⋮----
+.step-label {
+⋮----
+.step.active .step-label {
+⋮----
+.step-connector {
+⋮----
+.step-connector.done {
+⋮----
+/* Step Content */
+.wizard-content {
+⋮----
+.step-panel {
+⋮----
+.step-panel h2 {
+⋮----
+.step-description {
+⋮----
+/* STEP 1: Search & Transaction Table */
+.search-box {
+⋮----
+.search-box .form-control {
+⋮----
+.search-box i {
+⋮----
+.transaction-table-container {
+⋮----
+.transaction-table {
+⋮----
+.transaction-table thead {
+⋮----
+.transaction-table th {
+⋮----
+.transaction-table td {
+⋮----
+.transaction-row {
+⋮----
+.transaction-row:hover {
+⋮----
+.transaction-row.selected {
+⋮----
+.transaction-table .select-col {
+⋮----
+.transaction-table .ref-no {
+⋮----
+.transaction-table .code {
+⋮----
+.transaction-table .amount {
+⋮----
+.empty-state {
+⋮----
+.empty-state i {
+⋮----
+/* STEP 2: Calculation */
+.calculation-grid {
+⋮----
+.calc-card {
+⋮----
+.calc-card h3 {
+⋮----
+.detail-row {
+⋮----
+.detail-row label {
+⋮----
+.detail-row span {
+⋮----
+.detail-row .ref-no {
+⋮----
+.detail-row .code {
+⋮----
+.calculation-box {
+⋮----
+.calc-row {
+⋮----
+.calc-row label {
+⋮----
+.calc-row .form-control-sm {
+⋮----
+.calc-row .currency,
+⋮----
+.rate-input-group {
+⋮----
+.calc-divider {
+⋮----
+.calc-row.result {
+⋮----
+.calc-row.result label {
+⋮----
+.amount-display {
+⋮----
+.amount-display .amount {
+⋮----
+.calc-formula {
+⋮----
+/* STEP 3: Upload Documents */
+.upload-zone {
+⋮----
+.drop-area {
+⋮----
+.drop-area:hover {
+⋮----
+.drop-area i {
+⋮----
+.drop-area h4 {
+⋮----
+.drop-area p {
+⋮----
+.file-hint {
+⋮----
+.document-list {
+⋮----
+.document-list h4 {
+⋮----
+.doc-item {
+⋮----
+.doc-icon {
+⋮----
+.doc-info {
+⋮----
+.doc-name {
+⋮----
+.doc-size {
+⋮----
+.btn-remove {
+⋮----
+.btn-remove:hover {
+⋮----
+.empty-docs {
+⋮----
+/* STEP 4: Review & Submit */
+.review-summary {
+⋮----
+.review-card {
+⋮----
+.review-card h3 {
+⋮----
+.summary-row {
+⋮----
+.summary-row:last-child {
+⋮----
+.summary-row.highlight {
+⋮----
+.summary-row .label {
+⋮----
+.summary-row .value {
+⋮----
+.summary-row .value.amount {
+⋮----
+.doc-count {
+⋮----
+.doc-list {
+⋮----
+.doc-list li {
+⋮----
+.doc-list i {
+⋮----
+.confirmation-box {
+⋮----
+.form-check {
+⋮----
+.form-check-input {
+⋮----
+.form-check-label {
+⋮----
+/* Step Actions */
+.step-actions {
+⋮----
+.btn {
+⋮----
+.btn:disabled {
+⋮----
+.btn-primary {
+⋮----
+.btn-primary:hover:not(:disabled) {
+⋮----
+.btn-secondary {
+⋮----
+.btn-secondary:hover:not(:disabled) {
+⋮----
+.btn-success {
+⋮----
+.btn-success:hover:not(:disabled) {
+⋮----
+.btn-save-draft {
+⋮----
+.btn-save-draft:hover {
+⋮----
+/* Responsive */
+⋮----
+.transaction-table th,
+```
+
+## File: src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.html
+```html
+<div class="wizard-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Create AIT Record</h1>
+      <p class="subtitle">Guided wizard to create and submit an Advance Income Tax record</p>
+    </div>
+    <button class="btn-close-wizard" (click)="discardDraft()" title="Close wizard">
+      <i class="ti ti-x"></i>
+    </button>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible" role="alert">
+    <strong><i class="ti ti-circle-check"></i> Success!</strong>
+    {{ successMessage }}
+    <p class="mt-2 mb-0" *ngIf="newAitRefNo"><strong>Reference No:</strong> {{ newAitRefNo }}</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="submitError" class="alert alert-danger alert-dismissible" role="alert">
+    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
+    {{ submitError }}
+  </div>
+
+  <!-- Stepper Indicator -->
+  <div class="stepper-container">
+    <div class="stepper">
+      <div *ngFor="let i of [1, 2, 3, 4]" class="step" [ngClass]="getStepStatus(i)">
+        <button
+          class="step-circle"
+          (click)="goToStep(i)"
+          [disabled]="i > state.step && !isStepComplete(i - 1)"
+          [attr.aria-label]="'Step ' + i">
+          <span class="step-number">{{ i }}</span>
+          <i *ngIf="getStepStatus(i) === 'done'" class="ti ti-check"></i>
+        </button>
+        <div class="step-label">
+          {{ getStepLabel(i) }}
+        </div>
+        <div *ngIf="i < 4" class="step-connector" [ngClass]="i < state.step ? 'done' : ''"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="wizard-content">
+
+    <!-- STEP 1: Select Transaction -->
+    <div class="step-panel" *ngIf="state.step === 1">
+      <h2>Step 1: Select Import Duty Transaction</h2>
+      <p class="step-description">Choose a Bill of Entry record to create an AIT for.</p>
+
+      <div class="search-box">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by Reference, Importer Name, or HS Code..."
+          [(ngModel)]="searchQuery"
+          (input)="searchTransactions()">
+        <i class="ti ti-search"></i>
+      </div>
+
+      <div class="transaction-table-container">
+        <table class="transaction-table">
+          <thead>
+            <tr>
+              <th width="5%"></th>
+              <th>Reference No</th>
+              <th>Date</th>
+              <th>Importer</th>
+              <th>HS Code</th>
+              <th>Description</th>
+              <th>Taxable Value</th>
+              <th>Port of Entry</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tx of filteredTransactions"
+                class="transaction-row"
+                [class.selected]="state.selectedTransaction?.id === tx.id">
+              <td class="select-col">
+                <input type="radio"
+                       [checked]="state.selectedTransaction?.id === tx.id"
+                       (change)="selectTransaction(tx)">
+              </td>
+              <td class="ref-no">{{ tx.referenceNo }}</td>
+              <td>{{ tx.date | date:'MMM d, y' }}</td>
+              <td>{{ tx.importerName }}</td>
+              <td class="code">{{ tx.hsCode }}</td>
+              <td>{{ tx.description }}</td>
+              <td class="amount">৳ {{ tx.taxableValue | number:'1.2-2' }}</td>
+              <td>{{ tx.portOfEntry }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="filteredTransactions.length === 0" class="empty-state">
+          <i class="ti ti-inbox"></i>
+          <p>No transactions found. Try adjusting your search.</p>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" (click)="discardDraft()">Cancel</button>
+        <button
+          class="btn btn-primary"
+          (click)="nextStep()"
+          [disabled]="!state.selectedTransaction">
+          Next: Calculate AIT
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Calculate AIT -->
+    <div class="step-panel" *ngIf="state.step === 2">
+      <h2>Step 2: Calculate AIT</h2>
+      <p class="step-description">Review the calculation of Advance Income Tax on the selected transaction.</p>
+
+      <div class="calculation-grid">
+        <!-- Transaction Details -->
+        <div class="calc-card">
+          <h3>Transaction Details</h3>
+          <div class="detail-row">
+            <label>Reference No:</label>
+            <span class="ref-no">{{ state.selectedTransaction?.referenceNo }}</span>
+          </div>
+          <div class="detail-row">
+            <label>Importer:</label>
+            <span>{{ state.selectedTransaction?.importerName }}</span>
+          </div>
+          <div class="detail-row">
+            <label>HS Code:</label>
+            <span class="code">{{ state.selectedTransaction?.hsCode }}</span>
+          </div>
+          <div class="detail-row">
+            <label>Description:</label>
+            <span>{{ state.selectedTransaction?.description }}</span>
+          </div>
+          <div class="detail-row">
+            <label>Port of Entry:</label>
+            <span>{{ state.selectedTransaction?.portOfEntry }}</span>
+          </div>
+          <div class="detail-row">
+            <label>Origin Country:</label>
+            <span>{{ state.selectedTransaction?.origin }}</span>
+          </div>
+        </div>
+
+        <!-- Calculation -->
+        <div class="calc-card calculation-box">
+          <h3>AIT Calculation</h3>
+
+          <div class="calc-row">
+            <label>Taxable Value:</label>
+            <input type="number"
+                   class="form-control form-control-sm"
+                   [(ngModel)]="state.formData.taxableValue"
+                   readonly>
+            <span class="currency">৳</span>
+          </div>
+
+          <div class="calc-row">
+            <label>AIT Rate:</label>
+            <div class="rate-input-group">
+              <input type="number"
+                     class="form-control form-control-sm"
+                     [(ngModel)]="state.formData.aitRate"
+                     (change)="onRateChange(state.formData.aitRate || 0)"
+                     min="0"
+                     max="100">
+              <span class="unit">%</span>
+            </div>
+          </div>
+
+          <div class="calc-divider"></div>
+
+          <div class="calc-row result">
+            <label>Calculated AIT Amount:</label>
+            <div class="amount-display">
+              <span class="amount">৳ {{ state.calculatedAit | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <p class="calc-formula">
+            Calculation: {{ state.formData.taxableValue | number:'1.2-2' }} × {{ state.formData.aitRate }}% = {{ state.calculatedAit | number:'1.2-2' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" (click)="prevStep()">Back</button>
+        <button class="btn btn-primary" (click)="nextStep()">Next: Upload Documents</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Upload Documents -->
+    <div class="step-panel" *ngIf="state.step === 3">
+      <h2>Step 3: Upload Supporting Documents</h2>
+      <p class="step-description">Upload documents related to this AIT record (invoices, receipts, etc.)</p>
+
+      <div class="upload-zone">
+        <input
+          type="file"
+          #fileInput
+          hidden
+          multiple
+          (change)="onFilesSelected($any($event.target).files)">
+
+        <div class="drop-area" (click)="fileInput.click()">
+          <i class="ti ti-cloud-upload"></i>
+          <h4>Drag and drop files here</h4>
+          <p>or click to select files</p>
+          <span class="file-hint">Supported: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 10 MB each)</span>
+        </div>
+      </div>
+
+      <div *ngIf="state.uploadedDocuments.length > 0" class="document-list">
+        <h4>Uploaded Documents ({{ state.uploadedDocuments.length }})</h4>
+        <div class="doc-item" *ngFor="let doc of state.uploadedDocuments; let i = index">
+          <div class="doc-icon">
+            <i class="ti ti-file"></i>
+          </div>
+          <div class="doc-info">
+            <p class="doc-name">{{ doc.name }}</p>
+            <p class="doc-size">{{ formatFileSize(doc.size) }}</p>
+          </div>
+          <button class="btn-remove" (click)="removeDocument(i)" title="Remove">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="state.uploadedDocuments.length === 0" class="empty-docs">
+        <p>No documents uploaded yet. Upload at least one supporting document.</p>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" (click)="prevStep()">Back</button>
+        <button
+          class="btn btn-primary"
+          (click)="nextStep()"
+          [disabled]="state.uploadedDocuments.length === 0">
+          Next: Review & Submit
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Review & Submit -->
+    <div class="step-panel" *ngIf="state.step === 4">
+      <h2>Step 4: Review & Submit</h2>
+      <p class="step-description">Review your AIT record details before final submission.</p>
+
+      <div class="review-summary">
+        <div class="review-card">
+          <h3><i class="ti ti-receipt-2"></i> Transaction Details</h3>
+          <div class="summary-row">
+            <span class="label">Reference No:</span>
+            <span class="value">{{ state.selectedTransaction?.referenceNo }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Importer:</span>
+            <span class="value">{{ state.selectedTransaction?.importerName }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">HS Code:</span>
+            <span class="value">{{ state.selectedTransaction?.hsCode }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Description:</span>
+            <span class="value">{{ state.selectedTransaction?.description }}</span>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <h3><i class="ti ti-calculator"></i> Calculation Summary</h3>
+          <div class="summary-row">
+            <span class="label">Taxable Value:</span>
+            <span class="value">৳ {{ state.formData.taxableValue | number:'1.2-2' }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">AIT Rate:</span>
+            <span class="value">{{ state.formData.aitRate }}%</span>
+          </div>
+          <div class="summary-row highlight">
+            <span class="label">Calculated AIT Amount:</span>
+            <span class="value amount">৳ {{ state.calculatedAit | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <h3><i class="ti ti-paperclip"></i> Documents</h3>
+          <p class="doc-count">{{ state.uploadedDocuments.length }} file(s) to be uploaded</p>
+          <ul class="doc-list">
+            <li *ngFor="let doc of state.uploadedDocuments">
+              <i class="ti ti-file"></i> {{ doc.name }} ({{ formatFileSize(doc.size) }})
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="confirmation-box">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="confirmAit" required>
+          <label class="form-check-label" for="confirmAit">
+            I confirm the above details are correct and authorize submission of this AIT record.
+          </label>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" (click)="prevStep()" [disabled]="isSubmitting">Back</button>
+        <button class="btn btn-success"
+                (click)="submitAit()"
+                [disabled]="isSubmitting">
+          <i class="ti ti-check"></i>
+          {{ isSubmitting ? 'Submitting...' : 'Submit AIT Record' }}
+        </button>
+      </div>
+
+      <button class="btn-save-draft" (click)="saveDraft()">
+        <i class="ti ti-bookmark"></i> Save as Draft
+      </button>
+    </div>
+
+  </div>
+
+</div>
+```
+
+## File: src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AitService } from '../../services/ait.service';
+import { AitRecord, CreateAitPayload, AitDocument } from '../../models/ait.model';
+⋮----
+interface ImportDutyRecord {
+  id: number;
+  referenceNo: string;
+  date: string;
+  importerName: string;
+  hsCode: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  taxableValue: number;
+  portOfEntry: string;
+  origin: string;
+}
+⋮----
+interface WizardState {
+  step: number;
+  selectedTransaction?: ImportDutyRecord;
+  calculatedAit?: number;
+  uploadedDocuments: File[];
+  documentIds: number[];
+  formData: Partial<CreateAitPayload>;
+  isDraft: boolean;
+  draftId?: number;
+}
+⋮----
+export class AitCreateWizardComponent implements OnInit
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+loadTransactions(): void
+⋮----
+// In real app, fetch from API endpoint for import duty records
+⋮----
+restoreDraftIfExists(): void
+⋮----
+saveDraft(): void
+⋮----
+discardDraft(): void
+⋮----
+// STEP 1: Transaction Selection
+searchTransactions(): void
+⋮----
+selectTransaction(tx: ImportDutyRecord): void
+⋮----
+// STEP 2: Calculate AIT
+calculateAit(): void
+⋮----
+onRateChange(newRate: number): void
+⋮----
+// STEP 3: Upload Documents
+onFilesSelected(files: FileList | null): void
+⋮----
+removeDocument(index: number): void
+⋮----
+formatFileSize(bytes: number): string
+⋮----
+// STEP 4: Review & Submit
+async submitAit(): Promise<void>
+⋮----
+// Step 1: Create AIT record (DRAFT)
+⋮----
+// Step 2: Upload documents if any
+⋮----
+// Step 3: Submit AIT for review (DRAFT → SUBMITTED → PENDING)
+⋮----
+// Redirect after 3 seconds
+⋮----
+// Navigation
+nextStep(): void
+⋮----
+prevStep(): void
+⋮----
+goToStep(stepNum: number): void
+⋮----
+isStepComplete(stepNum: number): boolean
+⋮----
+isStepValid(stepNum: number): boolean
+⋮----
+getStepStatus(stepNum: number): 'done' | 'active' | 'pending'
+⋮----
+getStepLabel(stepNum: number): string
+```
+
+## File: src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.css
+```css
+/* AIT Dashboard Styles - Plain CSS */
+⋮----
+.ait-dashboard {
+⋮----
+/* Page Header */
+.page-header {
+⋮----
+.page-title {
+⋮----
+.page-subtitle {
+⋮----
+.btn-create {
+⋮----
+.btn-create:hover {
+⋮----
+.btn-create i {
+⋮----
+/* Alert */
+.alert-warning {
+⋮----
+.alert-warning i {
+⋮----
+/* Loading State */
+.loading-state {
+⋮----
+.spinner {
+⋮----
+.loading-state p {
+⋮----
+/* Dashboard Content */
+.dashboard-content {
+⋮----
+/* Main container padding handled by parent */
+⋮----
+/* KPI Cards */
+.kpi-container {
+⋮----
+.kpi-card {
+⋮----
+.kpi-card:hover {
+⋮----
+.kpi-label {
+⋮----
+.kpi-label i {
+⋮----
+.kpi-value {
+⋮----
+.kpi-subtitle {
+⋮----
+/* Filter Row */
+.filter-row {
+⋮----
+.filter-select,
+⋮----
+.filter-select:hover,
+⋮----
+.filter-input {
+⋮----
+.filter-button {
+⋮----
+.filter-button i {
+⋮----
+/* Table Container */
+.table-container {
+⋮----
+/* Records Table */
+.records-table {
+⋮----
+.records-table thead {
+⋮----
+.records-table th {
+⋮----
+.records-table td {
+⋮----
+.records-table tbody tr {
+⋮----
+.records-table tbody tr:hover {
+⋮----
+.records-table tbody tr.row-highlight-warning {
+⋮----
+.records-table tbody tr.row-highlight-danger {
+⋮----
+/* Reference Link */
+.ref-link {
+⋮----
+.ref-link:hover {
+⋮----
+/* Product Info */
+.product-name {
+⋮----
+.product-code {
+⋮----
+/* Amount Column */
+.amount {
+⋮----
+/* Badge Styles */
+.badge {
+⋮----
+.b-draft {
+⋮----
+.b-submitted {
+⋮----
+.b-pending {
+⋮----
+.b-paid {
+⋮----
+.b-review {
+⋮----
+.b-approved {
+⋮----
+.b-rejected {
+⋮----
+.b-credited {
+⋮----
+.b-cancelled {
+⋮----
+/* Actions Cell */
+.actions-cell {
+⋮----
+/* Action Buttons */
+.btn-action {
+⋮----
+.btn-action:hover {
+⋮----
+.btn-action.btn-primary {
+⋮----
+.btn-action.btn-primary:hover {
+⋮----
+.btn-action:disabled {
+⋮----
+/* Empty State */
+.empty-state {
+⋮----
+.empty-state i {
+⋮----
+.empty-state p {
+⋮----
+/* Pagination Bar */
+.pagination-bar {
+⋮----
+.pagination-info {
+⋮----
+/* Pagination Controls */
+.pagination-controls {
+⋮----
+.btn-pagination {
+⋮----
+.btn-pagination:hover:not(:disabled) {
+⋮----
+.btn-pagination:disabled {
+⋮----
+.btn-page-num {
+⋮----
+.btn-page-num.active {
+⋮----
+/* Responsive Design */
+⋮----
+.records-table th,
+⋮----
+/* Screen reader only */
+.sr-only {
+```
+
+## File: src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.html
+```html
+<div class="ait-dashboard">
+  <h2 class="sr-only">Taxpayer AIT Dashboard showing summary cards and records table</h2>
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">Advance Income Tax (AIT)</div>
+      <div class="page-subtitle">Fiscal Year {{ taxpayerInfo.fiscalYear }} · TIN: {{ taxpayerInfo.tin }}</div>
+    </div>
+    <button class="btn-create" (click)="createNewAit()" title="Create a new AIT record">
+      <i class="ti ti-plus" aria-hidden="true"></i> Create New AIT
+    </button>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="alert-warning">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    {{ error }}
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading AIT records...</p>
+  </div>
+
+  <!-- Content (shown when not loading) -->
+  <div *ngIf="!loading" class="dashboard-content">
+
+    <!-- KPI cards -->
+    <div class="kpi-container">
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <i class="ti ti-file-text" aria-hidden="true"></i>
+          Total AITs
+        </div>
+        <div class="kpi-value">{{ kpis.totalCount }}</div>
+        <div class="kpi-subtitle">This fiscal year</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          Needs Action
+        </div>
+        <div class="kpi-value" [style.color]="'#BA7517'">{{ kpis.needsActionCount }}</div>
+        <div class="kpi-subtitle">Pending payment / docs</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <i class="ti ti-check" aria-hidden="true"></i>
+          Approved
+        </div>
+        <div class="kpi-value" [style.color]="'#3B6D11'">{{ kpis.approvedCount }}</div>
+        <div class="kpi-subtitle">This fiscal year</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <i class="ti ti-receipt" aria-hidden="true"></i>
+          Credited to ITR
+        </div>
+        <div class="kpi-value" [style.color]="'#0F6E56'">৳ {{ (kpis.creditedAmount | number:'1.0-0') }}</div>
+        <div class="kpi-subtitle">Successfully credited</div>
+      </div>
+    </div>
+
+    <!-- Filter row -->
+    <div class="filter-row">
+      <select class="filter-select" (change)="onStatusFilterChange($any($event.target).value)">
+        <option value="">All Statuses</option>
+        <option value="DRAFT">Draft</option>
+        <option value="SUBMITTED">Submitted</option>
+        <option value="PENDING">Payment Pending</option>
+        <option value="UNDER_REVIEW">Under Review</option>
+        <option value="APPROVED">Approved</option>
+      </select>
+
+      <select class="filter-select" (change)="onFiscalYearChange($any($event.target).value)">
+        <option value="FY 2024-2025">FY 2024-2025</option>
+        <option value="FY 2023-2024">FY 2023-2024</option>
+      </select>
+
+      <input type="text"
+        class="filter-input"
+        placeholder="Search reference or product…"
+        (change)="onStatusFilterChange($any($event.target).value)">
+
+      <button class="filter-button" title="Open advanced filters">
+        <i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Filters
+      </button>
+    </div>
+
+    <!-- Records table -->
+    <div class="table-container">
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th>Reference No.</th>
+            <th>Import Date</th>
+            <th>Product / HS Code</th>
+            <th style="text-align: right">Taxable Value</th>
+            <th style="text-align: right">AIT Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of getPaginatedRecords()" [class]="getRowHighlight(record.status)">
+            <td>
+              <a class="ref-link" (click)="viewRecord(record.id)" title="View details">
+                {{ record.aitReferenceNo || 'N/A' }}
+              </a>
+            </td>
+            <td>{{ record.createdAt | date:'short' }}</td>
+            <td>
+              <div class="product-name">{{ record.hsCode || 'N/A' }}</div>
+              <div class="product-code">{{ record.hsCode }}</div>
+            </td>
+            <td class="amount">৳ {{ (record.taxableValue | number:'1.0-0') }}</td>
+            <td class="amount" [style.color]="'#3B6D11'">৳ {{ (record.calculatedAitAmount | number:'1.0-0') }}</td>
+            <td>
+              <span [class]="'badge ' + getStatusBadgeClass(record.status)">
+                {{ getStatusLabel(record.status) }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button *ngIf="record.status === 'DRAFT'"
+                class="btn-action btn-primary"
+                (click)="continueEditingDraft(record.id)"
+                title="Continue editing draft">
+                Continue
+              </button>
+              <button *ngIf="record.status === 'PENDING'"
+                class="btn-action btn-primary"
+                (click)="uploadDocuments(record.id)"
+                title="Pay now">
+                Pay Now
+              </button>
+              <button *ngIf="record.status === 'UNDER_REVIEW'"
+                class="btn-action"
+                (click)="uploadDocuments(record.id)"
+                title="Upload documents">
+                Upload Docs
+              </button>
+              <button class="btn-action" (click)="viewRecord(record.id)" title="View details">
+                View
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty state -->
+      <div *ngIf="getPaginatedRecords().length === 0" class="empty-state">
+        <i class="ti ti-file-off" aria-hidden="true"></i>
+        <p>No AIT records found</p>
+        <button class="btn-create" (click)="createNewAit()">
+          <i class="ti ti-plus" aria-hidden="true"></i> Create New AIT
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-bar">
+      <span class="pagination-info">
+        Showing {{ getPaginationStart() }}-{{ getPaginationEnd() }} of {{ filteredRecords.length }} records
+      </span>
+      <div class="pagination-controls">
+        <button class="btn-pagination" (click)="prevPage()" [disabled]="currentPage === 1">
+          ← Prev
+        </button>
+        <button *ngFor="let page of [1]" class="btn-page-num" [class.active]="currentPage === page">
+          {{ currentPage }}
+        </button>
+        <button *ngIf="getTotalPages() > 1" class="btn-pagination" (click)="nextPage()" [disabled]="currentPage >= getTotalPages()">
+          Next →
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+```
+
+## File: src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AitService } from '../../services/ait.service';
+import { AitRecord, AitStatus } from '../../models/ait.model';
+⋮----
+interface KPIMetrics {
+  totalCount: number;
+  needsActionCount: number;
+  approvedCount: number;
+  creditedAmount: number;
+}
+⋮----
+export class AitDashboardComponent implements OnInit
+⋮----
+// Filter state
+⋮----
+// KPI metrics
+⋮----
+// Tax payer info (would come from auth service in real app)
+⋮----
+constructor(
+⋮----
+ngOnInit()
+⋮----
+private loadRecords()
+⋮----
+private calculateKPIs()
+⋮----
+applyFilters()
+⋮----
+onStatusFilterChange(status: string)
+⋮----
+onSearchChange(query: string)
+⋮----
+onFiscalYearChange(year: string)
+⋮----
+getPaginatedRecords(): AitRecord[]
+⋮----
+getTotalPages(): number
+⋮----
+getPaginationStart(): number
+⋮----
+getPaginationEnd(): number
+⋮----
+goToPage(page: number)
+⋮----
+nextPage()
+⋮----
+prevPage()
+⋮----
+getStatusBadgeClass(status: AitStatus): string
+⋮----
+getStatusLabel(status: AitStatus): string
+⋮----
+viewRecord(id: number | undefined)
+⋮----
+continueEditingDraft(id: number | undefined)
+⋮----
+createNewAit()
+⋮----
+uploadDocuments(id: number | undefined)
+⋮----
+getRowHighlight(status: AitStatus): string
+```
+
+## File: src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.css
+```css
+:root {
+⋮----
+.officer-dashboard-container {
+⋮----
+/* Header */
+.page-header {
+⋮----
+.header-content h1 {
+⋮----
+.subtitle {
+⋮----
+.btn-refresh {
+⋮----
+.btn-refresh:hover {
+⋮----
+/* KPI Grid */
+.kpi-grid {
+⋮----
+.kpi-card {
+⋮----
+.kpi-card:hover {
+⋮----
+.kpi-content {
+⋮----
+.kpi-label {
+⋮----
+.kpi-value {
+⋮----
+.kpi-description {
+⋮----
+.kpi-icon {
+⋮----
+.kpi-icon-queue {
+⋮----
+.kpi-icon-today {
+⋮----
+.kpi-icon-approved {
+⋮----
+.kpi-icon-warning {
+⋮----
+.kpi-icon-danger {
+⋮----
+/* Loading State */
+.loading-state {
+⋮----
+.spinner {
+⋮----
+/* Alerts */
+.alert {
+⋮----
+.alert-danger {
+⋮----
+.alert strong {
+⋮----
+.btn-retry {
+⋮----
+.btn-retry:hover {
+⋮----
+/* Queue Content */
+.queue-content {
+⋮----
+/* Filter Section */
+.filter-section {
+⋮----
+.filter-header {
+⋮----
+.filter-header h3 {
+⋮----
+.filter-count {
+⋮----
+/* Status Tabs */
+.status-tabs {
+⋮----
+.tab-btn {
+⋮----
+.tab-btn:hover {
+⋮----
+.tab-btn.active {
+⋮----
+/* Filter Controls */
+.filter-controls {
+⋮----
+.search-box {
+⋮----
+.search-box .form-control {
+⋮----
+.search-box i {
+⋮----
+.filter-row {
+⋮----
+.filter-group {
+⋮----
+.filter-group label {
+⋮----
+.filter-group .form-control {
+⋮----
+.sort-buttons {
+⋮----
+.sort-btn {
+⋮----
+.sort-btn:hover {
+⋮----
+.sort-btn.active {
+⋮----
+/* Queue Table */
+.queue-table-container {
+⋮----
+.queue-table {
+⋮----
+.queue-table thead {
+⋮----
+.queue-table th {
+⋮----
+.queue-table td {
+⋮----
+.record-row {
+⋮----
+.record-row:hover {
+⋮----
+.record-row .ref-no {
+⋮----
+.record-row .duty-ref {
+⋮----
+.record-row .amount {
+⋮----
+.record-row .date {
+⋮----
+.badge {
+⋮----
+.badge-draft { background-color: #e0e0e0; color: #666; }
+.badge-submitted { background-color: #e3f2fd; color: #1976d2; }
+.badge-pending { background-color: #fff3e0; color: #f57c00; }
+.badge-paid { background-color: #e8f5e9; color: #388e3c; }
+.badge-review { background-color: #fce4ec; color: #c2185b; }
+.badge-approved { background-color: #e8f5e9; color: #00aa44; }
+.badge-rejected { background-color: #ffebee; color: #dd0000; }
+.badge-credited { background-color: #e0f2f1; color: #00897b; }
+.badge-cancelled { background-color: #f5f5f5; color: #999; }
+⋮----
+.actions {
+⋮----
+.btn-action {
+⋮----
+.btn-action:hover {
+⋮----
+.btn-review {
+⋮----
+.btn-view {
+⋮----
+.btn-view:hover {
+⋮----
+/* Empty State */
+.empty-state {
+⋮----
+.empty-state i {
+⋮----
+.empty-state h3 {
+⋮----
+.empty-state p {
+⋮----
+/* Pagination */
+.pagination-bar {
+⋮----
+.pagination-info {
+⋮----
+.pagination-controls {
+⋮----
+.btn-page {
+⋮----
+.btn-page:hover:not(:disabled) {
+⋮----
+.btn-page:disabled {
+⋮----
+.page-numbers {
+⋮----
+.btn-page-number {
+⋮----
+.btn-page-number:hover:not(:disabled) {
+⋮----
+.btn-page-number.active {
+⋮----
+.btn-page-number:disabled {
+⋮----
+.page-ellipsis {
+⋮----
+/* Responsive */
+⋮----
+.queue-table th,
+```
+
+## File: src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.html
+```html
+<div class="officer-dashboard-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Officer Dashboard</h1>
+      <p class="subtitle">Manage your AIT review queue and track performance metrics</p>
+    </div>
+    <button class="btn-refresh" (click)="refreshQueue()" title="Refresh data">
+      <i class="ti ti-refresh"></i>
+    </button>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-content">
+        <p class="kpi-label">My Queue</p>
+        <h2 class="kpi-value">{{ kpis.myQueue }}</h2>
+        <p class="kpi-description">Records under review</p>
+      </div>
+      <div class="kpi-icon kpi-icon-queue">
+        <i class="ti ti-inbox"></i>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-content">
+        <p class="kpi-label">Reviewed Today</p>
+        <h2 class="kpi-value">{{ kpis.reviewedToday }}</h2>
+        <p class="kpi-description">Records processed</p>
+      </div>
+      <div class="kpi-icon kpi-icon-today">
+        <i class="ti ti-calendar"></i>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-content">
+        <p class="kpi-label">Approved (Week)</p>
+        <h2 class="kpi-value">{{ kpis.approvedWeek }}</h2>
+        <p class="kpi-description">Last 7 days</p>
+      </div>
+      <div class="kpi-icon kpi-icon-approved">
+        <i class="ti ti-circle-check"></i>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-content">
+        <p class="kpi-label">SLA Risk</p>
+        <h2 class="kpi-value">{{ kpis.slaRiskPercent }}%</h2>
+        <p class="kpi-description">Overdue records</p>
+      </div>
+      <div class="kpi-icon" [ngClass]="kpis.slaRiskPercent > 30 ? 'kpi-icon-danger' : 'kpi-icon-warning'">
+        <i class="ti ti-alert-triangle"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading queue data...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="loadError && !isLoading" class="alert alert-danger">
+    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
+    {{ loadError }}
+    <button class="btn-retry" (click)="refreshQueue()">Retry</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading" class="queue-content">
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <div class="filter-header">
+        <h3>Queue Worklist</h3>
+        <p class="filter-count">{{ filteredRecords.length }} record(s)</p>
+      </div>
+
+      <!-- Status Tabs -->
+      <div class="status-tabs">
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'ALL'"
+          (click)="setActiveTab('ALL')">
+          All Records
+        </button>
+        <button
+          *ngFor="let status of statusOptions"
+          class="tab-btn"
+          [class.active]="activeTab === status"
+          (click)="setActiveTab(status)">
+          {{ getStatusLabel(status) }}
+        </button>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="filter-controls">
+        <div class="search-box">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search by Reference No, Taxpayer Name, or Duty Ref..."
+            [(ngModel)]="searchQuery"
+            (input)="onSearchChange()">
+          <i class="ti ti-search"></i>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>From Date:</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="dateFilterFrom"
+              (change)="onDateChange()">
+          </div>
+
+          <div class="filter-group">
+            <label>To Date:</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="dateFilterTo"
+              (change)="onDateChange()">
+          </div>
+
+          <div class="filter-group">
+            <label>Sort By:</label>
+            <div class="sort-buttons">
+              <button
+                class="sort-btn"
+                [class.active]="sortBy === 'date'"
+                (click)="setSortBy('date')">
+                Date
+                <i *ngIf="sortBy === 'date'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
+              </button>
+              <button
+                class="sort-btn"
+                [class.active]="sortBy === 'amount'"
+                (click)="setSortBy('amount')">
+                Amount
+                <i *ngIf="sortBy === 'amount'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
+              </button>
+              <button
+                class="sort-btn"
+                [class.active]="sortBy === 'ref_no'"
+                (click)="setSortBy('ref_no')">
+                Ref No
+                <i *ngIf="sortBy === 'ref_no'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Records Table -->
+    <div class="queue-table-container">
+      <table class="queue-table" *ngIf="filteredRecords.length > 0">
+        <thead>
+          <tr>
+            <th width="12%">Reference No</th>
+            <th width="15%">Taxpayer</th>
+            <th width="15%">Import Duty Ref</th>
+            <th width="12%">AIT Amount</th>
+            <th width="12%">Status</th>
+            <th width="12%">Date</th>
+            <th width="12%">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of getPaginatedRecords()" class="record-row">
+            <td class="ref-no">
+              <strong>{{ record.aitReferenceNo }}</strong>
+            </td>
+            <td>{{ record.taxpayerName }}</td>
+            <td class="duty-ref">{{ record.importDutyRefNo }}</td>
+            <td class="amount">৳ {{ record.calculatedAitAmount | number:'1.2-2' }}</td>
+            <td>
+              <span class="badge" [ngClass]="getStatusColor(record.status)">
+                {{ getStatusLabel(record.status) }}
+              </span>
+            </td>
+            <td class="date">{{ formatDate(record.createdAt || '') }}</td>
+            <td class="actions">
+              <button
+                class="btn-action btn-review"
+                (click)="reviewRecord(record.id || 0)"
+                title="Review this record">
+                <i class="ti ti-edit"></i> Review
+              </button>
+              <button
+                class="btn-action btn-view"
+                (click)="viewDetails(record.id || 0)"
+                title="View details">
+                <i class="ti ti-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredRecords.length === 0" class="empty-state">
+        <i class="ti ti-inbox"></i>
+        <h3>No Records Found</h3>
+        <p>Try adjusting your search or filter criteria</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="filteredRecords.length > 0" class="pagination-bar">
+      <div class="pagination-info">
+        Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to
+        {{ Math.min(currentPage * itemsPerPage, filteredRecords.length) }}
+        of {{ filteredRecords.length }} records
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          class="btn-page"
+          [disabled]="currentPage === 1"
+          (click)="prevPage()">
+          <i class="ti ti-chevron-left"></i> Previous
+        </button>
+
+        <div class="page-numbers">
+          <button
+            *ngFor="let page of [1, 2, 3, 4, 5]"
+            class="btn-page-number"
+            [class.active]="page === currentPage"
+            [disabled]="page > getTotalPages()"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+          <span *ngIf="getTotalPages() > 5" class="page-ellipsis">...</span>
+        </div>
+
+        <button
+          class="btn-page"
+          [disabled]="currentPage === getTotalPages()"
+          (click)="nextPage()">
+          Next <i class="ti ti-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+```
+
+## File: src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AitService } from '../../services/ait.service';
+import { AitRecord, AitStatus } from '../../models/ait.model';
+⋮----
+export class OfficerDashboardComponent implements OnInit
+⋮----
+// Filters
+⋮----
+// Pagination
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+loadQueueData(): void
+⋮----
+// Fallback to mock data is handled in service
+⋮----
+calculateKPIs(): void
+⋮----
+applyFilters(): void
+⋮----
+// Tab filter
+⋮----
+// Search
+⋮----
+// Date range
+⋮----
+// Sort
+⋮----
+setActiveTab(tab: AitStatus | 'ALL'): void
+⋮----
+onSearchChange(): void
+⋮----
+onDateChange(): void
+⋮----
+setSortBy(field: 'date' | 'amount' | 'ref_no'): void
+⋮----
+// Pagination
+getPaginatedRecords(): AitRecord[]
+⋮----
+getTotalPages(): number
+⋮----
+goToPage(page: number): void
+⋮----
+nextPage(): void
+⋮----
+prevPage(): void
+⋮----
+// Actions
+reviewRecord(aitId: number): void
+⋮----
+viewDetails(aitId: number): void
+⋮----
+// Could open a modal or navigate to detail view
+⋮----
+getStatusColor(status: AitStatus): string
+⋮----
+getStatusLabel(status: AitStatus): string
+⋮----
+formatDate(dateStr: string): string
+⋮----
+// Refresh data
+refreshQueue(): void
+```
+
+## File: src/app/features/ait/pages/officer-review/officer-review.component.css
+```css
+:root {
+⋮----
+.review-container {
+⋮----
+/* Loading State */
+.loading-state {
+⋮----
+.spinner {
+⋮----
+/* Alerts */
+.alert {
+⋮----
+.alert-success {
+⋮----
+.alert-danger {
+⋮----
+.alert strong {
+⋮----
+.btn-retry {
+⋮----
+/* Header */
+.review-header {
+⋮----
+.header-left {
+⋮----
+.btn-back {
+⋮----
+.btn-back:hover {
+⋮----
+.review-header h1 {
+⋮----
+.status-badge {
+⋮----
+.status-draft { background-color: #e0e0e0; color: #666; }
+.status-submitted { background-color: #e3f2fd; color: #1976d2; }
+.status-pending { background-color: #fff3e0; color: #f57c00; }
+.status-paid { background-color: #e8f5e9; color: #388e3c; }
+.status-review { background-color: #fce4ec; color: #c2185b; }
+.status-approved { background-color: #e8f5e9; color: #00aa44; }
+.status-rejected { background-color: #ffebee; color: #dd0000; }
+.status-credited { background-color: #e0f2f1; color: #00897b; }
+.status-cancelled { background-color: #f5f5f5; color: #999; }
+⋮----
+.header-right {
+⋮----
+.header-date {
+⋮----
+/* Split Screen */
+.split-screen {
+⋮----
+.panel {
+⋮----
+.panel-header {
+⋮----
+.panel-header h2 {
+⋮----
+/* Details Panel */
+.panel-details {
+⋮----
+.detail-section {
+⋮----
+.detail-section:last-child {
+⋮----
+.detail-section h3 {
+⋮----
+.detail-grid {
+⋮----
+.detail-item {
+⋮----
+.detail-item label {
+⋮----
+.detail-item p {
+⋮----
+.detail-item .ref-no {
+⋮----
+.detail-item .code {
+⋮----
+.detail-item .amount {
+⋮----
+/* Calculation Section */
+.calc-section {
+⋮----
+.calc-display {
+⋮----
+.calc-row {
+⋮----
+.calc-row .value {
+⋮----
+.calc-divider {
+⋮----
+.calc-row.result {
+⋮----
+.calc-row.result .value {
+⋮----
+.calc-row.approved .value {
+⋮----
+/* Audit Trail */
+.audit-trail {
+⋮----
+.audit-trail::before {
+⋮----
+.audit-item {
+⋮----
+.audit-item.last {
+⋮----
+.audit-dot {
+⋮----
+.audit-content {
+⋮----
+.audit-transition {
+⋮----
+.audit-meta {
+⋮----
+.audit-reason {
+⋮----
+/* Requests Section */
+.requests-list {
+⋮----
+.request-item {
+⋮----
+.request-type {
+⋮----
+.request-docs {
+⋮----
+.request-meta {
+⋮----
+.request-status {
+⋮----
+.request-status.status-pending { color: var(--color-warning); }
+.request-status.status-fulfilled { color: var(--color-success); }
+.request-status.status-overdue { color: var(--color-danger); }
+⋮----
+/* Documents Panel */
+.panel-documents {
+⋮----
+/* Document Tabs */
+.document-tabs {
+⋮----
+.tabs-container {
+⋮----
+.tab-btn {
+⋮----
+.tab-btn:hover {
+⋮----
+.tab-btn.active {
+⋮----
+.tab-label {
+⋮----
+/* Document Viewer */
+.document-viewer {
+⋮----
+.viewer-header {
+⋮----
+.viewer-header h4 {
+⋮----
+.viewer-meta {
+⋮----
+.viewer-placeholder {
+⋮----
+.viewer-placeholder i {
+⋮----
+.viewer-placeholder p {
+⋮----
+.viewer-placeholder .hint {
+⋮----
+.btn-download {
+⋮----
+.btn-download:hover {
+⋮----
+/* Empty Docs */
+.empty-docs {
+⋮----
+.empty-docs i {
+⋮----
+.empty-docs p {
+⋮----
+/* Actions Panel */
+.actions-panel {
+⋮----
+.action-buttons {
+⋮----
+.btn {
+⋮----
+.btn:disabled {
+⋮----
+.btn-approve {
+⋮----
+.btn-approve:hover:not(:disabled) {
+⋮----
+.btn-reject {
+⋮----
+.btn-reject:hover:not(:disabled) {
+⋮----
+.btn-request {
+⋮----
+.btn-request:hover:not(:disabled) {
+⋮----
+.btn-secondary {
+⋮----
+.btn-secondary:hover:not(:disabled) {
+⋮----
+.action-error {
+⋮----
+/* Modals */
+.modal-overlay {
+⋮----
+.modal {
+⋮----
+.modal-header {
+⋮----
+.modal-header h3 {
+⋮----
+.btn-close {
+⋮----
+.btn-close:hover {
+⋮----
+.modal-body {
+⋮----
+.form-group {
+⋮----
+.form-group:last-child {
+⋮----
+.form-group label {
+⋮----
+.form-control {
+⋮----
+.form-control:focus {
+⋮----
+.form-hint {
+⋮----
+.modal-actions {
+⋮----
+.modal-actions .btn {
+⋮----
+/* Responsive */
+```
+
+## File: src/app/features/ait/pages/officer-review/officer-review.component.html
+```html
+<div class="review-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading AIT record...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="loadError && !isLoading" class="alert alert-danger">
+    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
+    {{ loadError }}
+    <button class="btn-retry" (click)="loadAitDetails()">Retry</button>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="actionSuccess" class="alert alert-success alert-dismissible">
+    <strong><i class="ti ti-circle-check"></i> Success!</strong>
+    {{ actionSuccess }}
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && ait" class="review-content">
+    <!-- Header -->
+    <div class="review-header">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">
+          <i class="ti ti-chevron-left"></i> Back to Queue
+        </button>
+        <h1>{{ ait.aitReferenceNo }}</h1>
+        <span class="status-badge" [ngClass]="getStatusColor(ait.status)">
+          {{ getStatusLabel(ait.status) }}
+        </span>
+      </div>
+      <div class="header-right">
+        <p class="header-date">{{ formatDate(ait.createdAt || '') }}</p>
+      </div>
+    </div>
+
+    <!-- Split Screen Layout -->
+    <div class="split-screen">
+      <!-- LEFT PANEL: Details -->
+      <div class="panel panel-details">
+        <div class="panel-header">
+          <h2><i class="ti ti-receipt-2"></i> AIT Details</h2>
+        </div>
+
+        <!-- Taxpayer Section -->
+        <div class="detail-section">
+          <h3>Taxpayer Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Name:</label>
+              <p>{{ ait.taxpayerName }}</p>
+            </div>
+            <div class="detail-item">
+              <label>TIN:</label>
+              <p>{{ ait.taxpayerId }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Officer Assigned:</label>
+              <p>{{ ait.assignedOfficerName || 'Not assigned' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transaction Section -->
+        <div class="detail-section">
+          <h3>Import Duty Transaction</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Duty Reference No:</label>
+              <p class="ref-no">{{ ait.importDutyRefNo }}</p>
+            </div>
+            <div class="detail-item">
+              <label>HS Code:</label>
+              <p class="code">{{ ait.hsCode }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Taxable Value:</label>
+              <p class="amount">৳ {{ ait.taxableValue | number:'1.2-2' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculation Section -->
+        <div class="detail-section calc-section">
+          <h3>AIT Calculation</h3>
+          <div class="calc-display">
+            <div class="calc-row">
+              <span>Taxable Value:</span>
+              <span class="value">৳ {{ ait.taxableValue | number:'1.2-2' }}</span>
+            </div>
+            <div class="calc-row">
+              <span>Rate:</span>
+              <span class="value">{{ ait.aitRate }}%</span>
+            </div>
+            <div class="calc-divider"></div>
+            <div class="calc-row result">
+              <span>Calculated AIT:</span>
+              <span class="value">৳ {{ ait.calculatedAitAmount | number:'1.2-2' }}</span>
+            </div>
+            <div *ngIf="ait.approvedAitAmount" class="calc-row approved">
+              <span>Approved Amount:</span>
+              <span class="value">৳ {{ ait.approvedAitAmount | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Trail Section -->
+        <div class="detail-section audit-section">
+          <h3>Status History</h3>
+          <div class="audit-trail">
+            <div *ngFor="let event of ait.statusHistory; let i = last" class="audit-item" [class.last]="i">
+              <div class="audit-dot"></div>
+              <div class="audit-content">
+                <p class="audit-transition">
+                  <strong>{{ event.fromStatus }}</strong> → <strong>{{ event.toStatus }}</strong>
+                </p>
+                <p class="audit-meta">
+                  by {{ event.changedBy }} on {{ formatDate(event.changedAt) }}
+                </p>
+                <p class="audit-reason" *ngIf="event.changeReason">{{ event.changeReason }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Requests Section -->
+        <div *ngIf="pendingRequests.length > 0" class="detail-section requests-section">
+          <h3>Pending Document Requests</h3>
+          <div class="requests-list">
+            <div *ngFor="let req of pendingRequests" class="request-item">
+              <p class="request-type"><strong>{{ req.requestType }}</strong></p>
+              <p class="request-docs">Documents: {{ req.requestedDocuments }}</p>
+              <p class="request-meta">Deadline: {{ formatDate(req.deadline) }}</p>
+              <p class="request-status" [ngClass]="'status-' + req.status.toLowerCase()">
+                {{ req.status }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: Documents & Actions -->
+      <div class="panel panel-documents">
+        <div class="panel-header">
+          <h2><i class="ti ti-paperclip"></i> Documents ({{ documents.length }})</h2>
+        </div>
+
+        <!-- Document Tabs -->
+        <div *ngIf="documents.length > 0" class="document-tabs">
+          <div class="tabs-container">
+            <button
+              *ngFor="let doc of documents"
+              class="tab-btn"
+              [class.active]="activeDocTabId === doc.id"
+              (click)="selectDocument(doc)"
+              title="{{ doc.fileName }}">
+              <i class="ti ti-file"></i>
+              <span class="tab-label">{{ doc.fileName | slice:0:20 }}{{ doc.fileName.length > 20 ? '...' : '' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Document Viewer -->
+        <div *ngIf="selectedDocument" class="document-viewer">
+          <div class="viewer-header">
+            <h4>{{ selectedDocument.fileName }}</h4>
+            <p class="viewer-meta">
+              {{ formatFileSize(selectedDocument.fileSize) }} • {{ selectedDocument.fileType }} • {{ formatDate(selectedDocument.uploadedAt) }}
+            </p>
+          </div>
+
+          <div class="viewer-placeholder">
+            <i class="ti ti-file"></i>
+            <p>Document preview not available in browser</p>
+            <p class="hint">{{ selectedDocument.fileName }}</p>
+            <button class="btn-download" title="Download document">
+              <i class="ti ti-download"></i> Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty Documents -->
+        <div *ngIf="documents.length === 0" class="empty-docs">
+          <i class="ti ti-inbox"></i>
+          <p>No documents uploaded</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions-panel">
+          <div class="action-buttons">
+            <button
+              class="btn btn-approve"
+              (click)="openApproveModal()"
+              [disabled]="!canApprove() || actionInProgress !== null">
+              <i class="ti ti-circle-check"></i> Approve
+            </button>
+
+            <button
+              class="btn btn-reject"
+              (click)="openRejectModal()"
+              [disabled]="!canReject() || actionInProgress !== null">
+              <i class="ti ti-circle-x"></i> Reject
+            </button>
+
+            <button
+              class="btn btn-request"
+              (click)="openRequestModal()"
+              [disabled]="!canRequestCorrection() || actionInProgress !== null">
+              <i class="ti ti-send"></i> Request Correction
+            </button>
+          </div>
+
+          <p *ngIf="actionError" class="action-error">
+            <i class="ti ti-alert-circle"></i> {{ actionError }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- APPROVE MODAL -->
+    <div *ngIf="showApproveModal" class="modal-overlay" (click)="closeApproveModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Approve AIT Record</h3>
+          <button class="btn-close" (click)="closeApproveModal()">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Approved AIT Amount (৳)</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="approveForm.approvedAmount"
+              step="0.01"
+              min="0">
+            <p class="form-hint">Current calculated amount: ৳ {{ ait.calculatedAitAmount | number:'1.2-2' }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Approval Notes</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="approveForm.approvalNotes"
+              rows="3"
+              placeholder="Optional notes about this approval"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeApproveModal()" [disabled]="actionInProgress !== null">
+            Cancel
+          </button>
+          <button
+            class="btn btn-approve"
+            (click)="submitApprove()"
+            [disabled]="actionInProgress !== null">
+            {{ actionInProgress === 'approve' ? 'Approving...' : 'Approve' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REJECT MODAL -->
+    <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeRejectModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Reject AIT Record</h3>
+          <button class="btn-close" (click)="closeRejectModal()">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Rejection Reason *</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="rejectForm.rejectionReason"
+              rows="4"
+              placeholder="Please explain why this AIT record is being rejected"
+              required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeRejectModal()" [disabled]="actionInProgress !== null">
+            Cancel
+          </button>
+          <button
+            class="btn btn-reject"
+            (click)="submitReject()"
+            [disabled]="actionInProgress !== null || !rejectForm.rejectionReason.trim()">
+            {{ actionInProgress === 'reject' ? 'Rejecting...' : 'Reject' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUEST CORRECTION MODAL -->
+    <div *ngIf="showRequestModal" class="modal-overlay" (click)="closeRequestModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Request Document Correction</h3>
+          <button class="btn-close" (click)="closeRequestModal()">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Request Type</label>
+            <select class="form-control" [(ngModel)]="requestForm.requestType">
+              <option value="INFO">Information Request</option>
+              <option value="MODIFICATION">Modification Request</option>
+              <option value="CLARIFICATION">Clarification Request</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Documents Required *</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="requestForm.requestedDocuments"
+              rows="2"
+              placeholder="List the documents or information needed"
+              required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Reason for Request</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="requestForm.requestReason"
+              rows="2"
+              placeholder="Explain why this information is needed"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Deadline</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="requestForm.deadline">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeRequestModal()" [disabled]="actionInProgress !== null">
+            Cancel
+          </button>
+          <button
+            class="btn btn-request"
+            (click)="submitRequest()"
+            [disabled]="actionInProgress !== null || !requestForm.requestedDocuments.trim()">
+            {{ actionInProgress === 'request' ? 'Sending...' : 'Send Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+```
+
+## File: src/app/features/ait/pages/officer-review/officer-review.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AitService } from '../../services/ait.service';
+import { AitDetailResponse, AitDocument, DocumentRequest } from '../../models/ait.model';
+⋮----
+export class OfficerReviewComponent implements OnInit
+⋮----
+// Actions state
+⋮----
+// Modals
+⋮----
+// Form data
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+loadAitDetails(): void
+⋮----
+selectDocument(doc: AitDocument): void
+⋮----
+// Approve Action
+openApproveModal(): void
+⋮----
+closeApproveModal(): void
+⋮----
+submitApprove(): void
+⋮----
+// this.aitService.approve(this.ait.id, this.approveForm.approvedAmount, this.approveForm.approvalNotes).subscribe({
+//   next: (result) => {
+//     this.actionSuccess = 'AIT record approved successfully!';
+//     this.actionInProgress = null;
+//     this.showApproveModal = false;
+//     setTimeout(() => {
+//       this.router.navigate(['/aits/officer-dashboard']);
+//     }, 2000);
+//   },
+//   error: (err) => {
+//     this.actionError = err?.message || 'Failed to approve AIT. Please try again.';
+//     this.actionInProgress = null;
+//   }
+// });
+⋮----
+// Reject Action
+openRejectModal(): void
+⋮----
+closeRejectModal(): void
+⋮----
+submitReject(): void
+⋮----
+// this.aitService.reject(this.ait.id, this.rejectForm.rejectionReason).subscribe({
+//   next: (result) => {
+//     this.actionSuccess = 'AIT record rejected successfully!';
+//     this.actionInProgress = null;
+//     this.showRejectModal = false;
+//     setTimeout(() => {
+//       this.router.navigate(['/aits/officer-dashboard']);
+//     }, 2000);
+//   },
+//   error: (err) => {
+//     this.actionError = err?.message || 'Failed to reject AIT. Please try again.';
+//     this.actionInProgress = null;
+//   }
+// });
+⋮----
+// Request Correction Action
+openRequestModal(): void
+⋮----
+closeRequestModal(): void
+⋮----
+submitRequest(): void
+⋮----
+// Helpers
+getStatusColor(status: string): string
+⋮----
+getStatusLabel(status: string): string
+⋮----
+formatDate(dateStr: string): string
+⋮----
+formatFileSize(bytes: number): string
+⋮----
+goBack(): void
+⋮----
+canApprove(): boolean
+⋮----
+canReject(): boolean
+⋮----
+canRequestCorrection(): boolean
+```
+
+## File: src/app/features/ait/services/ait.service.ts
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { API_ENDPOINTS } from '../../../core/constants/api.constants';
+import { BaseApiService } from '../../../core/services/base-api.service';
+import {
+  AitRecord,
+  AitDetailResponse,
+  CreateAitPayload,
+  ApproveAitPayload,
+  RejectAitPayload,
+  CreditAitPayload,
+  AitDocument,
+  DocumentRequest,
+} from '../models/ait.model';
+import { MockAitDataService } from './mock-ait-data.service';
+⋮----
+export class AitService extends BaseApiService
+⋮----
+constructor(
+    http: HttpClient,
+    private mockData: MockAitDataService
+)
+⋮----
+// LIST all AITs (role-based filtering on backend)
+getAll(): Observable<AitRecord[]>
+⋮----
+// GET single AIT with detail
+getById(id: number): Observable<AitDetailResponse>
+⋮----
+// CREATE new AIT (draft)
+create(payload: CreateAitPayload): Observable<AitRecord>
+⋮----
+// UPDATE existing AIT (draft only)
+update(id: number, payload: Partial<CreateAitPayload>): Observable<AitRecord>
+⋮----
+// DELETE AIT
+//  delete(id: number): Observable<void> {
+//   return this.delete<void>(API_ENDPOINTS.AITS.DELETE(id)).pipe(
+//     catchError(err => this.handleWriteError(err, 'Failed to delete AIT'))
+//   );
+// }
+⋮----
+// SUBMIT AIT for review
+submit(id: number, attachmentIds: number[]): Observable<AitRecord>
+⋮----
+// OFFICER WORKFLOWS
+approve(id: number, payload: ApproveAitPayload): Observable<AitRecord>
+⋮----
+reject(id: number, payload: RejectAitPayload): Observable<AitRecord>
+⋮----
+credit(id: number, payload: CreditAitPayload): Observable<AitRecord>
+⋮----
+// OFFICER QUEUES
+getPendingQueue(): Observable<AitRecord[]>
+⋮----
+getMyAssignedQueue(): Observable<AitRecord[]>
+⋮----
+// DOCUMENT MANAGEMENT
+getDocuments(aitId: number): Observable<AitDocument[]>
+⋮----
+uploadDocument(aitId: number, file: File): Observable<AitDocument>
+⋮----
+deleteDocument(aitId: number, docId: number): Observable<void>
+⋮----
+// DOCUMENT REQUESTS
+createDocumentRequest(aitId: number, request: Partial<DocumentRequest>): Observable<DocumentRequest>
+⋮----
+getDocumentRequests(aitId: number): Observable<DocumentRequest[]>
+⋮----
+// ERROR HANDLING
+private handleReadError<T>(err: HttpErrorResponse, fallback: T): Observable<T>
+⋮----
+private handleWriteError(err: HttpErrorResponse, message: string): Observable<never>
+```
+
+## File: src/app/features/ait/services/mock-ait-data.service.ts
+```typescript
+import { Injectable } from '@angular/core';
+import { AitRecord, AitDetailResponse, StatusHistoryEvent, AitDocument, DocumentRequest } from '../models/ait.model';
+⋮----
+export class MockAitDataService
+⋮----
+getMockRecords(): AitRecord[]
+⋮----
+getMockDetail(id: number): AitDetailResponse
+⋮----
+getMockStatusHistory(aitId: number): StatusHistoryEvent[]
+⋮----
+getMockDocuments(aitId: number): AitDocument[]
+⋮----
+getMockPendingRequests(aitId: number): DocumentRequest[]
+⋮----
+getMockPendingQueue(): AitRecord[]
+⋮----
+getMockMyQueue(): AitRecord[]
+⋮----
+private getEmptyDetail(): AitDetailResponse
+```
+
 ## File: src/app/app.component.css
 ```css
 * {
@@ -731,34 +3284,6 @@ export class ActivityLogsModule
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 ⋮----
 import { ActivityLogsListComponent } from './activity-logs-list.component';
-```
-
-## File: src/app/features/ait/pages/ait-create/ait-create.component.spec.ts
-```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-⋮----
-import { AitCreateComponent } from './ait-create.component';
-```
-
-## File: src/app/features/ait/pages/ait-edit/ait-edit.component.spec.ts
-```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-⋮----
-import { AitEditComponent } from './ait-edit.component';
-```
-
-## File: src/app/features/ait/pages/ait-list/ait-list.component.spec.ts
-```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-⋮----
-import { AitListComponent } from './ait-list.component';
-```
-
-## File: src/app/features/ait/pages/ait-view/ait-view.component.spec.ts
-```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-⋮----
-import { AitViewComponent } from './ait-view.component';
 ```
 
 ## File: src/app/features/audit-management/audit/audit-routing.module.ts
@@ -7300,20 +9825,6 @@ keys(): string[];
 </div>
 ```
 
-## File: src/app/features/ait/pages/ait-view/ait-view.component.css
-```css
-.ait-calc-label {
-.ait-amount-big {
-.ait-rate-sub {
-.fy-pill {
-⋮----
-/* Source badge inside colored header */
-.src-badge-header {
-⋮----
-/* Source badge in detail body */
-.src-badge-detail {
-```
-
 ## File: src/app/features/audit-management/pages/audit-create/audit-create.component.css
 ```css
 .section-icon.teal {
@@ -9206,53 +11717,6 @@ export class PaymentModule { }
   </div>
 
 </ng-container>
-```
-
-## File: src/app/features/public-registration/register/register.component.ts
-```typescript
-import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-import { Router } from '@angular/router';
-⋮----
-import {
-  AccountCategory,
-  emptyState,
-  RegistrationResponse,
-  RegistrationState,
-  UserRegistrationRequest,
-} from '../../../models/registration.model';
-import { API_ENDPOINTS } from '../../../core/constants/api.constants';
-import { ToastService } from '../../../shared/toast/toast.service';
-export type WizardStep = 1 | 2 | 3 | 4 | 5;
-⋮----
-export class RegisterComponent implements OnDestroy
-⋮----
-constructor(
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Step event handlers ───────────────────────────────────────────────────
-⋮----
-onStep1Next(partial: Partial<RegistrationState>): void
-⋮----
-onStep2Next(partial: Partial<RegistrationState>): void
-⋮----
-onStep3Next(partial: Partial<RegistrationState>): void
-⋮----
-onBack(targetStep: WizardStep): void
-⋮----
-// ── Final submit ──────────────────────────────────────────────────────────
-⋮----
-onSubmit(): void
-⋮----
-rjscNo:               this.state.rjscNo || undefined,  // Govt org-এ optional
-⋮----
-this.currentStep = 5; // show success screen
-⋮----
-// 409 (duplicate email/NID/RJSC) is caught by the global AuthInterceptor
-// and already shows a toast. Only handle 400 locally.
 ```
 
 ## File: src/app/features/public-registration/steps/step1-account-type/reg-step-account-type/reg-step-account-type.component.css
@@ -12221,201 +14685,12 @@ private handleError(error: any): Observable<never>
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from 'src/app/core/guards/auth.guard';
-import { AitListComponent }   from '../pages/ait-list/ait-list.component';
-import { AitCreateComponent } from '../pages/ait-create/ait-create.component';
-import { AitEditComponent } from '../pages/ait-edit/ait-edit.component';
+import { AitDashboardComponent } from '../pages/ait-dashboard/ait-dashboard.component';
+import { AitCreateWizardComponent } from '../pages/ait-create-wizard/ait-create-wizard.component';
+import { OfficerDashboardComponent } from '../pages/officer-dashboard/officer-dashboard.component';
+import { OfficerReviewComponent } from '../pages/officer-review/officer-review.component';
 ⋮----
 export class AitRoutingModule
-```
-
-## File: src/app/features/ait/pages/ait-create/ait-create.component.css
-```css
-.section-icon.purple {
-.section-icon.teal {
-.ait-calc-box {
-.acb-row {
-.acb-label {
-.acb-label.bold {
-.acb-value {
-.acb-value.rate {
-.acb-value.total {
-.acb-divider {
-.ait-total-row {
-```
-
-## File: src/app/features/ait/pages/ait-edit/ait-edit.component.css
-```css
-
-```
-
-## File: src/app/features/ait/pages/ait-edit/ait-edit.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>Edit AIT Record</h4>
-    <p>Update advance income tax deduction details.</p>
-  </div>
-  <button class="btn-back" (click)="onCancel()"><i class="bi bi-arrow-left"></i> Back to View</button>
-</div>
-
-<div class="form-card" *ngIf="!isLoading">
-
-  <div class="edit-banner">
-    <i class="bi bi-pencil-square"></i>
-    Editing: <strong>{{ aitRef }}</strong>
-    <span class="banner-sub">{{ taxpayerName }}</span>
-  </div>
-
-  <!-- Section 1 -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon"><i class="bi bi-percent"></i></div>
-      <div><h6 class="section-title">AIT Details</h6><span class="section-sub">Source, amount and backend-owned rate preview</span></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Source Type</label>
-        <div class="input-wrap"><i class="bi bi-diagram-3-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.sourceType" (ngModelChange)="onSourceChange()">
-            <option *ngFor="let s of sourceTypes" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tax Structure</label>
-        <div class="input-wrap"><i class="bi bi-sliders input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.taxStructureId"
-            (ngModelChange)="onStructureChange()">
-            <option [value]="0">{{ availableStructures.length === 0 ? 'Select source first' : 'Select Structure' }}</option>
-            <option *ngFor="let s of availableStructures" [value]="s.id">{{ s.taxName }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">Gross Amount (৳)</label>
-        <div class="input-wrap"><i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.grossAmount"
-            (ngModelChange)="onGrossAmountChange()" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">AIT Rate (%) <span class="auto-label">Auto</span></label>
-        <div class="input-wrap"><i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input auto-field" [value]="selectedAitRate" readonly />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">AIT Amount Preview <span class="auto-label">Auto</span></label>
-        <div class="input-wrap"><i class="bi bi-calculator input-icon"></i>
-          <input type="number" class="form-input auto-field" [value]="previewAitAmount" readonly />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 2 -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon teal"><i class="bi bi-calendar-event-fill"></i></div>
-      <div><h6 class="section-title">Deduction & Status</h6><span class="section-sub">Who deducted, dates, deposit proof and status</span></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">Deducted By</label>
-        <div class="input-wrap"><i class="bi bi-building input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.deductedBy" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Fiscal Year</label>
-        <div class="input-wrap"><i class="bi bi-calendar-range input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.fiscalYear">
-            <option *ngFor="let fy of fiscalYears" [value]="fy">{{ fy }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Deduction Date</label>
-        <div class="input-wrap"><i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.deductionDate" [max]="maxDate" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Deposit Date</label>
-        <div class="input-wrap"><i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.depositDate" [max]="maxDate" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.status" (ngModelChange)="onStatusChange()">
-            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label" [class.required]="requiresDepositProof">Challan No</label>
-        <div class="input-wrap"><i class="bi bi-receipt input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.challanNumber" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label" [class.required]="requiresDepositProof">Bank Name</label>
-        <div class="input-wrap"><i class="bi bi-bank input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.bankName" />
-        </div>
-      </div>
-      <div class="form-group full-width">
-        <label class="form-label">Attachment URL</label>
-        <div class="input-wrap"><i class="bi bi-paperclip input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.attachmentUrl" />
-        </div>
-      </div>
-      <div class="form-group full-width">
-        <label class="form-label">Remarks</label>
-        <div class="input-wrap"><i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea" [(ngModel)]="form.remarks" rows="2"></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"><i class="bi bi-x-lg"></i> Cancel</button>
-    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
-      <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update AIT Record</span>
-      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
-    </button>
-  </div>
-
-</div>
-```
-
-## File: src/app/features/ait/pages/ait-list/ait-list.component.css
-```css
-.ait-ref {
-⋮----
-/* Source Type */
-.src-badge {
-.src-salary {
-.src-import {
-.src-contract {
-.src-interest {
-.src-dividend {
-.src-commission {
-.src-export {
-⋮----
-/* Rate & FY */
-.ait-amount {
-.rate-chip {
-.fy-badge {
-.amt-cell {
-⋮----
-.stat-card.highlight {
-.data-table {
 ```
 
 ## File: src/app/features/audit-management/pages/audit-create/audit-create.component.html
@@ -16049,6 +18324,50 @@ export class PaymentRoutingModule { }
 </div>
 ```
 
+## File: src/app/features/public-registration/register/register.component.ts
+```typescript
+import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { Router } from '@angular/router';
+⋮----
+import {
+  AccountCategory,
+  emptyState,
+  RegistrationResponse,
+  RegistrationState,
+  UserRegistrationRequest,
+} from '../../../models/registration.model';
+import { API_ENDPOINTS } from '../../../core/constants/api.constants';
+import { ToastService } from '../../../shared/toast/toast.service';
+export type WizardStep = 1 | 2 | 3 | 4 | 5;
+⋮----
+export class RegisterComponent implements OnDestroy
+⋮----
+constructor(
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Step event handlers ───────────────────────────────────────────────────
+⋮----
+onStep1Next(partial: Partial<RegistrationState>): void
+⋮----
+onStep2Next(partial: Partial<RegistrationState>): void
+⋮----
+onStep3Next(partial: Partial<RegistrationState>): void
+⋮----
+onBack(targetStep: WizardStep): void
+⋮----
+// ── Final submit ──────────────────────────────────────────────────────────
+⋮----
+onSubmit(): void
+⋮----
+rjscNo:               this.state.rjscNo || undefined,  // Govt org-এ optional
+⋮----
+this.isSubmitting = false; // ← error হলে reset
+```
+
 ## File: src/app/features/public-registration/steps/step2-credentials/reg-step-credentials/reg-step-credentials.component.ts
 ```typescript
 import {
@@ -16098,110 +18417,6 @@ get hasMinLength(): boolean
 get passwordMismatch(): boolean
 ⋮----
 onNext(): void
-```
-
-## File: src/app/features/public-registration/steps/step4-review/reg-step-review/reg-step-review.component.html
-```html
-<div class="step-body">
-
-  <div class="step-intro">
-    <h3 class="step-heading">Review your details</h3>
-    <p class="step-sub">Please confirm everything below before submitting. Go back to correct any mistakes.</p>
-  </div>
-
-  <div class="review-grid">
-
-    <!-- Account Type -->
-    <div class="review-card">
-      <div class="review-card-header">
-        <i class="bi bi-person-badge-fill"></i>
-        <span>Account Type</span>
-      </div>
-      <div class="review-row">
-        <span class="review-label">Type</span>
-        <span class="review-value type-pill" [class.individual]="isIndividual" [class.company]="!isIndividual">
-          <i [class]="isIndividual ? 'bi bi-person-fill' : 'bi bi-building-fill'"></i>
-          {{ state.accountCategory }}
-        </span>
-      </div>
-    </div>
-
-    <!-- Credentials -->
-    <div class="review-card">
-      <div class="review-card-header">
-        <i class="bi bi-lock-fill"></i>
-        <span>Account Credentials</span>
-      </div>
-      <div class="review-row"><span class="review-label">Full Name</span><span class="review-value fw-bold">{{ state.fullName }}</span></div>
-      <div class="review-row"><span class="review-label">Email</span><span class="review-value">{{ state.email }}</span></div>
-      <div class="review-row"><span class="review-label">Phone</span><span class="review-value">{{ state.phone }}</span></div>
-      <div class="review-row"><span class="review-label">Password</span><span class="review-value pass-mask">{{ maskedPassword }}</span></div>
-    </div>
-
-    <!-- Identity — Individual -->
-    <div class="review-card" *ngIf="isIndividual">
-      <div class="review-card-header">
-        <i class="bi bi-credit-card-2-front-fill"></i>
-        <span>Identity (Individual)</span>
-      </div>
-      <div class="review-row"><span class="review-label">NID Number</span><span class="review-value code-badge">{{ state.nid }}</span></div>
-      <div class="review-row"><span class="review-label">Date of Birth</span><span class="review-value">{{ state.dateOfBirth }}</span></div>
-      <div class="review-row"><span class="review-label">Gender</span><span class="review-value">{{ state.gender }}</span></div>
-      <div class="review-row" *ngIf="state.profession">
-        <span class="review-label">Profession</span>
-        <span class="review-value">{{ state.profession }}</span>
-      </div>
-    </div>
-
-    <!-- Identity — Company -->
-    <div class="review-card" *ngIf="!isIndividual">
-      <div class="review-card-header">
-        <i class="bi bi-building-fill"></i>
-        <span>Identity (Company)</span>
-      </div>
-      <div class="review-row"><span class="review-label">Company Name</span><span class="review-value fw-bold">{{ state.companyName }}</span></div>
-      <div class="review-row"><span class="review-label">RJSC No.</span><span class="review-value code-badge">{{ state.rjscNo }}</span></div>
-      <div class="review-row"><span class="review-label">Incorporation Date</span><span class="review-value">{{ state.incorporationDate }}</span></div>
-      <div class="review-row" *ngIf="state.natureOfBusiness">
-        <span class="review-label">Nature of Business</span>
-        <span class="review-value">{{ state.natureOfBusiness }}</span>
-      </div>
-      <div class="review-row"><span class="review-label">Authorized Person</span><span class="review-value">{{ state.authorizedPersonName }}</span></div>
-      <div class="review-row"><span class="review-label">Authorized NID</span><span class="review-value code-badge">{{ state.authorizedPersonNid }}</span></div>
-    </div>
-
-  </div>
-
-  <!-- What happens next -->
-  <div class="submit-info-box">
-    <div class="sib-icon"><i class="bi bi-lightning-charge-fill"></i></div>
-    <div>
-      <p class="sib-title">What happens when you submit?</p>
-      <ul class="sib-list">
-        <li><i class="bi bi-check-circle-fill"></i> Your portal account is created with TAXPAYER access</li>
-        <li><i class="bi bi-check-circle-fill"></i> A verification code will be sent to your email</li>
-        <li><i class="bi bi-check-circle-fill"></i> After verification, an officer will review your application</li>
-        <li><i class="bi bi-check-circle-fill"></i> You will receive an approval or rejection email within 3-5 business days</li>
-        <li><i class="bi bi-check-circle-fill"></i> TIN will be issued upon approval</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="step-actions">
-    <button type="button" class="btn-back" (click)="back.emit()" [disabled]="isSubmitting">
-      <i class="bi bi-arrow-left"></i> Back
-    </button>
-    <button type="button" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
-      <span *ngIf="!isSubmitting">
-        <i class="bi bi-send-fill"></i> Submit Registration
-      </span>
-      <span *ngIf="isSubmitting">
-        <span class="spinner-border spinner-border-sm me-2"></span> Registering...
-      </span>
-    </button>
-  </div>
-
-</div>
 ```
 
 ## File: src/app/features/public-registration/steps/step5-success/reg-step-success/reg-step-success.component.ts
@@ -18414,24 +20629,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 export class SharedModule
 ```
 
-## File: src/environments/environment.ts
-```typescript
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
-⋮----
-/** When true, failed /auth/login requests can fall back to demo users (dev only). */
-⋮----
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
-```
-
 ## File: src/app/core/guards/auth.guard.ts
 ```typescript
 import { Injectable } from '@angular/core';
@@ -18505,70 +20702,18 @@ exportLogs(): void
 ```typescript
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AitRoutingModule } from './ait-routing.module';
-import { AitListComponent }   from '../pages/ait-list/ait-list.component';
-import { AitCreateComponent } from '../pages/ait-create/ait-create.component';
-import { AitEditComponent } from '../pages/ait-edit/ait-edit.component';
-import { AitViewComponent } from '../pages/ait-view/ait-view.component';
+import { OfficerDashboardComponent } from '../pages/officer-dashboard/officer-dashboard.component';
+import { KPICardsComponent } from '../components/kpi-cards/kpi-cards.component';
+import { RecordsTableComponent } from '../components/records-table/records-table.component';
+import { StatusBadgeComponent } from '../components/status-badge/status-badge.component';
+import { OfficerReviewComponent } from '../pages/officer-review/officer-review.component';
+import { AitDashboardComponent } from '../pages/ait-dashboard/ait-dashboard.component';
+import { AitCreateWizardComponent } from '../pages/ait-create-wizard/ait-create-wizard.component';
 ⋮----
 export class AitModule
-```
-
-## File: src/app/features/ait/pages/ait-view/ait-view.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Ait } from '../../../../models/ait.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class AitViewComponent implements OnInit {
-⋮----
-// ────────────────── State ──────────────────────
-⋮----
-// ──────────────────── Constructor ───────────────────────
-⋮----
-constructor(
-⋮----
-// ────────────────────── Lifecycle ──────────────────────
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ────────────────────── Initialization  ─────────────────────
-⋮----
-private initializeAit(): void
-⋮----
-private getValidAitId(): number | null
-⋮----
-private handleInvalidId(): void
-⋮----
-// ───────────────────────  Data Fetching ──────────────────
-⋮----
-private fetchAit(): void
-⋮----
-private handleFetchSuccess(data: Ait): void
-⋮----
-private handleFetchError(err: unknown): void
-⋮----
-// ───────────────────── Navigation ────────────────────────
-⋮----
-onEdit(): void
-⋮----
-onBack(): void
-⋮----
-// ─────────────────────  UI Helpers  ───────────────────────
-⋮----
-getStatusClass(s: string): string
-⋮----
-getSourceClass(s: string): string
-⋮----
-formatCurrency(amount: number): string
 ```
 
 ## File: src/app/features/audit-management/pages/audit-edit/audit-edit.component.html
@@ -20593,6 +22738,110 @@ this.selectedTypeId = null; // reset when category changes
 selectType(type: TaxpayerType): void
 ⋮----
 onNext(): void
+```
+
+## File: src/app/features/public-registration/steps/step4-review/reg-step-review/reg-step-review.component.html
+```html
+<div class="step-body">
+
+  <div class="step-intro">
+    <h3 class="step-heading">Review your details</h3>
+    <p class="step-sub">Please confirm everything below before submitting. Go back to correct any mistakes.</p>
+  </div>
+
+  <div class="review-grid">
+
+    <!-- Account Type -->
+    <div class="review-card">
+      <div class="review-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Account Type</span>
+      </div>
+      <div class="review-row">
+        <span class="review-label">Type</span>
+        <span class="review-value type-pill" [class.individual]="isIndividual" [class.company]="!isIndividual">
+          <i [class]="isIndividual ? 'bi bi-person-fill' : 'bi bi-building-fill'"></i>
+          {{ state.accountCategory }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Credentials -->
+    <div class="review-card">
+      <div class="review-card-header">
+        <i class="bi bi-lock-fill"></i>
+        <span>Account Credentials</span>
+      </div>
+      <div class="review-row"><span class="review-label">Full Name</span><span class="review-value fw-bold">{{ state.fullName }}</span></div>
+      <div class="review-row"><span class="review-label">Email</span><span class="review-value">{{ state.email }}</span></div>
+      <div class="review-row"><span class="review-label">Phone</span><span class="review-value">{{ state.phone }}</span></div>
+      <div class="review-row"><span class="review-label">Password</span><span class="review-value pass-mask">{{ maskedPassword }}</span></div>
+    </div>
+
+    <!-- Identity — Individual -->
+    <div class="review-card" *ngIf="isIndividual">
+      <div class="review-card-header">
+        <i class="bi bi-credit-card-2-front-fill"></i>
+        <span>Identity (Individual)</span>
+      </div>
+      <div class="review-row"><span class="review-label">NID Number</span><span class="review-value code-badge">{{ state.nid }}</span></div>
+      <div class="review-row"><span class="review-label">Date of Birth</span><span class="review-value">{{ state.dateOfBirth }}</span></div>
+      <div class="review-row"><span class="review-label">Gender</span><span class="review-value">{{ state.gender }}</span></div>
+      <div class="review-row" *ngIf="state.profession">
+        <span class="review-label">Profession</span>
+        <span class="review-value">{{ state.profession }}</span>
+      </div>
+    </div>
+
+    <!-- Identity — Company -->
+    <div class="review-card" *ngIf="!isIndividual">
+      <div class="review-card-header">
+        <i class="bi bi-building-fill"></i>
+        <span>Identity (Company)</span>
+      </div>
+      <div class="review-row"><span class="review-label">Company Name</span><span class="review-value fw-bold">{{ state.companyName }}</span></div>
+      <div class="review-row"><span class="review-label">RJSC No.</span><span class="review-value code-badge">{{ state.rjscNo }}</span></div>
+      <div class="review-row"><span class="review-label">Incorporation Date</span><span class="review-value">{{ state.incorporationDate }}</span></div>
+      <div class="review-row" *ngIf="state.natureOfBusiness">
+        <span class="review-label">Nature of Business</span>
+        <span class="review-value">{{ state.natureOfBusiness }}</span>
+      </div>
+      <div class="review-row"><span class="review-label">Authorized Person</span><span class="review-value">{{ state.authorizedPersonName }}</span></div>
+      <div class="review-row"><span class="review-label">Authorized NID</span><span class="review-value code-badge">{{ state.authorizedPersonNid }}</span></div>
+    </div>
+
+  </div>
+
+  <!-- What happens next -->
+  <div class="submit-info-box">
+    <div class="sib-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+    <div>
+      <p class="sib-title">What happens when you submit?</p>
+      <ul class="sib-list">
+        <li><i class="bi bi-check-circle-fill"></i> Your portal account is created with TAXPAYER access</li>
+        <li><i class="bi bi-check-circle-fill"></i> A verification code will be sent to your email</li>
+        <li><i class="bi bi-check-circle-fill"></i> After verification, an officer will review your application</li>
+        <li><i class="bi bi-check-circle-fill"></i> You will receive an approval or rejection email within 3-5 business days</li>
+        <li><i class="bi bi-check-circle-fill"></i> TIN will be issued upon approval</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button type="button" class="btn-back" (click)="back.emit()" [disabled]="isSubmitting">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button type="button" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
+      <span *ngIf="!isSubmitting">
+        <i class="bi bi-send-fill"></i> Submit Registration
+      </span>
+      <span *ngIf="isSubmitting">
+        <span class="spinner-border spinner-border-sm me-2"></span> Registering...
+      </span>
+    </button>
+  </div>
+
+</div>
 ```
 
 ## File: src/app/features/public-registration/steps/step4-review/reg-step-review/reg-step-review.component.ts
@@ -24221,29 +26470,6 @@ toggleFlyout(label: string, event?: Event): void
 navigate(route: string, event?: Event): void
 ```
 
-## File: src/app/models/auth-user.model.ts
-```typescript
-import { Role } from "../core/constants/roles.constants";
-⋮----
-export interface AuthUser {
-  id: number;
-  taxpayerId?: number;
-  taxpayerType?: string;
-  tinNumber?:    string;   
-  fullName: string;
-  email: string;
-  role: Role;
-  token?: string;
-  photoUrl?: string; 
-  approvalStatus?: string;
-}
-⋮----
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-```
-
 ## File: src/app/models/taxable-product.model.ts
 ```typescript
 export type ProductStatus   = 'Active' | 'Inactive' | 'Restricted';
@@ -24484,6 +26710,11 @@ vatRegistrationId:  number;   // @Transient FK — backend resolves to VatRegist
 // totalSupplies & netTaxPayable are NOT sent — auto-calculated in Service
 ```
 
+## File: src/environments/environment.ts
+```typescript
+
+```
+
 ## File: src/styles.css
 ```css
 /* ═══════════════════════════════════════════════════════════════
@@ -24701,497 +26932,6 @@ vatRegistrationId:  number;   // @Transient FK — backend resolves to VatRegist
 .mobile-card-actions button {
 ⋮----
 .btn-export span {
-```
-
-## File: src/app/features/ait/pages/ait-create/ait-create.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>New AIT Record</h4>
-    <p>Record advance income tax deducted at source.</p>
-  </div>
-  <button class="btn-back" (click)="onCancel()">
-    <i class="bi bi-arrow-left"></i> Back to List
-  </button>
-</div>
-
-<div class="form-card">
-
-  <!-- Section 1: Taxpayer -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon">
-        <i class="bi bi-person-badge-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Taxpayer Information</h6>
-        <span class="section-sub">Select taxpayer for AIT deduction</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">Taxpayer</label>
-        <div class="input-wrap">
-          <i class="bi bi-person-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.tinNumber"
-            (ngModelChange)="onTaxpayerChange()">
-            <option value="">Select Taxpayer</option>
-            <option *ngFor="let tp of taxpayers" [value]="tp.tinNumber">
-              {{ tp.fullName }} — 
-              {{ tp.tinNumber }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Taxpayer Name <span class="auto-label">Auto</span></label>
-        <div class="input-wrap">
-          <i class="bi bi-person input-icon"></i>
-          <input type="text" class="form-input auto-field"
-            [value]="form.taxpayerName || 'Auto from selection'" readonly />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 2: AIT Details -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon purple">
-        <i class="bi bi-percent"></i>
-      </div>
-      <div>
-        <h6 class="section-title">AIT Calculation</h6>
-        <span class="section-sub">Source type → Tax structure → Backend-owned rate preview</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">Source Type</label>
-        <div class="input-wrap">
-          <i class="bi bi-diagram-3-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.sourceType"
-            (ngModelChange)="onSourceChange()">
-            <option value="">Select Source</option>
-            <option *ngFor="let s of sourceTypes" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tax Structure</label>
-        <div class="input-wrap">
-          <i class="bi bi-sliders input-icon"></i>
-          <select class="form-input form-select"
-            [(ngModel)]="form.taxStructureId"
-            (ngModelChange)="onStructureChange()"
-            [disabled]="availableStructures.length === 0">
-            <option [value]="0">{{ availableStructures.length === 0 ? 'Select source first' : 'Select Structure' }}</option>
-            <option *ngFor="let s of availableStructures" [value]="s.id">{{ s.taxName }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">Gross Amount (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" placeholder="0"
-            [(ngModel)]="form.grossAmount"
-            (ngModelChange)="onGrossAmountChange()" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">AIT Rate (%) <span class="auto-label">Auto</span></label>
-        <div class="input-wrap">
-          <i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input auto-field"
-            [value]="selectedAitRate" readonly />
-        </div>
-      </div>
-    </div>
-
-    <!-- AIT Calculation Box -->
-    <div class="ait-calc-box" *ngIf="form.grossAmount > 0 && selectedAitRate > 0">
-      <div class="acb-row">
-        <span class="acb-label">Gross Amount</span>
-        <span class="acb-value">৳{{ form.grossAmount.toLocaleString() }}</span>
-      </div>
-      <div class="acb-row">
-        <span class="acb-label">AIT Rate</span>
-        <span class="acb-value rate">{{ selectedAitRate }}%</span>
-      </div>
-      <div class="acb-divider"></div>
-      <div class="acb-row ait-total-row">
-        <span class="acb-label bold">AIT Amount Preview</span>
-        <span class="acb-value total">৳{{ previewAitAmount.toLocaleString() }}</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 3: Deduction Details -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon teal">
-        <i class="bi bi-calendar-event-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Deduction Details</h6>
-        <span class="section-sub">Who deducted, when and fiscal year</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">Deducted By</label>
-        <div class="input-wrap">
-          <i class="bi bi-building input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. ABC Company Ltd., Customs Authority"
-            [(ngModel)]="form.deductedBy" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">Deduction Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.deductionDate" [max]="maxDate" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Deposit Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.depositDate" [max]="maxDate" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Fiscal Year</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-range input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.fiscalYear">
-            <option *ngFor="let fy of fiscalYears" [value]="fy">{{ fy }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <div class="input-wrap">
-          <i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.status" (ngModelChange)="onStatusChange()">
-            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label" [class.required]="requiresDepositProof">Challan No</label>
-        <div class="input-wrap">
-          <i class="bi bi-receipt input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Treasury challan number"
-            [(ngModel)]="form.challanNumber" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label" [class.required]="requiresDepositProof">Bank Name</label>
-        <div class="input-wrap">
-          <i class="bi bi-bank input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Deposit bank name"
-            [(ngModel)]="form.bankName" />
-        </div>
-      </div>
-      <div class="form-group full-width">
-        <label class="form-label">Attachment URL</label>
-        <div class="input-wrap">
-          <i class="bi bi-paperclip input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Optional proof of deposit attachment URL"
-            [(ngModel)]="form.attachmentUrl" />
-        </div>
-      </div>
-      <div class="form-group full-width">
-        <label class="form-label">Remarks</label>
-        <div class="input-wrap">
-          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Optional remarks..." [(ngModel)]="form.remarks" rows="2"></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
-      <i class="bi bi-x-lg"></i> Cancel
-    </button>
-    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
-      <i class="bi bi-arrow-counterclockwise"></i> Reset
-    </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isLoading || isMasterDataLoading || !isFormValid()">
-      <span *ngIf="!isLoading"><i class="bi bi-check-lg"></i> Create AIT Record</span>
-      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
-    </button>
-  </div>
-
-</div>
-```
-
-## File: src/app/features/ait/pages/ait-edit/ait-edit.component.ts
-```typescript
-import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
-import { MasterDataService } from 'src/app/core/services/master-data.service';
-import { Ait, AitCreateRequest, AitSourceType, AitStatus } from 'src/app/models/ait.model';
-import { TaxStructure } from 'src/app/models/tax-structure.model';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class AitEditComponent implements OnInit, OnDestroy
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-get selectedAitRate(): number
-⋮----
-get requiresDepositProof(): boolean
-⋮----
-private initializeAit(): void
-⋮----
-private loadPageData(id: number): void
-⋮----
-private handleFetchSuccess(data: Ait): void
-⋮----
-private handleFetchError(error: unknown): void
-⋮----
-private loadStructuresBySource(source: AitSourceType): void
-⋮----
-onSourceChange(): void
-⋮----
-onStructureChange(): void
-⋮----
-onGrossAmountChange(): void
-⋮----
-onStatusChange(): void
-⋮----
-private updatePreviewAmount(): void
-⋮----
-isFormValid(): boolean
-⋮----
-private getValidAitId(): number | null
-⋮----
-private handleInvalidId(): void
-⋮----
-onSubmit(): void
-⋮----
-private updateAit(): void
-⋮----
-private handleUpdateSuccess(): void
-⋮----
-private handleUpdateError(error: unknown): void
-⋮----
-onCancel(): void
-⋮----
-private getEmptyForm(): AitCreateRequest
-```
-
-## File: src/app/features/ait/pages/ait-list/ait-list.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>AIT — Advance Income Tax</h4>
-    <p>Manage all advance income tax deductions at source.</p>
-  </div>
-  <a *canDo="'create'" routerLink="/my-portal/ait/create"
-     class="btn-add-primary desktop-add-btn">
-    <i class="bi bi-plus-lg"></i> New AIT
-  </a>
-</div>
-
-<!-- Stats Row -->
-<div class="stats-row">
-  <div class="stat-card">
-    <div class="sc-icon"><i class="bi bi-collection-fill"></i></div>
-    <div class="sc-body">
-      <span class="sc-label">Total Records</span>
-      <span class="sc-value">{{ records.length }}</span>
-    </div>
-  </div>
-  <div class="stat-card">
-    <div class="sc-icon deposited"><i class="bi bi-check-circle-fill"></i></div>
-    <div class="sc-body">
-      <span class="sc-label">Deposited</span>
-      <span class="sc-value">{{ countByStatus('Deposited') }}</span>
-    </div>
-  </div>
-  <div class="stat-card">
-    <div class="sc-icon pending"><i class="bi bi-hourglass-split"></i></div>
-    <div class="sc-body">
-      <span class="sc-label">Pending</span>
-      <span class="sc-value">{{ countByStatus('Deducted') }}</span>
-    </div>
-  </div>
-  <div class="stat-card total-ait">
-    <div class="sc-icon ait"><i class="bi bi-cash-coin"></i></div>
-    <div class="sc-body">
-      <span class="sc-label">Total AIT Collected</span>
-      <span class="sc-value ait">{{ formatCurrency(totalAIT) }}</span>
-    </div>
-  </div>
-</div>
-
-<div class="page-wrapper">
-
-  <div class="list-search-bar">
-    <div class="search-field-row">
-      <div class="search-field">
-        <i class="bi bi-search"></i>
-        <input type="text" placeholder="Search by ref, TIN, taxpayer, source, deducted by..."
-          [(ngModel)]="searchTerm" />
-      </div>
-      <button *canDo="'export'" class="btn-export">
-        <i class="bi bi-download"></i><span>Export</span>
-      </button>
-    </div>
-  </div>
-
-  <div class="loading-row" *ngIf="isLoading">
-    <div class="spinner-border spinner-border-sm text-primary"></div>
-    <span>Loading AIT records...</span>
-  </div>
-
-  <!-- Desktop Table -->
-  <div class="table-responsive desktop-table" *ngIf="!isLoading">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>AIT Ref</th>
-          <th>Taxpayer</th>
-          <th>Source Type</th>
-          <th>Gross Amount</th>
-          <th>AIT Rate</th>
-          <th>AIT Amount</th>
-          <th>Deducted By</th>
-          <th>Deduction Date</th>
-          <th>Fiscal Year</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let r of filtered; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td><span class="ait-ref">{{ r.aitRef }}</span></td>
-          <td>
-            <div class="td-name">
-              <div class="td-avatar ait-avatar"><i class="bi bi-percent"></i></div>
-              <div>
-                <span class="td-title">{{ r.taxpayerName }}</span>
-                <span class="td-sub">{{ r.tinNumber }}</span>
-              </div>
-            </div>
-          </td>
-          <td>
-            <span class="src-badge" [ngClass]="getSourceClass(r.sourceType)">
-              {{ r.sourceType }}
-            </span>
-          </td>
-          <td class="amt-cell">{{ formatCurrency(r.grossAmount) }}</td>
-          <td><span class="rate-chip">{{ r.aitRate }}%</span></td>
-          <td class="amt-cell ait-amount">{{ formatCurrency(r.aitAmount) }}</td>
-          <td>{{ r.deductedBy }}</td>
-          <td>{{ r.deductionDate }}</td>
-          <td><span class="fy-badge">{{ r.fiscalYear }}</span></td>
-          <td>
-            <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
-          </td>
-          <td>
-            <div class="action-btns">
-              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
-                class="btn-delete" (click)="confirmDelete(r.id)">
-                <i class="bi bi-trash-fill"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-        <tr *ngIf="filtered.length === 0">
-          <td colspan="12">
-            <div class="empty-state"><i class="bi bi-percent"></i><p>No AIT records found.</p></div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Mobile Cards -->
-  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
-    <div class="mobile-card" *ngFor="let r of filtered">
-      <div class="mobile-card-header">
-        <div class="mobile-card-title">
-          <div class="mobile-avatar ait-avatar"><i class="bi bi-percent"></i></div>
-          <div>
-            <div class="mobile-name">{{ r.taxpayerName }}</div>
-            <div class="mobile-sub">{{ r.aitRef }}</div>
-          </div>
-        </div>
-        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
-      </div>
-      <div class="mobile-card-body">
-        <div class="mobile-field"><label>TIN</label><span>{{ r.tinNumber }}</span></div>
-        <div class="mobile-field"><label>Source</label>
-          <span class="src-badge" [ngClass]="getSourceClass(r.sourceType)">{{ r.sourceType }}</span>
-        </div>
-        <div class="mobile-field"><label>Gross Amount</label><span>{{ formatCurrency(r.grossAmount) }}</span></div>
-        <div class="mobile-field"><label>AIT Rate</label><span>{{ r.aitRate }}%</span></div>
-        <div class="mobile-field"><label>AIT Amount</label><span class="ait-amount">{{ formatCurrency(r.aitAmount) }}</span></div>
-        <div class="mobile-field"><label>Deducted By</label><span>{{ r.deductedBy }}</span></div>
-        <div class="mobile-field"><label>Date</label><span>{{ r.deductionDate }}</span></div>
-      </div>
-      <div class="mobile-card-actions">
-        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(r.id)">
-          <i class="bi bi-trash-fill"></i> Delete
-        </button>
-      </div>
-    </div>
-    <div class="empty-state" *ngIf="filtered.length === 0">
-      <i class="bi bi-percent"></i><p>No AIT records found.</p>
-    </div>
-  </div>
-
-</div>
-
-<button *canDo="'create'" class="fab-btn" routerLink="/ait/create">
-  <i class="bi bi-plus-lg"></i>
-</button>
-
-
-<div class="modal-overlay" *ngIf="showDeleteModal">
-  <div class="modal-card">
-    <div class="modal-accent error"></div>
-    <div class="modal-icon-wrap error">
-      <i class="bi bi-trash-fill" style="color:#A32D2D; font-size:22px;"></i>
-    </div>
-    <p class="modal-title">Delete Business?</p>
-    <p class="modal-msg">
-      This action cannot be undone. Are you sure you want to delete this business record?
-    </p>
-    <div class="modal-actions">
-      <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
-      <button class="btn-modal-confirm error" (click)="confirmDeleteExecute()">
-        <i class="bi bi-trash-fill"></i> Delete
-      </button>
-    </div>
-  </div>
-</div>
 ```
 
 ## File: src/app/features/business-registration/pages/business-create/business-create.component.html
@@ -26744,155 +28484,6 @@ onBack(): void
 .btn-modal-confirm.warning:hover {
 ```
 
-## File: src/app/features/taxpayer-portal/layout/portal-layout/portal-layout.component.html
-```html
-<div class="portal-shell">
-
-  <!-- TOP NAV -->
-  <header class="portal-nav">
-    <div class="nav-brand">
-      <div class="brand-emblem">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <rect width="28" height="28" rx="8" fill="rgba(255,255,255,0.15)"/>
-          <path d="M14 4L24 9V14C24 19.5 19.5 24 14 24C8.5 24 4 19.5 4 14V9L14 4Z" 
-                fill="rgba(255,255,255,0.9)" stroke="none"/>
-          <path d="M10 14L13 17L18 11" stroke="#1a7a4a" stroke-width="2" 
-                stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <span class="brand-name">NBR Portal</span>
-        <span class="brand-sub">Government of Bangladesh</span>
-      </div>
-    </div>
-
-    <div class="nav-center">
-      <span class="nav-title">National VAT & Tax Management System</span>
-    </div>
-
-    <div class="nav-right">
-      <!-- User Menu -->
-      <div class="user-menu" 
-           (click)="toggleDropdown()" 
-           [class.open]="showDropdown">
-
-        <div class="user-avatar-ring">
-          <img *ngIf="currentUser?.photoUrl"
-               [src]="currentUser!.photoUrl"
-               class="user-photo"/>
-          <div *ngIf="!currentUser?.photoUrl" class="user-monogram">
-            {{ currentUser?.fullName?.charAt(0) | uppercase }}
-          </div>
-          <div class="online-dot"></div>
-        </div>
-
-        <div class="user-meta">
-          <span class="user-name">{{ currentUser?.fullName }}</span>
-          <span class="user-role">{{ currentUser?.taxpayerType }}</span>
-        </div>
-
-        <div class="chevron" [class.flipped]="showDropdown">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.7)" 
-                  stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-
-        <!-- Dropdown -->
-        <div class="user-dropdown" *ngIf="showDropdown" (click)="$event.stopPropagation()">
-          <div class="dropdown-profile">
-            <div class="dp-avatar">
-              <img *ngIf="currentUser?.photoUrl" [src]="currentUser!.photoUrl" class="dp-photo"/>
-              <div *ngIf="!currentUser?.photoUrl" class="dp-monogram">
-                {{ currentUser?.fullName?.charAt(0) | uppercase }}
-              </div>
-            </div>
-            <div class="dp-info">
-              <div class="dp-name">{{ currentUser?.fullName }}</div>
-              <div class="dp-email">{{ currentUser?.email }}</div>
-              <span class="dp-badge">{{ currentUser?.taxpayerType }}</span>
-            </div>
-          </div>
-
-          <div class="dropdown-body">
-            <a class="dd-item" routerLink="/my-portal" (click)="showDropdown = false">
-              <div class="dd-icon">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
-                  <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
-                  <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
-                  <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
-                </svg>
-              </div>
-              <span>My Portal</span>
-            </a>
-
-            <div class="dd-divider"></div>
-
-            <button class="dd-item danger" (click)="logout()">
-              <div class="dd-icon">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6" 
-                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-              </div>
-              <span>Sign out</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Breadcrumb -->
-  <nav class="portal-breadcrumb" *ngIf="currentPageTitle">
-    <a routerLink="/my-portal" class="breadcrumb-home">
-      <i class="bi bi-house-fill"></i>
-      <span>My Portal</span>
-    </a>
-    <i class="bi bi-chevron-right breadcrumb-sep"></i>
-    <span class="breadcrumb-current">{{ currentPageTitle }}</span>
-  </nav>  
-
-  <!-- MAIN CONTENT -->
-  <main class="portal-main">
-    <div class="portal-container">
-      <router-outlet></router-outlet>
-    </div>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="portal-footer">
-    <span>© {{ currentYear }} National Board of Revenue, Bangladesh</span>
-    <span class="footer-sep">·</span>
-    <span>Secure Government Portal</span>
-  </footer>
-
-</div>
-```
-
-## File: src/app/features/taxpayer-portal/layout/portal-layout/portal-layout.component.ts
-```typescript
-import { Component, HostListener } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs';
-import { AuthUser } from 'src/app/models/auth-user.model';
-import { AuthService } from '../../../../core/services/auth.service';
-⋮----
-export class PortalLayoutComponent
-⋮----
-onDocumentClick(event: MouseEvent): void
-constructor(private authService: AuthService, private router: Router)
-⋮----
-private getPageTitle(url: string): string
-⋮----
-get currentUser(): AuthUser | null
-⋮----
-toggleDropdown(): void
-⋮----
-logout(): void
-```
-
 ## File: src/app/features/vat-returns/pages/vat-return-create/vat-return-create.component.css
 ```css
 /* ────────────────────────────────────────────────────────────────────────────
@@ -27111,159 +28702,27 @@ logout(): void
 /* expanded child icon */
 ```
 
-## File: src/app/core/services/auth.service.ts
+## File: src/app/models/auth-user.model.ts
 ```typescript
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { Role, ROLE_PERMISSIONS, ROLE_ACTIONS, ROLE_MENU } from '../constants/roles.constants';
-import { API_ENDPOINTS } from '../constants/api.constants';
-import { environment } from '../../../environments/environment';
-import { AuthUser, LoginRequest } from 'src/app/models/auth-user.model';
+import { Role } from "../core/constants/roles.constants";
 ⋮----
-export class AuthService {
+export interface AuthUser {
+  id: number;
+  taxpayerId?: number | null;
+  taxpayerType?: string;
+  tinNumber?:    string;   
+  fullName: string;
+  email: string;
+  role: Role;
+  token?: string;
+  photoUrl?: string; 
+  approvalStatus?: string;
+}
 ⋮----
-constructor(private http: HttpClient, private router: Router)
-⋮----
-// ── Load from localStorage ──
-private loadUser(): AuthUser | null
-⋮----
-// ── Login: real API; optional dev-only mock if `environment.useMockAuth` ──
-login(credentials: LoginRequest): Observable<any>
-⋮----
-private handleLoginSuccess(response: any): void
-⋮----
-// ── Dev-only demo users (only used when environment.useMockAuth is true) ──
-private getMockUser(email: string): AuthUser | null
-⋮----
-logout(): void
-⋮----
-// ── Getters ──
-get currentUser(): AuthUser | null
-⋮----
-get isLoggedIn(): boolean
-⋮----
-get userRole(): Role
-⋮----
-// ── Permission checks ──
-hasPermission(module: string): boolean
-⋮----
-// auth.service.ts e add koro
-hasRole(role: Role): boolean
-⋮----
-canDo(action: string): boolean
-⋮----
-canSeeMenu(menuLabel: string): boolean
-⋮----
-updateCurrentUser(user: AuthUser): void
-⋮----
-// যদি BehaviorSubject থাকে:
-⋮----
-get allowedMenuItems(): string[]
-```
-
-## File: src/app/features/ait/pages/ait-view/ait-view.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>AIT ait Details</h4>
-    <p>Full advance income tax deduction information.</p>
-  </div>
-  <div class="header-actions">
-    <button class="btn-back" (click)="onBack()"><i class="bi bi-arrow-left"></i> Back</button>
-    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()"><i class="bi bi-pencil-fill"></i> Edit</button>
-  </div>
-</div>
-
-<div class="loading-overlay" *ngIf="isLoading">
-  <div class="spinner-border" style="color:#7c3aed"></div>
-</div>
-
-<ng-container *ngIf="!isLoading && ait">
-
-  <!-- Header -->
-  <div class="view-header-card">
-    <div class="ahc-left">
-      <div class="ahc-icon"><i class="bi bi-percent"></i></div>
-      <div>
-        <div class="ahc-ref">{{ ait.aitRef }}</div>
-        <div class="ahc-name">{{ ait.taxpayerName }}</div>
-        <div class="ahc-meta">
-          <span class="src-badge" [ngClass]="getSourceClass(ait.sourceType)">{{ ait.sourceType }}</span>
-          <span class="fy-pill">{{ ait.fiscalYear }}</span>
-          <span class="status-badge" [ngClass]="getStatusClass(ait.status)">{{ ait.status }}</span>
-        </div>
-      </div>
-    </div>
-    <div class="ahc-right">
-      <div class="ahc-ait-amount">{{ formatCurrency(ait.aitAmount) }}</div>
-      <div class="ahc-ait-label">AIT Amount</div>
-      <div class="ahc-rate">{{ ait.aitRate }}% Rate</div>
-    </div>
-  </div>
-
-  <!-- Summary Cards -->
-  <div class="ait-summary-row">
-    <div class="as-card">
-      <div class="asc-icon gross"><i class="bi bi-cash-stack"></i></div>
-      <div><span class="asc-label">Gross Amount</span><span class="asc-value">{{ formatCurrency(ait.grossAmount)
-          }}</span></div>
-    </div>
-    <div class="as-card">
-      <div class="asc-icon rate"><i class="bi bi-percent"></i></div>
-      <div><span class="asc-label">AIT Rate</span><span class="asc-value rate">{{ ait.aitRate }}%</span></div>
-    </div>
-    <div class="as-card highlight">
-      <div class="asc-icon ait"><i class="bi bi-calculator-fill"></i></div>
-      <div><span class="asc-label">AIT Amount</span><span class="asc-value ait">{{ formatCurrency(ait.aitAmount)
-          }}</span></div>
-    </div>
-  </div>
-
-  <!-- Details -->
-  <div class="details-grid">
-
-    <div class="detail-card">
-      <div class="detail-card-header"><i class="bi bi-person-badge-fill"></i><span>Taxpayer Information</span></div>
-      <div class="detail-body">
-        <div class="detail-row"><span class="detail-label">TIN Number</span><span class="detail-value"><span
-              class="code-badge">{{ ait.tinNumber }}</span></span></div>
-        <div class="detail-row"><span class="detail-label">Taxpayer Name</span><span class="detail-value fw-bold">{{
-            ait.taxpayerName }}</span></div>
-        <div class="detail-row"><span class="detail-label">Source Type</span><span class="detail-value"><span
-              class="src-badge" [ngClass]="getSourceClass(ait.sourceType)">{{ ait.sourceType }}</span></span></div>
-        <div class="detail-row"><span class="detail-label">Fiscal Year</span><span class="detail-value fw-bold">{{
-            ait.fiscalYear }}</span></div>
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="detail-card-header"><i class="bi bi-calendar-event-fill"></i><span>Deduction Details</span></div>
-      <div class="detail-body">
-        <div class="detail-row"><span class="detail-label">Deducted By</span><span class="detail-value fw-bold">{{
-            ait.deductedBy }}</span></div>
-        <div class="detail-row"><span class="detail-label">Deduction Date</span><span class="detail-value">{{
-            ait.deductionDate }}</span></div>
-        <div class="detail-row"><span class="detail-label">Deposit Date</span><span class="detail-value">{{
-            ait.depositDate || '—' }}</span></div>
-        <div class="detail-row"><span class="detail-label">Challan No</span><span class="detail-value">{{
-            ait.challanNumber || '—' }}</span></div>
-        <div class="detail-row"><span class="detail-label">Bank Name</span><span class="detail-value">{{
-            ait.bankName || '—' }}</span></div>
-        <div class="detail-row" *ngIf="ait.attachmentUrl"><span class="detail-label">Attachment</span><span
-            class="detail-value">{{ ait.attachmentUrl }}</span></div>
-        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span
-              class="status-badge" [ngClass]="getStatusClass(ait.status)">{{ ait.status }}</span></span></div>
-        <div class="detail-row" *ngIf="ait.remarks"><span class="detail-label">Remarks</span><span
-            class="detail-value">{{ ait.remarks }}</span></div>
-      </div>
-    </div>
-
-  </div>
-
-</ng-container>
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
 ```
 
 ## File: src/app/features/auth/pages/login/login.component.ts
@@ -28446,391 +29905,156 @@ onCancel(): void
 private getEmptyForm(): PaymentCreateRequest
 ```
 
-## File: src/app/features/taxpayer-management/pages/taxpayer-view/taxpayer-view.component.html
+## File: src/app/features/taxpayer-portal/layout/portal-layout/portal-layout.component.html
 ```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>Taxpayer Details</h4>
-    <p>Full taxpayer profile information.</p>
-  </div>
-  <div class="header-actions">
-    <button class="btn-back" (click)="onBack()">
-      <i class="bi bi-arrow-left"></i> Back
-    </button>
-    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
-      <i class="bi bi-pencil-fill"></i> Edit
-    </button>
-  </div>
+<div class="portal-shell">
+
+  <!-- TOP NAV -->
+  <header class="portal-nav">
+    <div class="nav-brand">
+      <div class="brand-emblem">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect width="28" height="28" rx="8" fill="rgba(255,255,255,0.15)"/>
+          <path d="M14 4L24 9V14C24 19.5 19.5 24 14 24C8.5 24 4 19.5 4 14V9L14 4Z" 
+                fill="rgba(255,255,255,0.9)" stroke="none"/>
+          <path d="M10 14L13 17L18 11" stroke="#1a7a4a" stroke-width="2" 
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">NBR Portal</span>
+        <span class="brand-sub">Government of Bangladesh</span>
+      </div>
+    </div>
+
+    <div class="nav-center">
+      <span class="nav-title">National VAT & Tax Management System</span>
+    </div>
+
+    <div class="nav-right">
+      <!-- User Menu -->
+      <div class="user-menu" 
+           (click)="toggleDropdown()" 
+           [class.open]="showDropdown">
+
+        <div class="user-avatar-ring">
+          <img *ngIf="currentUser?.photoUrl"
+               [src]="photoUrl" 
+               class="user-photo"/>
+          <div *ngIf="!currentUser?.photoUrl" class="user-monogram">
+            {{ currentUser?.fullName?.charAt(0) | uppercase }}
+          </div>
+          <div class="online-dot"></div>
+        </div>
+
+        <div class="user-meta">
+          <span class="user-name">{{ currentUser?.fullName }}</span>
+          <span class="user-role">{{ currentUser?.taxpayerType }}</span>
+        </div>
+
+        <div class="chevron" [class.flipped]="showDropdown">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.7)" 
+                  stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <!-- Dropdown -->
+        <div class="user-dropdown" *ngIf="showDropdown" (click)="$event.stopPropagation()">
+          <div class="dropdown-profile">
+            <div class="dp-avatar">
+              <img *ngIf="currentUser?.photoUrl" [src]="currentUser!.photoUrl" class="dp-photo"/>
+              <div *ngIf="!currentUser?.photoUrl" class="dp-monogram">
+                {{ currentUser?.fullName?.charAt(0) | uppercase }}
+              </div>
+            </div>
+            <div class="dp-info">
+              <div class="dp-name">{{ currentUser?.fullName }}</div>
+              <div class="dp-email">{{ currentUser?.email }}</div>
+              <span class="dp-badge">{{ currentUser?.taxpayerType }}</span>
+            </div>
+          </div>
+
+          <div class="dropdown-body">
+            <a class="dd-item" routerLink="/my-portal" (click)="showDropdown = false">
+              <div class="dd-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
+                  <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
+                  <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
+                  <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
+                </svg>
+              </div>
+              <span>My Portal</span>
+            </a>
+
+            <div class="dd-divider"></div>
+
+            <button class="dd-item danger" (click)="logout()">
+              <div class="dd-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6" 
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span>Sign out</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Breadcrumb -->
+  <nav class="portal-breadcrumb" *ngIf="currentPageTitle">
+    <a routerLink="/my-portal" class="breadcrumb-home">
+      <i class="bi bi-house-fill"></i>
+      <span>My Portal</span>
+    </a>
+    <i class="bi bi-chevron-right breadcrumb-sep"></i>
+    <span class="breadcrumb-current">{{ currentPageTitle }}</span>
+  </nav>  
+
+  <!-- MAIN CONTENT -->
+  <main class="portal-main">
+    <div class="portal-container">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="portal-footer">
+    <span>© {{ currentYear }} National Board of Revenue, Bangladesh</span>
+    <span class="footer-sep">·</span>
+    <span>Secure Government Portal</span>
+  </footer>
+
 </div>
+```
 
-<div class="loading-overlay" *ngIf="isLoading">
-  <div class="spinner-border text-primary"></div>
-</div>
-
-<ng-container *ngIf="!isLoading && taxpayer">
-
-  <div class="view-header-card blue">
-    <div class="profile-avatar-wrap">
-      <div class="profile-avatar-wrap">
-        <div class="photo-container">
-          <img *ngIf="taxpayer.photoPath" 
-              [src]="getPhotoUrl(taxpayer.photoPath)" 
-              class="profile-photo"
-              alt="Profile photo"/>
-          <div class="profile-avatar" *ngIf="!taxpayer.photoPath">
-            {{ getDisplayName(taxpayer).charAt(0) | uppercase }}
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="profile-name">{{ getDisplayName(taxpayer) }}</div>
-
-        <div class="profile-tin" [ngStyle]="{'color': taxpayer.tinNumber ? 'rgba(255,255,255,0.75)' : '#fde8c0'}">
-          {{ taxpayer.tinNumber || 'TIN Not Assigned' }}
-        </div>
-
-        <div class="profile-meta">
-          <span class="type-pill">{{ taxpayer.taxpayerType.typeName }}</span>
-          <span class="status-badge" [ngClass]="getStatusClass(taxpayer.status)">
-            {{ taxpayer.status }}
-          </span>
-        </div>
-      </div>
-    </div>
-    <div class="view-header-right">
-      <div class="profile-stat">
-        <span class="ps-label">Registered Date</span>
-        <span class="ps-value">{{ taxpayer.registrationDate | date:'mediumDate' }}</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="details-grid">
-
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-person-badge-fill"></i>
-        <span>{{ isCompany ? 'Company Details' : 'Personal Identity' }}</span>
-      </div>
-      <div class="detail-body">
-
-        <div class="detail-row">
-          <span class="detail-label">TIN Number</span>
-          <span class="detail-value">
-            <span class="code-badge" *ngIf="taxpayer.tinNumber">{{ taxpayer.tinNumber }}</span>
-            <span class="status-badge status-pending" *ngIf="!taxpayer.tinNumber">Not Assigned</span>
-          </span>
-        </div>
-
-        <div class="detail-row">
-          <span class="detail-label">Name</span>
-          <span class="detail-value fw-bold">{{ getDisplayName(taxpayer) }}</span>
-        </div>
-
-        <ng-container *ngIf="isIndividual">
-          <div class="detail-row" *ngIf="taxpayer.nid">
-            <span class="detail-label">National ID</span>
-            <span class="detail-value"><span class="code-badge">{{ taxpayer.nid }}</span></span>
-          </div>
-          <div class="detail-row" *ngIf="taxpayer.fathersName">
-            <span class="detail-label">Father's Name</span>
-            <span class="detail-value">{{ taxpayer.fathersName }}</span>
-          </div>
-          <div class="detail-row" *ngIf="taxpayer.mothersName">
-            <span class="detail-label">Mother's Name</span>
-            <span class="detail-value">{{ taxpayer.mothersName }}</span>
-          </div>
-          <div class="detail-row" *ngIf="taxpayer.dateOfBirth">
-            <span class="detail-label">Date of Birth</span>
-            <span class="detail-value">{{ taxpayer.dateOfBirth | date:'mediumDate' }}</span>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="isCompany">
-          <div class="detail-row" *ngIf="taxpayer.tradeLicenseNo">
-            <span class="detail-label">Trade License</span>
-            <span class="detail-value"><span class="code-badge">{{ taxpayer.tradeLicenseNo }}</span></span>
-          </div>
-          <div class="detail-row" *ngIf="taxpayer.rjscNo">
-            <span class="detail-label">RJSC No</span>
-            <span class="detail-value"><span class="code-badge">{{ taxpayer.rjscNo }}</span></span>
-          </div>
-          <div class="detail-row" *ngIf="taxpayer.incorporationDate">
-            <span class="detail-label">Incorporation Date</span>
-            <span class="detail-value">{{ taxpayer.incorporationDate | date:'mediumDate' }}</span>
-          </div>
-        </ng-container>
-
-      </div>
-    </div>
-
-    <div class="detail-card" *ngIf="isCompany">
-      <div class="detail-card-header">
-        <i class="bi bi-person-vcard-fill"></i>
-        <span>Authorized Representative</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Representative Name</span>
-          <span class="detail-value fw-bold">{{ taxpayer.authorizedPersonName || 'N/A' }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Designation</span>
-          <span class="detail-value">{{ taxpayer.authorizedPersonDesignation || 'N/A' }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">National ID (NID)</span>
-          <span class="detail-value">
-            <span class="code-badge" *ngIf="taxpayer.authorizedPersonNid">{{ taxpayer.authorizedPersonNid }}</span>
-            <span *ngIf="!taxpayer.authorizedPersonNid">N/A</span>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-telephone-fill"></i>
-        <span>Contact Information</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Email</span>
-          <span class="detail-value">{{ taxpayer.email }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Phone</span>
-          <span class="detail-value">{{ taxpayer.phone }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-geo-alt-fill"></i>
-        <span>Address Details</span>
-      </div>
-      <div class="detail-body">
-
-        <div class="detail-row" *ngIf="taxpayer.presentAddress">
-          <span class="detail-label">Present Address</span>
-          <span class="detail-value address-val">
-            {{ taxpayer.presentAddress.roadVillage ? taxpayer.presentAddress.roadVillage + ', ' : '' }}
-            {{ taxpayer.presentAddress.thana }}, {{ taxpayer.presentAddress.district }}, {{
-            taxpayer.presentAddress.division }}
-          </span>
-        </div>
-
-        <div class="detail-row" *ngIf="taxpayer.permanentAddress && !taxpayer.sameAsPermanent">
-          <span class="detail-label">Permanent Address</span>
-          <span class="detail-value address-val">
-            {{ taxpayer.permanentAddress.roadVillage ? taxpayer.permanentAddress.roadVillage + ', ' : '' }}
-            {{ taxpayer.permanentAddress.thana }}, {{ taxpayer.permanentAddress.district }}, {{
-            taxpayer.permanentAddress.division }}
-          </span>
-        </div>
-
-        <div class="detail-row" *ngIf="taxpayer.sameAsPermanent">
-          <span class="detail-label">Permanent Address</span>
-          <span class="detail-value address-val" style="color: #666; font-style: italic;">
-            Same as Present Address
-          </span>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-shield-fill-check"></i>
-        <span>Account Status</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Status</span>
-          <span class="detail-value">
-            <span class="status-badge" [ngClass]="getStatusClass(taxpayer.status)">
-              {{ taxpayer.status }}
-            </span>
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Registration Date</span>
-          <span class="detail-value">{{ taxpayer.registrationDate | date:'mediumDate' }}</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-  <!-- Officer Review Section -->
-<div class="review-card" 
-     *ngIf="canReview && (isPendingReview || isApproved || isRejected)">
-
-  <div class="review-card-header">
-    <i class="bi bi-shield-fill-check"></i>
-    <span>Application Review</span>
-    <span class="approval-badge"
-      [ngClass]="{
-        'approval-pending':  isPendingReview,
-        'approval-approved': isApproved,
-        'approval-rejected': isRejected
-      }">
-      {{ isPendingReview ? 'Pending Review' : isApproved ? 'Approved' : 'Rejected' }}
-    </span>
-  </div>
-
-  <!-- Already Approved -->
-  <div class="review-done" *ngIf="isApproved">
-    <i class="bi bi-check-circle-fill text-success"></i>
-    <div>
-      <div class="review-done-title">TIN Issued Successfully</div>
-      <div class="review-done-sub">TIN: {{ taxpayer.tinNumber }}</div>
-      <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
-        Notes: {{ taxpayer.reviewNotes }}
-      </div>
-    </div>
-  </div>
-
-  <!-- Already Rejected -->
-  <div class="review-done rejected" *ngIf="isRejected">
-    <i class="bi bi-x-circle-fill text-danger"></i>
-    <div>
-      <div class="review-done-title">Application Rejected</div>
-      <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
-        Reason: {{ taxpayer.reviewNotes }}
-      </div>
-    </div>
-  </div>
-
-  <!-- Pending — show form -->
-  <div class="review-form" *ngIf="isPendingReview">
-
-    <div class="review-info">
-      <i class="bi bi-info-circle"></i>
-      <span>Review taxpayer details above, then assign Tax Zone and Circle to issue TIN.</span>
-    </div>
-
-    <!-- Load Zones button -->
-    <div class="review-field" *ngIf="zones.length === 0">
-      <button class="btn-load-zones" (click)="loadZones()" [disabled]="loadingZones">
-        <i class="bi" [ngClass]="loadingZones ? 'bi-hourglass-split' : 'bi-geo-alt-fill'"></i>
-        {{ loadingZones ? 'Loading zones...' : 'Load Tax Zones from taxpayer district' }}
-      </button>
-      <div class="zone-hint" *ngIf="taxpayer.presentAddress?.district">
-        District: <strong>{{ taxpayer.presentAddress?.district }}</strong>
-      </div>
-      <div class="zone-hint error" *ngIf="!taxpayer.presentAddress?.district">
-        ⚠️ Taxpayer has no district. Ask them to update profile first.
-      </div>
-    </div>
-
-    <!-- Zone dropdown -->
-    <div class="review-field" *ngIf="zones.length > 0">
-      <label>Tax Zone *</label>
-      <select [(ngModel)]="approveZone" (change)="onZoneChange()">
-        <option value="">Select Tax Zone</option>
-        <option *ngFor="let z of zones" [value]="z.name">{{ z.name }}</option>
-      </select>
-    </div>
-
-    <!-- Circle dropdown -->
-    <div class="review-field" *ngIf="approveZone">
-      <label>Tax Circle *</label>
-      <select [(ngModel)]="approveCircle" [disabled]="loadingCircles">
-        <option value="">{{ loadingCircles ? 'Loading...' : 'Select Tax Circle' }}</option>
-        <option *ngFor="let c of circles" [value]="c.name">{{ c.name }}</option>
-      </select>
-    </div>
-
-    <!-- Notes -->
-    <div class="review-field">
-      <label>Review Notes (optional)</label>
-      <textarea [(ngModel)]="reviewNotes" rows="2" 
-                placeholder="Any notes for this application..."></textarea>
-    </div>
-
-    <!-- Buttons -->
-    <div class="review-actions">
-      <button class="btn-reject-action" 
-              (click)="onReject()"
-              [disabled]="isProcessing">
-        <i class="bi bi-x-circle-fill"></i>
-        {{ isProcessing ? 'Processing...' : 'Reject Application' }}
-      </button>
-      <button class="btn-approve-action" 
-              (click)="onApprove()"
-              [disabled]="isProcessing">
-        <i class="bi bi-check-circle-fill"></i>
-        {{ isProcessing ? 'Processing...' : 'Approve & Issue TIN' }}
-      </button>
-      <button class="btn-send-notice" (click)="openSendNotice()">
-        <i class="bi bi-bell-fill"></i> Send Notice
-      </button>
-
-    </div>
-
-  </div>
-</div>
-
-</ng-container>
-
-<div class="modal-overlay" *ngIf="showNoticeModal">
-  <div class="modal-card" style="max-width: 500px;">
-    <div class="modal-accent" style="background: #1a3f8f;"></div>
-    <div class="modal-icon-wrap" style="background:#e8eeff;">
-      <i class="bi bi-bell-fill" style="color:#1a3f8f; font-size:22px;"></i>
-    </div>
-    <p class="modal-title">Send Notice to Taxpayer</p>
-
-    <div class="modal-form">
-      <div class="modal-field">
-        <label>Notice Type</label>
-        <select [(ngModel)]="noticeType">
-          <option>General</option>
-          <option>Tax Due</option>
-          <option>Audit Notice</option>
-          <option>Compliance</option>
-          <option>Reminder</option>
-        </select>
-      </div>
-
-      <div class="modal-field">
-        <label>Priority</label>
-        <select [(ngModel)]="noticePriority">
-          <option>Low</option>
-          <option>Normal</option>
-          <option>High</option>
-          <option>Urgent</option>
-        </select>
-      </div>
-
-      <div class="modal-field">
-        <label>Subject *</label>
-        <input type="text" [(ngModel)]="noticeSubject"
-               placeholder="Enter notice subject"/>
-      </div>
-
-      <div class="modal-field">
-        <label>Message *</label>
-        <textarea [(ngModel)]="noticeBody" rows="4"
-                  placeholder="Enter notice message..."></textarea>
-      </div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-modal-cancel" (click)="closeSendNotice()">
-        Cancel
-      </button>
-      <button class="btn-modal-confirm"
-              style="background:#1a3f8f;"
-              (click)="sendNotice()"
-              [disabled]="isSendingNotice">
-        <i class="bi bi-send-fill"></i>
-        {{ isSendingNotice ? 'Sending...' : 'Send Notice' }}
-      </button>
-    </div>
-  </div>
-</div>
+## File: src/app/features/taxpayer-portal/layout/portal-layout/portal-layout.component.ts
+```typescript
+import { Component, HostListener } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
+import { AuthUser } from 'src/app/models/auth-user.model';
+import { AuthService } from '../../../../core/services/auth.service';
+⋮----
+export class PortalLayoutComponent
+⋮----
+onDocumentClick(event: MouseEvent): void
+constructor(
+    private authService: AuthService,
+    private router: Router,
+)
+⋮----
+private getPageTitle(url: string): string
+⋮----
+get currentUser(): AuthUser | null
+⋮----
+toggleDropdown(): void
+⋮----
+logout(): void
 ```
 
 ## File: src/app/features/taxpayer-portal/taxpayer-portal/taxpayer-portal-routing.module.ts
@@ -28974,69 +30198,6 @@ confirmDeleteExecute(): void
 private delete(id: number, businessName: string): void
 ⋮----
 private resetDeleteState(): void
-```
-
-## File: src/app/features/vat-registration/pages/vat-registration-view/vat-registration-view.component.ts
-```typescript
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-⋮----
-import { VatRegistration } from '../../../../models/vat-registration.model';
-import { VatRegistrationService } from '../../services/vat-registration.service';
-import { ToastService } from '../../../../shared/toast/toast.service';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-⋮----
-type ReviewDecision = 'Approve' | 'Request' | 'Reject';
-⋮----
-export class VatRegistrationViewComponent implements OnInit, OnDestroy
-⋮----
-// ── Officer Review ─────────────────────────────────────────────────────────
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Data ───────────────────────────────────────────────────────────────────
-⋮----
-private loadData(id: number): void
-⋮----
-// ── Review modal ───────────────────────────────────────────────────────────
-⋮----
-onOpenReview(): void
-⋮----
-onCloseReview(): void
-⋮----
-selectDecision(d: ReviewDecision): void
-⋮----
-get canSubmitReview(): boolean
-⋮----
-get reviewButtonLabel(): string
-⋮----
-get reviewButtonClass(): string
-⋮----
-onSubmitReview(): void
-⋮----
-// শুধু status আর remarks — বাকি কিছু না
-⋮----
-// ── Display helpers ────────────────────────────────────────────────────────
-⋮----
-getStatusClass(s: string): string
-⋮----
-getCategoryClass(c: string): string
-⋮----
-isExpired(date: string): boolean
-formatCurrency(a: number): string
-⋮----
-// ───────────────────── Navigation ────────────────────────
-⋮----
-onEdit(): void
-⋮----
-onBack(): void
 ```
 
 ## File: src/app/features/vat-returns/pages/vat-return-create/vat-return-create.component.ts
@@ -31335,184 +32496,391 @@ private createEmptyForm(): TaxableProductCreateRequest
 </div>
 ```
 
-## File: src/app/features/taxpayer-management/pages/taxpayer-view/taxpayer-view.component.ts
-```typescript
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { TaxCircle, TaxZone } from 'src/app/models/master-data.model';
-import { AuthService } from '../../../../core/services/auth.service';
-import { Role } from 'src/app/core/constants/roles.constants';
-import { District } from '../../../../models/master-data.model';
-⋮----
-export class TaxpayerViewComponent implements OnInit, OnDestroy {
-⋮----
-// ────────────────── Properties ──────────────────────
-⋮----
-// Zone & Circle
-⋮----
-// Form fields
-⋮----
-// Notice Modal
-⋮----
-// ──────────────────── Constructor ───────────────────────
-⋮----
-constructor(
-⋮----
-// ────────────────────── Lifecycle ──────────────────────
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ────────────────────── Initialization  ─────────────────────
-⋮----
-private initializeTaxpayer(): void
-⋮----
-private getValidTaxpayerId(): number | null
-⋮----
-private handleInvalidId(): void
-⋮----
-private fetchTaxpayer(): void
-⋮----
-private handleFetchSuccess(data: Taxpayer): void
-⋮----
-private handleFetchError(error: any): void
-⋮----
-// ───────────────────── Helper Methods ────────────────────────
-⋮----
-getDisplayName(taxpayer: any): string
-⋮----
-get isCompany(): boolean
-⋮----
-get isIndividual(): boolean
-⋮----
-get canReview(): boolean
-⋮----
-get isPendingReview(): boolean
-⋮----
-get isApproved(): boolean
-⋮----
-get isRejected(): boolean
-⋮----
-onFileSelected(event: Event): void
-⋮----
-// Preview
-⋮----
-getPhotoUrl(photoPath: string): string
-⋮----
-// ───────────────────── Navigation ────────────────────────
-⋮----
-onEdit(): void
-⋮----
-onBack(): void
-⋮----
-// ────────────────────── UI Helpers ──────────────────────
-⋮----
-getStatusClass(status: string): string
-⋮----
-loadZones(): void
-⋮----
-// taxpayer এর district থেকে zone load করব
-⋮----
-// আগে সব districts load করে match করব
-⋮----
-onZoneChange(): void
-⋮----
-// ────────────────────── Actions ──────────────────────
-⋮----
-onApprove(): void
-⋮----
-onReject(): void
-⋮----
-openSendNotice(): void
-⋮----
-closeSendNotice(): void
-⋮----
-sendNotice(): void
-```
+## File: src/app/features/taxpayer-management/pages/taxpayer-view/taxpayer-view.component.html
+```html
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Taxpayer Details</h4>
+    <p>Full taxpayer profile information.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </button>
+  </div>
+</div>
 
-## File: src/app/features/taxpayer-portal/pages/portal-home/portal-home.component.ts
-```typescript
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { forkJoin, of, Subject, takeUntil } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-⋮----
-import { AuthService } from '../../../../core/services/auth.service';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Taxpayer } from 'src/app/models/taxpayer.model';
-import { IncomeTaxReturn } from 'src/app/models/income-tax-return.model';
-import { Router } from '@angular/router';
-⋮----
-export class PortalHomeComponent implements OnInit, OnDestroy
-⋮----
-// ── ITR stats ─────────────────────────────────────────────────
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-// Load taxpayer profile AND ITR list in parallel
-⋮----
-).pipe(catchError(() => of([])))   // ITR fail হলেও page load হবে
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Stats computed from ITR data ──────────────────────────────
-⋮----
-/** মোট কতটা return file করা হয়েছে */
-get totalReturnsFiled(): number
-⋮----
-/**
-   * Outstanding dues — সব pending/submitted return-এর
-   * net tax payable যোগ করো (paid amount বাদ দিয়ে)
-   */
-get outstandingDues(): number
-⋮----
-/**
-   * Compliance score — accepted returns / total returns * 100
-   * 0 returns হলে 100% (no obligation yet)
-   */
-get complianceScore(): number
-⋮----
-get complianceColor(): string
-⋮----
-/**
-   * Last activity — most recent return-এর submission date
-   */
-get lastActivity(): string
-⋮----
-/** Outstanding dues formatted */
-formatDues(amount: number): string
-⋮----
-// ── Menu ──────────────────────────────────────────────────────
-⋮----
-private buildMenu(category: string): void
-⋮----
-// ── Display helpers ───────────────────────────────────────────
-⋮----
-get displayName(): string
-⋮----
-get taxpayerTypeName(): string
-⋮----
-get photoUrl(): string | null
-⋮----
-// ── Profile Completion ────────────────────────────────────────
-⋮----
-get profileCompletion(): number
-⋮----
-get completionColor(): string
-⋮----
-get missingFields(): string[]
-⋮----
-logout(): void
-⋮----
-onComplete(): void
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && taxpayer">
+
+  <div class="view-header-card blue">
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar-wrap">
+        <div class="photo-container">
+          <img *ngIf="taxpayer.photoPath" 
+              [src]="getPhotoUrl(taxpayer.photoPath)" 
+              class="profile-photo"
+              alt="Profile photo"/>
+          <div class="profile-avatar" *ngIf="!taxpayer.photoPath">
+            {{ getDisplayName(taxpayer).charAt(0) | uppercase }}
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="profile-name">{{ getDisplayName(taxpayer) }}</div>
+
+        <div class="profile-tin" [ngStyle]="{'color': taxpayer.tinNumber ? 'rgba(255,255,255,0.75)' : '#fde8c0'}">
+          {{ taxpayer.tinNumber || 'TIN Not Assigned' }}
+        </div>
+
+        <div class="profile-meta">
+          <span class="type-pill">{{ taxpayer.taxpayerType.typeName }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(taxpayer.status)">
+            {{ taxpayer.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="view-header-right">
+      <div class="profile-stat">
+        <span class="ps-label">Registered Date</span>
+        <span class="ps-value">{{ taxpayer.registrationDate | date:'mediumDate' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="details-grid">
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>{{ isCompany ? 'Company Details' : 'Personal Identity' }}</span>
+      </div>
+      <div class="detail-body">
+
+        <div class="detail-row">
+          <span class="detail-label">TIN Number</span>
+          <span class="detail-value">
+            <span class="code-badge" *ngIf="taxpayer.tinNumber">{{ taxpayer.tinNumber }}</span>
+            <span class="status-badge status-pending" *ngIf="!taxpayer.tinNumber">Not Assigned</span>
+          </span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Name</span>
+          <span class="detail-value fw-bold">{{ getDisplayName(taxpayer) }}</span>
+        </div>
+
+        <ng-container *ngIf="isIndividual">
+          <div class="detail-row" *ngIf="taxpayer.nid">
+            <span class="detail-label">National ID</span>
+            <span class="detail-value"><span class="code-badge">{{ taxpayer.nid }}</span></span>
+          </div>
+          <div class="detail-row" *ngIf="taxpayer.fathersName">
+            <span class="detail-label">Father's Name</span>
+            <span class="detail-value">{{ taxpayer.fathersName }}</span>
+          </div>
+          <div class="detail-row" *ngIf="taxpayer.mothersName">
+            <span class="detail-label">Mother's Name</span>
+            <span class="detail-value">{{ taxpayer.mothersName }}</span>
+          </div>
+          <div class="detail-row" *ngIf="taxpayer.dateOfBirth">
+            <span class="detail-label">Date of Birth</span>
+            <span class="detail-value">{{ taxpayer.dateOfBirth | date:'mediumDate' }}</span>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="isCompany">
+          <div class="detail-row" *ngIf="taxpayer.tradeLicenseNo">
+            <span class="detail-label">Trade License</span>
+            <span class="detail-value"><span class="code-badge">{{ taxpayer.tradeLicenseNo }}</span></span>
+          </div>
+          <div class="detail-row" *ngIf="taxpayer.rjscNo">
+            <span class="detail-label">RJSC No</span>
+            <span class="detail-value"><span class="code-badge">{{ taxpayer.rjscNo }}</span></span>
+          </div>
+          <div class="detail-row" *ngIf="taxpayer.incorporationDate">
+            <span class="detail-label">Incorporation Date</span>
+            <span class="detail-value">{{ taxpayer.incorporationDate | date:'mediumDate' }}</span>
+          </div>
+        </ng-container>
+
+      </div>
+    </div>
+
+    <div class="detail-card" *ngIf="isCompany">
+      <div class="detail-card-header">
+        <i class="bi bi-person-vcard-fill"></i>
+        <span>Authorized Representative</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Representative Name</span>
+          <span class="detail-value fw-bold">{{ taxpayer.authorizedPersonName || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Designation</span>
+          <span class="detail-value">{{ taxpayer.authorizedPersonDesignation || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">National ID (NID)</span>
+          <span class="detail-value">
+            <span class="code-badge" *ngIf="taxpayer.authorizedPersonNid">{{ taxpayer.authorizedPersonNid }}</span>
+            <span *ngIf="!taxpayer.authorizedPersonNid">N/A</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-telephone-fill"></i>
+        <span>Contact Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">{{ taxpayer.email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Phone</span>
+          <span class="detail-value">{{ taxpayer.phone }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-geo-alt-fill"></i>
+        <span>Address Details</span>
+      </div>
+      <div class="detail-body">
+
+        <div class="detail-row" *ngIf="taxpayer.presentAddress">
+          <span class="detail-label">Present Address</span>
+          <span class="detail-value address-val">
+            {{ taxpayer.presentAddress.roadVillage ? taxpayer.presentAddress.roadVillage + ', ' : '' }}
+            {{ taxpayer.presentAddress.thana }}, {{ taxpayer.presentAddress.district }}, {{
+            taxpayer.presentAddress.division }}
+          </span>
+        </div>
+
+        <div class="detail-row" *ngIf="taxpayer.permanentAddress && !taxpayer.sameAsPermanent">
+          <span class="detail-label">Permanent Address</span>
+          <span class="detail-value address-val">
+            {{ taxpayer.permanentAddress.roadVillage ? taxpayer.permanentAddress.roadVillage + ', ' : '' }}
+            {{ taxpayer.permanentAddress.thana }}, {{ taxpayer.permanentAddress.district }}, {{
+            taxpayer.permanentAddress.division }}
+          </span>
+        </div>
+
+        <div class="detail-row" *ngIf="taxpayer.sameAsPermanent">
+          <span class="detail-label">Permanent Address</span>
+          <span class="detail-value address-val" style="color: #666; font-style: italic;">
+            Same as Present Address
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-shield-fill-check"></i>
+        <span>Account Status</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(taxpayer.status)">
+              {{ taxpayer.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Registration Date</span>
+          <span class="detail-value">{{ taxpayer.registrationDate | date:'mediumDate' }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- Officer Review Section -->
+<div class="review-card" 
+     *ngIf="canReview && (isPendingReview || isApproved || isRejected)">
+
+  <div class="review-card-header">
+    <i class="bi bi-shield-fill-check"></i>
+    <span>Application Review</span>
+    <span class="approval-badge"
+      [ngClass]="{
+        'approval-pending':  isPendingReview,
+        'approval-approved': isApproved,
+        'approval-rejected': isRejected
+      }">
+      {{ isPendingReview ? 'Pending Review' : isApproved ? 'Approved' : 'Rejected' }}
+    </span>
+  </div>
+
+  <!-- Already Approved -->
+  <div class="review-done" *ngIf="isApproved">
+    <i class="bi bi-check-circle-fill text-success"></i>
+    <div>
+      <div class="review-done-title">TIN Issued Successfully</div>
+      <div class="review-done-sub">TIN: {{ taxpayer.tinNumber }}</div>
+      <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
+        Notes: {{ taxpayer.reviewNotes }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Already Rejected -->
+  <div class="review-done rejected" *ngIf="isRejected">
+    <i class="bi bi-x-circle-fill text-danger"></i>
+    <div>
+      <div class="review-done-title">Application Rejected</div>
+      <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
+        Reason: {{ taxpayer.reviewNotes }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending — show form -->
+  <div class="review-form" *ngIf="isPendingReview">
+
+    <div class="review-info">
+      <i class="bi bi-info-circle"></i>
+      <span>Review taxpayer details above, then assign Tax Zone and Circle to issue TIN.</span>
+    </div>
+
+    <!-- Load Zones button -->
+    <div class="review-field" *ngIf="zones.length === 0">
+      <button class="btn-load-zones" (click)="loadZones()" [disabled]="loadingZones">
+        <i class="bi" [ngClass]="loadingZones ? 'bi-hourglass-split' : 'bi-geo-alt-fill'"></i>
+        {{ loadingZones ? 'Loading zones...' : 'Load Tax Zones from taxpayer district' }}
+      </button>
+      <div class="zone-hint" *ngIf="taxpayer.presentAddress?.district">
+        District: <strong>{{ taxpayer.presentAddress?.district }}</strong>
+      </div>
+      <div class="zone-hint error" *ngIf="!taxpayer.presentAddress?.district">
+        ⚠️ Taxpayer has no district. Ask them to update profile first.
+      </div>
+    </div>
+
+    <!-- Zone dropdown -->
+    <div class="review-field" *ngIf="zones.length > 0">
+      <label>Tax Zone *</label>
+      <select [(ngModel)]="approveZone" (change)="onZoneChange()">
+        <option value="">Select Tax Zone</option>
+        <option *ngFor="let z of zones" [value]="z.name">{{ z.name }}</option>
+      </select>
+    </div>
+
+    <!-- Circle dropdown -->
+    <div class="review-field" *ngIf="approveZone">
+      <label>Tax Circle *</label>
+      <select [(ngModel)]="approveCircle" [disabled]="loadingCircles">
+        <option value="">{{ loadingCircles ? 'Loading...' : 'Select Tax Circle' }}</option>
+        <option *ngFor="let c of circles" [value]="c.name">{{ c.name }}</option>
+      </select>
+    </div>
+
+    <!-- Notes -->
+    <div class="review-field">
+      <label>Review Notes (optional)</label>
+      <textarea [(ngModel)]="reviewNotes" rows="2" 
+                placeholder="Any notes for this application..."></textarea>
+    </div>
+
+    <!-- Buttons -->
+    <div class="review-actions">
+      <button class="btn-reject-action" 
+              (click)="onReject()"
+              [disabled]="isProcessing">
+        <i class="bi bi-x-circle-fill"></i>
+        {{ isProcessing ? 'Processing...' : 'Reject Application' }}
+      </button>
+      <button class="btn-approve-action" 
+              (click)="onApprove()"
+              [disabled]="isProcessing">
+        <i class="bi bi-check-circle-fill"></i>
+        {{ isProcessing ? 'Processing...' : 'Approve & Issue TIN' }}
+      </button>
+      <button class="btn-send-notice" (click)="openSendNotice()">
+        <i class="bi bi-bell-fill"></i> Send Notice
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+</ng-container>
+
+<div class="modal-overlay" *ngIf="showNoticeModal">
+  <div class="modal-card" style="max-width: 500px;">
+    <div class="modal-accent" style="background: #1a3f8f;"></div>
+    <div class="modal-icon-wrap" style="background:#e8eeff;">
+      <i class="bi bi-bell-fill" style="color:#1a3f8f; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Send Notice to Taxpayer</p>
+
+    <div class="modal-form">
+      <div class="modal-field">
+        <label>Notice Type</label>
+        <select [(ngModel)]="noticeType">
+          <option>General</option>
+          <option>Tax Due</option>
+          <option>Audit Notice</option>
+          <option>Compliance</option>
+          <option>Reminder</option>
+        </select>
+      </div>
+
+      <div class="modal-field">
+        <label>Priority</label>
+        <select [(ngModel)]="noticePriority">
+          <option>Low</option>
+          <option>Normal</option>
+          <option>High</option>
+          <option>Urgent</option>
+        </select>
+      </div>
+
+      <div class="modal-field">
+        <label>Subject *</label>
+        <input type="text" [(ngModel)]="noticeSubject"
+               placeholder="Enter notice subject"/>
+      </div>
+
+      <div class="modal-field">
+        <label>Message *</label>
+        <textarea [(ngModel)]="noticeBody" rows="4"
+                  placeholder="Enter notice message..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="closeSendNotice()">
+        Cancel
+      </button>
+      <button class="btn-modal-confirm"
+              style="background:#1a3f8f;"
+              (click)="sendNotice()"
+              [disabled]="isSendingNotice">
+        <i class="bi bi-send-fill"></i>
+        {{ isSendingNotice ? 'Sending...' : 'Send Notice' }}
+      </button>
+    </div>
+  </div>
+</div>
 ```
 
 ## File: src/app/features/tin-management/pages/tin-create/tin-create.component.html
@@ -32819,6 +34187,69 @@ onComplete(): void
 </div>
 ```
 
+## File: src/app/features/vat-registration/pages/vat-registration-view/vat-registration-view.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+⋮----
+import { VatRegistration } from '../../../../models/vat-registration.model';
+import { VatRegistrationService } from '../../services/vat-registration.service';
+import { ToastService } from '../../../../shared/toast/toast.service';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+⋮----
+type ReviewDecision = 'Approve' | 'Request' | 'Reject';
+⋮----
+export class VatRegistrationViewComponent implements OnInit, OnDestroy
+⋮----
+// ── Officer Review ─────────────────────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Data ───────────────────────────────────────────────────────────────────
+⋮----
+private loadData(id: number): void
+⋮----
+// ── Review modal ───────────────────────────────────────────────────────────
+⋮----
+onOpenReview(): void
+⋮----
+onCloseReview(): void
+⋮----
+selectDecision(d: ReviewDecision): void
+⋮----
+get canSubmitReview(): boolean
+⋮----
+get reviewButtonLabel(): string
+⋮----
+get reviewButtonClass(): string
+⋮----
+onSubmitReview(): void
+⋮----
+// শুধু status আর remarks — বাকি কিছু না
+⋮----
+// ── Display helpers ────────────────────────────────────────────────────────
+⋮----
+getStatusClass(s: string): string
+⋮----
+getCategoryClass(c: string): string
+⋮----
+isExpired(date: string): boolean
+formatCurrency(a: number): string
+⋮----
+// ───────────────────── Navigation ────────────────────────
+⋮----
+onEdit(): void
+⋮----
+onBack(): void
+```
+
 ## File: src/app/features/vat-returns/pages/vat-return-edit/vat-return-edit.component.ts
 ```typescript
 import { Component, OnDestroy, OnInit } from '@angular/core';
@@ -33241,136 +34672,57 @@ onCancel(): void
 </div>
 ```
 
-## File: src/app/features/ait/pages/ait-create/ait-create.component.ts
+## File: src/app/core/services/auth.service.ts
 ```typescript
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, Subject, timer } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { Role, ROLE_PERMISSIONS, ROLE_ACTIONS, ROLE_MENU } from '../constants/roles.constants';
+import { API_ENDPOINTS } from '../constants/api.constants';
+import { environment } from '../../../environments/environment';
+import { AuthUser, LoginRequest } from 'src/app/models/auth-user.model';
 ⋮----
-import { AitCreateRequest, AitSourceType, AitStatus } from '../../../../models/ait.model';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Taxpayer } from 'src/app/models/taxpayer.model';
-import { TaxStructure } from 'src/app/models/tax-structure.model';
-import { MasterDataService } from 'src/app/core/services/master-data.service';
+export class AuthService {
 ⋮----
-export class AitCreateComponent implements OnInit, OnDestroy {
+constructor(private http: HttpClient, private router: Router)
 ⋮----
-constructor(
+// ── Load from localStorage ──
+private loadUser(): AuthUser | null
 ⋮----
-ngOnInit(): void
+// ── Login: real API; optional dev-only mock if `environment.useMockAuth` ──
+login(credentials: LoginRequest): Observable<any>
 ⋮----
-ngOnDestroy(): void
+private handleLoginSuccess(response: any): void
 ⋮----
-private loadMasterData(): void
+approvalStatus: response.approvalStatus ?? null, // ← যোগ করো
 ⋮----
-private loadStructuresBySource(source: AitSourceType): void
+// ── Dev-only demo users (only used when environment.useMockAuth is true) ──
+private getMockUser(email: string): AuthUser | null
 ⋮----
-onTaxpayerChange(): void
+logout(): void
 ⋮----
-onSourceChange(): void
+// ── Getters ──
+get currentUser(): AuthUser | null
 ⋮----
-onStructureChange(): void
+get isLoggedIn(): boolean
 ⋮----
-onGrossAmountChange(): void
+get userRole(): Role
 ⋮----
-onStatusChange(): void
+// ── Permission checks ──
+hasPermission(module: string): boolean
 ⋮----
-get selectedAitRate(): number
+// auth.service.ts e add koro
+hasRole(role: Role): boolean
 ⋮----
-get requiresDepositProof(): boolean
+canDo(action: string): boolean
 ⋮----
-private updatePreviewAmount(): void
+canSeeMenu(menuLabel: string): boolean
 ⋮----
-private getEmptyForm(): AitCreateRequest
+updateCurrentUser(user: AuthUser): void
 ⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-private handleSuccess(): void
-⋮----
-private handleError(error: unknown): void
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
-```
-
-## File: src/app/features/ait/pages/ait-list/ait-list.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Ait } from '../../../../models/ait.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
-import { HttpClient } from '@angular/common/http';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class AitListComponent implements OnInit {
-⋮----
-// ──────────────── States ────────────────
-⋮----
-// ──────────────Constructor  ───────────────────
-⋮----
-constructor(
-⋮----
-// ─────────────── Lifecycle  ───────────────────
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ───────────────── Data Fetching  ────────────────────────
-⋮----
-private fetchAits(): void
-⋮----
-private handleFetchSuccess(data: Ait[]): void
-⋮----
-private handleFetchError(error: unknown): void
-⋮----
-private notifyIfEmpty(data: Ait[]): void
-⋮----
-// ────────────────── Filtering ──────────────────────
-⋮----
-get filtered(): Ait[]
-⋮----
-private matchesSearch(r: Ait, term: string): boolean
-⋮----
-// ────────────────── Delete Flow ──────────────────────
-⋮----
-confirmDelete(id: number): void
-⋮----
-cancelDelete(): void
-⋮----
-confirmDeleteExecute(): void
-⋮----
-private deleteAit(id: number): void
-⋮----
-private handleDeleteSuccess(): void
-⋮----
-private handleDeleteError(): void
-⋮----
-private resetDeleteState(): void
-⋮----
-// ────────────────── Navigation ──────────────────────
-⋮----
-view(id: number): void
-edit(id: number): void
-⋮----
-// ────────────────── Helpers ──────────────────────
-⋮----
-getStatusClass(s: string): string
-⋮----
-getSourceClass(s: string): string
-⋮----
-countByStatus(status: string): number
-⋮----
-formatCurrency(a: number): string
-⋮----
-get totalAIT(): number
+get allowedMenuItems(): string[]
 ```
 
 ## File: src/app/features/income-tax-returns/pages/income-tax-return-view/income-tax-return-view.component.css
@@ -34261,6 +35613,177 @@ exportProducts(): void
 ⋮----
 view(id: number): void
 edit(id: number): void
+```
+
+## File: src/app/features/taxpayer-management/pages/taxpayer-view/taxpayer-view.component.ts
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Taxpayer } from '../../../../models/taxpayer.model';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { TaxCircle, TaxZone } from 'src/app/models/master-data.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Role } from 'src/app/core/constants/roles.constants';
+import { District } from '../../../../models/master-data.model';
+⋮----
+export class TaxpayerViewComponent implements OnInit, OnDestroy {
+⋮----
+// ────────────────── Properties ──────────────────────
+⋮----
+// Zone & Circle
+⋮----
+// Form fields
+⋮----
+// Notice Modal
+⋮----
+// ──────────────────── Constructor ───────────────────────
+⋮----
+constructor(
+⋮----
+// ────────────────────── Lifecycle ──────────────────────
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ────────────────────── Initialization  ─────────────────────
+⋮----
+private initializeTaxpayer(): void
+⋮----
+private getValidTaxpayerId(): number | null
+⋮----
+private handleInvalidId(): void
+⋮----
+private fetchTaxpayer(): void
+⋮----
+private handleFetchSuccess(data: Taxpayer): void
+⋮----
+private handleFetchError(error: any): void
+⋮----
+// ───────────────────── Helper Methods ────────────────────────
+⋮----
+getDisplayName(taxpayer: any): string
+⋮----
+get isCompany(): boolean
+⋮----
+get isIndividual(): boolean
+⋮----
+get canReview(): boolean
+⋮----
+get isPendingReview(): boolean
+⋮----
+get isApproved(): boolean
+⋮----
+get isRejected(): boolean
+⋮----
+onFileSelected(event: Event): void
+⋮----
+// Preview
+⋮----
+getPhotoUrl(photoPath: string): string
+⋮----
+// ───────────────────── Navigation ────────────────────────
+⋮----
+onEdit(): void
+⋮----
+onBack(): void
+⋮----
+// ────────────────────── UI Helpers ──────────────────────
+⋮----
+getStatusClass(status: string): string
+⋮----
+loadZones(): void
+⋮----
+// taxpayer এর district থেকে zone load করব
+⋮----
+// আগে সব districts load করে match করব
+⋮----
+onZoneChange(): void
+⋮----
+// ────────────────────── Actions ──────────────────────
+⋮----
+onApprove(): void
+⋮----
+onReject(): void
+⋮----
+openSendNotice(): void
+⋮----
+closeSendNotice(): void
+⋮----
+sendNotice(): void
+```
+
+## File: src/app/features/taxpayer-portal/pages/portal-home/portal-home.component.ts
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { forkJoin, of, Subject, takeUntil } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+⋮----
+import { AuthService } from '../../../../core/services/auth.service';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Taxpayer } from 'src/app/models/taxpayer.model';
+import { IncomeTaxReturn } from 'src/app/models/income-tax-return.model';
+import { Router } from '@angular/router';
+⋮----
+export class PortalHomeComponent implements OnInit, OnDestroy
+⋮----
+// ── ITR stats ─────────────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Stats computed from ITR data ──────────────────────────────
+⋮----
+get totalReturnsFiled(): number
+⋮----
+get outstandingDues(): number
+⋮----
+/**
+   * Compliance score — accepted returns / total returns * 100
+   * 0 returns হলে 100% (no obligation yet)
+   */
+get complianceScore(): number
+⋮----
+get complianceColor(): string
+⋮----
+/**
+   * Last activity — most recent return-এর submission date
+   */
+get lastActivity(): string
+⋮----
+/** Outstanding dues formatted */
+formatDues(amount: number): string
+⋮----
+// ── Menu ──────────────────────────────────────────────────────
+⋮----
+private buildMenu(category: string): void
+⋮----
+// ── Display helpers ───────────────────────────────────────────
+⋮----
+get displayName(): string
+⋮----
+get taxpayerTypeName(): string
+⋮----
+get photoUrl(): string | null
+⋮----
+// ── Profile Completion ────────────────────────────────────────
+⋮----
+get profileCompletion(): number
+⋮----
+get completionColor(): string
+⋮----
+get missingFields(): string[]
+⋮----
+logout(): void
+⋮----
+onComplete(): void
 ```
 
 ## File: src/app/features/tin-management/pages/tin-view/tin-view.component.ts

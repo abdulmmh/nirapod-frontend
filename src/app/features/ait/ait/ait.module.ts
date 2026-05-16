@@ -1,24 +1,40 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AitRoutingModule } from './ait-routing.module';
-import { AitListComponent }   from '../pages/ait-list/ait-list.component';
-import { AitCreateComponent } from '../pages/ait-create/ait-create.component';
-import { AitEditComponent } from '../pages/ait-edit/ait-edit.component';
-import { AitViewComponent } from '../pages/ait-view/ait-view.component';
+
+// Pages
+import { AitDashboardComponent } from '../pages/ait-dashboard/ait-dashboard.component';
+import { AitCreateWizardComponent } from '../pages/ait-create-wizard/ait-create-wizard.component';
+import { OfficerDashboardComponent } from '../pages/officer-dashboard/officer-dashboard.component';
+import { OfficerReviewComponent } from '../pages/officer-review/officer-review.component';
+
+// Components
+import { KpiCardsComponent } from '../components/kpi-cards/kpi-cards.component';
+import { RecordsTableComponent } from '../components/records-table/records-table.component';
+import { StatusBadgeComponent } from '../components/status-badge/status-badge.component';
+import { AuditTrailComponent } from '../components/audit-trail/audit-trail.component';
+import { DocumentViewerComponent } from '../components/document-viewer/document-viewer.component';
 
 @NgModule({
   declarations: [
-    AitListComponent, 
-    AitCreateComponent,
-    AitEditComponent,
-    AitViewComponent
+    AitDashboardComponent,
+    AitCreateWizardComponent,
+    OfficerDashboardComponent,
+    OfficerReviewComponent,
+    KpiCardsComponent,
+    RecordsTableComponent,
+    StatusBadgeComponent,
+    AuditTrailComponent,
+    DocumentViewerComponent
   ],
   imports: [
     CommonModule,
-    FormsModule, 
-    SharedModule, 
-    AitRoutingModule]
+    FormsModule,
+    ReactiveFormsModule,
+    SharedModule,
+    AitRoutingModule
+  ]
 })
 export class AitModule { }

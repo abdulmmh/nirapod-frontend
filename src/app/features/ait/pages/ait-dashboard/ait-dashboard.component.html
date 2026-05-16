@@ -1,0 +1,184 @@
+<div class="ait-dashboard">
+  <h2 class="sr-only">Taxpayer AIT Dashboard showing summary cards and records table</h2>
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">Advance Income Tax (AIT)</div>
+      <div class="page-subtitle">Fiscal Year {{ taxpayerInfo.fiscalYear }} · TIN: {{ taxpayerInfo.tin }}</div>
+    </div>
+    <button class="btn-create" (click)="createNewAit()" title="Create a new AIT record">
+      <i class="ti ti-plus" aria-hidden="true"></i> Create New AIT
+    </button>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="alert-warning">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    {{ error }}
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading AIT records...</p>
+  </div>
+
+  <!-- Content (shown when not loading) -->
+  <div *ngIf="!loading" class="dashboard-content">
+
+    <!-- KPI cards -->
+    <div class="kpi-container">
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <i class="ti ti-file-text" aria-hidden="true"></i>
+          Total AITs
+        </div>
+        <div class="kpi-value">{{ kpis.totalCount }}</div>
+        <div class="kpi-subtitle">This fiscal year</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          Needs Action
+        </div>
+        <div class="kpi-value" [style.color]="'#BA7517'">{{ kpis.needsActionCount }}</div>
+        <div class="kpi-subtitle">Pending payment / docs</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <i class="ti ti-check" aria-hidden="true"></i>
+          Approved
+        </div>
+        <div class="kpi-value" [style.color]="'#3B6D11'">{{ kpis.approvedCount }}</div>
+        <div class="kpi-subtitle">This fiscal year</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <i class="ti ti-receipt" aria-hidden="true"></i>
+          Credited to ITR
+        </div>
+        <div class="kpi-value" [style.color]="'#0F6E56'">৳ {{ (kpis.creditedAmount | number:'1.0-0') }}</div>
+        <div class="kpi-subtitle">Successfully credited</div>
+      </div>
+    </div>
+
+    <!-- Filter row -->
+    <div class="filter-row">
+      <select class="filter-select" (change)="onStatusFilterChange($event.target.value)">
+        <option value="">All Statuses</option>
+        <option value="DRAFT">Draft</option>
+        <option value="SUBMITTED">Submitted</option>
+        <option value="PENDING">Payment Pending</option>
+        <option value="UNDER_REVIEW">Under Review</option>
+        <option value="APPROVED">Approved</option>
+      </select>
+
+      <select class="filter-select" (change)="onFiscalYearChange($event.target.value)">
+        <option value="FY 2024-2025">FY 2024-2025</option>
+        <option value="FY 2023-2024">FY 2023-2024</option>
+      </select>
+
+      <input type="text"
+        class="filter-input"
+        placeholder="Search reference or product…"
+        (input)="onSearchChange($event.target.value)">
+
+      <button class="filter-button" title="Open advanced filters">
+        <i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Filters
+      </button>
+    </div>
+
+    <!-- Records table -->
+    <div class="table-container">
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th>Reference No.</th>
+            <th>Import Date</th>
+            <th>Product / HS Code</th>
+            <th style="text-align: right">Taxable Value</th>
+            <th style="text-align: right">AIT Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of getPaginatedRecords()" [class]="getRowHighlight(record.status)">
+            <td>
+              <a class="ref-link" (click)="viewRecord(record.id)" title="View details">
+                {{ record.aitReferenceNo || 'N/A' }}
+              </a>
+            </td>
+            <td>{{ record.createdAt | date:'short' }}</td>
+            <td>
+              <div class="product-name">{{ record.hsCode || 'N/A' }}</div>
+              <div class="product-code">{{ record.hsCode }}</div>
+            </td>
+            <td class="amount">৳ {{ (record.taxableValue | number:'1.0-0') }}</td>
+            <td class="amount" [style.color]="'#3B6D11'">৳ {{ (record.calculatedAitAmount | number:'1.0-0') }}</td>
+            <td>
+              <span [class]="'badge ' + getStatusBadgeClass(record.status)">
+                {{ getStatusLabel(record.status) }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button *ngIf="record.status === 'DRAFT'"
+                class="btn-action btn-primary"
+                (click)="continueEditingDraft(record.id)"
+                title="Continue editing draft">
+                Continue
+              </button>
+              <button *ngIf="record.status === 'PENDING'"
+                class="btn-action btn-primary"
+                (click)="uploadDocuments(record.id)"
+                title="Pay now">
+                Pay Now
+              </button>
+              <button *ngIf="record.status === 'UNDER_REVIEW'"
+                class="btn-action"
+                (click)="uploadDocuments(record.id)"
+                title="Upload documents">
+                Upload Docs
+              </button>
+              <button class="btn-action" (click)="viewRecord(record.id)" title="View details">
+                View
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty state -->
+      <div *ngIf="getPaginatedRecords().length === 0" class="empty-state">
+        <i class="ti ti-file-off" aria-hidden="true"></i>
+        <p>No AIT records found</p>
+        <button class="btn-create" (click)="createNewAit()">
+          <i class="ti ti-plus" aria-hidden="true"></i> Create New AIT
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-bar">
+      <span class="pagination-info">
+        Showing {{ getPaginationStart() }}-{{ getPaginationEnd() }} of {{ filteredRecords.length }} records
+      </span>
+      <div class="pagination-controls">
+        <button class="btn-pagination" (click)="prevPage()" [disabled]="currentPage === 1">
+          ← Prev
+        </button>
+        <button *ngFor="let page of [1]" class="btn-page-num" [class.active]="currentPage === page">
+          {{ currentPage }}
+        </button>
+        <button *ngIf="getTotalPages() > 1" class="btn-pagination" (click)="nextPage()" [disabled]="currentPage >= getTotalPages()">
+          Next →
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

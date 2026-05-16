@@ -1,0 +1,370 @@
+<div class="review-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading AIT record...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="loadError && !isLoading" class="alert alert-danger">
+    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
+    {{ loadError }}
+    <button class="btn-retry" (click)="loadAitDetails()">Retry</button>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="actionSuccess" class="alert alert-success alert-dismissible">
+    <strong><i class="ti ti-circle-check"></i> Success!</strong>
+    {{ actionSuccess }}
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && ait" class="review-content">
+    <!-- Header -->
+    <div class="review-header">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">
+          <i class="ti ti-chevron-left"></i> Back to Queue
+        </button>
+        <h1>{{ ait.aitReferenceNo }}</h1>
+        <span class="status-badge" [ngClass]="getStatusColor(ait.status)">
+          {{ getStatusLabel(ait.status) }}
+        </span>
+      </div>
+      <div class="header-right">
+        <p class="header-date">{{ formatDate(ait.createdAt || '') }}</p>
+      </div>
+    </div>
+
+    <!-- Split Screen Layout -->
+    <div class="split-screen">
+      <!-- LEFT PANEL: Details -->
+      <div class="panel panel-details">
+        <div class="panel-header">
+          <h2><i class="ti ti-receipt-2"></i> AIT Details</h2>
+        </div>
+
+        <!-- Taxpayer Section -->
+        <div class="detail-section">
+          <h3>Taxpayer Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Name:</label>
+              <p>{{ ait.taxpayerName }}</p>
+            </div>
+            <div class="detail-item">
+              <label>TIN:</label>
+              <p>{{ ait.taxpayerId }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Officer Assigned:</label>
+              <p>{{ ait.assignedOfficerName || 'Not assigned' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transaction Section -->
+        <div class="detail-section">
+          <h3>Import Duty Transaction</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Duty Reference No:</label>
+              <p class="ref-no">{{ ait.importDutyRefNo }}</p>
+            </div>
+            <div class="detail-item">
+              <label>HS Code:</label>
+              <p class="code">{{ ait.hsCode }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Taxable Value:</label>
+              <p class="amount">৳ {{ ait.taxableValue | number:'1.2-2' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculation Section -->
+        <div class="detail-section calc-section">
+          <h3>AIT Calculation</h3>
+          <div class="calc-display">
+            <div class="calc-row">
+              <span>Taxable Value:</span>
+              <span class="value">৳ {{ ait.taxableValue | number:'1.2-2' }}</span>
+            </div>
+            <div class="calc-row">
+              <span>Rate:</span>
+              <span class="value">{{ ait.aitRate }}%</span>
+            </div>
+            <div class="calc-divider"></div>
+            <div class="calc-row result">
+              <span>Calculated AIT:</span>
+              <span class="value">৳ {{ ait.calculatedAitAmount | number:'1.2-2' }}</span>
+            </div>
+            <div *ngIf="ait.approvedAitAmount" class="calc-row approved">
+              <span>Approved Amount:</span>
+              <span class="value">৳ {{ ait.approvedAitAmount | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Trail Section -->
+        <div class="detail-section audit-section">
+          <h3>Status History</h3>
+          <div class="audit-trail">
+            <div *ngFor="let event of ait.statusHistory; let i = last" class="audit-item" [class.last]="i">
+              <div class="audit-dot"></div>
+              <div class="audit-content">
+                <p class="audit-transition">
+                  <strong>{{ event.fromStatus }}</strong> → <strong>{{ event.toStatus }}</strong>
+                </p>
+                <p class="audit-meta">
+                  by {{ event.changedBy }} on {{ formatDate(event.changedAt) }}
+                </p>
+                <p class="audit-reason" *ngIf="event.changeReason">{{ event.changeReason }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Requests Section -->
+        <div *ngIf="pendingRequests.length > 0" class="detail-section requests-section">
+          <h3>Pending Document Requests</h3>
+          <div class="requests-list">
+            <div *ngFor="let req of pendingRequests" class="request-item">
+              <p class="request-type"><strong>{{ req.requestType }}</strong></p>
+              <p class="request-docs">Documents: {{ req.requestedDocuments }}</p>
+              <p class="request-meta">Deadline: {{ formatDate(req.deadline) }}</p>
+              <p class="request-status" [ngClass]="'status-' + req.status.toLowerCase()">
+                {{ req.status }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: Documents & Actions -->
+      <div class="panel panel-documents">
+        <div class="panel-header">
+          <h2><i class="ti ti-paperclip"></i> Documents ({{ documents.length }})</h2>
+        </div>
+
+        <!-- Document Tabs -->
+        <div *ngIf="documents.length > 0" class="document-tabs">
+          <div class="tabs-container">
+            <button
+              *ngFor="let doc of documents"
+              class="tab-btn"
+              [class.active]="activeDocTabId === doc.id"
+              (click)="selectDocument(doc)"
+              title="{{ doc.fileName }}">
+              <i class="ti ti-file"></i>
+              <span class="tab-label">{{ doc.fileName | slice:0:20 }}{{ doc.fileName.length > 20 ? '...' : '' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Document Viewer -->
+        <div *ngIf="selectedDocument" class="document-viewer">
+          <div class="viewer-header">
+            <h4>{{ selectedDocument.fileName }}</h4>
+            <p class="viewer-meta">
+              {{ formatFileSize(selectedDocument.fileSize) }} • {{ selectedDocument.fileType }} • {{ formatDate(selectedDocument.uploadedAt) }}
+            </p>
+          </div>
+
+          <div class="viewer-placeholder">
+            <i class="ti ti-file"></i>
+            <p>Document preview not available in browser</p>
+            <p class="hint">{{ selectedDocument.fileName }}</p>
+            <button class="btn-download" title="Download document">
+              <i class="ti ti-download"></i> Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty Documents -->
+        <div *ngIf="documents.length === 0" class="empty-docs">
+          <i class="ti ti-inbox"></i>
+          <p>No documents uploaded</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions-panel">
+          <div class="action-buttons">
+            <button
+              class="btn btn-approve"
+              (click)="openApproveModal()"
+              [disabled]="!canApprove() || actionInProgress !== null">
+              <i class="ti ti-circle-check"></i> Approve
+            </button>
+
+            <button
+              class="btn btn-reject"
+              (click)="openRejectModal()"
+              [disabled]="!canReject() || actionInProgress !== null">
+              <i class="ti ti-circle-x"></i> Reject
+            </button>
+
+            <button
+              class="btn btn-request"
+              (click)="openRequestModal()"
+              [disabled]="!canRequestCorrection() || actionInProgress !== null">
+              <i class="ti ti-send"></i> Request Correction
+            </button>
+          </div>
+
+          <p *ngIf="actionError" class="action-error">
+            <i class="ti ti-alert-circle"></i> {{ actionError }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- APPROVE MODAL -->
+    <div *ngIf="showApproveModal" class="modal-overlay" (click)="closeApproveModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Approve AIT Record</h3>
+          <button class="btn-close" (click)="closeApproveModal()">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Approved AIT Amount (৳)</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="approveForm.approvedAmount"
+              step="0.01"
+              min="0">
+            <p class="form-hint">Current calculated amount: ৳ {{ ait?.calculatedAitAmount | number:'1.2-2' }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Approval Notes</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="approveForm.approvalNotes"
+              rows="3"
+              placeholder="Optional notes about this approval"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeApproveModal()" [disabled]="actionInProgress !== null">
+            Cancel
+          </button>
+          <button
+            class="btn btn-approve"
+            (click)="submitApprove()"
+            [disabled]="actionInProgress !== null">
+            {{ actionInProgress === 'approve' ? 'Approving...' : 'Approve' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REJECT MODAL -->
+    <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeRejectModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Reject AIT Record</h3>
+          <button class="btn-close" (click)="closeRejectModal()">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Rejection Reason *</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="rejectForm.rejectionReason"
+              rows="4"
+              placeholder="Please explain why this AIT record is being rejected"
+              required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeRejectModal()" [disabled]="actionInProgress !== null">
+            Cancel
+          </button>
+          <button
+            class="btn btn-reject"
+            (click)="submitReject()"
+            [disabled]="actionInProgress !== null || !rejectForm.rejectionReason.trim()">
+            {{ actionInProgress === 'reject' ? 'Rejecting...' : 'Reject' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUEST CORRECTION MODAL -->
+    <div *ngIf="showRequestModal" class="modal-overlay" (click)="closeRequestModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Request Document Correction</h3>
+          <button class="btn-close" (click)="closeRequestModal()">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Request Type</label>
+            <select class="form-control" [(ngModel)]="requestForm.requestType">
+              <option value="INFO">Information Request</option>
+              <option value="MODIFICATION">Modification Request</option>
+              <option value="CLARIFICATION">Clarification Request</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Documents Required *</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="requestForm.requestedDocuments"
+              rows="2"
+              placeholder="List the documents or information needed"
+              required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Reason for Request</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="requestForm.requestReason"
+              rows="2"
+              placeholder="Explain why this information is needed"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Deadline</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="requestForm.deadline">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeRequestModal()" [disabled]="actionInProgress !== null">
+            Cancel
+          </button>
+          <button
+            class="btn btn-request"
+            (click)="submitRequest()"
+            [disabled]="actionInProgress !== null || !requestForm.requestedDocuments.trim()">
+            {{ actionInProgress === 'request' ? 'Sending...' : 'Send Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

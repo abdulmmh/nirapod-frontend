@@ -95,11 +95,28 @@ export const API_ENDPOINTS = {
 
   // AIT (Advance Income Tax)
   AITS: {
-    LIST:   `${API_BASE_URL}/aits`,
-    CREATE: `${API_BASE_URL}/aits`,
-    UPDATE: (id: number) => `${API_BASE_URL}/aits/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/aits/${id}`,
-    GET:    (id: number) => `${API_BASE_URL}/aits/${id}`,
+    LIST:   `${API_BASE_URL}/v2/aits`,
+    CREATE: `${API_BASE_URL}/v2/aits`,
+    UPDATE: (id: number) => `${API_BASE_URL}/v2/aits/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/v2/aits/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/v2/aits/${id}`,
+    SUBMIT: (id: number) => `${API_BASE_URL}/v2/aits/${id}/submit`,
+    APPROVE: (id: number) => `${API_BASE_URL}/v2/aits/${id}/approve`,
+    REJECT: (id: number) => `${API_BASE_URL}/v2/aits/${id}/reject`,
+    CREDIT: (id: number) => `${API_BASE_URL}/v2/aits/${id}/credit`,
+    DOCUMENTS: {
+      LIST: (aitId: number) => `${API_BASE_URL}/v2/aits/${aitId}/documents`,
+      UPLOAD: (aitId: number) => `${API_BASE_URL}/v2/aits/${aitId}/documents`,
+      DELETE: (aitId: number, docId: number) => `${API_BASE_URL}/v2/aits/${aitId}/documents/${docId}`,
+    },
+    DOCUMENT_REQUESTS: {
+      CREATE: (aitId: number) => `${API_BASE_URL}/v2/aits/${aitId}/document-requests`,
+      LIST: (aitId: number) => `${API_BASE_URL}/v2/aits/${aitId}/document-requests`,
+    },
+    QUEUE: {
+      PENDING: `${API_BASE_URL}/v2/aits/queue/pending`,
+      MY_ASSIGNED: `${API_BASE_URL}/v2/aits/queue/my-assigned`,
+    },
   },
 
   // Fiscal Years

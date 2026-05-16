@@ -1,0 +1,252 @@
+<div class="officer-dashboard-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Officer Dashboard</h1>
+      <p class="subtitle">Manage your AIT review queue and track performance metrics</p>
+    </div>
+    <button class="btn-refresh" (click)="refreshQueue()" title="Refresh data">
+      <i class="ti ti-refresh"></i>
+    </button>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-content">
+        <p class="kpi-label">My Queue</p>
+        <h2 class="kpi-value">{{ kpis.myQueue }}</h2>
+        <p class="kpi-description">Records under review</p>
+      </div>
+      <div class="kpi-icon kpi-icon-queue">
+        <i class="ti ti-inbox"></i>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-content">
+        <p class="kpi-label">Reviewed Today</p>
+        <h2 class="kpi-value">{{ kpis.reviewedToday }}</h2>
+        <p class="kpi-description">Records processed</p>
+      </div>
+      <div class="kpi-icon kpi-icon-today">
+        <i class="ti ti-calendar"></i>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-content">
+        <p class="kpi-label">Approved (Week)</p>
+        <h2 class="kpi-value">{{ kpis.approvedWeek }}</h2>
+        <p class="kpi-description">Last 7 days</p>
+      </div>
+      <div class="kpi-icon kpi-icon-approved">
+        <i class="ti ti-circle-check"></i>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-content">
+        <p class="kpi-label">SLA Risk</p>
+        <h2 class="kpi-value">{{ kpis.slaRiskPercent }}%</h2>
+        <p class="kpi-description">Overdue records</p>
+      </div>
+      <div class="kpi-icon" [ngClass]="kpis.slaRiskPercent > 30 ? 'kpi-icon-danger' : 'kpi-icon-warning'">
+        <i class="ti ti-alert-triangle"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading queue data...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="loadError && !isLoading" class="alert alert-danger">
+    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
+    {{ loadError }}
+    <button class="btn-retry" (click)="refreshQueue()">Retry</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading" class="queue-content">
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <div class="filter-header">
+        <h3>Queue Worklist</h3>
+        <p class="filter-count">{{ filteredRecords.length }} record(s)</p>
+      </div>
+
+      <!-- Status Tabs -->
+      <div class="status-tabs">
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'ALL'"
+          (click)="setActiveTab('ALL')">
+          All Records
+        </button>
+        <button
+          *ngFor="let status of statusOptions"
+          class="tab-btn"
+          [class.active]="activeTab === status"
+          (click)="setActiveTab(status)">
+          {{ getStatusLabel(status) }}
+        </button>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="filter-controls">
+        <div class="search-box">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search by Reference No, Taxpayer Name, or Duty Ref..."
+            [(ngModel)]="searchQuery"
+            (input)="onSearchChange()">
+          <i class="ti ti-search"></i>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>From Date:</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="dateFilterFrom"
+              (change)="onDateChange()">
+          </div>
+
+          <div class="filter-group">
+            <label>To Date:</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="dateFilterTo"
+              (change)="onDateChange()">
+          </div>
+
+          <div class="filter-group">
+            <label>Sort By:</label>
+            <div class="sort-buttons">
+              <button
+                class="sort-btn"
+                [class.active]="sortBy === 'date'"
+                (click)="setSortBy('date')">
+                Date
+                <i *ngIf="sortBy === 'date'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
+              </button>
+              <button
+                class="sort-btn"
+                [class.active]="sortBy === 'amount'"
+                (click)="setSortBy('amount')">
+                Amount
+                <i *ngIf="sortBy === 'amount'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
+              </button>
+              <button
+                class="sort-btn"
+                [class.active]="sortBy === 'ref_no'"
+                (click)="setSortBy('ref_no')">
+                Ref No
+                <i *ngIf="sortBy === 'ref_no'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Records Table -->
+    <div class="queue-table-container">
+      <table class="queue-table" *ngIf="filteredRecords.length > 0">
+        <thead>
+          <tr>
+            <th width="12%">Reference No</th>
+            <th width="15%">Taxpayer</th>
+            <th width="15%">Import Duty Ref</th>
+            <th width="12%">AIT Amount</th>
+            <th width="12%">Status</th>
+            <th width="12%">Date</th>
+            <th width="12%">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of getPaginatedRecords()" class="record-row">
+            <td class="ref-no">
+              <strong>{{ record.aitReferenceNo }}</strong>
+            </td>
+            <td>{{ record.taxpayerName }}</td>
+            <td class="duty-ref">{{ record.importDutyRefNo }}</td>
+            <td class="amount">৳ {{ record.calculatedAitAmount | number:'1.2-2' }}</td>
+            <td>
+              <span class="badge" [ngClass]="getStatusColor(record.status)">
+                {{ getStatusLabel(record.status) }}
+              </span>
+            </td>
+            <td class="date">{{ formatDate(record.createdAt || '') }}</td>
+            <td class="actions">
+              <button
+                class="btn-action btn-review"
+                (click)="reviewRecord(record.id || 0)"
+                title="Review this record">
+                <i class="ti ti-edit"></i> Review
+              </button>
+              <button
+                class="btn-action btn-view"
+                (click)="viewDetails(record.id || 0)"
+                title="View details">
+                <i class="ti ti-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredRecords.length === 0" class="empty-state">
+        <i class="ti ti-inbox"></i>
+        <h3>No Records Found</h3>
+        <p>Try adjusting your search or filter criteria</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="filteredRecords.length > 0" class="pagination-bar">
+      <div class="pagination-info">
+        Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to
+        {{ Math.min(currentPage * itemsPerPage, filteredRecords.length) }}
+        of {{ filteredRecords.length }} records
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          class="btn-page"
+          [disabled]="currentPage === 1"
+          (click)="prevPage()">
+          <i class="ti ti-chevron-left"></i> Previous
+        </button>
+
+        <div class="page-numbers">
+          <button
+            *ngFor="let page of [1, 2, 3, 4, 5]"
+            class="btn-page-number"
+            [class.active]="page === currentPage"
+            [disabled]="page > getTotalPages()"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+          <span *ngIf="getTotalPages() > 5" class="page-ellipsis">...</span>
+        </div>
+
+        <button
+          class="btn-page"
+          [disabled]="currentPage === getTotalPages()"
+          (click)="nextPage()">
+          Next <i class="ti ti-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
