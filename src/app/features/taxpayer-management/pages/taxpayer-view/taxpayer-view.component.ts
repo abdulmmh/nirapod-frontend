@@ -39,6 +39,14 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
   approveCircle = '';
   reviewNotes = '';
 
+  // Notice Modal
+  showNoticeModal = false;
+  noticeSubject = '';
+  noticeBody = '';
+  noticeType = 'General';
+  noticePriority = 'Normal';
+  isSendingNotice = false;
+
   // ──────────────────── Constructor ───────────────────────
 
   constructor(
@@ -305,5 +313,43 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
       },
       error: () => this.toast.error('Rejection failed. Please try again.')
     });
+  }
+
+  openSendNotice(): void {
+    this.showNoticeModal = true;
+  }
+
+  closeSendNotice(): void {
+    this.showNoticeModal = false;
+    this.noticeSubject = '';
+    this.noticeBody = '';
+  }
+
+  sendNotice(): void {
+    if (!this.noticeSubject.trim() || !this.noticeBody.trim()) {
+      this.toast.warning('Subject and message are required.');
+      return;
+    }
+
+    this.isSendingNotice = true;
+    this.http.post(API_ENDPOINTS.NOTICES.CREATE, {
+      taxpayerId:  this.taxpayer?.id,
+      subject:     this.noticeSubject,
+      body:        this.noticeBody,
+      noticeType:  this.noticeType,
+      priority:    this.noticePriority,
+      targetType:  'Specific Taxpayer',
+      issuedBy:    this.authService.currentUser?.fullName || 'Officer',
+      issuedDate:  new Date().toISOString().split('T')[0],
+      dueDate:     null,
+      attachmentName: null
+    }).pipe(finalize(() => this.isSendingNotice = false))
+      .subscribe({
+        next: () => {
+          this.toast.success('Notice sent successfully!');
+          this.closeSendNotice();
+        },
+        error: () => this.toast.error('Failed to send notice.')
+      });
   }
 }

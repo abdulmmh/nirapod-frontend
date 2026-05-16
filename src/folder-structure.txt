@@ -1,0 +1,879 @@
+Folder PATH listing for volume New Volume
+Volume serial number is 0000000F 5C5D:4CA8
+E:.
+¦   favicon.ico
+¦   folder-structure.txt
+¦   index.html
+¦   main.ts
+¦   polyfills.ts
+¦   styles.css
+¦   test.ts
+¦   
++---app
+¦   ¦   app-routing.module.ts
+¦   ¦   app.component.css
+¦   ¦   app.component.html
+¦   ¦   app.component.spec.ts
+¦   ¦   app.component.ts
+¦   ¦   app.module.ts
+¦   ¦   
+¦   +---core
+¦   ¦   +---constants
+¦   ¦   ¦       api.constants.ts
+¦   ¦   ¦       roles.constants.ts
+¦   ¦   ¦       
+¦   ¦   +---directives
+¦   ¦   ¦       has-role.directive.ts
+¦   ¦   ¦       
+¦   ¦   +---guards
+¦   ¦   ¦       auth.guard.ts
+¦   ¦   ¦       
+¦   ¦   +---interceptors
+¦   ¦   ¦       auth.interceptor.ts
+¦   ¦   ¦       error.interceptor.ts
+¦   ¦   ¦       
+¦   ¦   +---services
+¦   ¦           auth.service.ts
+¦   ¦           base-api.service.ts
+¦   ¦           master-data.service.ts
+¦   ¦           tax-strcuture.service.ts
+¦   ¦           
+¦   +---features
+¦   ¦   +---activity-logs
+¦   ¦   ¦   +---activity-logs
+¦   ¦   ¦   ¦       activity-logs-routing.module.ts
+¦   ¦   ¦   ¦       activity-logs.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---activity-logs-list
+¦   ¦   ¦               activity-logs-list.component.css
+¦   ¦   ¦               activity-logs-list.component.html
+¦   ¦   ¦               activity-logs-list.component.spec.ts
+¦   ¦   ¦               activity-logs-list.component.ts
+¦   ¦   ¦               
+¦   ¦   +---ait
+¦   ¦   ¦   +---ait
+¦   ¦   ¦   ¦       ait-routing.module.ts
+¦   ¦   ¦   ¦       ait.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---ait-create
+¦   ¦   ¦       ¦       ait-create.component.css
+¦   ¦   ¦       ¦       ait-create.component.html
+¦   ¦   ¦       ¦       ait-create.component.spec.ts
+¦   ¦   ¦       ¦       ait-create.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---ait-edit
+¦   ¦   ¦       ¦       ait-edit.component.css
+¦   ¦   ¦       ¦       ait-edit.component.html
+¦   ¦   ¦       ¦       ait-edit.component.spec.ts
+¦   ¦   ¦       ¦       ait-edit.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---ait-list
+¦   ¦   ¦       ¦       ait-list.component.css
+¦   ¦   ¦       ¦       ait-list.component.html
+¦   ¦   ¦       ¦       ait-list.component.spec.ts
+¦   ¦   ¦       ¦       ait-list.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---ait-view
+¦   ¦   ¦               ait-view.component.css
+¦   ¦   ¦               ait-view.component.html
+¦   ¦   ¦               ait-view.component.spec.ts
+¦   ¦   ¦               ait-view.component.ts
+¦   ¦   ¦               
+¦   ¦   +---audit-management
+¦   ¦   ¦   +---audit
+¦   ¦   ¦   ¦       audit-routing.module.ts
+¦   ¦   ¦   ¦       audit.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---audit-create
+¦   ¦   ¦       ¦       audit-create.component.css
+¦   ¦   ¦       ¦       audit-create.component.html
+¦   ¦   ¦       ¦       audit-create.component.spec.ts
+¦   ¦   ¦       ¦       audit-create.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---audit-edit
+¦   ¦   ¦       ¦       audit-edit.component.css
+¦   ¦   ¦       ¦       audit-edit.component.html
+¦   ¦   ¦       ¦       audit-edit.component.spec.ts
+¦   ¦   ¦       ¦       audit-edit.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---audit-list
+¦   ¦   ¦       ¦       audit-list.component.css
+¦   ¦   ¦       ¦       audit-list.component.html
+¦   ¦   ¦       ¦       audit-list.component.spec.ts
+¦   ¦   ¦       ¦       audit-list.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---audit-view
+¦   ¦   ¦               audit-view.component.css
+¦   ¦   ¦               audit-view.component.html
+¦   ¦   ¦               audit-view.component.spec.ts
+¦   ¦   ¦               audit-view.component.ts
+¦   ¦   ¦               
+¦   ¦   +---auth
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---forgot-password
+¦   ¦   ¦       ¦       forgot-password.component.css
+¦   ¦   ¦       ¦       forgot-password.component.html
+¦   ¦   ¦       ¦       forgot-password.component.spec.ts
+¦   ¦   ¦       ¦       forgot-password.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---login
+¦   ¦   ¦       ¦       login.component.css
+¦   ¦   ¦       ¦       login.component.html
+¦   ¦   ¦       ¦       login.component.spec.ts
+¦   ¦   ¦       ¦       login.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---reset-password
+¦   ¦   ¦       ¦       reset-password.component.css
+¦   ¦   ¦       ¦       reset-password.component.html
+¦   ¦   ¦       ¦       reset-password.component.spec.ts
+¦   ¦   ¦       ¦       reset-password.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---unauthorized
+¦   ¦   ¦       ¦       unauthorized.component.css
+¦   ¦   ¦       ¦       unauthorized.component.html
+¦   ¦   ¦       ¦       unauthorized.component.spec.ts
+¦   ¦   ¦       ¦       unauthorized.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---verify-email
+¦   ¦   ¦       ¦       verify-email.component.css
+¦   ¦   ¦       ¦       verify-email.component.html
+¦   ¦   ¦       ¦       verify-email.component.spec.ts
+¦   ¦   ¦       ¦       verify-email.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---verify-otp
+¦   ¦   ¦               verify-otp.component.css
+¦   ¦   ¦               verify-otp.component.html
+¦   ¦   ¦               verify-otp.component.spec.ts
+¦   ¦   ¦               verify-otp.component.ts
+¦   ¦   ¦               
+¦   ¦   +---business-registration
+¦   ¦   ¦   +---business
+¦   ¦   ¦   ¦       business-routing.module.ts
+¦   ¦   ¦   ¦       business.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---business-create
+¦   ¦   ¦       ¦       business-create.component.css
+¦   ¦   ¦       ¦       business-create.component.html
+¦   ¦   ¦       ¦       business-create.component.spec.ts
+¦   ¦   ¦       ¦       business-create.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---business-edit
+¦   ¦   ¦       ¦       business-edit.component.css
+¦   ¦   ¦       ¦       business-edit.component.html
+¦   ¦   ¦       ¦       business-edit.component.spec.ts
+¦   ¦   ¦       ¦       business-edit.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---business-list
+¦   ¦   ¦       ¦       business-list.component.css
+¦   ¦   ¦       ¦       business-list.component.html
+¦   ¦   ¦       ¦       business-list.component.spec.ts
+¦   ¦   ¦       ¦       business-list.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---business-view
+¦   ¦   ¦               business-view.component.css
+¦   ¦   ¦               business-view.component.html
+¦   ¦   ¦               business-view.component.spec.ts
+¦   ¦   ¦               business-view.component.ts
+¦   ¦   ¦               
+¦   ¦   +---dashboard
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---dashboard-home
+¦   ¦   ¦   ¦           dashboard-home.component.css
+¦   ¦   ¦   ¦           dashboard-home.component.html
+¦   ¦   ¦   ¦           dashboard-home.component.spec.ts
+¦   ¦   ¦   ¦           dashboard-home.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---services
+¦   ¦   ¦           dashboard.service.ts
+¦   ¦   ¦           
+¦   ¦   +---document-verification
+¦   ¦   ¦   +---document
+¦   ¦   ¦   ¦       document-verification-routing.module.ts
+¦   ¦   ¦   ¦       document-verification.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---document-create
+¦   ¦   ¦       ¦       document-create.component.css
+¦   ¦   ¦       ¦       document-create.component.html
+¦   ¦   ¦       ¦       document-create.component.spec.ts
+¦   ¦   ¦       ¦       document-create.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---document-edit
+¦   ¦   ¦       ¦       document-edit.component.css
+¦   ¦   ¦       ¦       document-edit.component.html
+¦   ¦   ¦       ¦       document-edit.component.spec.ts
+¦   ¦   ¦       ¦       document-edit.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---document-list
+¦   ¦   ¦       ¦       document-list.component.css
+¦   ¦   ¦       ¦       document-list.component.html
+¦   ¦   ¦       ¦       document-list.component.spec.ts
+¦   ¦   ¦       ¦       document-list.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---document-view
+¦   ¦   ¦               document-view.component.css
+¦   ¦   ¦               document-view.component.html
+¦   ¦   ¦               document-view.component.spec.ts
+¦   ¦   ¦               document-view.component.ts
+¦   ¦   ¦               
+¦   ¦   +---fiscal-years
+¦   ¦   ¦   +---fiscal-years
+¦   ¦   ¦   ¦       fiscal-years-routing.module.ts
+¦   ¦   ¦   ¦       fiscal-years.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---fiscal-year-create
+¦   ¦   ¦       ¦       fiscal-year-create.component.css
+¦   ¦   ¦       ¦       fiscal-year-create.component.html
+¦   ¦   ¦       ¦       fiscal-year-create.component.spec.ts
+¦   ¦   ¦       ¦       fiscal-year-create.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---fiscal-year-edit
+¦   ¦   ¦       ¦       fiscal-year-edit.component.css
+¦   ¦   ¦       ¦       fiscal-year-edit.component.html
+¦   ¦   ¦       ¦       fiscal-year-edit.component.spec.ts
+¦   ¦   ¦       ¦       fiscal-year-edit.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---fiscal-year-list
+¦   ¦   ¦               fiscal-year-list.component.css
+¦   ¦   ¦               fiscal-year-list.component.html
+¦   ¦   ¦               fiscal-year-list.component.spec.ts
+¦   ¦   ¦               fiscal-year-list.component.ts
+¦   ¦   ¦               
+¦   ¦   +---import-duty
+¦   ¦   ¦   +---import-duty
+¦   ¦   ¦   ¦       import-duty-routing.module.ts
+¦   ¦   ¦   ¦       import-duty.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---import-duty-create
+¦   ¦   ¦       ¦       import-duty-create.component.css
+¦   ¦   ¦       ¦       import-duty-create.component.html
+¦   ¦   ¦       ¦       import-duty-create.component.spec.ts
+¦   ¦   ¦       ¦       import-duty-create.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---import-duty-edit
+¦   ¦   ¦       ¦       import-duty-edit.component.css
+¦   ¦   ¦       ¦       import-duty-edit.component.html
+¦   ¦   ¦       ¦       import-duty-edit.component.spec.ts
+¦   ¦   ¦       ¦       import-duty-edit.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---import-duty-list
+¦   ¦   ¦       ¦       import-duty-list.component.css
+¦   ¦   ¦       ¦       import-duty-list.component.html
+¦   ¦   ¦       ¦       import-duty-list.component.spec.ts
+¦   ¦   ¦       ¦       import-duty-list.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---import-duty-view
+¦   ¦   ¦               import-duty-view.component.css
+¦   ¦   ¦               import-duty-view.component.html
+¦   ¦   ¦               import-duty-view.component.spec.ts
+¦   ¦   ¦               import-duty-view.component.ts
+¦   ¦   ¦               
+¦   ¦   +---income-tax-returns
+¦   ¦   ¦   +---income-tax-returns
+¦   ¦   ¦   ¦       income-tax-returns-routing.module.ts
+¦   ¦   ¦   ¦       income-tax-returns.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---income-tax-return-create
+¦   ¦   ¦       ¦       income-tax-return-create.component.css
+¦   ¦   ¦       ¦       income-tax-return-create.component.html
+¦   ¦   ¦       ¦       income-tax-return-create.component.spec.ts
+¦   ¦   ¦       ¦       income-tax-return-create.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---income-tax-return-edit
+¦   ¦   ¦       ¦       income-tax-return-edit.component.css
+¦   ¦   ¦       ¦       income-tax-return-edit.component.html
+¦   ¦   ¦       ¦       income-tax-return-edit.component.spec.ts
+¦   ¦   ¦       ¦       income-tax-return-edit.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---income-tax-return-list
+¦   ¦   ¦       ¦       income-tax-return-list.component.css
+¦   ¦   ¦       ¦       income-tax-return-list.component.html
+¦   ¦   ¦       ¦       income-tax-return-list.component.spec.ts
+¦   ¦   ¦       ¦       income-tax-return-list.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---income-tax-return-view
+¦   ¦   ¦       ¦       income-tax-return-view.component.css
+¦   ¦   ¦       ¦       income-tax-return-view.component.html
+¦   ¦   ¦       ¦       income-tax-return-view.component.spec.ts
+¦   ¦   ¦       ¦       income-tax-return-view.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---IT10B
+¦   ¦   ¦               INTEGRATION_NOTES.txt
+¦   ¦   ¦               it10b.component.css
+¦   ¦   ¦               it10b.component.html
+¦   ¦   ¦               it10b.component.ts
+¦   ¦   ¦               
+¦   ¦   +---notices-notifications
+¦   ¦   ¦   +---notice
+¦   ¦   ¦   ¦       notice-routing.module.ts
+¦   ¦   ¦   ¦       notice.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---pages
+¦   ¦   ¦       +---notice-create
+¦   ¦   ¦       ¦       notice-create.component.css
+¦   ¦   ¦       ¦       notice-create.component.html
+¦   ¦   ¦       ¦       notice-create.component.spec.ts
+¦   ¦   ¦       ¦       notice-create.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---notice-list
+¦   ¦   ¦       ¦       notice-list.component.css
+¦   ¦   ¦       ¦       notice-list.component.html
+¦   ¦   ¦       ¦       notice-list.component.spec.ts
+¦   ¦   ¦       ¦       notice-list.component.ts
+¦   ¦   ¦       ¦       
+¦   ¦   ¦       +---notice-view
+¦   ¦   ¦               notice-view.component.css
+¦   ¦   ¦               notice-view.component.html
+¦   ¦   ¦               notice-view.component.spec.ts
+¦   ¦   ¦               notice-view.component.ts
+¦   ¦   ¦               
+¦   ¦   +---payments
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---payment-create
+¦   ¦   ¦   ¦   ¦       payment-create.component.css
+¦   ¦   ¦   ¦   ¦       payment-create.component.html
+¦   ¦   ¦   ¦   ¦       payment-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       payment-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---payment-edit
+¦   ¦   ¦   ¦   ¦       payment-edit.component.css
+¦   ¦   ¦   ¦   ¦       payment-edit.component.html
+¦   ¦   ¦   ¦   ¦       payment-edit.component.spec.ts
+¦   ¦   ¦   ¦   ¦       payment-edit.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---payment-list
+¦   ¦   ¦   ¦   ¦       payment-list.component.css
+¦   ¦   ¦   ¦   ¦       payment-list.component.html
+¦   ¦   ¦   ¦   ¦       payment-list.component.spec.ts
+¦   ¦   ¦   ¦   ¦       payment-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---payment-view
+¦   ¦   ¦   ¦           payment-view.component.css
+¦   ¦   ¦   ¦           payment-view.component.html
+¦   ¦   ¦   ¦           payment-view.component.spec.ts
+¦   ¦   ¦   ¦           payment-view.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---payment
+¦   ¦   ¦           payment-routing.module.ts
+¦   ¦   ¦           payment.module.ts
+¦   ¦   ¦           
+¦   ¦   +---penalty-fines
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---penalty-create
+¦   ¦   ¦   ¦   ¦       penalty-create.component.css
+¦   ¦   ¦   ¦   ¦       penalty-create.component.html
+¦   ¦   ¦   ¦   ¦       penalty-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       penalty-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---penalty-edit
+¦   ¦   ¦   ¦   ¦       penalty-edit.component.css
+¦   ¦   ¦   ¦   ¦       penalty-edit.component.html
+¦   ¦   ¦   ¦   ¦       penalty-edit.component.spec.ts
+¦   ¦   ¦   ¦   ¦       penalty-edit.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---penalty-list
+¦   ¦   ¦   ¦   ¦       penalty-list.component.css
+¦   ¦   ¦   ¦   ¦       penalty-list.component.html
+¦   ¦   ¦   ¦   ¦       penalty-list.component.spec.ts
+¦   ¦   ¦   ¦   ¦       penalty-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---penalty-view
+¦   ¦   ¦   ¦           penalty-view.component.css
+¦   ¦   ¦   ¦           penalty-view.component.html
+¦   ¦   ¦   ¦           penalty-view.component.spec.ts
+¦   ¦   ¦   ¦           penalty-view.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---penalty
+¦   ¦   ¦           penalty-routing.module.ts
+¦   ¦   ¦           penalty.module.ts
+¦   ¦   ¦           
+¦   ¦   +---public-registration
+¦   ¦   ¦   +---public-registration
+¦   ¦   ¦   ¦       public-registration-routing.module.ts
+¦   ¦   ¦   ¦       public-registration.module.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---register
+¦   ¦   ¦   ¦       register.component.css
+¦   ¦   ¦   ¦       register.component.html
+¦   ¦   ¦   ¦       register.component.spec.ts
+¦   ¦   ¦   ¦       register.component.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---steps
+¦   ¦   ¦       +---step1-account-type
+¦   ¦   ¦       ¦   +---reg-step-account-type
+¦   ¦   ¦       ¦           reg-step-account-type.component.css
+¦   ¦   ¦       ¦           reg-step-account-type.component.html
+¦   ¦   ¦       ¦           reg-step-account-type.component.spec.ts
+¦   ¦   ¦       ¦           reg-step-account-type.component.ts
+¦   ¦   ¦       ¦           
+¦   ¦   ¦       +---step2-credentials
+¦   ¦   ¦       ¦   +---reg-step-credentials
+¦   ¦   ¦       ¦           reg-step-credentials.component.css
+¦   ¦   ¦       ¦           reg-step-credentials.component.html
+¦   ¦   ¦       ¦           reg-step-credentials.component.spec.ts
+¦   ¦   ¦       ¦           reg-step-credentials.component.ts
+¦   ¦   ¦       ¦           
+¦   ¦   ¦       +---step3-identity
+¦   ¦   ¦       ¦   +---reg-step-identity
+¦   ¦   ¦       ¦           reg-step-identity.component.css
+¦   ¦   ¦       ¦           reg-step-identity.component.html
+¦   ¦   ¦       ¦           reg-step-identity.component.spec.ts
+¦   ¦   ¦       ¦           reg-step-identity.component.ts
+¦   ¦   ¦       ¦           
+¦   ¦   ¦       +---step4-review
+¦   ¦   ¦       ¦   +---reg-step-review
+¦   ¦   ¦       ¦           reg-step-review.component.css
+¦   ¦   ¦       ¦           reg-step-review.component.html
+¦   ¦   ¦       ¦           reg-step-review.component.spec.ts
+¦   ¦   ¦       ¦           reg-step-review.component.ts
+¦   ¦   ¦       ¦           
+¦   ¦   ¦       +---step5-success
+¦   ¦   ¦           +---reg-step-success
+¦   ¦   ¦                   reg-step-success.component.css
+¦   ¦   ¦                   reg-step-success.component.html
+¦   ¦   ¦                   reg-step-success.component.spec.ts
+¦   ¦   ¦                   reg-step-success.component.ts
+¦   ¦   ¦                   
+¦   ¦   +---refund-management
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---refund-create
+¦   ¦   ¦   ¦   ¦       refund-create.component.css
+¦   ¦   ¦   ¦   ¦       refund-create.component.html
+¦   ¦   ¦   ¦   ¦       refund-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       refund-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---refund-edit
+¦   ¦   ¦   ¦   ¦       refund-edit.component.css
+¦   ¦   ¦   ¦   ¦       refund-edit.component.html
+¦   ¦   ¦   ¦   ¦       refund-edit.component.spec.ts
+¦   ¦   ¦   ¦   ¦       refund-edit.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---refund-list
+¦   ¦   ¦   ¦   ¦       refund-list.component.css
+¦   ¦   ¦   ¦   ¦       refund-list.component.html
+¦   ¦   ¦   ¦   ¦       refund-list.component.spec.ts
+¦   ¦   ¦   ¦   ¦       refund-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---refund-view
+¦   ¦   ¦   ¦           refund-view.component.css
+¦   ¦   ¦   ¦           refund-view.component.html
+¦   ¦   ¦   ¦           refund-view.component.spec.ts
+¦   ¦   ¦   ¦           refund-view.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---refund
+¦   ¦   ¦           refund-routing.module.ts
+¦   ¦   ¦           refund.module.ts
+¦   ¦   ¦           
+¦   ¦   +---reports-analytics
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---reports-dashboard
+¦   ¦   ¦   ¦   ¦       reports-dashboard.component.css
+¦   ¦   ¦   ¦   ¦       reports-dashboard.component.html
+¦   ¦   ¦   ¦   ¦       reports-dashboard.component.spec.ts
+¦   ¦   ¦   ¦   ¦       reports-dashboard.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---reports-home
+¦   ¦   ¦   ¦           reports-home.component.css
+¦   ¦   ¦   ¦           reports-home.component.html
+¦   ¦   ¦   ¦           reports-home.component.spec.ts
+¦   ¦   ¦   ¦           reports-home.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---reports
+¦   ¦   ¦           reports-routing.module.ts
+¦   ¦   ¦           reports.module.ts
+¦   ¦   ¦           
+¦   ¦   +---roles
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---roles-create
+¦   ¦   ¦   ¦   ¦       roles-create.component.css
+¦   ¦   ¦   ¦   ¦       roles-create.component.html
+¦   ¦   ¦   ¦   ¦       roles-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       roles-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---roles-edit
+¦   ¦   ¦   ¦   +---roles-list
+¦   ¦   ¦   ¦   ¦       roles-list.component.css
+¦   ¦   ¦   ¦   ¦       roles-list.component.html
+¦   ¦   ¦   ¦   ¦       roles-list.component.spec.ts
+¦   ¦   ¦   ¦   ¦       roles-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---roles-view
+¦   ¦   ¦   +---roles
+¦   ¦   ¦           roles-routing.module.ts
+¦   ¦   ¦           roles.module.ts
+¦   ¦   ¦           
+¦   ¦   +---system-settings
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---settings
+¦   ¦   ¦   ¦   ¦       settings.component.css
+¦   ¦   ¦   ¦   ¦       settings.component.html
+¦   ¦   ¦   ¦   ¦       settings.component.spec.ts
+¦   ¦   ¦   ¦   ¦       settings.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---settings-home
+¦   ¦   ¦   ¦           settings-home.component.css
+¦   ¦   ¦   ¦           settings-home.component.html
+¦   ¦   ¦   ¦           settings-home.component.spec.ts
+¦   ¦   ¦   ¦           settings-home.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---settings
+¦   ¦   ¦           settings-routing.module.ts
+¦   ¦   ¦           settings.module.ts
+¦   ¦   ¦           
+¦   ¦   +---tax-structure
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---tax-structure-create
+¦   ¦   ¦   ¦   ¦       tax-structure-create.component.css
+¦   ¦   ¦   ¦   ¦       tax-structure-create.component.html
+¦   ¦   ¦   ¦   ¦       tax-structure-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       tax-structure-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---tax-structure-edit
+¦   ¦   ¦   ¦   ¦       tax-structure-edit.component.css
+¦   ¦   ¦   ¦   ¦       tax-structure-edit.component.html
+¦   ¦   ¦   ¦   ¦       tax-structure-edit.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---tax-structure-list
+¦   ¦   ¦   ¦   ¦       tax-structure-list.component.css
+¦   ¦   ¦   ¦   ¦       tax-structure-list.component.html
+¦   ¦   ¦   ¦   ¦       tax-structure-list.component.spec.ts
+¦   ¦   ¦   ¦   ¦       tax-structure-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---tax-structure-view
+¦   ¦   ¦   ¦           tax-structure-view.component.css
+¦   ¦   ¦   ¦           tax-structure-view.component.html
+¦   ¦   ¦   ¦           tax-structure-view.component.spec.ts
+¦   ¦   ¦   ¦           tax-structure-view.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---tax-structure
+¦   ¦   ¦           tax-structure-routing.module.ts
+¦   ¦   ¦           tax-structure.module.ts
+¦   ¦   ¦           
+¦   ¦   +---taxable-products
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---taxable-product-create
+¦   ¦   ¦   ¦   ¦       taxable-product-create.component.css
+¦   ¦   ¦   ¦   ¦       taxable-product-create.component.html
+¦   ¦   ¦   ¦   ¦       taxable-product-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       taxable-product-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---taxable-product-edit
+¦   ¦   ¦   ¦   ¦       taxable-product-edit.component.css
+¦   ¦   ¦   ¦   ¦       taxable-product-edit.component.html
+¦   ¦   ¦   ¦   ¦       taxable-product-edit.component.spec.ts
+¦   ¦   ¦   ¦   ¦       taxable-product-edit.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---taxable-product-list
+¦   ¦   ¦   ¦   ¦       taxable-product-list.component.css
+¦   ¦   ¦   ¦   ¦       taxable-product-list.component.html
+¦   ¦   ¦   ¦   ¦       taxable-product-list.component.spec.ts
+¦   ¦   ¦   ¦   ¦       taxable-product-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---taxable-product-view
+¦   ¦   ¦   ¦           taxable-product-view.component.css
+¦   ¦   ¦   ¦           taxable-product-view.component.html
+¦   ¦   ¦   ¦           taxable-product-view.component.spec.ts
+¦   ¦   ¦   ¦           taxable-product-view.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---services
+¦   ¦   ¦   ¦       taxable-product.service.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---taxable-products
+¦   ¦   ¦           taxable-products-routing.module.ts
+¦   ¦   ¦           taxable-products.module.ts
+¦   ¦   ¦           
+¦   ¦   +---taxpayer-management
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---taxpayer-create
+¦   ¦   ¦   ¦   ¦       taxpayer-create.component.css
+¦   ¦   ¦   ¦   ¦       taxpayer-create.component.html
+¦   ¦   ¦   ¦   ¦       taxpayer-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       taxpayer-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---taxpayer-edit
+¦   ¦   ¦   ¦   ¦       taxpayer-edit.component.css
+¦   ¦   ¦   ¦   ¦       taxpayer-edit.component.html
+¦   ¦   ¦   ¦   ¦       taxpayer-edit.component.spec.ts
+¦   ¦   ¦   ¦   ¦       taxpayer-edit.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---taxpayer-list
+¦   ¦   ¦   ¦   ¦       taxpayer-list.component.css
+¦   ¦   ¦   ¦   ¦       taxpayer-list.component.html
+¦   ¦   ¦   ¦   ¦       taxpayer-list.component.spec.ts
+¦   ¦   ¦   ¦   ¦       taxpayer-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---taxpayer-view
+¦   ¦   ¦   ¦           taxpayer-view.component.css
+¦   ¦   ¦   ¦           taxpayer-view.component.html
+¦   ¦   ¦   ¦           taxpayer-view.component.spec.ts
+¦   ¦   ¦   ¦           taxpayer-view.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---taxpayer
+¦   ¦   ¦           taxpayer-routing.module.ts
+¦   ¦   ¦           taxpayer.module.ts
+¦   ¦   ¦           
+¦   ¦   +---taxpayer-portal
+¦   ¦   ¦   +---layout
+¦   ¦   ¦   ¦   +---portal-layout
+¦   ¦   ¦   ¦           portal-layout.component.css
+¦   ¦   ¦   ¦           portal-layout.component.html
+¦   ¦   ¦   ¦           portal-layout.component.spec.ts
+¦   ¦   ¦   ¦           portal-layout.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---portal-application-status
+¦   ¦   ¦   ¦   ¦       portal-application-status.component.css
+¦   ¦   ¦   ¦   ¦       portal-application-status.component.html
+¦   ¦   ¦   ¦   ¦       portal-application-status.component.spec.ts
+¦   ¦   ¦   ¦   ¦       portal-application-status.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---portal-home
+¦   ¦   ¦   ¦   ¦       portal-home.component.css
+¦   ¦   ¦   ¦   ¦       portal-home.component.html
+¦   ¦   ¦   ¦   ¦       portal-home.component.spec.ts
+¦   ¦   ¦   ¦   ¦       portal-home.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---portal-itr
+¦   ¦   ¦   ¦           portal-itr.component.css
+¦   ¦   ¦   ¦           portal-itr.component.html
+¦   ¦   ¦   ¦           portal-itr.component.spec.ts
+¦   ¦   ¦   ¦           portal-itr.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---taxpayer-portal
+¦   ¦   ¦           taxpayer-portal-routing.module.ts
+¦   ¦   ¦           taxpayer-portal.module.ts
+¦   ¦   ¦           
+¦   ¦   +---tin-management
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---tin-create
+¦   ¦   ¦   ¦   ¦       tin-create.component.css
+¦   ¦   ¦   ¦   ¦       tin-create.component.html
+¦   ¦   ¦   ¦   ¦       tin-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       tin-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---tin-edit
+¦   ¦   ¦   ¦   ¦       tin-edit.component.css
+¦   ¦   ¦   ¦   ¦       tin-edit.component.html
+¦   ¦   ¦   ¦   ¦       tin-edit.component.spec.ts
+¦   ¦   ¦   ¦   ¦       tin-edit.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---tin-list
+¦   ¦   ¦   ¦   ¦       tin-list.component.css
+¦   ¦   ¦   ¦   ¦       tin-list.component.html
+¦   ¦   ¦   ¦   ¦       tin-list.component.spec.ts
+¦   ¦   ¦   ¦   ¦       tin-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---tin-view
+¦   ¦   ¦   ¦           tin-view.component.css
+¦   ¦   ¦   ¦           tin-view.component.html
+¦   ¦   ¦   ¦           tin-view.component.spec.ts
+¦   ¦   ¦   ¦           tin-view.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---tin
+¦   ¦   ¦           tin-routing.module.ts
+¦   ¦   ¦           tin.module.ts
+¦   ¦   ¦           
+¦   ¦   +---user-management
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---user-create
+¦   ¦   ¦   ¦   ¦       user-create.component.css
+¦   ¦   ¦   ¦   ¦       user-create.component.html
+¦   ¦   ¦   ¦   ¦       user-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       user-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---user-edit
+¦   ¦   ¦   ¦   ¦       user-edit.component.css
+¦   ¦   ¦   ¦   ¦       user-edit.component.html
+¦   ¦   ¦   ¦   ¦       user-edit.component.spec.ts
+¦   ¦   ¦   ¦   ¦       user-edit.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---user-list
+¦   ¦   ¦   ¦   ¦       user-list.component.css
+¦   ¦   ¦   ¦   ¦       user-list.component.html
+¦   ¦   ¦   ¦   ¦       user-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---user-view
+¦   ¦   ¦   ¦           user-view.component.css
+¦   ¦   ¦   ¦           user-view.component.html
+¦   ¦   ¦   ¦           user-view.component.spec.ts
+¦   ¦   ¦   ¦           user-view.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---user-management
+¦   ¦   ¦           user-management-routing.module.ts
+¦   ¦   ¦           user-management.module.ts
+¦   ¦   ¦           
+¦   ¦   +---vat-registration
+¦   ¦   ¦   +---components
+¦   ¦   ¦   ¦   +---business-picker
+¦   ¦   ¦   ¦   ¦       business-picker.component.css
+¦   ¦   ¦   ¦   ¦       business-picker.component.html
+¦   ¦   ¦   ¦   ¦       business-picker.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---taxpayer-search
+¦   ¦   ¦   ¦           taxpayer-search.component.css
+¦   ¦   ¦   ¦           taxpayer-search.component.html
+¦   ¦   ¦   ¦           taxpayer-search.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---pages
+¦   ¦   ¦   ¦   +---vat-registration-create
+¦   ¦   ¦   ¦   ¦       vat-registration-create.component.css
+¦   ¦   ¦   ¦   ¦       vat-registration-create.component.html
+¦   ¦   ¦   ¦   ¦       vat-registration-create.component.spec.ts
+¦   ¦   ¦   ¦   ¦       vat-registration-create.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---vat-registration-edit
+¦   ¦   ¦   ¦   ¦       vat-registration-edit.component.css
+¦   ¦   ¦   ¦   ¦       vat-registration-edit.component.html
+¦   ¦   ¦   ¦   ¦       vat-registration-edit.component.spec.ts
+¦   ¦   ¦   ¦   ¦       vat-registration-edit.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---vat-registration-list
+¦   ¦   ¦   ¦   ¦       vat-registration-list.component.css
+¦   ¦   ¦   ¦   ¦       vat-registration-list.component.html
+¦   ¦   ¦   ¦   ¦       vat-registration-list.component.spec.ts
+¦   ¦   ¦   ¦   ¦       vat-registration-list.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---vat-registration-success
+¦   ¦   ¦   ¦   ¦       vat-registration-success.component.css
+¦   ¦   ¦   ¦   ¦       vat-registration-success.component.html
+¦   ¦   ¦   ¦   ¦       vat-registration-success.component.spec.ts
+¦   ¦   ¦   ¦   ¦       vat-registration-success.component.ts
+¦   ¦   ¦   ¦   ¦       
+¦   ¦   ¦   ¦   +---vat-registration-view
+¦   ¦   ¦   ¦           vat-registration-view.component.css
+¦   ¦   ¦   ¦           vat-registration-view.component.html
+¦   ¦   ¦   ¦           vat-registration-view.component.spec.ts
+¦   ¦   ¦   ¦           vat-registration-view.component.ts
+¦   ¦   ¦   ¦           
+¦   ¦   ¦   +---services
+¦   ¦   ¦   ¦       vat-registration.service.spec.ts
+¦   ¦   ¦   ¦       vat-registration.service.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---vat-registration
+¦   ¦   ¦           vat-registration-routing.module.ts
+¦   ¦   ¦           vat-registration.module.ts
+¦   ¦   ¦           
+¦   ¦   +---vat-returns
+¦   ¦       +---components
+¦   ¦       ¦   +---vat-registration-picker
+¦   ¦       ¦           vat-registration-picker.component.css
+¦   ¦       ¦           vat-registration-picker.component.html
+¦   ¦       ¦           vat-registration-picker.component.spec.ts
+¦   ¦       ¦           vat-registration-picker.component.ts
+¦   ¦       ¦           
+¦   ¦       +---pages
+¦   ¦       ¦   +---vat-return-create
+¦   ¦       ¦   ¦       vat-return-create.component.css
+¦   ¦       ¦   ¦       vat-return-create.component.html
+¦   ¦       ¦   ¦       vat-return-create.component.spec.ts
+¦   ¦       ¦   ¦       vat-return-create.component.ts
+¦   ¦       ¦   ¦       
+¦   ¦       ¦   +---vat-return-edit
+¦   ¦       ¦   ¦       vat-return-edit.component.css
+¦   ¦       ¦   ¦       vat-return-edit.component.html
+¦   ¦       ¦   ¦       vat-return-edit.component.spec.ts
+¦   ¦       ¦   ¦       vat-return-edit.component.ts
+¦   ¦       ¦   ¦       
+¦   ¦       ¦   +---vat-return-list
+¦   ¦       ¦   ¦       vat-return-list.component.css
+¦   ¦       ¦   ¦       vat-return-list.component.html
+¦   ¦       ¦   ¦       vat-return-list.component.spec.ts
+¦   ¦       ¦   ¦       vat-return-list.component.ts
+¦   ¦       ¦   ¦       
+¦   ¦       ¦   +---vat-return-view
+¦   ¦       ¦           vat-return-view.component.css
+¦   ¦       ¦           vat-return-view.component.html
+¦   ¦       ¦           vat-return-view.component.spec.ts
+¦   ¦       ¦           vat-return-view.component.ts
+¦   ¦       ¦           
+¦   ¦       +---vat-returns
+¦   ¦               vat-returns-routing.module.ts
+¦   ¦               vat-returns.module.ts
+¦   ¦               
+¦   +---layout
+¦   ¦   +---breadcrumbs
+¦   ¦   ¦       breadcrumbs.component.css
+¦   ¦   ¦       breadcrumbs.component.html
+¦   ¦   ¦       breadcrumbs.component.spec.ts
+¦   ¦   ¦       breadcrumbs.component.ts
+¦   ¦   ¦       
+¦   ¦   +---footer
+¦   ¦   ¦       footer.component.css
+¦   ¦   ¦       footer.component.html
+¦   ¦   ¦       footer.component.spec.ts
+¦   ¦   ¦       footer.component.ts
+¦   ¦   ¦       
+¦   ¦   +---main-layout
+¦   ¦   ¦       main-layout.component.css
+¦   ¦   ¦       main-layout.component.html
+¦   ¦   ¦       main-layout.component.spec.ts
+¦   ¦   ¦       main-layout.component.ts
+¦   ¦   ¦       
+¦   ¦   +---sidebar
+¦   ¦   ¦       sidebar.component.css
+¦   ¦   ¦       sidebar.component.html
+¦   ¦   ¦       sidebar.component.spec.ts
+¦   ¦   ¦       sidebar.component.ts
+¦   ¦   ¦       
+¦   ¦   +---topbar
+¦   ¦           topbar.component.css
+¦   ¦           topbar.component.html
+¦   ¦           topbar.component.spec.ts
+¦   ¦           topbar.component.ts
+¦   ¦           
+¦   +---models
+¦   ¦       activity-logs.model.ts
+¦   ¦       ait.model.ts
+¦   ¦       audit.model.ts
+¦   ¦       auth-user.model.ts
+¦   ¦       business.model.ts
+¦   ¦       dashboard.model.ts
+¦   ¦       document.model.ts
+¦   ¦       fiscal-year.model.ts
+¦   ¦       import-duty.model.ts
+¦   ¦       income-tax-return.model.ts
+¦   ¦       it10b.model.ts
+¦   ¦       master-data.model.ts
+¦   ¦       notice.model.ts
+¦   ¦       payment.model.ts
+¦   ¦       penalty.model.ts
+¦   ¦       refund.model.ts
+¦   ¦       registration.model.ts
+¦   ¦       tax-structure.model.ts
+¦   ¦       taxable-product.model.ts
+¦   ¦       taxpayer.model.ts
+¦   ¦       tin.model.ts
+¦   ¦       user.model.ts
+¦   ¦       vat-registration.model.ts
+¦   ¦       vat-return.model.ts
+¦   ¦       
+¦   +---shared
+¦       ¦   shared.module.ts
+¦       ¦   
+¦       +---toast
+¦               toast.component.css
+¦               toast.component.html
+¦               toast.component.ts
+¦               toast.service.ts
+¦               
++---assets
+¦   ¦   .gitkeep
+¦   ¦   
+¦   +---css
+¦           global-styles.css
+¦           styles-edit.css
+¦           styles-form.css
+¦           styles-list.css
+¦           styles-view.css
+¦           
++---environments
+        environment.prod.ts
+        environment.ts
+        

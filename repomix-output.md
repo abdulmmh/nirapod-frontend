@@ -4946,231 +4946,6 @@ margin-bottom: 20px; /* aligns with label offset */
 .btn-register-another,
 ```
 
-## File: src/app/features/vat-registration/pages/vat-registration-success/vat-registration-success.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>VAT Registration</h4>
-    <p>Registration submitted successfully.</p>
-  </div>
-  <button class="btn-back" type="button" (click)="goToView()">
-    <i class="bi bi-eye-fill"></i> View Registration
-  </button>
-</div>
-
-<ng-container *ngIf="registration">
-
-  <!-- ══ Hero Card ═══════════════════════════════════════════════════════ -->
-  <div class="success-hero" [class.animate-in]="animateIn">
-
-    <!-- Status row -->
-    <div class="success-hero-top">
-      <div class="success-check-circle">
-        <i class="bi bi-check-lg"></i>
-      </div>
-      <div>
-        <p class="success-headline">VAT Registration Submitted</p>
-        <p class="success-subline">
-          Your registration is pending review by a VAT commissioner.
-        </p>
-      </div>
-      <span class="status-badge status-pending ms-auto flex-shrink-0">
-        Pending
-      </span>
-    </div>
-
-    <!-- BIN display -->
-    <div class="success-bin-wrap">
-      <span class="success-bin-label">
-        <i class="bi bi-upc-scan"></i>
-        Business Identification Number (BIN)
-      </span>
-      <div class="success-bin-row">
-        <span class="success-bin">{{ registration.binNo }}</span>
-        <button
-          type="button"
-          class="btn-copy-bin"
-          [class.copied]="binCopied"
-          (click)="copyBin()"
-          title="Copy BIN to clipboard"
-        >
-          <i class="bi"
-             [class.bi-clipboard]="!binCopied"
-             [class.bi-clipboard-check-fill]="binCopied">
-          </i>
-          {{ binCopied ? 'Copied!' : 'Copy' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Meta strip: business · TIN · zone · date -->
-    <div class="success-meta-row">
-
-      <div class="success-meta-item">
-        <span class="success-meta-label">Business</span>
-        <span class="success-meta-value">{{ registration.businessName }}</span>
-      </div>
-
-      <div class="success-meta-divider"></div>
-
-      <div class="success-meta-item">
-        <span class="success-meta-label">TIN</span>
-        <span class="success-meta-value" style="font-family:var(--font-mono)">
-          {{ registration.tinNumber }}
-        </span>
-      </div>
-
-      <div class="success-meta-divider"></div>
-
-      <div class="success-meta-item">
-        <span class="success-meta-label">VAT Zone</span>
-        <span class="success-meta-value">{{ registration.vatZone }}</span>
-      </div>
-
-      <div class="success-meta-divider"></div>
-
-      <div class="success-meta-item">
-        <span class="success-meta-label">Registered On</span>
-        <span class="success-meta-value">{{ registration.registrationDate }}</span>
-      </div>
-
-    </div>
-  </div><!-- /success-hero -->
-
-  <!-- ══ Status Timeline ═════════════════════════════════════════════════ -->
-  <div class="status-timeline-card">
-    <p class="timeline-title">
-      <i class="bi bi-diagram-2-fill"></i> Registration Progress
-    </p>
-    <div class="status-timeline">
-
-      <div class="timeline-step done">
-        <div class="ts-dot"><i class="bi bi-check-lg"></i></div>
-        <span class="ts-label">Submitted</span>
-      </div>
-
-      <div class="timeline-connector"></div>
-
-      <div class="timeline-step pending">
-        <div class="ts-dot">2</div>
-        <span class="ts-label">Under Review</span>
-      </div>
-
-      <div class="timeline-connector"></div>
-
-      <div class="timeline-step pending">
-        <div class="ts-dot">3</div>
-        <span class="ts-label">Approved</span>
-      </div>
-
-      <div class="timeline-connector"></div>
-
-      <div class="timeline-step pending">
-        <div class="ts-dot">4</div>
-        <span class="ts-label">Active</span>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ══ Detail Cards ════════════════════════════════════════════════════ -->
-  <div class="success-details-grid">
-
-    <!-- VAT Authority -->
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-diagram-3-fill"></i>
-        <span>VAT Authority</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">VAT Zone</span>
-          <span class="detail-value">
-            <span class="zone-pill">{{ registration.vatZone }}</span>
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">VAT Circle</span>
-          <span class="detail-value">
-            <span class="circle-pill">{{ registration.vatCircle }}</span>
-          </span>
-        </div>
-        <div class="detail-row" *ngIf="registration.district">
-          <span class="detail-label">District</span>
-          <span class="detail-value">{{ registration.district }}</span>
-        </div>
-        <div class="detail-row" *ngIf="registration.division">
-          <span class="detail-label">Division</span>
-          <span class="detail-value">{{ registration.division }}</span>
-        </div>
-        <div class="detail-row" *ngIf="registration.ownerName">
-          <span class="detail-label">Owner</span>
-          <span class="detail-value">{{ registration.ownerName }}</span>
-        </div>
-        <div class="detail-row" *ngIf="registration.phone">
-          <span class="detail-label">Phone</span>
-          <span class="detail-value">{{ registration.phone }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Classification & Dates -->
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-calendar3-range"></i>
-        <span>Classification &amp; Dates</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">VAT Category</span>
-          <span class="detail-value">
-            <span class="cat-badge" [ngClass]="getCategoryClass(registration.vatCategory)">
-              {{ registration.vatCategory }}
-            </span>
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Registration Date</span>
-          <span class="detail-value">{{ registration.registrationDate }}</span>
-        </div>
-        <div class="detail-row" *ngIf="registration.effectiveDate">
-          <span class="detail-label">Effective Date</span>
-          <span class="detail-value">{{ registration.effectiveDate }}</span>
-        </div>
-        <div class="detail-row" *ngIf="registration.expiryDate">
-          <span class="detail-label">Expiry Date</span>
-          <span class="detail-value">{{ registration.expiryDate }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Annual Turnover</span>
-          <span class="detail-value" style="color:var(--color-teal);font-weight:700">
-            {{ formatCurrency(registration.annualTurnover) }}
-          </span>
-        </div>
-        <div class="detail-row" *ngIf="registration.remarks">
-          <span class="detail-label">Remarks</span>
-          <span class="detail-value" style="font-weight:400;color:var(--color-text-secondary)">
-            {{ registration.remarks }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /success-details-grid -->
-
-  <!-- ══ CTA Actions ══════════════════════════════════════════════════════ -->
-  <div class="success-actions">
-    <button type="button" class="btn-register-another" (click)="registerAnother()">
-      <i class="bi bi-plus-lg"></i> Register Another VAT
-    </button>
-    <button type="button" class="btn-view-registration" (click)="goToView()">
-      View Full Registration <i class="bi bi-arrow-right"></i>
-    </button>
-  </div>
-
-</ng-container>
-```
-
 ## File: src/app/features/vat-registration/pages/vat-registration-success/vat-registration-success.component.spec.ts
 ```typescript
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -10203,124 +9978,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 </div>
 ```
 
-## File: src/app/features/refund-management/pages/refund-view/refund-view.component.css
-```css
-.refund-tracker {
-⋮----
-/* Hero Section */
-.refund-hero {
-.hero-label {
-.hero-amt {
-.hero-row {
-.hero-meta {
-.hero-meta strong {
-⋮----
-/* Card Styles */
-.card {
-.card-hdr {
-.card-hdr-left {
-.hdr-icon {
-.ic-green {
-.card-title {
-.card-sub {
-.card-p {
-⋮----
-/* Badges */
-.badge {
-.b-ok {
-.b-warn {
-.b-info {
-.b-red {
-.b-purple {
-⋮----
-/* Pipeline */
-.pipeline {
-.pipe-step {
-.pipe-circle {
-.pipe-done {
-.pipe-active {
-.pipe-todo {
-⋮----
-.pipe-label {
-.pipe-active-label {
-.pipe-done-label {
-.pipe-connector {
-.pc-done {
-.pc-todo {
-.pc-active {
-⋮----
-/* ETA Box */
-.eta-box {
-.eta-key {
-.eta-val {
-⋮----
-/* Alert */
-.alert {
-.alert-warn {
-.alert-info {
-⋮----
-/* Timeline */
-.timeline {
-.tl-row {
-.tl-row:last-child {
-.tl-dot {
-.td-green { background: #1D9E75; }
-.td-blue { background: #378ADD; }
-.td-amber { background: #EF9F27; }
-.td-red { background: #E24B4A; }
-.td-gray { background: #888780; }
-.tl-body {
-.tl-title {
-.tl-meta {
-.tl-right {
-⋮----
-/* Field Styles */
-.field {
-.field label {
-.field input,
-.field input:focus,
-.field input[readonly] {
-⋮----
-/* Grid */
-.grid2 {
-⋮----
-/* Button */
-.btn {
-.btn:hover {
-.btn-primary {
-.btn-ok {
-.btn-sm {
-⋮----
-/* Details Grid */
-.details-grid {
-.detail-card {
-.detail-card-header {
-.detail-body {
-.detail-row {
-.detail-row:last-child {
-.detail-label {
-.detail-value {
-.code-badge {
-⋮----
-/* Status Badge */
-.status-badge {
-.status-pending {
-.status-approved {
-.status-active {
-.status-progress {
-.status-suspended {
-.status-inactive {
-⋮----
-.refund-no {
-⋮----
-/* Refund type badges */
-.type-badge {
-.type-vat {
-.type-it {
-.type-excess {
-.type-other {
-```
-
 ## File: src/app/features/refund-management/refund/refund-routing.module.ts
 ```typescript
 import { NgModule } from '@angular/core';
@@ -11540,56 +11197,232 @@ onClear(): void
 isIneligible(tp: Taxpayer): boolean
 ```
 
-## File: src/app/features/vat-registration/pages/vat-registration-success/vat-registration-success.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { VatRegistration } from '../../../../models/vat-registration.model';
-⋮----
-export class VatRegistrationSuccessComponent implements OnInit
-⋮----
-/** Toggled true on init — triggers the CSS fade-in + slide-up animation. */
-⋮----
-/** Clipboard feedback flag — resets to false after 2 seconds. */
-⋮----
-constructor(private router: Router, private route: ActivatedRoute)
-⋮----
-// ── Lifecycle ───────────────────────────────────────────────────────────
-⋮----
-ngOnInit(): void
-⋮----
-/**
-     * Angular passes router state via history.state.
-     * history.state survives the navigation but is lost on a hard refresh,
-     * which is intentional — the success page is a one-time confirmation view.
-     * If the officer refreshes or navigates directly to /success, we redirect
-     * them to the list rather than showing an empty or broken page.
-     */
-⋮----
-// Defer one tick so Angular renders the base template first,
-// then applies .animate-in to trigger the CSS transition.
-⋮----
-// ── BIN copy ────────────────────────────────────────────────────────────
-⋮----
-copyBin(): void
-⋮----
-private fallbackCopy(text: string): void
-⋮----
-} catch { /* silent — clipboard unavailable */ }
-⋮----
-private flashCopied(): void
-⋮----
-// ── Navigation ──────────────────────────────────────────────────────────
-⋮----
-goToView(): void
-⋮----
-registerAnother(): void
-⋮----
-// ── Display helpers ──────────────────────────────────────────────────────
-⋮----
-getCategoryClass(category: string): string
-⋮----
-formatCurrency(amount: number): string
+## File: src/app/features/vat-registration/pages/vat-registration-success/vat-registration-success.component.html
+```html
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>VAT Registration</h4>
+    <p>Registration submitted successfully.</p>
+  </div>
+  <button class="btn-back" type="button" (click)="goToView()">
+    <i class="bi bi-eye-fill"></i> View Registration
+  </button>
+</div>
+
+<ng-container *ngIf="registration">
+
+  <!-- ══ Hero Card ═══════════════════════════════════════════════════════ -->
+  <div class="success-hero" [class.animate-in]="animateIn">
+
+    <!-- Status row -->
+    <div class="success-hero-top">
+      <div class="success-check-circle">
+        <i class="bi bi-check-lg"></i>
+      </div>
+      <div>
+        <p class="success-headline">VAT Registration Submitted</p>
+        <p class="success-subline">
+          Your registration is pending review by a VAT commissioner.
+        </p>
+      </div>
+      <span class="status-badge status-pending ms-auto flex-shrink-0">
+        Pending
+      </span>
+    </div>
+
+    <!-- BIN display -->
+    <div class="success-bin-wrap">
+      <span class="success-bin-label">
+        <i class="bi bi-upc-scan"></i>
+        Business Identification Number (BIN)
+      </span>
+      <div class="success-bin-row">
+        <span class="success-bin">{{ registration.binNo }}</span>
+        <button
+          type="button"
+          class="btn-copy-bin"
+          [class.copied]="binCopied"
+          (click)="copyBin()"
+          title="Copy BIN to clipboard"
+        >
+          <i class="bi"
+             [class.bi-clipboard]="!binCopied"
+             [class.bi-clipboard-check-fill]="binCopied">
+          </i>
+          {{ binCopied ? 'Copied!' : 'Copy' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Meta strip: business · TIN · zone · date -->
+    <div class="success-meta-row">
+
+      <div class="success-meta-item">
+        <span class="success-meta-label">Business</span>
+        <span class="success-meta-value">{{ registration.businessName }}</span>
+      </div>
+
+      <div class="success-meta-divider"></div>
+
+      <div class="success-meta-item">
+        <span class="success-meta-label">TIN</span>
+        <span class="success-meta-value" style="font-family:var(--font-mono)">
+          {{ registration.tinNumber }}
+        </span>
+      </div>
+
+      <div class="success-meta-divider"></div>
+
+      <div class="success-meta-item">
+        <span class="success-meta-label">VAT Zone</span>
+        <span class="success-meta-value">{{ registration.vatZone }}</span>
+      </div>
+
+      <div class="success-meta-divider"></div>
+
+      <div class="success-meta-item">
+        <span class="success-meta-label">Registered On</span>
+        <span class="success-meta-value">{{ registration.registrationDate }}</span>
+      </div>
+
+    </div>
+  </div><!-- /success-hero -->
+
+  <!-- ══ Status Timeline ═════════════════════════════════════════════════ -->
+  <div class="status-timeline-card">
+    <p class="timeline-title">
+      <i class="bi bi-diagram-2-fill"></i> Registration Progress
+    </p>
+    <div class="status-timeline">
+
+      <div class="timeline-step done">
+        <div class="ts-dot"><i class="bi bi-check-lg"></i></div>
+        <span class="ts-label">Submitted</span>
+      </div>
+
+      <div class="timeline-connector"></div>
+
+      <div class="timeline-step pending">
+        <div class="ts-dot">2</div>
+        <span class="ts-label">Under Review</span>
+      </div>
+
+      <div class="timeline-connector"></div>
+
+      <div class="timeline-step pending">
+        <div class="ts-dot">3</div>
+        <span class="ts-label">Approved</span>
+      </div>
+
+      <div class="timeline-connector"></div>
+
+      <div class="timeline-step pending">
+        <div class="ts-dot">4</div>
+        <span class="ts-label">Active</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ Detail Cards ════════════════════════════════════════════════════ -->
+  <div class="success-details-grid">
+
+    <!-- VAT Authority -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-diagram-3-fill"></i>
+        <span>VAT Authority</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">VAT Zone</span>
+          <span class="detail-value">
+            <span class="zone-pill">{{ registration.vatZone }}</span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">VAT Circle</span>
+          <span class="detail-value">
+            <span class="circle-pill">{{ registration.vatCircle }}</span>
+          </span>
+        </div>
+        <div class="detail-row" *ngIf="registration.district">
+          <span class="detail-label">District</span>
+          <span class="detail-value">{{ registration.district }}</span>
+        </div>
+        <div class="detail-row" *ngIf="registration.division">
+          <span class="detail-label">Division</span>
+          <span class="detail-value">{{ registration.division }}</span>
+        </div>
+        <div class="detail-row" *ngIf="registration.ownerName">
+          <span class="detail-label">Owner</span>
+          <span class="detail-value">{{ registration.ownerName }}</span>
+        </div>
+        <div class="detail-row" *ngIf="registration.phone">
+          <span class="detail-label">Phone</span>
+          <span class="detail-value">{{ registration.phone }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Classification & Dates -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-calendar3-range"></i>
+        <span>Classification &amp; Dates</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">VAT Category</span>
+          <span class="detail-value">
+            <span class="cat-badge" [ngClass]="getCategoryClass(registration.vatCategory)">
+              {{ registration.vatCategory }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Registration Date</span>
+          <span class="detail-value">{{ registration.registrationDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="registration.effectiveDate">
+          <span class="detail-label">Effective Date</span>
+          <span class="detail-value">{{ registration.effectiveDate }}</span>
+        </div>
+        <div class="detail-row" *ngIf="registration.expiryDate">
+          <span class="detail-label">Expiry Date</span>
+          <span class="detail-value">{{ registration.expiryDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Annual Turnover</span>
+          <span class="detail-value" style="color:var(--color-teal);font-weight:700">
+            {{ formatCurrency(registration.annualTurnover) }}
+          </span>
+        </div>
+        <div class="detail-row" *ngIf="registration.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value" style="font-weight:400;color:var(--color-text-secondary)">
+            {{ registration.remarks }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /success-details-grid -->
+
+  <!-- ══ CTA Actions ══════════════════════════════════════════════════════ -->
+  <div class="success-actions">
+    <button type="button" class="btn-register-another" (click)="registerAnother()">
+      <i class="bi bi-plus-lg"></i> Register Another VAT
+    </button>
+    <button type="button" class="btn-print" (click)="printPage()">
+      <i class="bi bi-printer-fill"></i> Print
+    </button>
+    <button type="button" class="btn-view-registration" (click)="goToView()">
+      View Full Registration <i class="bi bi-arrow-right"></i>
+    </button>
+  </div>
+
+</ng-container>
 ```
 
 ## File: src/app/layout/sidebar/sidebar.component.html
@@ -12001,71 +11834,6 @@ taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
 ⋮----
 export interface PenaltyListResponse {
   data: Penalty[];
-  total: number;
-  page: number;
-}
-```
-
-## File: src/app/models/refund.model.ts
-```typescript
-export type RefundStatus = 'Pending' | 'Approved' | 'Rejected' | 'Processing' | 'Completed' | 'Cancelled';
-export type RefundType   = 'VAT Refund' | 'Income Tax Refund' | 'Excess Payment' | 'Other';
-export type RefundMethod = 'Bank Transfer' | 'Cheque' | 'Adjustment';
-⋮----
-export interface ActivityLog {
-  title: string;
-  description?: string;
-  date: string;
-  type: 'filed' | 'assigned' | 'verified' | 'approved' | 'rejected' | 'completed' | 'default';
-}
-⋮----
-export interface Refund {
-  id: number;
-  refundNo: string;
-  taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
-  refundType: RefundType;
-  refundMethod: RefundMethod;
-  claimAmount: number;
-  approvedAmount: number;
-  paidAmount: number;
-  returnNo: string;
-  paymentRef: string;
-  bankName: string;
-  bankBranch: string;
-  accountNo: string;
-  claimDate: string;
-  approvalDate: string;
-  paymentDate: string;
-  status: RefundStatus;
-  processedBy: string;
-  approvedBy: string;
-  remarks: string;
-  activityLog?: ActivityLog[];
-}
-⋮----
-taxpayerName: string;   // read-only — resolved from server
-tinNumber: string;      // read-only — resolved from server
-⋮----
-export interface RefundCreateRequest {
-  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
-  refundType: string;
-  refundMethod: string;
-  claimAmount: number;
-  returnNo: string;
-  paymentRef: string;
-  bankName: string;
-  bankBranch: string;
-  accountNo: string;
-  claimDate: string;
-  remarks: string;
-}
-⋮----
-taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
-⋮----
-export interface RefundListResponse {
-  data: Refund[];
   total: number;
   page: number;
 }
@@ -16411,8 +16179,10 @@ onNext(): void
       <p class="sib-title">What happens when you submit?</p>
       <ul class="sib-list">
         <li><i class="bi bi-check-circle-fill"></i> Your portal account is created with TAXPAYER access</li>
-        <li><i class="bi bi-check-circle-fill"></i> A unique TIN is auto-generated and linked to your NID / RJSC</li>
-        <li><i class="bi bi-check-circle-fill"></i> You are immediately redirected to the login page</li>
+        <li><i class="bi bi-check-circle-fill"></i> A verification code will be sent to your email</li>
+        <li><i class="bi bi-check-circle-fill"></i> After verification, an officer will review your application</li>
+        <li><i class="bi bi-check-circle-fill"></i> You will receive an approval or rejection email within 3-5 business days</li>
+        <li><i class="bi bi-check-circle-fill"></i> TIN will be issued upon approval</li>
       </ul>
     </div>
   </div>
@@ -16966,228 +16736,122 @@ goToLogin(): void
 </div>
 ```
 
-## File: src/app/features/refund-management/pages/refund-view/refund-view.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>Refund Tracker</h4>
-    <p>Track your refund claim status and updates.</p>
-  </div>
-  <button class="btn-back" (click)="onBack()">
-    <i class="bi bi-arrow-left"></i> Back
-  </button>
-</div>
-
-<div class="refund-tracker" *ngIf="!isLoading && refund">
-
-  <!-- Hero Section -->
-  <div class="refund-hero">
-    <div class="hero-label">Your active refund claim</div>
-    <div class="hero-amt">{{ formatCurrency(refund.claimAmount) }}</div>
-    <div class="hero-row">
-      <div class="hero-meta">Ref: <strong>{{ refund.refundNo }}</strong></div>
-      <div class="hero-meta">Filed: <strong>{{ refund.claimDate }}</strong></div>
-      <div class="hero-meta">Type: <strong>{{ refund.refundType }}</strong></div>
-    </div>
-  </div>
-
-  <!-- Status Pipeline Card -->
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-title">Refund status tracker</div>
-      <span class="badge b-info">{{ getCurrentStep() }} of 6</span>
-    </div>
-    <div class="card-p">
-      <div class="pipeline">
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(1), 'pipe-active': getCurrentStep() === 1, 'pipe-todo': getCurrentStep() > 1}">
-            {{ getCurrentStep() === 1 ? '●' : '✓' }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 1, 'pipe-done-label': isStepComplete(1)}">Filed</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(1), 'pc-active': getCurrentStep() === 2, 'pc-todo': getCurrentStep() > 2}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(2), 'pipe-active': getCurrentStep() === 2, 'pipe-todo': getCurrentStep() > 2}">
-            {{ getCurrentStep() === 2 ? '●' : (isStepComplete(2) ? '✓' : '2') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 2, 'pipe-done-label': isStepComplete(2)}">Processing</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(2), 'pc-active': getCurrentStep() === 3, 'pc-todo': getCurrentStep() > 3}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(3), 'pipe-active': getCurrentStep() === 3, 'pipe-todo': getCurrentStep() > 3}">
-            {{ getCurrentStep() === 3 ? '●' : (isStepComplete(3) ? '✓' : '3') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 3, 'pipe-done-label': isStepComplete(3)}">Verification</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(3), 'pc-active': getCurrentStep() === 4, 'pc-todo': getCurrentStep() > 4}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(4), 'pipe-active': getCurrentStep() === 4, 'pipe-todo': getCurrentStep() > 4}">
-            {{ getCurrentStep() === 4 ? '●' : (isStepComplete(4) ? '✓' : '4') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 4, 'pipe-done-label': isStepComplete(4)}">Approval</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(4), 'pc-active': getCurrentStep() === 5, 'pc-todo': getCurrentStep() > 5}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(5), 'pipe-active': getCurrentStep() === 5, 'pipe-todo': getCurrentStep() > 5}">
-            {{ getCurrentStep() === 5 ? '●' : (isStepComplete(5) ? '✓' : '5') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 5, 'pipe-done-label': isStepComplete(5)}">Release</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(5), 'pc-active': getCurrentStep() === 6, 'pc-todo': getCurrentStep() > 6}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(6), 'pipe-active': getCurrentStep() === 6, 'pipe-todo': getCurrentStep() > 6}">
-            {{ getCurrentStep() === 6 ? '●' : (isStepComplete(6) ? '✓' : '6') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 6, 'pipe-done-label': isStepComplete(6)}">Credited</div>
-        </div>
-      </div>
-
-      <div class="eta-box">
-        <div>
-          <div class="eta-key">Current status</div>
-          <div class="eta-val">{{ refund.status }}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="eta-key">Expected credit date</div>
-          <div class="eta-val">{{ refund.paymentDate || 'Pending' }}</div>
-        </div>
-      </div>
-
-      <div class="alert alert-info" *ngIf="refund.processedBy">
-        <div>ℹ</div>
-        <div>Your refund has been assigned to {{ refund.processedBy }}. No action required from you at this stage.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Activity Timeline -->
-  <div class="card">
-    <div class="card-hdr"><div class="card-title">Refund activity log</div></div>
-    <div class="card-p">
-      <div class="timeline" *ngIf="refund.activityLog && refund.activityLog.length > 0">
-        <div class="tl-row" *ngFor="let activity of refund.activityLog">
-          <div class="tl-dot" [ngClass]="getActivityColor(activity.type)"></div>
-          <div class="tl-body">
-            <div class="tl-title">{{ activity.title }}</div>
-            <div class="tl-meta" *ngIf="activity.description">{{ activity.description }}</div>
-          </div>
-          <div class="tl-right">{{ activity.date }}</div>
-        </div>
-      </div>
-      <div *ngIf="!refund.activityLog || refund.activityLog.length === 0" style="text-align:center;color:var(--color-text-secondary);padding:20px">
-        No activity recorded yet
-      </div>
-    </div>
-  </div>
-
-  <!-- Bank Account -->
-  <div class="card" *ngIf="refund.bankName">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="hdr-icon ic-green">
-          <i class="bi bi-bank2" style="color:#3B6D11"></i>
-        </div>
-        <div>
-          <div class="card-title">Refund destination account</div>
-          <div class="card-sub">Amount will be credited here after approval</div>
-        </div>
-      </div>
-      <button *canDo="'edit'" class="btn btn-sm" (click)="onEdit()">Change account</button>
-    </div>
-    <div class="card-p">
-      <div class="grid2">
-        <div class="field"><label>Bank</label><input readonly [value]="refund.bankName"></div>
-        <div class="field"><label>Account number</label><input readonly [value]="refund.accountNo"></div>
-        <div class="field"><label>Branch</label><input readonly [value]="refund.bankBranch"></div>
-        <div class="field"><label>Account holder</label><input readonly [value]="refund.taxpayerName"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Details Grid (Collapsible) -->
-  <div class="details-grid">
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-person-badge-fill"></i>
-        <span>Taxpayer Information</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">TIN Number</span>
-          <span class="detail-value"><span class="code-badge">{{ refund.tinNumber }}</span></span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Taxpayer Name</span>
-          <span class="detail-value fw-bold">{{ refund.taxpayerName }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-cash-stack"></i>
-        <span>Amount Summary</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Claimed</span>
-          <span class="detail-value fw-bold">{{ formatCurrency(refund.claimAmount) }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Approved</span>
-          <span class="detail-value" [style.color]="refund.approvedAmount > 0 ? '#1D9E75' : 'var(--color-text-secondary)'">
-            {{ refund.approvedAmount > 0 ? formatCurrency(refund.approvedAmount) : '—' }}
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Paid</span>
-          <span class="detail-value" [style.color]="refund.paidAmount > 0 ? '#1D9E75' : 'var(--color-text-secondary)'">
-            {{ refund.paidAmount > 0 ? formatCurrency(refund.paidAmount) : '—' }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-person-gear"></i>
-        <span>Processing Information</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Status</span>
-          <span class="detail-value">
-            <span class="status-badge" [ngClass]="getStatusClass(refund.status)">
-              {{ refund.status }}
-            </span>
-          </span>
-        </div>
-        <div class="detail-row" *ngIf="refund.processedBy">
-          <span class="detail-label">Processed By</span>
-          <span class="detail-value">{{ refund.processedBy }}</span>
-        </div>
-        <div class="detail-row" *ngIf="refund.approvedBy">
-          <span class="detail-label">Approved By</span>
-          <span class="detail-value">{{ refund.approvedBy }}</span>
-        </div>
-        <div class="detail-row" *ngIf="refund.remarks">
-          <span class="detail-label">Remarks</span>
-          <span class="detail-value">{{ refund.remarks }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<div class="loading-overlay" *ngIf="isLoading">
-  <div class="spinner-border text-primary"></div>
-</div>
+## File: src/app/features/refund-management/pages/refund-view/refund-view.component.css
+```css
+.refund-tracker {
+⋮----
+/* Hero Section */
+.refund-hero {
+.hero-label {
+.hero-amt {
+.hero-row {
+.hero-meta {
+.hero-meta strong {
+⋮----
+/* Card Styles */
+.card {
+.card-hdr {
+.card-hdr-left {
+.hdr-icon {
+.ic-green {
+.card-title {
+.card-sub {
+.card-p {
+⋮----
+/* Badges */
+.badge {
+.b-ok {
+.b-warn {
+.b-info {
+.b-red {
+.b-purple {
+⋮----
+/* Pipeline */
+.pipeline {
+.pipe-step {
+.pipe-circle {
+.pipe-done {
+.pipe-active {
+.pipe-todo {
+⋮----
+.pipe-label {
+.pipe-active-label {
+.pipe-done-label {
+.pipe-connector {
+.pc-done {
+.pc-todo {
+.pc-active {
+⋮----
+/* ETA Box */
+.eta-box {
+.eta-key {
+.eta-val {
+⋮----
+/* Alert */
+.alert {
+.alert-warn {
+.alert-info {
+⋮----
+/* Timeline */
+.timeline {
+.tl-row {
+.tl-row:last-child {
+.tl-dot {
+.td-green { background: #1D9E75; }
+.td-blue { background: #378ADD; }
+.td-amber { background: #EF9F27; }
+.td-red { background: #E24B4A; }
+.td-gray { background: #888780; }
+.tl-body {
+.tl-title {
+.tl-meta {
+.tl-right {
+⋮----
+/* Field Styles */
+.field {
+.field label {
+.field input,
+.field input:focus,
+.field input[readonly] {
+⋮----
+/* Grid */
+.grid2 {
+⋮----
+/* Button */
+.btn {
+.btn:hover {
+.btn-primary {
+.btn-ok {
+.btn-sm {
+⋮----
+/* Details Grid */
+.details-grid {
+.detail-card {
+.detail-card-header {
+.detail-body {
+.detail-row {
+.detail-row:last-child {
+.detail-label {
+.detail-value {
+.code-badge {
+⋮----
+/* Status Badge */
+.status-badge {
+.status-pending {
+.status-approved {
+.status-active {
+.status-progress {
+.status-suspended {
+.status-inactive {
+⋮----
+.refund-no {
+⋮----
+/* Refund type badges */
+.type-badge {
+.type-vat {
+.type-it {
+.type-excess {
+.type-other {
 ```
 
 ## File: src/app/features/reports-analytics/pages/reports-dashboard/reports-dashboard.component.ts
@@ -18013,6 +17677,60 @@ onBack(): void
 .data-table {
 ```
 
+## File: src/app/features/vat-registration/pages/vat-registration-success/vat-registration-success.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { VatRegistration } from '../../../../models/vat-registration.model';
+⋮----
+export class VatRegistrationSuccessComponent implements OnInit
+⋮----
+/** Toggled true on init — triggers the CSS fade-in + slide-up animation. */
+⋮----
+/** Clipboard feedback flag — resets to false after 2 seconds. */
+⋮----
+constructor(private router: Router, private route: ActivatedRoute)
+⋮----
+// ── Lifecycle ───────────────────────────────────────────────────────────
+⋮----
+ngOnInit(): void
+⋮----
+/**
+     * Angular passes router state via history.state.
+     * history.state survives the navigation but is lost on a hard refresh,
+     * which is intentional — the success page is a one-time confirmation view.
+     * If the officer refreshes or navigates directly to /success, we redirect
+     * them to the list rather than showing an empty or broken page.
+     */
+⋮----
+// Defer one tick so Angular renders the base template first,
+// then applies .animate-in to trigger the CSS transition.
+⋮----
+// ── BIN copy ────────────────────────────────────────────────────────────
+⋮----
+copyBin(): void
+⋮----
+private fallbackCopy(text: string): void
+⋮----
+} catch { /* silent — clipboard unavailable */ }
+⋮----
+private flashCopied(): void
+⋮----
+// ── Navigation ──────────────────────────────────────────────────────────
+⋮----
+goToView(): void
+⋮----
+registerAnother(): void
+⋮----
+printPage(): void
+⋮----
+// ── Display helpers ──────────────────────────────────────────────────────
+⋮----
+getCategoryClass(category: string): string
+⋮----
+formatCurrency(amount: number): string
+```
+
 ## File: src/app/features/vat-registration/pages/vat-registration-view/vat-registration-view.component.css
 ```css
 /* vat-registration-view.component.css
@@ -18413,6 +18131,71 @@ export interface PaymentStatusUpdate {
   status:       PaymentStatus;
   remarks?:     string;
   processedBy?: string;  
+}
+```
+
+## File: src/app/models/refund.model.ts
+```typescript
+export type RefundStatus = 'Pending' | 'Approved' | 'Rejected' | 'Processing' | 'Completed' | 'Cancelled';
+export type RefundType   = 'VAT Refund' | 'Income Tax Refund' | 'Excess Payment' | 'Other';
+export type RefundMethod = 'Bank Transfer' | 'Cheque' | 'Adjustment';
+⋮----
+export interface ActivityLog {
+  title: string;
+  description?: string;
+  date: string;
+  type: 'filed' | 'assigned' | 'verified' | 'approved' | 'rejected' | 'completed' | 'default';
+}
+⋮----
+export interface Refund {
+  id: number;
+  refundNo: string;
+  taxpayerId: number;
+  taxpayerName: string;   // read-only — resolved from server
+  tinNumber: string;      // read-only — resolved from server
+  refundType: RefundType;
+  refundMethod: RefundMethod;
+  claimAmount: number;
+  approvedAmount: number;
+  paidAmount: number;
+  returnNo: string;
+  paymentRef: string;
+  bankName: string;
+  bankBranch: string;
+  accountNo: string;
+  claimDate: string;
+  approvalDate: string;
+  paymentDate: string;
+  status: RefundStatus;
+  processedBy: string;
+  approvedBy: string;
+  remarks: string;
+  activityLog?: ActivityLog[];
+}
+⋮----
+taxpayerName: string;   // read-only — resolved from server
+tinNumber: string;      // read-only — resolved from server
+⋮----
+export interface RefundCreateRequest {
+  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
+  refundType: string;
+  refundMethod: string;
+  claimAmount: number;
+  returnNo: string;
+  paymentRef: string;
+  bankName: string;
+  bankBranch: string;
+  accountNo: string;
+  claimDate: string;
+  remarks: string;
+}
+⋮----
+taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
+⋮----
+export interface RefundListResponse {
+  data: Refund[];
+  total: number;
+  page: number;
 }
 ```
 
@@ -20892,35 +20675,228 @@ private delete(id: number): void
 private resetDeleteState(): void
 ```
 
-## File: src/app/features/refund-management/pages/refund-view/refund-view.component.ts
-```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Refund } from '../../../../models/refund.model';
-⋮----
-export class RefundViewComponent implements OnInit
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-getStatusClass(status: string): string
-⋮----
-getTypeClass(type: string): string
-⋮----
-formatCurrency(amount: number): string
-⋮----
-getCurrentStep(): number
-⋮----
-isStepComplete(step: number): boolean
-⋮----
-getActivityColor(type: string): string
-⋮----
-onEdit(): void
-onBack(): void
+## File: src/app/features/refund-management/pages/refund-view/refund-view.component.html
+```html
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Refund Tracker</h4>
+    <p>Track your refund claim status and updates.</p>
+  </div>
+  <button class="btn-back" (click)="onBack()">
+    <i class="bi bi-arrow-left"></i> Back
+  </button>
+</div>
+
+<div class="refund-tracker" *ngIf="!isLoading && refund">
+
+  <!-- Hero Section -->
+  <div class="refund-hero">
+    <div class="hero-label">Your active refund claim</div>
+    <div class="hero-amt">{{ formatCurrency(refund.claimAmount) }}</div>
+    <div class="hero-row">
+      <div class="hero-meta">Ref: <strong>{{ refund.refundNo }}</strong></div>
+      <div class="hero-meta">Filed: <strong>{{ refund.claimDate }}</strong></div>
+      <div class="hero-meta">Type: <strong>{{ refund.refundType }}</strong></div>
+    </div>
+  </div>
+
+  <!-- Status Pipeline Card -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Refund status tracker</div>
+      <span class="badge b-info">{{ getCurrentStep() }} of 6</span>
+    </div>
+    <div class="card-p">
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(1), 'pipe-active': getCurrentStep() === 1, 'pipe-todo': getCurrentStep() > 1}">
+            {{ getCurrentStep() === 1 ? '●' : '✓' }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 1, 'pipe-done-label': isStepComplete(1)}">Filed</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(1), 'pc-active': getCurrentStep() === 2, 'pc-todo': getCurrentStep() > 2}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(2), 'pipe-active': getCurrentStep() === 2, 'pipe-todo': getCurrentStep() > 2}">
+            {{ getCurrentStep() === 2 ? '●' : (isStepComplete(2) ? '✓' : '2') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 2, 'pipe-done-label': isStepComplete(2)}">Processing</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(2), 'pc-active': getCurrentStep() === 3, 'pc-todo': getCurrentStep() > 3}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(3), 'pipe-active': getCurrentStep() === 3, 'pipe-todo': getCurrentStep() > 3}">
+            {{ getCurrentStep() === 3 ? '●' : (isStepComplete(3) ? '✓' : '3') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 3, 'pipe-done-label': isStepComplete(3)}">Verification</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(3), 'pc-active': getCurrentStep() === 4, 'pc-todo': getCurrentStep() > 4}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(4), 'pipe-active': getCurrentStep() === 4, 'pipe-todo': getCurrentStep() > 4}">
+            {{ getCurrentStep() === 4 ? '●' : (isStepComplete(4) ? '✓' : '4') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 4, 'pipe-done-label': isStepComplete(4)}">Approval</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(4), 'pc-active': getCurrentStep() === 5, 'pc-todo': getCurrentStep() > 5}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(5), 'pipe-active': getCurrentStep() === 5, 'pipe-todo': getCurrentStep() > 5}">
+            {{ getCurrentStep() === 5 ? '●' : (isStepComplete(5) ? '✓' : '5') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 5, 'pipe-done-label': isStepComplete(5)}">Release</div>
+        </div>
+        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(5), 'pc-active': getCurrentStep() === 6, 'pc-todo': getCurrentStep() > 6}"></div>
+
+        <div class="pipe-step">
+          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(6), 'pipe-active': getCurrentStep() === 6, 'pipe-todo': getCurrentStep() > 6}">
+            {{ getCurrentStep() === 6 ? '●' : (isStepComplete(6) ? '✓' : '6') }}
+          </div>
+          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 6, 'pipe-done-label': isStepComplete(6)}">Credited</div>
+        </div>
+      </div>
+
+      <div class="eta-box">
+        <div>
+          <div class="eta-key">Current status</div>
+          <div class="eta-val">{{ refund.status }}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="eta-key">Expected credit date</div>
+          <div class="eta-val">{{ refund.paymentDate || 'Pending' }}</div>
+        </div>
+      </div>
+
+      <div class="alert alert-info" *ngIf="refund.processedBy">
+        <div>ℹ</div>
+        <div>Your refund has been assigned to {{ refund.processedBy }}. No action required from you at this stage.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Timeline -->
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Refund activity log</div></div>
+    <div class="card-p">
+      <div class="timeline" *ngIf="refund.activityLog && refund.activityLog.length > 0">
+        <div class="tl-row" *ngFor="let activity of refund.activityLog">
+          <div class="tl-dot" [ngClass]="getActivityColor(activity.type)"></div>
+          <div class="tl-body">
+            <div class="tl-title">{{ activity.title }}</div>
+            <div class="tl-meta" *ngIf="activity.description">{{ activity.description }}</div>
+          </div>
+          <div class="tl-right">{{ activity.date }}</div>
+        </div>
+      </div>
+      <div *ngIf="!refund.activityLog || refund.activityLog.length === 0" style="text-align:center;color:var(--color-text-secondary);padding:20px">
+        No activity recorded yet
+      </div>
+    </div>
+  </div>
+
+  <!-- Bank Account -->
+  <div class="card" *ngIf="refund.bankName">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-green">
+          <i class="bi bi-bank2" style="color:#3B6D11"></i>
+        </div>
+        <div>
+          <div class="card-title">Refund destination account</div>
+          <div class="card-sub">Amount will be credited here after approval</div>
+        </div>
+      </div>
+      <button *canDo="'edit'" class="btn btn-sm" (click)="onEdit()">Change account</button>
+    </div>
+    <div class="card-p">
+      <div class="grid2">
+        <div class="field"><label>Bank</label><input readonly [value]="refund.bankName"></div>
+        <div class="field"><label>Account number</label><input readonly [value]="refund.accountNo"></div>
+        <div class="field"><label>Branch</label><input readonly [value]="refund.bankBranch"></div>
+        <div class="field"><label>Account holder</label><input readonly [value]="refund.taxpayerName"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Grid (Collapsible) -->
+  <div class="details-grid">
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-badge-fill"></i>
+        <span>Taxpayer Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">TIN Number</span>
+          <span class="detail-value"><span class="code-badge">{{ refund.tinNumber }}</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Taxpayer Name</span>
+          <span class="detail-value fw-bold">{{ refund.taxpayerName }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-cash-stack"></i>
+        <span>Amount Summary</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Claimed</span>
+          <span class="detail-value fw-bold">{{ formatCurrency(refund.claimAmount) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Approved</span>
+          <span class="detail-value" [style.color]="refund.approvedAmount > 0 ? '#1D9E75' : 'var(--color-text-secondary)'">
+            {{ refund.approvedAmount > 0 ? formatCurrency(refund.approvedAmount) : '—' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Paid</span>
+          <span class="detail-value" [style.color]="refund.paidAmount > 0 ? '#1D9E75' : 'var(--color-text-secondary)'">
+            {{ refund.paidAmount > 0 ? formatCurrency(refund.paidAmount) : '—' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-person-gear"></i>
+        <span>Processing Information</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(refund.status)">
+              {{ refund.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row" *ngIf="refund.processedBy">
+          <span class="detail-label">Processed By</span>
+          <span class="detail-value">{{ refund.processedBy }}</span>
+        </div>
+        <div class="detail-row" *ngIf="refund.approvedBy">
+          <span class="detail-label">Approved By</span>
+          <span class="detail-value">{{ refund.approvedBy }}</span>
+        </div>
+        <div class="detail-row" *ngIf="refund.remarks">
+          <span class="detail-label">Remarks</span>
+          <span class="detail-value">{{ refund.remarks }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
 ```
 
 ## File: src/app/features/roles/pages/roles-create/roles-create.component.ts
@@ -26311,6 +26287,37 @@ formatCurrency(val: number): string
 private emptyForm(): RefundCreateRequest
 ```
 
+## File: src/app/features/refund-management/pages/refund-view/refund-view.component.ts
+```typescript
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Refund } from '../../../../models/refund.model';
+⋮----
+export class RefundViewComponent implements OnInit
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+getStatusClass(status: string): string
+⋮----
+getTypeClass(type: string): string
+⋮----
+formatCurrency(amount: number): string
+⋮----
+getCurrentStep(): number
+⋮----
+isStepComplete(step: number): boolean
+⋮----
+getActivityColor(type: string): string
+⋮----
+onEdit(): void
+onBack(): void
+```
+
 ## File: src/app/features/tax-structure/pages/tax-structure-edit/tax-structure-edit.component.ts
 ```typescript
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -26886,65 +26893,6 @@ toggleDropdown(): void
 logout(): void
 ```
 
-## File: src/app/features/vat-registration/pages/vat-registration-view/vat-registration-view.component.ts
-```typescript
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-⋮----
-import { VatRegistration } from '../../../../models/vat-registration.model';
-import { VatRegistrationService } from '../../services/vat-registration.service';
-import { ToastService } from '../../../../shared/toast/toast.service';
-⋮----
-type ReviewDecision = 'Approve' | 'Request' | 'Reject';
-⋮----
-export class VatRegistrationViewComponent implements OnInit, OnDestroy
-⋮----
-// ── Officer Review ─────────────────────────────────────────────────────────
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Data ───────────────────────────────────────────────────────────────────
-⋮----
-private loadData(id: number): void
-⋮----
-// ── Review modal ───────────────────────────────────────────────────────────
-⋮----
-onOpenReview(): void
-⋮----
-onCloseReview(): void
-⋮----
-selectDecision(d: ReviewDecision): void
-⋮----
-get canSubmitReview(): boolean
-⋮----
-get reviewButtonLabel(): string
-⋮----
-get reviewButtonClass(): string
-⋮----
-onSubmitReview(): void
-⋮----
-// ── Display helpers ────────────────────────────────────────────────────────
-⋮----
-getStatusClass(s: string): string
-⋮----
-getCategoryClass(c: string): string
-⋮----
-isExpired(date: string): boolean
-formatCurrency(a: number): string
-⋮----
-// ───────────────────── Navigation ────────────────────────
-⋮----
-onEdit(): void
-⋮----
-onBack(): void
-```
-
 ## File: src/app/features/vat-returns/pages/vat-return-create/vat-return-create.component.css
 ```css
 /* ────────────────────────────────────────────────────────────────────────────
@@ -27208,6 +27156,10 @@ hasRole(role: Role): boolean
 canDo(action: string): boolean
 ⋮----
 canSeeMenu(menuLabel: string): boolean
+⋮----
+updateCurrentUser(user: AuthUser): void
+⋮----
+// যদি BehaviorSubject থাকে:
 ⋮----
 get allowedMenuItems(): string[]
 ```
@@ -28811,12 +28763,74 @@ private getEmptyForm(): PaymentCreateRequest
         <i class="bi bi-check-circle-fill"></i>
         {{ isProcessing ? 'Processing...' : 'Approve & Issue TIN' }}
       </button>
+      <button class="btn-send-notice" (click)="openSendNotice()">
+        <i class="bi bi-bell-fill"></i> Send Notice
+      </button>
+
     </div>
 
   </div>
 </div>
 
 </ng-container>
+
+<div class="modal-overlay" *ngIf="showNoticeModal">
+  <div class="modal-card" style="max-width: 500px;">
+    <div class="modal-accent" style="background: #1a3f8f;"></div>
+    <div class="modal-icon-wrap" style="background:#e8eeff;">
+      <i class="bi bi-bell-fill" style="color:#1a3f8f; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Send Notice to Taxpayer</p>
+
+    <div class="modal-form">
+      <div class="modal-field">
+        <label>Notice Type</label>
+        <select [(ngModel)]="noticeType">
+          <option>General</option>
+          <option>Tax Due</option>
+          <option>Audit Notice</option>
+          <option>Compliance</option>
+          <option>Reminder</option>
+        </select>
+      </div>
+
+      <div class="modal-field">
+        <label>Priority</label>
+        <select [(ngModel)]="noticePriority">
+          <option>Low</option>
+          <option>Normal</option>
+          <option>High</option>
+          <option>Urgent</option>
+        </select>
+      </div>
+
+      <div class="modal-field">
+        <label>Subject *</label>
+        <input type="text" [(ngModel)]="noticeSubject"
+               placeholder="Enter notice subject"/>
+      </div>
+
+      <div class="modal-field">
+        <label>Message *</label>
+        <textarea [(ngModel)]="noticeBody" rows="4"
+                  placeholder="Enter notice message..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="closeSendNotice()">
+        Cancel
+      </button>
+      <button class="btn-modal-confirm"
+              style="background:#1a3f8f;"
+              (click)="sendNotice()"
+              [disabled]="isSendingNotice">
+        <i class="bi bi-send-fill"></i>
+        {{ isSendingNotice ? 'Sending...' : 'Send Notice' }}
+      </button>
+    </div>
+  </div>
+</div>
 ```
 
 ## File: src/app/features/taxpayer-portal/taxpayer-portal/taxpayer-portal-routing.module.ts
@@ -28960,6 +28974,69 @@ confirmDeleteExecute(): void
 private delete(id: number, businessName: string): void
 ⋮----
 private resetDeleteState(): void
+```
+
+## File: src/app/features/vat-registration/pages/vat-registration-view/vat-registration-view.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+⋮----
+import { VatRegistration } from '../../../../models/vat-registration.model';
+import { VatRegistrationService } from '../../services/vat-registration.service';
+import { ToastService } from '../../../../shared/toast/toast.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+⋮----
+type ReviewDecision = 'Approve' | 'Request' | 'Reject';
+⋮----
+export class VatRegistrationViewComponent implements OnInit, OnDestroy
+⋮----
+// ── Officer Review ─────────────────────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Data ───────────────────────────────────────────────────────────────────
+⋮----
+private loadData(id: number): void
+⋮----
+// ── Review modal ───────────────────────────────────────────────────────────
+⋮----
+onOpenReview(): void
+⋮----
+onCloseReview(): void
+⋮----
+selectDecision(d: ReviewDecision): void
+⋮----
+get canSubmitReview(): boolean
+⋮----
+get reviewButtonLabel(): string
+⋮----
+get reviewButtonClass(): string
+⋮----
+onSubmitReview(): void
+⋮----
+// শুধু status আর remarks — বাকি কিছু না
+⋮----
+// ── Display helpers ────────────────────────────────────────────────────────
+⋮----
+getStatusClass(s: string): string
+⋮----
+getCategoryClass(c: string): string
+⋮----
+isExpired(date: string): boolean
+formatCurrency(a: number): string
+⋮----
+// ───────────────────── Navigation ────────────────────────
+⋮----
+onEdit(): void
+⋮----
+onBack(): void
 ```
 
 ## File: src/app/features/vat-returns/pages/vat-return-create/vat-return-create.component.ts
@@ -31280,6 +31357,8 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
 ⋮----
 // Form fields
 ⋮----
+// Notice Modal
+⋮----
 // ──────────────────── Constructor ───────────────────────
 ⋮----
 constructor(
@@ -31349,6 +31428,12 @@ onZoneChange(): void
 onApprove(): void
 ⋮----
 onReject(): void
+⋮----
+openSendNotice(): void
+⋮----
+closeSendNotice(): void
+⋮----
+sendNotice(): void
 ```
 
 ## File: src/app/features/taxpayer-portal/pages/portal-home/portal-home.component.ts
@@ -36618,6 +36703,8 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { MasterDataService } from 'src/app/core/services/master-data.service';
 import { TaxpayerType } from 'src/app/models/master-data.model';
+import { Division } from '../../../../models/master-data.model';
+import { AuthService } from '../../../../core/services/auth.service';
 ⋮----
 export class TaxpayerEditComponent implements OnInit, OnDestroy {
 ⋮----

@@ -8,6 +8,8 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { MasterDataService } from 'src/app/core/services/master-data.service';
 import { TaxpayerType } from 'src/app/models/master-data.model';
+import { Division } from '../../../../models/master-data.model';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-taxpayer-edit',
@@ -22,7 +24,7 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
   taxpayerId: number | null = null;
 
   taxpayerTypes: TaxpayerType[] = [];
-  divisions: any[] = [];
+  divisions: Division[] = [];
   presentDistricts: any[] = [];
   permanentDistricts: any[] = [];
 
@@ -42,6 +44,7 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private toast: ToastService,
     private masterData: MasterDataService,
+    private authService: AuthService
   ) {}
 
   // ───────────── Lifecycle ──────────────────
@@ -423,6 +426,12 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.toast.success('Photo uploaded successfully!');
         this.currentPhotoUrl = 'http://localhost:8080' + res.photoUrl;
+
+        const currentUser = this.authService.currentUser;
+          if (currentUser) {
+            currentUser.photoUrl = 'http://localhost:8080' + res.photoUrl;
+            this.authService.updateCurrentUser(currentUser); 
+          }
         this.selectedFile = null;
         this.photoPreview = null;
       },

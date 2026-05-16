@@ -117,6 +117,12 @@ export class AuthService {
     return ROLE_MENU[this.userRole]?.includes(menuLabel) ?? false;
   }
 
+  updateCurrentUser(user: AuthUser): void {
+    localStorage.setItem('current_user', JSON.stringify(user));
+    // যদি BehaviorSubject থাকে:
+    this.currentUserSubject.next(user);
+  }
+
   get allowedMenuItems(): string[] {
     return ROLE_MENU[this.userRole] ?? [];
   }
