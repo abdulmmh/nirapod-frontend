@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { ToastService } from '../../../../shared/toast/toast.service';
 
@@ -9,12 +11,13 @@ import { ToastService } from '../../../../shared/toast/toast.service';
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.css']
 })
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent implements OnInit, OnDestroy {
   token = '';
   password = '';
   confirmPassword = '';
   isLoading = false;
   success = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -31,6 +34,11 @@ export class ResetPasswordComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onSubmit(): void {
     if (this.password !== this.confirmPassword) {
       this.toast.warning('Passwords do not match.');
@@ -45,12 +53,13 @@ export class ResetPasswordComponent implements OnInit {
     this.http.post<any>(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
       token:    this.token,
       password: this.password
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.success = true;
         this.isLoading = false;
         this.toast.success('Password reset successfully!');
-        setTimeout(() => this.router.navigate(['/auth/login']), 2000);
+        timer(2000).pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.router.navigate(['/auth/login']));
       },
       error: (err) => {
         this.toast.error(err?.error?.message || 'Reset failed. Link may have expired.');

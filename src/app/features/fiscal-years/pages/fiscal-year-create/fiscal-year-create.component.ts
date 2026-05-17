@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 import { FiscalYearCreateRequest } from '../../../../models/fiscal-year.model';
 import { HttpClient } from '@angular/common/http';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, timer } from 'rxjs';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
@@ -11,7 +11,7 @@ import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
   templateUrl: './fiscal-year-create.component.html',
   styleUrls: ['./fiscal-year-create.component.css'],
 })
-export class FiscalYearCreateComponent {
+export class FiscalYearCreateComponent implements OnDestroy {
   isLoading = false;
   successMsg = '';
   errorMsg = '';
@@ -83,7 +83,8 @@ export class FiscalYearCreateComponent {
           this.isLoading = false;
           this.successMsg = 'Fiscal year created successfully!';
           this.toast.success('Fiscal year created successfully!');
-          setTimeout(() => this.router.navigate(['/fiscal-years']), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/fiscal-years']));
         },
         error: () => {
           this.isLoading = false;

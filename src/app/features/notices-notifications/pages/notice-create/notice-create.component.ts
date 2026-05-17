@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -12,7 +12,7 @@ import { NoticeCreateRequest } from '../../../../models/notice.model';
   templateUrl: './notice-create.component.html',
   styleUrls: ['./notice-create.component.css'],
 })
-export class NoticeCreateComponent {
+export class NoticeCreateComponent implements OnDestroy {
   isLoading = false;
 
   // Taxpayer search
@@ -94,12 +94,15 @@ export class NoticeCreateComponent {
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.http.post(API_ENDPOINTS.NOTICES.CREATE, this.form).subscribe({
+    this.http.post(API_ENDPOINTS.NOTICES.CREATE, this.form)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         this.isLoading = false;
         this.successMsg = 'Notice sent successfully!';
         this.toast.success('Notice sent successfully!');
-        setTimeout(() => this.router.navigate(['/notices']), 1500);
+        timer(1500).pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.router.navigate(['/notices']));
       },
       error: () => {
         this.isLoading = false;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, timer } from 'rxjs';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -21,7 +21,7 @@ export class ToastService {
   private show(type: ToastType, title: string, message: string, duration = 3000): void {
     const toast: Toast = { id: ++this.idCounter, type, title, message, duration };
     this.toastsSubject.next([...this.toastsSubject.value, toast]);
-    setTimeout(() => this.remove(toast.id), duration);
+    timer(duration).subscribe(() => this.remove(toast.id));
   }
 
   success(message: string, title = 'Success'): void { this.show('success', title, message); }

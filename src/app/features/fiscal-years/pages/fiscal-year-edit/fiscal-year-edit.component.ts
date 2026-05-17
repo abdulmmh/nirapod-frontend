@@ -1,8 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FiscalYear } from '../../../../models/fiscal-year.model';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, timer } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
@@ -11,7 +11,7 @@ import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
   templateUrl: './fiscal-year-edit.component.html',
   styleUrls: ['./fiscal-year-edit.component.css'],
 })
-export class FiscalYearEditComponent implements OnInit {
+export class FiscalYearEditComponent implements OnInit, OnDestroy {
   isLoading = true;
   isSaving = false;
   successMsg = '';
@@ -106,7 +106,8 @@ export class FiscalYearEditComponent implements OnInit {
           this.isSaving = false;
           this.successMsg = 'Fiscal year updated successfully!';
           this.toast.success('Fiscal year updated successfully!');
-          setTimeout(() => this.router.navigate(['/fiscal-years']), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/fiscal-years']));
         },
         // FIX #1: Removed navigate() from error handler — user stays to retry
         error: () => {

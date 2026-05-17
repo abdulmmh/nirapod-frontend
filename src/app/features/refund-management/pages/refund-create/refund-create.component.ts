@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { RefundCreateRequest } from '../../../../models/refund.model';
 import { Taxpayer } from '../../../../models/taxpayer.model';
@@ -138,7 +138,8 @@ export class RefundCreateComponent implements OnInit, OnDestroy {
         next: () => {
           // ✅ Fixed: success toast only fires on actual success, never on error
           this.toast.success('Refund claim submitted successfully!');
-          setTimeout(() => this.router.navigate(['/refunds']), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/refunds']));
         },
         error: (err) => {
           // ✅ Fixed: was showing a success toast in the error handler

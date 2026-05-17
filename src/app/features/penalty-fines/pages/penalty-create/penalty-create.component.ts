@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
@@ -12,7 +12,7 @@ import { PenaltyCreateRequest } from '../../../../models/penalty.model';
   templateUrl: './penalty-create.component.html',
   styleUrls: ['./penalty-create.component.css'],
 })
-export class PenaltyCreateComponent {
+export class PenaltyCreateComponent implements OnDestroy {
   isLoading = false;
 
   // Taxpayer search
@@ -106,12 +106,15 @@ export class PenaltyCreateComponent {
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.http.post(API_ENDPOINTS.PENALTIES.CREATE, this.form).subscribe({
+    this.http.post(API_ENDPOINTS.PENALTIES.CREATE, this.form)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         this.isLoading = false;
         this.successMsg = 'Penalty issued successfully!';
         this.toast.success('Penalty issued successfully!');
-        setTimeout(() => this.router.navigate(['/penalties']), 1500);
+        timer(1500).pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.router.navigate(['/penalties']));
       },
       error: () => {
         this.isLoading = false;

@@ -1,16 +1,19 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-create',
   templateUrl: './user-create.component.html',
   styleUrls: ['./user-create.component.css'],
 })
-export class UserCreateComponent {
+export class UserCreateComponent implements OnDestroy {
   isLoading = false;
   successMsg = '';
   errorMsg = '';
+  private destroy$ = new Subject<void>();
 
   roles = [
     'TAX_COMMISSIONER',
@@ -62,6 +65,11 @@ export class UserCreateComponent {
 
   constructor(private router: Router, private toast: ToastService) {}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.errorMsg = 'Please fill in all required fields correctly.';
@@ -70,12 +78,13 @@ export class UserCreateComponent {
     }
     this.isLoading = true;
     this.errorMsg = '';
-    setTimeout(() => {
+    timer(800).pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.isLoading = false;
       this.successMsg = 'User created successfully!';
       this.toast.success('User created successfully!');
-      setTimeout(() => this.router.navigate(['/users']), 1500);
-    }, 800);
+      timer(1500).pipe(takeUntil(this.destroy$))
+        .subscribe(() => this.router.navigate(['/users']));
+    });
   }
 
   onReset(): void {

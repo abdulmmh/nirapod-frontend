@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -184,7 +184,8 @@ export class TaxStructureCreateComponent implements OnInit, OnDestroy {
         next: () => {
           this.isLoading  = false;
           this.successMsg = 'Tax structure created successfully!';
-          setTimeout(() => this.router.navigate(['/tax-structure']), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/tax-structure']));
         },
         error: (err) => {
           this.isLoading = false;

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { MasterDataService } from 'src/app/core/services/master-data.service';
 import { TaxpayerType } from 'src/app/models/master-data.model';
@@ -340,16 +340,19 @@ export class TaxpayerCreateComponent implements OnInit, OnDestroy {
             .subscribe({
               next: () => {
                 this.toast.success('Taxpayer created with photo!');
-                setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+                timer(1500).pipe(takeUntil(this.destroy$))
+                  .subscribe(() => this.router.navigate(['/taxpayers']));
               },
               error: () => {
                 this.toast.success('Taxpayer created but photo upload failed.');
-                setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+                timer(1500).pipe(takeUntil(this.destroy$))
+                  .subscribe(() => this.router.navigate(['/taxpayers']));
               }
             });
           } else {
             this.toast.success('Taxpayer created successfully!');
-            setTimeout(() => this.router.navigate(['/taxpayers']), 1500);
+            timer(1500).pipe(takeUntil(this.destroy$))
+              .subscribe(() => this.router.navigate(['/taxpayers']));
           }
         },
         error: (err) => {

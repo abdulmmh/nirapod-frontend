@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Document } from '../../../../models/document.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
@@ -11,7 +11,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
   templateUrl: './document-edit.component.html',
   styleUrls: ['./document-edit.component.css'],
 })
-export class DocumentEditComponent implements OnInit {
+export class DocumentEditComponent implements OnInit, OnDestroy {
   isLoading = true;
   isSaving = false;
   documentId: number | null = null;
@@ -127,7 +127,8 @@ export class DocumentEditComponent implements OnInit {
       .subscribe({
         next: () => {
           this.toast.success('Document updated successfully!');
-          setTimeout(() => this.router.navigate(['/documents']), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/documents']));
         },
         error: (error) => {
           console.error('Error updating document:', error);

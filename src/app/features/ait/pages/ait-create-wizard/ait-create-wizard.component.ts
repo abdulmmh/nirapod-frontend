@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AitService } from '../../services/ait.service';
 import { AitRecord, CreateAitPayload, AitDocument } from '../../models/ait.model';
 
@@ -33,7 +35,9 @@ interface WizardState {
   templateUrl: './ait-create-wizard.component.html',
   styleUrls: ['./ait-create-wizard.component.css']
 })
-export class AitCreateWizardComponent implements OnInit {
+export class AitCreateWizardComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   state: WizardState = {
     step: 1,
     uploadedDocuments: [],
@@ -101,6 +105,11 @@ export class AitCreateWizardComponent implements OnInit {
   ngOnInit(): void {
     this.loadTransactions();
     this.restoreDraftIfExists();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadTransactions(): void {
@@ -220,9 +229,8 @@ export class AitCreateWizardComponent implements OnInit {
       sessionStorage.removeItem('ait_draft');
 
       // Redirect after 3 seconds
-      setTimeout(() => {
-        this.router.navigate(['/aits/dashboard']);
-      }, 3000);
+      timer(3000).pipe(takeUntil(this.destroy$))
+        .subscribe(() => this.router.navigate(['/aits/dashboard']));
 
     } catch (error: any) {
       this.submitError = error?.message || 'Failed to submit AIT. Please try again.';

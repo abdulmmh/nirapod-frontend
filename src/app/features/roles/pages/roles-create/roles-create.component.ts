@@ -1,16 +1,19 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-roles-create',
   templateUrl: './roles-create.component.html',
   styleUrls: ['./roles-create.component.css'],
 })
-export class RolesCreateComponent {
+export class RolesCreateComponent implements OnDestroy {
   isLoading = false;
   successMsg = '';
   errorMsg = '';
+  private destroy$ = new Subject<void>();
 
   modules = [
     'Taxpayer Management',
@@ -67,6 +70,11 @@ export class RolesCreateComponent {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onRoleNameChange(): void {
     this.form.roleCode = this.form.roleName
       .toUpperCase()
@@ -116,12 +124,13 @@ export class RolesCreateComponent {
     }
     this.isLoading = true;
     this.errorMsg = '';
-    setTimeout(() => {
+    timer(800).pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.isLoading = false;
       this.successMsg = `Role "${this.form.roleName}" created successfully!`;
       this.toast.success(`Role "${this.form.roleName}" created successfully!`);
-      setTimeout(() => this.router.navigate(['/roles']), 1500);
-    }, 800);
+      timer(1500).pipe(takeUntil(this.destroy$))
+        .subscribe(() => this.router.navigate(['/roles']));
+    });
   }
 
   onCancel(): void {

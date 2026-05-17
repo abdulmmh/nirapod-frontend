@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { VatRegistration } from '../../../../models/vat-registration.model';
 
 @Component({
@@ -7,7 +9,8 @@ import { VatRegistration } from '../../../../models/vat-registration.model';
   templateUrl: './vat-registration-success.component.html',
   styleUrls: ['./vat-registration-success.component.css'],
 })
-export class VatRegistrationSuccessComponent implements OnInit {
+export class VatRegistrationSuccessComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
   registration: VatRegistration | null = null;
 
@@ -38,7 +41,13 @@ export class VatRegistrationSuccessComponent implements OnInit {
 
     // Defer one tick so Angular renders the base template first,
     // then applies .animate-in to trigger the CSS transition.
-    setTimeout(() => (this.animateIn = true), 50);
+    timer(50).pipe(takeUntil(this.destroy$))
+      .subscribe(() => (this.animateIn = true));
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ── BIN copy ────────────────────────────────────────────────────────────
@@ -73,7 +82,8 @@ export class VatRegistrationSuccessComponent implements OnInit {
 
   private flashCopied(): void {
     this.binCopied = true;
-    setTimeout(() => (this.binCopied = false), 2000);
+    timer(2000).pipe(takeUntil(this.destroy$))
+      .subscribe(() => (this.binCopied = false));
   }
 
   // ── Navigation ──────────────────────────────────────────────────────────

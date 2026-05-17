@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Subject, takeUntil, timer } from 'rxjs';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Refund } from '../../../../models/refund.model';
 
@@ -10,7 +11,7 @@ import { Refund } from '../../../../models/refund.model';
   templateUrl: './refund-edit.component.html',
   styleUrls: ['./refund-edit.component.css'],
 })
-export class RefundEditComponent implements OnInit {
+export class RefundEditComponent implements OnInit, OnDestroy {
   isLoading = true;
   isSaving = false;
   successMsg = '';
@@ -43,6 +44,7 @@ export class RefundEditComponent implements OnInit {
   ];
 
   form: any = {};
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -56,9 +58,16 @@ export class RefundEditComponent implements OnInit {
     this.loadRefund();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadRefund(): void {
     this.isLoading = true;
-    this.http.get<Refund>(API_ENDPOINTS.PAYMENTS.GET(this.refundId)).subscribe({
+    this.http.get<Refund>(API_ENDPOINTS.PAYMENTS.GET(this.refundId))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (data) => {
         this.form = { ...data };
         this.isLoading = false;
@@ -121,12 +130,14 @@ export class RefundEditComponent implements OnInit {
 
     this.http
       .put(API_ENDPOINTS.PAYMENTS.GET(this.refundId), this.form)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.isSaving = false;
           this.successMsg = 'Refund updated successfully!';
           this.toast.success('Refund updated successfully!');
-          setTimeout(() => this.router.navigate(['/refunds']), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/refunds']));
         },
         error: () => {
           this.isSaving = false;

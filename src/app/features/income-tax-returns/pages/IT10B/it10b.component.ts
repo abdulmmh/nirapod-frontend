@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
 import { BaseApiService }   from '../../../../core/services/base-api.service';
@@ -141,7 +141,8 @@ export class It10bComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.toast.success('IT-10B Statement updated successfully!');
-            setTimeout(() => this.goBack(), 1500);
+            timer(1500).pipe(takeUntil(this.destroy$))
+              .subscribe(() => this.goBack());
           },
           error: (err) => this.handleSaveError(err)
         });
@@ -153,7 +154,8 @@ export class It10bComponent implements OnInit, OnDestroy {
           next: (data) => {
             this.existingId = data.id;   
             this.toast.success('IT-10B Statement filed successfully!');
-            setTimeout(() => this.goBack(), 1500);
+            timer(1500).pipe(takeUntil(this.destroy$))
+              .subscribe(() => this.goBack());
           },
           error: (err) => this.handleSaveError(err)
         });

@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, of } from 'rxjs';
+import { Subject, of, timer } from 'rxjs';
 import {
   catchError,
   filter,
@@ -246,10 +246,8 @@ export class VatRegistrationEditComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('VAT Registration updated successfully!');
-          setTimeout(
-            () => this.router.navigate(['/vat-registration/view', this.vatId]),
-            1500,
-          );
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/vat-registration/view', this.vatId]));
         },
         error: err => {
           if (err?.status === 409) {

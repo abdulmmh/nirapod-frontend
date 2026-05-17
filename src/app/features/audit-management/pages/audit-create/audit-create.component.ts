@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { AuditCreateRequest } from '../../../../models/audit.model';
 import { Taxpayer } from '../../../../models/taxpayer.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
@@ -169,7 +169,8 @@ export class AuditCreateComponent implements OnDestroy {
 
   private handleSuccess(): void {
     this.toast.success('Audit created successfully!');
-    setTimeout(() => this.router.navigate(['/audits']), 1500);
+    timer(1500).pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.router.navigate(['/audits']));
   }
 
   private handleError(error: unknown): void {

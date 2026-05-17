@@ -1,15 +1,18 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css'],
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnDestroy {
   activeTab = 'general';
   isSaving = false;
   successMsg = '';
+  private destroy$ = new Subject<void>();
 
   general = {
     systemName: 'National VAT & Tax Management System',
@@ -58,6 +61,11 @@ export class SettingsComponent {
 
   constructor(private toast: ToastService) {}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   tabs = [
     { id: 'general', label: 'General', icon: 'bi bi-sliders' },
     { id: 'email', label: 'Email', icon: 'bi bi-envelope-fill' },
@@ -67,11 +75,12 @@ export class SettingsComponent {
 
   onSave(): void {
     this.isSaving = true;
-    setTimeout(() => {
+    timer(800).pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.isSaving = false;
       this.successMsg = 'Settings saved successfully!';
       this.toast.success('Settings saved successfully!');
-      setTimeout(() => (this.successMsg = ''), 3000);
-    }, 800);
+      timer(3000).pipe(takeUntil(this.destroy$))
+        .subscribe(() => (this.successMsg = ''));
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, of } from 'rxjs';
+import { Subject, of, timer } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { TaxStructureService } from 'src/app/core/services/tax-strcuture.service';
 
@@ -201,7 +201,8 @@ export class TaxStructureEditComponent implements OnInit, OnDestroy {
         next: () => {
           this.isSaving   = false;
           this.successMsg = 'Tax structure updated successfully!';
-          setTimeout(() => this.router.navigate(['/tax-structure/view', this.taxId]), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/tax-structure/view', this.taxId]));
         },
         error: (err) => {
           this.isSaving  = false;

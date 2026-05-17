@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin, Subject } from 'rxjs';
+import { forkJoin, Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
@@ -212,7 +212,8 @@ export class ImportDutyCreateComponent implements OnInit, OnDestroy {
         next: () => {
           this.successMsg = 'Import duty record created successfully!';
           this.toast.success(this.successMsg);
-          setTimeout(() => this.router.navigate(['/import-duty']), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/import-duty']));
         },
         error: (err) => {
           this.errorMsg =

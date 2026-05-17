@@ -1,6 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ImportDuty } from '../../../../models/import-duty.model';
 
 @Component({
@@ -8,12 +10,13 @@ import { ImportDuty } from '../../../../models/import-duty.model';
   templateUrl: './import-duty-list.component.html',
   styleUrls: ['./import-duty-list.component.css'],
 })
-export class ImportDutyListComponent implements OnInit {
+export class ImportDutyListComponent implements OnInit, OnDestroy {
   records: ImportDuty[] = [];
   searchTerm = '';
   isLoading = false;
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
+  private destroy$ = new Subject<void>();
 
   private fallback: ImportDuty[] = [
     this.record(
@@ -162,10 +165,15 @@ export class ImportDutyListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    setTimeout(() => {
+    timer(400).pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.records = this.fallback;
       this.isLoading = false;
-    }, 400);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private record(

@@ -9,25 +9,31 @@ import { AitDashboardComponent } from '../pages/ait-dashboard/ait-dashboard.comp
 import { AitCreateWizardComponent } from '../pages/ait-create-wizard/ait-create-wizard.component';
 import { OfficerDashboardComponent } from '../pages/officer-dashboard/officer-dashboard.component';
 import { OfficerReviewComponent } from '../pages/officer-review/officer-review.component';
-
-// Components
-import { KpiCardsComponent } from '../components/kpi-cards/kpi-cards.component';
-import { RecordsTableComponent } from '../components/records-table/records-table.component';
-import { StatusBadgeComponent } from '../components/status-badge/status-badge.component';
 import { AuditTrailComponent } from '../components/audit-trail/audit-trail.component';
 import { DocumentViewerComponent } from '../components/document-viewer/document-viewer.component';
+import { KPICardsComponent } from '../components/kpi-cards/kpi-cards.component';
+import { RecordsTableComponent } from '../components/records-table/records-table.component';
+import { StatusBadgeComponent } from '../components/status-badge/status-badge.component';
+
+
 
 @NgModule({
   declarations: [
-    AitDashboardComponent,
+
+    // Pages
     AitCreateWizardComponent,
+    AitDashboardComponent,
     OfficerDashboardComponent,
     OfficerReviewComponent,
-    KpiCardsComponent,
-    RecordsTableComponent,
-    StatusBadgeComponent,
+
+    // Components
     AuditTrailComponent,
-    DocumentViewerComponent
+    DocumentViewerComponent,
+    KPICardsComponent,
+    RecordsTableComponent,
+    StatusBadgeComponent
+    
+
   ],
   imports: [
     CommonModule,

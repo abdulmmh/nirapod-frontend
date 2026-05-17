@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TaxStructure } from 'src/app/models/tax-structure.model';
 import {
@@ -14,11 +15,12 @@ import { TaxableProductService } from '../../services/taxable-product.service';
   templateUrl: './taxable-product-create.component.html',
   styleUrls: ['./taxable-product-create.component.css'],
 })
-export class TaxableProductCreateComponent implements OnInit {
+export class TaxableProductCreateComponent implements OnInit, OnDestroy {
   isLoading = false;
   isMasterDataLoading = false;
   successMsg = '';
   errorMsg = '';
+  private destroy$ = new Subject<void>();
 
   categories: string[] = [];
   units: string[] = [];
@@ -35,6 +37,11 @@ export class TaxableProductCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadMasterData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get selectedTaxStructure(): TaxStructure | undefined {
@@ -57,7 +64,7 @@ export class TaxableProductCreateComponent implements OnInit {
       categories: this.productService.listCategories(),
       units: this.productService.listUnits(),
       taxStructures: this.productService.listTaxStructures(),
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: ({ categories, units, taxStructures }) => {
         this.categories = categories;
         this.units = units;
@@ -97,12 +104,13 @@ export class TaxableProductCreateComponent implements OnInit {
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.productService.create(this.form).subscribe({
+    this.productService.create(this.form).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isLoading = false;
         this.successMsg = 'Taxable product created successfully!';
         this.toast.success(this.successMsg);
-        setTimeout(() => this.router.navigate(['/taxable-products']), 1500);
+        timer(1500).pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.router.navigate(['/taxable-products']));
       },
       error: (err) => {
         this.isLoading = false;

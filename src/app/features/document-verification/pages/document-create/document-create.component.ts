@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { DocumentCreateRequest } from '../../../../models/document.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
@@ -12,7 +12,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
   templateUrl: './document-create.component.html',
   styleUrls: ['./document-create.component.css'],
 })
-export class DocumentCreateComponent {
+export class DocumentCreateComponent implements OnDestroy {
   isLoading = false;
 
   // Taxpayer search
@@ -95,7 +95,8 @@ export class DocumentCreateComponent {
       .subscribe({
         next: () => {
           this.toast.success('Document submitted successfully!');
-          setTimeout(() => this.router.navigate(['/documents']), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/documents']));
         },
         error: (error) => {
           console.error('Error submitting document:', error); 

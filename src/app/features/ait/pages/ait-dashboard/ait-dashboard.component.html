@@ -68,7 +68,7 @@
 
     <!-- Filter row -->
     <div class="filter-row">
-      <select class="filter-select" (change)="onStatusFilterChange($event.target.value)">
+      <select class="filter-select" (change)="onStatusFilterChange($any($event.target).value)">
         <option value="">All Statuses</option>
         <option value="DRAFT">Draft</option>
         <option value="SUBMITTED">Submitted</option>
@@ -77,7 +77,7 @@
         <option value="APPROVED">Approved</option>
       </select>
 
-      <select class="filter-select" (change)="onFiscalYearChange($event.target.value)">
+      <select class="filter-select" (change)="onFiscalYearChange($any($event.target).value)">
         <option value="FY 2024-2025">FY 2024-2025</option>
         <option value="FY 2023-2024">FY 2023-2024</option>
       </select>
@@ -85,7 +85,7 @@
       <input type="text"
         class="filter-input"
         placeholder="Search reference or product…"
-        (input)="onSearchChange($event.target.value)">
+        (input)="onSearchChange($any($event.target).value)">
 
       <button class="filter-button" title="Open advanced filters">
         <i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Filters

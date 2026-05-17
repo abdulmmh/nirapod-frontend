@@ -1,18 +1,21 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivityLog } from 'src/app/models/activity-logs.model';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-activity-logs-list',
   templateUrl: './activity-logs-list.component.html',
   styleUrls: ['./activity-logs-list.component.css'],
 })
-export class ActivityLogsListComponent implements OnInit {
+export class ActivityLogsListComponent implements OnInit, OnDestroy {
   logs: ActivityLog[] = [];
   searchTerm = '';
   filterType = '';
   filterDate = '';
   isLoading = false;
+  private destroy$ = new Subject<void>();
 
   actionTypes = [
     '',
@@ -176,10 +179,15 @@ export class ActivityLogsListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    setTimeout(() => {
+    timer(400).pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.logs = this.fallback;
       this.isLoading = false;
-    }, 400);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get filtered(): ActivityLog[] {

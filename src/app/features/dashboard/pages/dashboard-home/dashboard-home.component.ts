@@ -6,7 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -247,7 +247,8 @@ export class DashboardHomeComponent
 
   ngAfterViewInit(): void {
     // Initial draw (data may not be ready yet; loadDashboard will call again when done)
-    setTimeout(() => this.redrawAllCharts(), 100);
+    timer(100).pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.redrawAllCharts());
   }
 
   ngOnDestroy(): void {
@@ -289,7 +290,8 @@ export class DashboardHomeComponent
           this.applyChartData(chartData as DashboardChartData);
           this.applyFiscalYears(fiscalYears as FiscalYear[]);
           // Redraw charts after Angular binds the new data
-          setTimeout(() => this.redrawAllCharts(), 50);
+          timer(50).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.redrawAllCharts());
         },
         error: () => {
           this.hasError = true;
@@ -431,10 +433,10 @@ export class DashboardHomeComponent
   onRefresh(): void {
     this.isRefreshing = true;
     this.loadDashboard();
-    setTimeout(() => {
+    timer(1200).pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.isRefreshing = false;
       if (!this.hasError) this.toast.success('Dashboard refreshed.');
-    }, 1200);
+    });
   }
 
   onYearChange(): void {

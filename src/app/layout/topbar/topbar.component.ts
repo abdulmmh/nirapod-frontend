@@ -1,17 +1,20 @@
 import {
-  Component, EventEmitter, OnInit, Output,
+  Component, EventEmitter, OnDestroy, OnInit, Output,
   HostListener, ElementRef, ViewChild
 } from '@angular/core';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-topbar',
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.css']
 })
-export class TopbarComponent implements OnInit {
+export class TopbarComponent implements OnInit, OnDestroy {
   @Output() menuToggle = new EventEmitter<void>();
   @ViewChild('mobileSearchInput') mobileSearchInput!: any;
+  private destroy$ = new Subject<void>();
 
   isUserDropdownOpen = false;
   isNotifDropdownOpen = false;
@@ -38,9 +41,15 @@ export class TopbarComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   openSearch(): void {
     this.isSearchOpen = true;
-    setTimeout(() => this.mobileSearchInput?.nativeElement?.focus(), 100);
+    timer(100).pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.mobileSearchInput?.nativeElement?.focus());
   }
 
   closeSearch(): void {

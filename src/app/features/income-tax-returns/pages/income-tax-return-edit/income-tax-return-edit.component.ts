@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { catchError, finalize, forkJoin, of, Subject, takeUntil } from 'rxjs';
+import { catchError, finalize, forkJoin, of, Subject, takeUntil, timer } from 'rxjs';
 
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { FiscalYear } from '../../../../models/fiscal-year.model';
@@ -225,7 +225,8 @@ export class IncomeTaxReturnEditComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('Income tax return updated successfully!');
-          setTimeout(() => this.router.navigate(['/income-tax-returns/view', this.itrId]), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/income-tax-returns/view', this.itrId]));
         },
         error: (err) => {
           if (err.status === 409) {

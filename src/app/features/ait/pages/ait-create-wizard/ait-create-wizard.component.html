@@ -204,7 +204,7 @@
           #fileInput
           hidden
           multiple
-          (change)="onFilesSelected($event.target.files)">
+          (change)="onFilesSelected($any($event.target).files)">
 
         <div class="drop-area" (click)="fileInput.click()">
           <i class="ti ti-cloud-upload"></i>

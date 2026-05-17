@@ -1,13 +1,15 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.css'],
 })
-export class UserEditComponent implements OnInit {
+export class UserEditComponent implements OnInit, OnDestroy {
   isLoading = true;
   isSaving = false;
   successMsg = '';
@@ -33,6 +35,7 @@ export class UserEditComponent implements OnInit {
   statuses = ['Active', 'Inactive', 'Suspended'];
 
   form: any = {};
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -54,6 +57,11 @@ export class UserEditComponent implements OnInit {
     this.isLoading = false;
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   isFormValid(): boolean {
     return !!(
       this.form.fullName &&
@@ -70,12 +78,13 @@ export class UserEditComponent implements OnInit {
       return;
     }
     this.isSaving = true;
-    setTimeout(() => {
+    timer(800).pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.isSaving = false;
       this.successMsg = 'User updated successfully!';
       this.toast.success('User updated successfully!');
-      setTimeout(() => this.router.navigate(['/users']), 1500);
-    }, 800);
+      timer(1500).pipe(takeUntil(this.destroy$))
+        .subscribe(() => this.router.navigate(['/users']));
+    });
   }
 
   onCancel(): void {

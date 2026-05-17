@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Subject, takeUntil, timer } from 'rxjs';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Penalty } from '../../../../models/penalty.model';
 
@@ -10,7 +11,7 @@ import { Penalty } from '../../../../models/penalty.model';
   templateUrl: './penalty-edit.component.html',
   styleUrls: ['./penalty-edit.component.css'],
 })
-export class PenaltyEditComponent implements OnInit {
+export class PenaltyEditComponent implements OnInit, OnDestroy {
   isLoading = true;
   isSaving = false;
   successMsg = '';
@@ -37,6 +38,7 @@ export class PenaltyEditComponent implements OnInit {
   ];
 
   form: any = {};
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -50,10 +52,16 @@ export class PenaltyEditComponent implements OnInit {
     this.loadPenalty();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadPenalty(): void {
     this.isLoading = true;
     this.http
       .get<Penalty>(API_ENDPOINTS.PENALTIES.GET(this.penaltyId))
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.form = { ...data };
@@ -116,12 +124,14 @@ export class PenaltyEditComponent implements OnInit {
     this.successMsg = '';
     this.http
       .put(API_ENDPOINTS.PENALTIES.GET(this.penaltyId), this.form)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.isSaving = false;
           this.successMsg = 'Penalty updated successfully!';
           this.toast.success('Penalty updated successfully!');
-          setTimeout(() => this.router.navigate(['/penalties']), 1500);
+          timer(1500).pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/penalties']));
         },
         error: () => {
           this.isSaving = false;

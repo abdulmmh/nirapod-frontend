@@ -1,6 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 export interface AppUser {
   id: number;
@@ -19,12 +21,13 @@ export interface AppUser {
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css'],
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent implements OnInit, OnDestroy {
   users: AppUser[] = [];
   searchTerm = '';
   isLoading = false;
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
+  private destroy$ = new Subject<void>();
 
   private fallback: AppUser[] = [
     {
@@ -121,10 +124,15 @@ export class UserListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    setTimeout(() => {
+    timer(400).pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.users = this.fallback;
       this.isLoading = false;
-    }, 400);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get filtered(): AppUser[] {

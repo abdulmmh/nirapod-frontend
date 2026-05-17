@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AitService } from '../../services/ait.service';
-import { AitDetailResponse, AitDocument, DocumentRequest } from '../../models/ait.model';
+import { AitDetailResponse, AitDocument, DocumentRequest, DocumentRequestType } from '../../models/ait.model';
 
 @Component({
   selector: 'app-officer-review',
   templateUrl: './officer-review.component.html',
   styleUrls: ['./officer-review.component.css']
 })
-export class OfficerReviewComponent implements OnInit {
+export class OfficerReviewComponent implements OnInit, OnDestroy {
   ait: AitDetailResponse | null = null;
   documents: AitDocument[] = [];
   pendingRequests: DocumentRequest[] = [];
+
+  private destroy$ = new Subject<void>();
 
   activeDocTabId: number | null = null;
   selectedDocument: AitDocument | null = null;
@@ -55,12 +59,17 @@ export class OfficerReviewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.aitId = params['id'];
       if (this.aitId) {
         this.loadAitDetails();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadAitDetails(): void {
@@ -69,7 +78,7 @@ export class OfficerReviewComponent implements OnInit {
     this.isLoading = true;
     this.loadError = null;
 
-    this.aitService.getById(this.aitId).subscribe({
+    this.aitService.getById(this.aitId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (detail) => {
         this.ait = detail;
         this.documents = detail.documents || [];
@@ -110,14 +119,16 @@ export class OfficerReviewComponent implements OnInit {
     this.actionInProgress = 'approve';
     this.actionError = null;
 
-    this.aitService.approve(this.ait.id, this.approveForm.approvedAmount, this.approveForm.approvalNotes).subscribe({
+    this.aitService.approve(this.ait.id, {
+      approvedAmount: this.approveForm.approvedAmount,
+      approvalNotes: this.approveForm.approvalNotes
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (result) => {
         this.actionSuccess = 'AIT record approved successfully!';
         this.actionInProgress = null;
         this.showApproveModal = false;
-        setTimeout(() => {
-          this.router.navigate(['/aits/officer-dashboard']);
-        }, 2000);
+        timer(2000).pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.router.navigate(['/aits/officer-dashboard']));
       },
       error: (err) => {
         this.actionError = err?.message || 'Failed to approve AIT. Please try again.';
@@ -145,14 +156,15 @@ export class OfficerReviewComponent implements OnInit {
     this.actionInProgress = 'reject';
     this.actionError = null;
 
-    this.aitService.reject(this.ait.id, this.rejectForm.rejectionReason).subscribe({
+    this.aitService.reject(this.ait.id, {
+      rejectionReason: this.rejectForm.rejectionReason.trim()
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (result) => {
         this.actionSuccess = 'AIT record rejected successfully!';
         this.actionInProgress = null;
         this.showRejectModal = false;
-        setTimeout(() => {
-          this.router.navigate(['/aits/officer-dashboard']);
-        }, 2000);
+        timer(2000).pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.router.navigate(['/aits/officer-dashboard']));
       },
       error: (err) => {
         this.actionError = err?.message || 'Failed to reject AIT. Please try again.';
@@ -181,21 +193,20 @@ export class OfficerReviewComponent implements OnInit {
     this.actionError = null;
 
     const request: Partial<DocumentRequest> = {
-      requestType: this.requestForm.requestType as any,
+      requestType: this.requestForm.requestType as DocumentRequestType,
       requestedDocuments: this.requestForm.requestedDocuments,
       requestReason: this.requestForm.requestReason,
       deadline: this.requestForm.deadline
     };
 
-    this.aitService.createDocumentRequest(this.ait.id, request as any).subscribe({
+    this.aitService.createDocumentRequest(this.ait.id, request).pipe(takeUntil(this.destroy$)).subscribe({
       next: (result) => {
         this.actionSuccess = 'Document request sent successfully!';
         this.actionInProgress = null;
         this.showRequestModal = false;
         this.pendingRequests.push(result);
-        setTimeout(() => {
-          this.loadAitDetails();
-        }, 1500);
+        timer(1500).pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.loadAitDetails());
       },
       error: (err) => {
         this.actionError = err?.message || 'Failed to send document request. Please try again.';
@@ -262,6 +273,6 @@ export class OfficerReviewComponent implements OnInit {
   }
 
   canRequestCorrection(): boolean {
-    return this.ait?.status === 'UNDER_REVIEW' || this.ait?.status === 'CORRECTION_REQUESTED';
+    return this.ait?.status === 'UNDER_REVIEW';
   }
 }
