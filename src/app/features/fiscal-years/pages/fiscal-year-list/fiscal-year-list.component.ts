@@ -1,8 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 import { FiscalYear } from '../../../../models/fiscal-year.model';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { HttpClient } from '@angular/common/http';
 
@@ -11,9 +11,10 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './fiscal-year-list.component.html',
   styleUrls: ['./fiscal-year-list.component.css'],
 })
-export class FiscalYearListComponent implements OnInit {
+export class FiscalYearListComponent implements OnInit, OnDestroy {
   years: FiscalYear[] = [];
   isLoading = false;
+  settingCurrentId: number | null = null;
   errorMsg = '';
 
   private destroy$ = new Subject<void>();
@@ -39,14 +40,15 @@ export class FiscalYearListComponent implements OnInit {
 
     this.http
       .get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST)
-      .pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false))
+      )
       .subscribe({
         next: (data) => {
           this.years = data;
-          this.isLoading = false;
         },
         error: () => {
-          this.isLoading = false;
           this.errorMsg =
             'Failed to load fiscal years. Please refresh the page.';
           this.toast.error(
@@ -65,12 +67,32 @@ export class FiscalYearListComponent implements OnInit {
   }
 
   setCurrent(id: number): void {
-    this.years = this.years.map((y) => ({
-      ...y,
-      isCurrentYear: y.id === id,
-      status:
-        y.id === id ? 'Active' : y.status === 'Active' ? 'Closed' : y.status,
-    }));
+    const selected = this.years.find((y) => y.id === id);
+    if (!selected || selected.isCurrentYear || this.settingCurrentId !== null) return;
+
+    this.settingCurrentId = id;
+    const payload: FiscalYear = {
+      ...selected,
+      vatDueDay: Number(selected.vatDueDay),
+      isCurrentYear: true,
+      status: 'Active',
+    };
+
+    this.http
+      .put<FiscalYear>(API_ENDPOINTS.FISCAL_YEARS.UPDATE(id), payload)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.settingCurrentId = null))
+      )
+      .subscribe({
+        next: () => {
+          this.toast.success('Fiscal year set as current.');
+          this.loadFiscalYears();
+        },
+        error: () => {
+          this.toast.error('Failed to set fiscal year as current.');
+        },
+      });
   }
 
   isExpired(date: string): boolean {

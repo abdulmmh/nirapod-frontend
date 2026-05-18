@@ -1,9 +1,9 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 import { FiscalYearCreateRequest } from '../../../../models/fiscal-year.model';
 import { HttpClient } from '@angular/common/http';
-import { Subject, takeUntil, timer } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Component({
@@ -52,8 +52,17 @@ export class FiscalYearCreateComponent implements OnDestroy {
       this.form.endDate &&
       this.form.vatDueDay &&
       this.form.incomeTaxDueDate &&
-      this.form.status
+      this.form.status &&
+      this.hasValidDateRange()
     );
+  }
+
+  onStatusChange(): void {
+    this.form.isCurrentYear = this.form.status === 'Active';
+  }
+
+  onCurrentYearChange(): void {
+    this.form.status = this.form.isCurrentYear ? 'Active' : 'Upcoming';
   }
 
   private destroy$ = new Subject<void>();
@@ -76,18 +85,19 @@ export class FiscalYearCreateComponent implements OnDestroy {
     this.successMsg = '';
 
     this.http
-      .post(API_ENDPOINTS.FISCAL_YEARS.CREATE, this.form)
-      .pipe(takeUntil(this.destroy$)) // Auto-cancel if component is destroyed mid-request
+      .post(API_ENDPOINTS.FISCAL_YEARS.CREATE, this.getPayload())
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false))
+      )
       .subscribe({
         next: () => {
-          this.isLoading = false;
           this.successMsg = 'Fiscal year created successfully!';
           this.toast.success('Fiscal year created successfully!');
           timer(1500).pipe(takeUntil(this.destroy$))
             .subscribe(() => this.router.navigate(['/fiscal-years']));
         },
         error: () => {
-          this.isLoading = false;
           this.errorMsg = 'Failed to create fiscal year. Please try again.';
           this.toast.error('Failed to create fiscal year. Please try again.');
         },
@@ -107,5 +117,23 @@ export class FiscalYearCreateComponent implements OnDestroy {
 
   onCancel(): void {
     this.router.navigate(['/fiscal-years']);
+  }
+
+  private hasValidDateRange(): boolean {
+    return (
+      this.form.startDate <= this.form.endDate &&
+      this.form.incomeTaxDueDate >= this.form.startDate &&
+      this.form.incomeTaxDueDate <= this.form.endDate
+    );
+  }
+
+  private getPayload(): FiscalYearCreateRequest {
+    const isCurrentYear = this.form.isCurrentYear || this.form.status === 'Active';
+    return {
+      ...this.form,
+      vatDueDay: Number(this.form.vatDueDay),
+      isCurrentYear,
+      status: isCurrentYear ? 'Active' : this.form.status,
+    };
   }
 }

@@ -7,11 +7,24 @@ import { FiscalYearCreateComponent } from '../pages/fiscal-year-create/fiscal-ye
 import { FiscalYearEditComponent } from '../pages/fiscal-year-edit/fiscal-year-edit.component';
 
 const routes: Routes = [
-  { path: '', component: FiscalYearListComponent, canActivate: [AuthGuard] },
-  { path: 'create', component: FiscalYearCreateComponent, canActivate: [AuthGuard],
-    data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] } },
-    {path: 'edit/:id', component: FiscalYearEditComponent, canActivate: [AuthGuard],
-    data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] } }
+  {
+    path: '',
+    component: FiscalYearListComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] },
+  },
+  {
+    path: 'create',
+    component: FiscalYearCreateComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] },
+  },
+  {
+    path: 'edit/:id',
+    component: FiscalYearEditComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] },
+  },
 ];
 
 @NgModule({

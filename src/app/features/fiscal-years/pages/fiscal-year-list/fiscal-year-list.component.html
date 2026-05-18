@@ -80,8 +80,14 @@
           <button
             *ngIf="!y.isCurrentYear && y.status !== 'Closed'"
             class="btn-set-current"
+            [disabled]="settingCurrentId !== null"
             (click)="setCurrent(y.id)">
-            <i class="bi bi-check-circle-fill"></i> Set as Current
+            <span *ngIf="settingCurrentId !== y.id">
+              <i class="bi bi-check-circle-fill"></i> Set as Current
+            </span>
+            <span *ngIf="settingCurrentId === y.id">
+              <span class="spinner-border spinner-border-sm me-1"></span>Saving...
+            </span>
           </button>
         </div>
           <button class="btn-fy-edit" (click)="edit(y.id)">

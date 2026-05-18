@@ -35,7 +35,7 @@
       <div class="form-group">
         <label class="form-label">Status</label>
         <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.status">
+          <select class="form-input form-select" [(ngModel)]="form.status" (ngModelChange)="onStatusChange()">
             <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
           </select>
         </div>
@@ -68,7 +68,7 @@
         <label class="form-label">VAT Due Day</label>
         <div class="input-wrap"><i class="bi bi-receipt-cutoff input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.vatDueDay">
-            <option *ngFor="let d of vatDueDays" [value]="d">{{ d }}th of each month</option>
+            <option *ngFor="let d of vatDueDays" [ngValue]="d">{{ d }}th of each month</option>
           </select>
         </div>
       </div>
@@ -96,7 +96,7 @@
       </div>
       <div class="toggle-wrap">
         <label class="toggle-switch">
-          <input type="checkbox" [(ngModel)]="form.isCurrentYear" />
+          <input type="checkbox" [(ngModel)]="form.isCurrentYear" (ngModelChange)="onCurrentYearChange()" />
           <span class="toggle-slider"></span>
         </label>
         <span class="toggle-label" [class.on]="form.isCurrentYear">
