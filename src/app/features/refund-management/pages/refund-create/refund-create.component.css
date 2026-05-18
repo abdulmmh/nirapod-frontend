@@ -1,9 +1,159 @@
-.section-icon.teal {
-  background: linear-gradient(135deg, #0891b2, #06b6d4);
+.page-title { font-size: 1.2rem; font-weight: 600; }
+
+/* ─── Stepper ─────────────────────────────────── */
+.stepper-wrapper {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
-.section-icon.orange {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
+
+.stepper-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  min-width: 80px;
 }
-.section-icon.purple {
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
+
+.stepper-circle {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #e9ecef; color: #6c757d;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 600;
+  border: 2px solid #dee2e6;
+  cursor: pointer; transition: all .2s; z-index: 1;
+  flex-shrink: 0;
+}
+
+.stepper-item.active .stepper-circle {
+  background: #fff; border-color: #0d6efd; color: #0d6efd;
+  box-shadow: 0 0 0 4px rgba(13,110,253,.12);
+}
+
+.stepper-item.completed .stepper-circle {
+  background: #198754; border-color: #198754; color: #fff;
+}
+
+.stepper-label {
+  font-size: 0.68rem; margin-top: 6px; text-align: center;
+  color: #6c757d; line-height: 1.3;
+  max-width: 70px;
+}
+.stepper-item.active    .stepper-label { color: #0d6efd; font-weight: 600; }
+.stepper-item.completed .stepper-label { color: #198754; }
+
+.stepper-connector {
+  position: absolute; top: 16px;
+  left: calc(50% + 16px); right: calc(-50% + 16px);
+  height: 2px; background: #dee2e6; z-index: 0;
+}
+.stepper-item.completed .stepper-connector { background: #198754; }
+
+/* ─── Wizard Card ──────────────────────────────── */
+.wizard-card {
+  background: #fff; border: 1px solid #e8e6e1;
+  border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+
+.wizard-card-header {
+  padding: 14px 20px; background: #f8f9fa;
+  border-bottom: 1px solid #e8e6e1;
+  font-size: 0.9rem; font-weight: 600; color: #1a1a1a;
+  display: flex; align-items: center;
+}
+
+.wizard-card-body { padding: 20px; }
+
+.wizard-card-footer {
+  padding: 12px 20px; background: #f8f9fa;
+  border-top: 1px solid #e8e6e1;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+/* ─── Type Cards ───────────────────────────────── */
+.type-card {
+  position: relative; padding: 16px 14px;
+  border: 1.5px solid #e2e0d8; border-radius: 10px;
+  text-align: center; cursor: pointer;
+  transition: all .15s; background: #fff;
+  height: 100%;
+}
+.type-card:hover       { border-color: #0d6efd; background: #f0f5ff; }
+.type-card--selected   { border-color: #0d6efd; background: #eef3ff; }
+
+.type-card-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; margin: 0 auto 10px;
+}
+.type-blue   { background: #e6f1fb; color: #0c447c; }
+.type-teal   { background: #e1f5ee; color: #085041; }
+.type-purple { background: #eeedfe; color: #3c3489; }
+.type-amber  { background: #faeeda; color: #633806; }
+.type-indigo { background: #ede9fe; color: #4c1d95; }
+.type-gray   { background: #f1efe8; color: #444441; }
+
+.type-card-label { font-size: 0.82rem; font-weight: 600; color: #1a1a1a; }
+.type-card-desc  { font-size: 0.70rem; color: #6c757d; margin-top: 4px; }
+.type-card-check { position: absolute; top: 8px; right: 8px; font-size: 1rem; }
+
+/* ─── Source Table ─────────────────────────────── */
+.source-table th { font-size: 0.73rem; }
+.source-table td { font-size: 0.82rem; }
+.source-row--selected { background: rgba(13,110,253,.05) !important; }
+
+/* ─── Calculation ──────────────────────────────── */
+.calc-box {
+  background: #f0f9f0; border: 1px solid #a3c97a;
+  border-radius: 10px; padding: 16px;
+}
+.calc-row {
+  display: flex; justify-content: space-between;
+  padding: 4px 0; font-size: 0.85rem;
+}
+.calc-divider { border-top: 1px solid #a3c97a; margin: 10px 0; }
+.calc-total-row {
+  display: flex; justify-content: space-between;
+  align-items: center; padding-top: 4px;
+}
+
+/* ─── Optional section ─────────────────────────── */
+.optional-section {
+  border: 1px dashed #dee2e6; border-radius: 8px; padding: 14px;
+  background: #fafafa;
+}
+.optional-section-title { font-size: 0.82rem; font-weight: 600; color: #495057; }
+
+/* ─── Upload ────────────────────────────────────── */
+.uploaded-file-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; background: #f8f9fa;
+  border: 1px solid #e2e0d8; border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+/* ─── Review ────────────────────────────────────── */
+.review-section {
+  background: #f8f9fa; border: 1px solid #e2e0d8;
+  border-radius: 10px; padding: 14px; height: 100%;
+}
+.review-section-title {
+  font-size: 0.75rem; font-weight: 600; color: #6c757d;
+  text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px;
+}
+.review-row {
+  display: flex; justify-content: space-between;
+  font-size: 0.82rem; padding: 4px 0;
+  border-bottom: 1px solid #e8e6e1;
+}
+.review-row:last-child { border-bottom: none; }
+
+/* ─── Declaration ───────────────────────────────── */
+.declaration-box {
+  background: #fff8e1; border: 1px solid #ffe082;
+  border-radius: 8px; padding: 14px;
 }

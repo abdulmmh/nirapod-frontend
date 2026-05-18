@@ -1,202 +1,216 @@
-<div class="officer-dashboard-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1>Officer Dashboard</h1>
-      <p class="subtitle">Manage your AIT review queue and track performance metrics</p>
-    </div>
-    <button class="btn-refresh" (click)="refreshQueue()" title="Refresh data">
-      <i class="ti ti-refresh"></i>
-    </button>
-  </div>
+<div class="od">
+  <h2 class="sr-only">Officer AIT Review Dashboard</h2>
 
-  <!-- KPI Cards -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-content">
-        <p class="kpi-label">My Queue</p>
-        <h2 class="kpi-value">{{ kpis.myQueue }}</h2>
-        <p class="kpi-description">Records under review</p>
-      </div>
-      <div class="kpi-icon kpi-icon-queue">
-        <i class="ti ti-inbox"></i>
-      </div>
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <div class="od__header">
+    <div>
+      <div class="od__title">AIT Review Dashboard</div>
+      <div class="od__subtitle">Officer: {{ officerName }} &nbsp;·&nbsp; FY 2024–2025</div>
     </div>
-
-    <div class="kpi-card">
-      <div class="kpi-content">
-        <p class="kpi-label">Reviewed Today</p>
-        <h2 class="kpi-value">{{ kpis.reviewedToday }}</h2>
-        <p class="kpi-description">Records processed</p>
-      </div>
-      <div class="kpi-icon kpi-icon-today">
-        <i class="ti ti-calendar"></i>
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-content">
-        <p class="kpi-label">Approved (Week)</p>
-        <h2 class="kpi-value">{{ kpis.approvedWeek }}</h2>
-        <p class="kpi-description">Last 7 days</p>
-      </div>
-      <div class="kpi-icon kpi-icon-approved">
-        <i class="ti ti-circle-check"></i>
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-content">
-        <p class="kpi-label">SLA Risk</p>
-        <h2 class="kpi-value">{{ kpis.slaRiskPercent }}%</h2>
-        <p class="kpi-description">Overdue records</p>
-      </div>
-      <div class="kpi-icon" [ngClass]="kpis.slaRiskPercent > 30 ? 'kpi-icon-danger' : 'kpi-icon-warning'">
-        <i class="ti ti-alert-triangle"></i>
-      </div>
+    <div style="display:flex;gap:8px">
+      <button class="od-fsel" (click)="refreshQueue()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M10.5 6A4.5 4.5 0 11 6 1.5a4.5 4.5 0 014 2.5M10.5 1.5v3h-3"
+                stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>
+        Refresh
+      </button>
+      <button class="od-fsel">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M6 1v8M2 6l4 4 4-4M1 11h10"
+                stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>
+        Export
+      </button>
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading queue data...</p>
+  <!-- ── KPI Row ──────────────────────────────────────────── -->
+  <div class="od__kpis">
+    <div class="od-kpi">
+      <div class="od-kpi__label">My Queue</div>
+      <div class="od-kpi__value" style="color:#3C3489">{{ kpis.myQueue }}</div>
+      <div class="od-kpi__sub">Awaiting review</div>
+    </div>
+    <div class="od-kpi">
+      <div class="od-kpi__label">Reviewed Today</div>
+      <div class="od-kpi__value">{{ kpis.reviewedToday }}</div>
+      <div class="od-kpi__sub">Records processed</div>
+    </div>
+    <div class="od-kpi">
+      <div class="od-kpi__label">Approved (Week)</div>
+      <div class="od-kpi__value" style="color:#3B6D11">{{ kpis.approvedWeek }}</div>
+      <div class="od-kpi__sub">Last 7 days</div>
+    </div>
+    <div class="od-kpi">
+      <div class="od-kpi__label">SLA Risk</div>
+      <div class="od-kpi__value"
+           [style.color]="kpis.slaRiskPercent > 30 ? '#791F1F' : '#BA7517'">
+        {{ kpis.slaRiskPercent }}%
+      </div>
+      <div class="od-kpi__sub">Overdue / at risk</div>
+    </div>
+    <div class="od-kpi">
+      <div class="od-kpi__label">Approval Rate</div>
+      <div class="od-kpi__value">
+        {{ approvalRate }}%
+      </div>
+      <div class="od-kpi__sub">This month</div>
+    </div>
   </div>
 
-  <!-- Error State -->
-  <div *ngIf="loadError && !isLoading" class="alert alert-danger">
-    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
-    {{ loadError }}
-    <button class="btn-retry" (click)="refreshQueue()">Retry</button>
+  <!-- ── Loading ──────────────────────────────────────────── -->
+  <div *ngIf="isLoading" class="od-loading">
+    <div class="ait-spinner"></div>
+    <p>Loading queue data…</p>
   </div>
 
-  <!-- Content -->
-  <div *ngIf="!isLoading" class="queue-content">
-    <!-- Filter Section -->
-    <div class="filter-section">
-      <div class="filter-header">
-        <h3>Queue Worklist</h3>
-        <p class="filter-count">{{ filteredRecords.length }} record(s)</p>
-      </div>
+  <!-- ── Error ────────────────────────────────────────────── -->
+  <div *ngIf="loadError && !isLoading" class="ait-alert ait-alert--danger">
+    <strong>Error:</strong> {{ loadError }}
+    <button class="od-btn od-btn--ghost" (click)="refreshQueue()">Retry</button>
+  </div>
 
-      <!-- Status Tabs -->
-      <div class="status-tabs">
-        <button
-          class="tab-btn"
-          [class.active]="activeTab === 'ALL'"
-          (click)="setActiveTab('ALL')">
-          All Records
-        </button>
-        <button
-          *ngFor="let status of statusOptions"
-          class="tab-btn"
-          [class.active]="activeTab === status"
-          (click)="setActiveTab(status)">
-          {{ getStatusLabel(status) }}
-        </button>
-      </div>
+  <!-- ── Content ──────────────────────────────────────────── -->
+  <div *ngIf="!isLoading">
 
-      <!-- Search & Filters -->
-      <div class="filter-controls">
-        <div class="search-box">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Search by Reference No, Taxpayer Name, or Duty Ref..."
-            [(ngModel)]="searchQuery"
-            (input)="onSearchChange()">
-          <i class="ti ti-search"></i>
-        </div>
+    <!-- Compact Filters -->
+    <div class="od-filters">
+      <select class="od-fsel" (change)="setActiveTab($any($event.target).value)">
+        <option value="ALL">All Statuses</option>
+        <option value="PAID">PAID (Queue)</option>
+        <option value="UNDER_REVIEW">UNDER_REVIEW</option>
+        <option value="APPROVED">APPROVED</option>
+        <option value="REJECTED">REJECTED</option>
+      </select>
 
-        <div class="filter-row">
-          <div class="filter-group">
-            <label>From Date:</label>
-            <input
-              type="date"
-              class="form-control"
-              [(ngModel)]="dateFilterFrom"
-              (change)="onDateChange()">
-          </div>
+      <select class="od-fsel">
+        <option>FY 2024–2025</option>
+      </select>
 
-          <div class="filter-group">
-            <label>To Date:</label>
-            <input
-              type="date"
-              class="form-control"
-              [(ngModel)]="dateFilterTo"
-              (change)="onDateChange()">
-          </div>
+      <input type="text" class="od-search"
+             placeholder="TIN or Ref. No."
+             [(ngModel)]="searchQuery"
+             (input)="onSearchChange()" />
 
-          <div class="filter-group">
-            <label>Sort By:</label>
-            <div class="sort-buttons">
-              <button
-                class="sort-btn"
-                [class.active]="sortBy === 'date'"
-                (click)="setSortBy('date')">
-                Date
-                <i *ngIf="sortBy === 'date'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
-              </button>
-              <button
-                class="sort-btn"
-                [class.active]="sortBy === 'amount'"
-                (click)="setSortBy('amount')">
-                Amount
-                <i *ngIf="sortBy === 'amount'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
-              </button>
-              <button
-                class="sort-btn"
-                [class.active]="sortBy === 'ref_no'"
-                (click)="setSortBy('ref_no')">
-                Ref No
-                <i *ngIf="sortBy === 'ref_no'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <input type="date" class="od-fsel"
+             [(ngModel)]="dateFilterFrom"
+             (change)="onDateChange()"
+             title="From date" />
+
+      <select class="od-fsel">
+        <option>All SLA</option>
+        <option>At Risk</option>
+        <option>Overdue</option>
+      </select>
+
+      <button class="od-btn od-btn--primary" (click)="applyFilters()">Search</button>
+      <button class="od-btn od-btn--ghost"
+              (click)="searchQuery=''; dateFilterFrom=''; applyFilters()">
+        Clear
+      </button>
+      <button class="od-btn od-btn--ghost" style="margin-left:auto">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <rect x="1" y="1" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="7" y="3" width="4" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        Columns
+      </button>
     </div>
 
-    <!-- Records Table -->
-    <div class="queue-table-container">
-      <table class="queue-table" *ngIf="filteredRecords.length > 0">
+    <!-- Bulk Action Bar -->
+    <div class="od-bulk-bar" [class.od-bulk-bar--show]="selectedIds.size > 0">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="2" width="12" height="12" rx="2" fill="#185FA5"/>
+        <path d="M5 8l2.5 2.5L11 5" stroke="#fff" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span style="font-weight:500;color:#185FA5">
+        {{ selectedIds.size }} record{{ selectedIds.size > 1 ? 's' : '' }} selected
+      </span>
+      <span class="od-sep">|</span>
+      <button class="od-btn od-btn--primary">
+        Approve ({{ selectedIds.size }})
+      </button>
+      <button class="od-btn od-btn--ghost">Assign to Me</button>
+      <button class="od-btn od-btn--ghost">Export Selected</button>
+      <button class="od-btn od-btn--ghost" style="margin-left:auto;color:var(--c-text2)"
+              (click)="selectedIds.clear()">
+        Clear
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="od-table-wrap">
+      <table class="od-table">
         <thead>
           <tr>
-            <th width="12%">Reference No</th>
-            <th width="15%">Taxpayer</th>
-            <th width="15%">Import Duty Ref</th>
-            <th width="12%">AIT Amount</th>
-            <th width="12%">Status</th>
-            <th width="12%">Date</th>
-            <th width="12%">Actions</th>
+            <th style="width:28px">
+              <span class="od-cb"
+                    [class.od-cb--checked]="isAllSelected()"
+                    (click)="toggleSelectAll()"></span>
+            </th>
+            <th>Ref. No.</th>
+            <th>Taxpayer</th>
+            <th>HS Code</th>
+            <th class="text-right">AIT Amount</th>
+            <th>Paid Date</th>
+            <th>SLA</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let record of getPaginatedRecords()" class="record-row">
-            <td class="ref-no">
-              <strong>{{ record.aitReferenceNo }}</strong>
-            </td>
-            <td>{{ record.taxpayerName }}</td>
-            <td class="duty-ref">{{ record.importDutyRefNo }}</td>
-            <td class="amount">৳ {{ record.calculatedAitAmount | number:'1.2-2' }}</td>
+          <tr *ngFor="let r of getPaginatedRecords()"
+              [class.od-row--selected]="selectedIds.has(r.id || 0)"
+              [class.od-row--overdue]="getSlaHours(r) < 0"
+              [class.od-row--atrisk]="getSlaHours(r) >= 0 && getSlaHours(r) < 12">
+
             <td>
-              <span class="badge" [ngClass]="getStatusColor(record.status)">
-                {{ getStatusLabel(record.status) }}
+              <span class="od-cb"
+                    [class.od-cb--checked]="selectedIds.has(r.id || 0)"
+                    (click)="toggleSelect(r.id || 0)"></span>
+            </td>
+
+            <td>
+              <a class="od-ref" (click)="reviewRecord(r.id || 0)">
+                {{ r.aitReferenceNo }}
+              </a>
+            </td>
+
+            <td>
+              <div class="od-taxpayer">{{ r.taxpayerName }}</div>
+            </td>
+
+            <td>
+              <span class="od-code">{{ r.hsCode || '—' }}</span>
+            </td>
+
+            <td class="od-amt">৳ {{ r.calculatedAitAmount | number:'1.0-0' }}</td>
+
+            <td class="od-date">{{ r.createdAt | date:'d MMM' }}</td>
+
+            <td>
+              <span class="od-sla"
+                    [class.od-sla--ok]="getSlaHours(r) >= 12"
+                    [class.od-sla--warn]="getSlaHours(r) >= 0 && getSlaHours(r) < 12"
+                    [class.od-sla--over]="getSlaHours(r) < 0">
+                {{ getSlaDisplay(r) }}
               </span>
             </td>
-            <td class="date">{{ formatDate(record.createdAt || '') }}</td>
-            <td class="actions">
-              <button
-                class="btn-action btn-review"
-                (click)="reviewRecord(record.id || 0)"
-                title="Review this record">
-                <i class="ti ti-edit"></i> Review
-              </button>
-              <button
-                class="btn-action btn-view"
-                (click)="viewDetails(record.id || 0)"
-                title="View details">
-                <i class="ti ti-eye"></i>
+
+            <td>
+              <span class="ait-badge" [ngClass]="getStatusColor(r.status)">
+                {{ getStatusLabel(r.status) }}
+              </span>
+            </td>
+
+            <td class="od-actions">
+              <button class="od-btn od-btn--primary"
+                      (click)="reviewRecord(r.id || 0)">
+                Review
               </button>
             </td>
           </tr>
@@ -204,49 +218,47 @@
       </table>
 
       <!-- Empty State -->
-      <div *ngIf="filteredRecords.length === 0" class="empty-state">
-        <i class="ti ti-inbox"></i>
-        <h3>No Records Found</h3>
-        <p>Try adjusting your search or filter criteria</p>
+      <div *ngIf="getPaginatedRecords().length === 0" class="ait-empty">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="8" y="6" width="28" height="32" rx="4"
+                stroke="#CBD5E1" stroke-width="1.5"/>
+          <path d="M14 16h16M14 22h10M14 28h8"
+                stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <p class="ait-empty__title">No records in queue</p>
+        <p class="ait-empty__hint">Try adjusting filters</p>
       </div>
     </div>
 
     <!-- Pagination -->
-    <div *ngIf="filteredRecords.length > 0" class="pagination-bar">
-      <div class="pagination-info">
-        Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to
-        {{ Math.min(currentPage * itemsPerPage, filteredRecords.length) }}
+    <div class="ait-pagination">
+      <span class="ait-pagination__info">
+        Showing {{ ((currentPage-1)*itemsPerPage)+1 }} to
+        {{ Math.min(currentPage*itemsPerPage, filteredRecords.length) }}
         of {{ filteredRecords.length }} records
-      </div>
-
-      <div class="pagination-controls">
-        <button
-          class="btn-page"
-          [disabled]="currentPage === 1"
-          (click)="prevPage()">
-          <i class="ti ti-chevron-left"></i> Previous
+      </span>
+      <div class="ait-pagination__controls">
+        <button class="od-btn od-btn--ghost"
+                [disabled]="currentPage === 1" (click)="prevPage()">
+          ← Prev
         </button>
-
-        <div class="page-numbers">
-          <button
-            *ngFor="let page of [1, 2, 3, 4, 5]"
-            class="btn-page-number"
-            [class.active]="page === currentPage"
-            [disabled]="page > getTotalPages()"
-            (click)="goToPage(page)">
-            {{ page }}
-          </button>
-          <span *ngIf="getTotalPages() > 5" class="page-ellipsis">...</span>
-        </div>
-
-        <button
-          class="btn-page"
-          [disabled]="currentPage === getTotalPages()"
-          (click)="nextPage()">
-          Next <i class="ti ti-chevron-right"></i>
+        <span *ngFor="let p of getPageNumbers()" class="ait-pagination__num"
+              [class.active]="p === currentPage"
+              (click)="goToPage(p)" style="cursor:pointer">
+          {{ p }}
+        </span>
+        <button class="od-btn od-btn--ghost"
+                [disabled]="currentPage >= getTotalPages()" (click)="nextPage()">
+          Next →
         </button>
       </div>
+      <select class="od-fsel"
+              (change)="itemsPerPage = +$any($event.target).value; applyFilters()">
+        <option value="10">10 per page</option>
+        <option value="20">20 per page</option>
+        <option value="50">50 per page</option>
+      </select>
     </div>
-  </div>
 
+  </div>
 </div>

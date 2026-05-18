@@ -1,0 +1,9 @@
+<span
+  class="refund-badge"
+  [ngClass]="[config.cssClass, 'refund-badge--' + size]"
+  role="status"
+  [attr.aria-label]="'Refund status: ' + config.label"
+>
+  <i [class]="config.icon" aria-hidden="true"></i>
+  {{ config.label }}
+</span>

@@ -1,0 +1,168 @@
+<!-- certificate-list.component.html — REPLACE করো Phase 1&2 এরটা -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Certificate Management</h4>
+    <p>View and download TIN, BIN, Tax Clearance &amp; Return Acknowledgment certificates.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-verify" (click)="goToVerify()">
+      <i class="bi bi-patch-check"></i> Public Verify
+    </button>
+    <button *ngIf="isOfficer" class="btn-create" (click)="openCreateModal()">
+      <i class="bi bi-plus-circle-fill"></i> Issue Tax Clearance
+    </button>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+  <p>Loading certificates...</p>
+</div>
+
+<ng-container *ngIf="!isLoading">
+
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-total"><i class="bi bi-patch-check-fill"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ certificates.length }}</div>
+        <div class="kpi-label">Total</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-tin"><i class="bi bi-person-badge-fill"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ countByType('TIN') }}</div>
+        <div class="kpi-label">TIN Certificates</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-bin"><i class="bi bi-building-fill"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ countByType('BIN') }}</div>
+        <div class="kpi-label">BIN Certificates</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-tc"><i class="bi bi-shield-check-fill"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ countByType('TAX_CLEARANCE') }}</div>
+        <div class="kpi-label">Tax Clearance</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-ack"><i class="bi bi-receipt"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ countByType('RETURN_ACK') }}</div>
+        <div class="kpi-label">Return Ack.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="tab-group">
+      <button class="tab-btn" [class.active]="activeTab === 'ALL'" (click)="setTab('ALL')">
+        All <span class="tab-count">{{ certificates.length }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'TIN'" (click)="setTab('TIN')">
+        TIN <span class="tab-count">{{ countByType('TIN') }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'BIN'" (click)="setTab('BIN')">
+        BIN <span class="tab-count">{{ countByType('BIN') }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'TAX_CLEARANCE'" (click)="setTab('TAX_CLEARANCE')">
+        Tax Clearance <span class="tab-count">{{ countByType('TAX_CLEARANCE') }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'RETURN_ACK'" (click)="setTab('RETURN_ACK')">
+        Return Ack. <span class="tab-count">{{ countByType('RETURN_ACK') }}</span>
+      </button>
+    </div>
+    <div class="search-wrap">
+      <i class="bi bi-search search-icon"></i>
+      <input class="search-input" type="text"
+        placeholder="Search by name, TIN, BIN, certificate no..."
+        [(ngModel)]="searchTerm" />
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="data-table-wrap">
+    <table class="data-table" *ngIf="filtered.length > 0; else emptyState">
+      <thead>
+        <tr>
+          <th>Certificate No.</th>
+          <th>Type</th>
+          <th>Holder / Business</th>
+          <th>Reference No.</th>
+          <th>Assessment Year</th>
+          <th>Issued Date</th>
+          <th>Expiry / Valid Until</th>
+          <th>Status</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cert of filtered" (click)="onView(cert)" class="clickable-row">
+          <td><span class="cert-no">{{ cert.certificateNo }}</span></td>
+          <td><span class="type-badge" [ngClass]="getTypeClass(cert.type)">{{ getTypeLabel(cert.type) }}</span></td>
+          <td>{{ cert.holderName }}</td>
+          <td><code>{{ cert.referenceNo }}</code></td>
+          <td>{{ cert.assessmentYear || '—' }}</td>
+          <td>{{ cert.issuedDate | date:'dd MMM yyyy' }}</td>
+          <td>{{ cert.expiryDate ? (cert.expiryDate | date:'dd MMM yyyy') : '—' }}</td>
+          <td><span class="status-badge" [ngClass]="getStatusClass(cert.status)">{{ cert.status }}</span></td>
+          <td>
+            <button class="btn-download" [disabled]="isDownloading(cert)" (click)="onDownload(cert, $event)">
+              <span *ngIf="!isDownloading(cert)"><i class="bi bi-download"></i></span>
+              <span *ngIf="isDownloading(cert)"><span class="spinner-border spinner-border-sm"></span></span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <i class="bi bi-patch-exclamation"></i>
+        <p>No certificates found.</p>
+      </div>
+    </ng-template>
+  </div>
+
+</ng-container>
+
+<!-- ── Tax Clearance Create Modal (officer only) ────────────────── -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5><i class="bi bi-shield-check-fill"></i> Issue Tax Clearance Certificate</h5>
+      <button class="modal-close" (click)="closeCreateModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label required">Taxpayer ID</label>
+        <input class="form-input" type="number" [(ngModel)]="tcForm.taxpayerId"
+          placeholder="e.g. 12" />
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Assessment Year</label>
+        <input class="form-input" type="text" [(ngModel)]="tcForm.assessmentYear"
+          placeholder="e.g. 2024-25" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Remarks</label>
+        <textarea class="form-input" rows="3" [(ngModel)]="tcForm.remarks"
+          placeholder="Optional remarks..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeCreateModal()">Cancel</button>
+      <button class="btn-confirm" (click)="onCreateTaxClearance()" [disabled]="createLoading">
+        <span *ngIf="!createLoading"><i class="bi bi-check-circle-fill"></i> Issue Certificate</span>
+        <span *ngIf="createLoading"><span class="spinner-border spinner-border-sm"></span> Issuing...</span>
+      </button>
+    </div>
+  </div>
+</div>

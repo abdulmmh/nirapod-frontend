@@ -1,0 +1,447 @@
+/* certificate-list.component.css — REPLACE করো Phase 1&2 এরটা */
+
+/* ── Page Header ─────────────────────────────────────────── */
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-verify {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid #0e7847;
+  border-radius: 8px;
+  background: #fff;
+  color: #0e7847;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-verify:hover {
+  background: #e8faf0;
+}
+
+.btn-create {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #1a3f8f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-create:hover {
+  background: #163578;
+}
+
+/* ── Loading ─────────────────────────────────────────────── */
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  gap: 12px;
+  color: #6b7280;
+}
+
+/* ── KPI Cards ───────────────────────────────────────────── */
+.kpi-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid #e8ecf0;
+  border-radius: 10px;
+  padding: 14px 18px;
+  flex: 1;
+  min-width: 140px;
+}
+.kpi-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.kpi-total {
+  background: #e8f0fe;
+  color: #1a3f8f;
+}
+.kpi-tin {
+  background: #e8faf0;
+  color: #0e7847;
+}
+.kpi-bin {
+  background: #fef3e8;
+  color: #a05c00;
+}
+.kpi-tc {
+  background: #f0fdf4;
+  color: #166534;
+}
+.kpi-ack {
+  background: #eff6ff;
+  color: #1e40af;
+}
+.kpi-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.kpi-label {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* ── Filter Bar ──────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.tab-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e5ed;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tab-btn:hover {
+  background: #f0f4ff;
+  border-color: #c7d3ef;
+}
+.tab-btn.active {
+  background: #1a3f8f;
+  border-color: #1a3f8f;
+  color: #fff;
+}
+.tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.tab-btn:not(.active) .tab-count {
+  background: #eef1f8;
+  color: #6b7280;
+}
+
+.search-wrap {
+  position: relative;
+}
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 13px;
+}
+.search-input {
+  padding: 8px 12px 8px 30px;
+  border: 1px solid #e0e5ed;
+  border-radius: 8px;
+  font-size: 13px;
+  width: 270px;
+  outline: none;
+  transition: border 0.15s;
+}
+.search-input:focus {
+  border-color: #1a3f8f;
+}
+
+/* ── Table ───────────────────────────────────────────────── */
+.data-table-wrap {
+  background: #fff;
+  border: 1px solid #e8ecf0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table thead tr {
+  background: #f8fafd;
+  border-bottom: 1px solid #e8ecf0;
+}
+.data-table th {
+  padding: 11px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #f0f3f8;
+  color: #374151;
+}
+.clickable-row {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.clickable-row:hover {
+  background: #f8fafd;
+}
+.clickable-row:last-child td {
+  border-bottom: none;
+}
+
+.cert-no {
+  font-family: monospace;
+  font-weight: 600;
+  color: #1a3f8f;
+  font-size: 12px;
+}
+
+/* ── Type Badges ─────────────────────────────────────────── */
+.type-badge {
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.type-tin {
+  background: #e8faf0;
+  color: #0e7847;
+}
+.type-bin {
+  background: #fef3e8;
+  color: #a05c00;
+}
+.type-tc {
+  background: #f0fdf4;
+  color: #166534;
+}
+.type-ack {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+/* ── Status Badges ───────────────────────────────────────── */
+.status-badge {
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.status-active {
+  background: #ecfdf5;
+  color: #065f46;
+}
+.status-expired {
+  background: #fef9c3;
+  color: #92400e;
+}
+.status-revoked {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.status-pending {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+/* ── Download Button ─────────────────────────────────────── */
+.btn-download {
+  width: 34px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a3f8f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-download:hover:not(:disabled) {
+  background: #163578;
+}
+.btn-download:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ── Empty State ─────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #9ca3af;
+  gap: 10px;
+}
+.empty-state i {
+  font-size: 40px;
+}
+.empty-state p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ── Modal ───────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+.modal-box {
+  background: #fff;
+  border-radius: 14px;
+  width: 440px;
+  max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e8ecf0;
+}
+.modal-header h5 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0;
+}
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.12s;
+}
+.modal-close:hover {
+  background: #f0f3f8;
+}
+
+.modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+.form-label.required::after {
+  content: " *";
+  color: #dc2626;
+}
+.form-input {
+  padding: 9px 12px;
+  border: 1px solid #e0e5ed;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  transition: border 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  resize: vertical;
+}
+.form-input:focus {
+  border-color: #1a3f8f;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid #e8ecf0;
+}
+.btn-cancel {
+  padding: 8px 18px;
+  border: 1px solid #e0e5ed;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-cancel:hover {
+  background: #f8fafd;
+}
+.btn-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #1a3f8f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-confirm:hover:not(:disabled) {
+  background: #163578;
+}
+.btn-confirm:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}

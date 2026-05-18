@@ -1,9 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Refund } from '../../../../models/refund.model';
+import {
+  RefundService,
+  RefundSummary,
+  RefundFilterRequest,
+} from '../../services/refund.service';
 
 @Component({
   selector: 'app-refund-list',
@@ -11,259 +12,145 @@ import { Refund } from '../../../../models/refund.model';
   styleUrls: ['./refund-list.component.css'],
 })
 export class RefundListComponent implements OnInit {
-  refunds: Refund[] = [];
-  searchTerm = '';
-  isLoading = false;
-  showDeleteModal = false;
-  pendingDeleteId: number | null = null;
+  refunds: RefundSummary[] = [];
+  loading = false;
+  errorMessage = '';
 
-  private fallback: Refund[] = [
-    {
-      taxpayerId: 0,
-      id: 1,
-      refundNo: 'RFD-2024-00001',
-      tinNumber: 'TIN-1001',
-      taxpayerName: 'Rahman Textile Ltd.',
-      refundType: 'VAT Refund',
-      refundMethod: 'Bank Transfer',
-      claimAmount: 90000,
-      approvedAmount: 85000,
-      paidAmount: 85000,
-      returnNo: 'VAT-2024-00001',
-      paymentRef: 'TXN-2024-44821',
-      bankName: 'Sonali Bank',
-      bankBranch: 'Motijheel Branch',
-      accountNo: '1234567890',
-      claimDate: '2024-03-20',
-      approvalDate: '2024-04-05',
-      paymentDate: '2024-04-10',
-      status: 'Completed',
-      processedBy: 'Tax Officer',
-      approvedBy: 'Tax Commissioner',
-      remarks: '',
-    },
-    {
-      taxpayerId: 0,
-      id: 2,
-      refundNo: 'RFD-2024-00002',
-      tinNumber: 'TIN-1002',
-      taxpayerName: 'Karim Traders',
-      refundType: 'Income Tax Refund',
-      refundMethod: 'Bank Transfer',
-      claimAmount: 25000,
-      approvedAmount: 25000,
-      paidAmount: 0,
-      returnNo: 'ITR-2024-00002',
-      paymentRef: 'TXN-2024-44822',
-      bankName: 'Dutch-Bangla Bank',
-      bankBranch: 'Gulshan Branch',
-      accountNo: '9876543210',
-      claimDate: '2024-03-22',
-      approvalDate: '2024-04-08',
-      paymentDate: '',
-      status: 'Approved',
-      processedBy: 'Tax Officer',
-      approvedBy: 'Tax Commissioner',
-      remarks: 'Payment scheduled',
-    },
-    {
-      taxpayerId: 0,
-      id: 3,
-      refundNo: 'RFD-2024-00003',
-      tinNumber: 'TIN-1003',
-      taxpayerName: 'Dhaka Pharma Co.',
-      refundType: 'Excess Payment',
-      refundMethod: 'Cheque',
-      claimAmount: 150000,
-      approvedAmount: 0,
-      paidAmount: 0,
-      returnNo: '',
-      paymentRef: 'TXN-2024-44823',
-      bankName: 'Islami Bank',
-      bankBranch: 'Dhanmondi Branch',
-      accountNo: '1122334455',
-      claimDate: '2024-03-25',
-      approvalDate: '',
-      paymentDate: '',
-      status: 'Pending',
-      processedBy: 'Data Entry',
-      approvedBy: '',
-      remarks: 'Awaiting verification',
-    },
-    {
-      taxpayerId: 0,
-      id: 4,
-      refundNo: 'RFD-2024-00004',
-      tinNumber: 'TIN-1004',
-      taxpayerName: 'Chittagong Exports',
-      refundType: 'VAT Refund',
-      refundMethod: 'Adjustment',
-      claimAmount: 45000,
-      approvedAmount: 40000,
-      paidAmount: 0,
-      returnNo: 'VAT-2024-00004',
-      paymentRef: 'TXN-2024-44824',
-      bankName: '',
-      bankBranch: '',
-      accountNo: '',
-      claimDate: '2024-03-28',
-      approvalDate: '2024-04-12',
-      paymentDate: '',
-      status: 'Processing',
-      processedBy: 'Tax Officer',
-      approvedBy: 'Tax Commissioner',
-      remarks: 'Adjustment against next period',
-    },
-    {
-      taxpayerId: 0,
-      id: 5,
-      refundNo: 'RFD-2024-00005',
-      tinNumber: 'TIN-1005',
-      taxpayerName: 'Sylhet Tea House',
-      refundType: 'Income Tax Refund',
-      refundMethod: 'Bank Transfer',
-      claimAmount: 18000,
-      approvedAmount: 0,
-      paidAmount: 0,
-      returnNo: 'ITR-2024-00005',
-      paymentRef: '',
-      bankName: 'Agrani Bank',
-      bankBranch: 'Sylhet Branch',
-      accountNo: '5566778899',
-      claimDate: '2024-04-01',
-      approvalDate: '',
-      paymentDate: '',
-      status: 'Rejected',
-      processedBy: 'Tax Officer',
-      approvedBy: '',
-      remarks: 'Insufficient documentation',
-    },
-    {
-      taxpayerId: 0,
-      id: 6,
-      refundNo: 'RFD-2024-00006',
-      tinNumber: 'TIN-1006',
-      taxpayerName: 'BD Tech Solutions',
-      refundType: 'VAT Refund',
-      refundMethod: 'Bank Transfer',
-      claimAmount: 62000,
-      approvedAmount: 62000,
-      paidAmount: 0,
-      returnNo: 'VAT-2024-00006',
-      paymentRef: 'TXN-2024-44826',
-      bankName: 'BRAC Bank',
-      bankBranch: 'Banani Branch',
-      accountNo: '6677889900',
-      claimDate: '2024-04-05',
-      approvalDate: '2024-04-15',
-      paymentDate: '',
-      status: 'Approved',
-      processedBy: 'Tax Officer',
-      approvedBy: 'Tax Commissioner',
-      remarks: '',
-    },
+  // Pagination
+  currentPage = 0;
+  pageSize = 10;
+  totalElements = 0;
+  totalPages = 0;
+
+  // Filters
+  filter: RefundFilterRequest = {
+    page: 0,
+    size: 10,
+    sortBy: 'submittedAt',
+    sortDir: 'DESC',
+  };
+  selectedStatus = '';
+  selectedType = '';
+  selectedFiscalYear = '';
+
+  // Summary stats (fetched from first load)
+  totalClaimed = 0;
+  totalApproved = 0;
+  totalPaid = 0;
+  totalPending = 0;
+
+  readonly statuses = [
+    'DRAFT', 'SUBMITTED', 'UNDER_VERIFICATION', 'INFO_REQUESTED',
+    'RESPONSE_RECEIVED', 'RECOMMENDED', 'SUPERVISOR_REVIEW',
+    'APPROVED', 'REJECTED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING',
+    'PAID', 'FAILED', 'CANCELLED', 'CLOSED',
   ];
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private toast: ToastService,
-  ) {}
+  readonly refundTypes = [
+    { value: 'INCOME_TAX',       label: 'Income Tax' },
+    { value: 'VAT',              label: 'VAT' },
+    { value: 'AIT',              label: 'AIT' },
+    { value: 'DUPLICATE_PAYMENT',label: 'Duplicate Payment' },
+    { value: 'APPEAL_DECISION',  label: 'Appeal Decision' },
+    { value: 'OTHER',            label: 'Other' },
+  ];
+
+  readonly refundTypeLabels: Record<string, string> = {
+    INCOME_TAX:        'Income Tax',
+    VAT:               'VAT',
+    AIT:               'AIT',
+    DUPLICATE_PAYMENT: 'Duplicate Payment',
+    APPEAL_DECISION:   'Appeal Decision',
+    OTHER:             'Other',
+  };
+
+  constructor(private refundService: RefundService, private router: Router) {}
 
   ngOnInit(): void {
-    this.isLoading = true;
-    this.http.get<Refund[]>(API_ENDPOINTS.PAYMENTS.LIST).subscribe({
-      next: (data) => {
-        this.refunds = data;
-        this.isLoading = false;
+    this.loadRefunds();
+  }
+
+  loadRefunds(): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    const req: RefundFilterRequest = {
+      ...this.filter,
+      page: this.currentPage,
+      size: this.pageSize,
+      status: this.selectedStatus || undefined,
+      refundType: this.selectedType || undefined,
+    };
+
+    this.refundService.getMyRefunds(req).subscribe({
+      next: (res) => {
+        this.refunds = res.content;
+        this.totalElements = res.totalElements;
+        this.totalPages = res.totalPages;
+        this.calculateStats();
+        this.loading = false;
       },
       error: () => {
-        this.refunds = this.fallback;
-        this.isLoading = false;
-        this.toast.error('Failed to load refunds. Showing sample data.');
+        this.errorMessage = 'Failed to load refund applications. Please try again.';
+        this.loading = false;
       },
     });
   }
 
-  get filteredRefunds(): Refund[] {
-    if (!this.searchTerm.trim()) return this.refunds;
-    const term = this.searchTerm.toLowerCase();
-    return this.refunds.filter(
-      (r) =>
-        r.refundNo.toLowerCase().includes(term) ||
-        r.taxpayerName.toLowerCase().includes(term) ||
-        r.tinNumber.toLowerCase().includes(term) ||
-        r.refundType.toLowerCase().includes(term) ||
-        r.returnNo.toLowerCase().includes(term),
-    );
+  calculateStats(): void {
+    this.totalClaimed  = this.refunds.reduce((s, r) => s + (r.claimedRefundAmount ?? 0), 0);
+    this.totalApproved = this.refunds.filter(r => ['APPROVED','PAYMENT_PENDING','PAYMENT_PROCESSING','PAID','CLOSED'].includes(r.status))
+                                      .reduce((s, r) => s + (r.approvedRefundAmount ?? 0), 0);
+    this.totalPaid     = this.refunds.filter(r => r.status === 'PAID' || r.status === 'CLOSED')
+                                      .reduce((s, r) => s + (r.approvedRefundAmount ?? 0), 0);
+    this.totalPending  = this.refunds.filter(r =>
+      ['SUBMITTED','UNDER_VERIFICATION','INFO_REQUESTED','RESPONSE_RECEIVED',
+       'RECOMMENDED','SUPERVISOR_REVIEW','PAYMENT_PENDING','PAYMENT_PROCESSING'].includes(r.status)
+    ).length;
   }
 
-  getStatusClass(status: string): string {
-    const map: Record<string, string> = {
-      Pending: 'status-pending',
-      Approved: 'status-approved',
-      Rejected: 'status-suspended',
-      Processing: 'status-progress',
-      Completed: 'status-active',
-      Cancelled: 'status-inactive',
-    };
-    return map[status] ?? '';
+  applyFilters(): void {
+    this.currentPage = 0;
+    this.loadRefunds();
   }
 
-  getTypeClass(type: string): string {
-    const map: Record<string, string> = {
-      'VAT Refund': 'type-vat',
-      'Income Tax Refund': 'type-it',
-      'Excess Payment': 'type-excess',
-      Other: 'type-other',
-    };
-    return map[type] ?? '';
+  clearFilters(): void {
+    this.selectedStatus = '';
+    this.selectedType = '';
+    this.selectedFiscalYear = '';
+    this.currentPage = 0;
+    this.loadRefunds();
   }
 
-  formatCurrency(amount: number): string {
-    if (amount >= 100000) return `৳${(amount / 100000).toFixed(2)}L`;
-    return `৳${amount.toLocaleString()}`;
+  goToPage(page: number): void {
+    if (page < 0 || page >= this.totalPages) return;
+    this.currentPage = page;
+    this.loadRefunds();
   }
 
-  viewRefund(id: number): void {
-    this.router.navigate(['/refunds', id]);
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i);
   }
 
-  editRefund(id: number): void {
-    this.router.navigate(['/refunds', id, 'edit']);
-  }
+  canEdit(r: RefundSummary): boolean   { return r.status === 'DRAFT'; }
+  canCancel(r: RefundSummary): boolean { return ['DRAFT','SUBMITTED'].includes(r.status); }
+  canRespond(r: RefundSummary): boolean{ return r.status === 'INFO_REQUESTED'; }
 
-  confirmDelete(id: number): void {
-    this.pendingDeleteId = id;
-    this.showDeleteModal = true;
-  }
+  navigateToCreate(): void { this.router.navigate(['/refunds/create']); }
+  navigateToView(id: number): void { this.router.navigate(['/refunds', id, 'view']); }
+  navigateToEdit(id: number): void { this.router.navigate(['/refunds', id, 'edit']); }
+  navigateToRespond(id: number): void { this.router.navigate(['/refunds', id, 'respond']); }
 
-  cancelDelete(): void {
-    this.resetDeleteState();
-  }
-
-  confirmDeleteExecute(): void {
-    if (this.pendingDeleteId === null) return;
-    const id = this.pendingDeleteId;
-    this.resetDeleteState();
-    this.delete(id);
-  }
-
-  private delete(id: number): void {
-    this.http.delete(`${API_ENDPOINTS.PAYMENTS.LIST}/${id}`).subscribe({
-      next: () => {
-        this.refunds = this.refunds.filter((r) => r.id !== id);
-        this.toast.success('Refund deleted successfully.');
-      },
-      error: () => {
-        this.refunds = this.refunds.filter((r) => r.id !== id);
-        this.toast.warning('Refund removed locally. Server delete failed.');
-      },
+  cancelRefund(id: number): void {
+    if (!confirm('Are you sure you want to cancel this refund application?')) return;
+    this.refundService.cancel(id).subscribe({
+      next: () => this.loadRefunds(),
+      error: () => alert('Failed to cancel the application.'),
     });
   }
 
-  private resetDeleteState(): void {
-    this.pendingDeleteId = null;
-    this.showDeleteModal = false;
+  formatCurrency(amount: number | null): string {
+    if (amount == null) return '—';
+    return '৳ ' + amount.toLocaleString('en-BD');
   }
 }

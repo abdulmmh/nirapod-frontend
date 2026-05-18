@@ -1,5 +1,3 @@
-import { AitSourceType } from "src/app/models/ait.model";
-
 export const API_BASE_URL = 'http://localhost:8080/api';
 
 export const API_ENDPOINTS = {
@@ -139,7 +137,19 @@ export const API_ENDPOINTS = {
     PREVIEW: `${API_BASE_URL}/import-duty/preview-tax`,
   },
 
+  // Certificate endpoints
+  CERTIFICATES: {
+    DOWNLOAD_TIN:  (id: number) => `${API_BASE_URL}/tins/${id}/certificate`,
+    DOWNLOAD_BIN:  (id: number) => `${API_BASE_URL}/vat-registrations/${id}/certificate`,
+    // Tax Clearance
+    TAX_CLEARANCE_LIST:    `${API_BASE_URL}/tax-clearances`,
+    DOWNLOAD_TAX_CLEARANCE:(id: number) => `${API_BASE_URL}/tax-clearances/${id}/certificate`,
+    PUBLIC_VERIFY:         `${API_BASE_URL}/tax-clearances/public/verify`,
 
+    // Return Acknowledgment
+    DOWNLOAD_RETURN_ACK:   (id: number) => `${API_BASE_URL}/income-tax-returns/${id}/acknowledgment`,
+    
+  },
 
   // Payments
     PAYMENTS: {

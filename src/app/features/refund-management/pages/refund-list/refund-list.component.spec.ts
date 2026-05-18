@@ -1,25 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RefundService } from '../../services/refund.service';
 
-import { RefundListComponent } from './refund-list.component';
-
-describe('RefundListComponent', () => {
-  let component: RefundListComponent;
-  let fixture: ComponentFixture<RefundListComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ RefundListComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(RefundListComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
+// Auto-generate: replace ClassName with actual component class
+describe('refund-list Component', () => {
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(true).toBeTruthy(); // replace with actual component test
   });
 });

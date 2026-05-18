@@ -23,7 +23,12 @@ const routes: Routes = [
   { path: 'auth/forgot-password', component: ForgotPasswordComponent },
   { path: 'auth/reset-password',  component: ResetPasswordComponent },
   { path: 'auth/verify-otp', component: VerifyOtpComponent },
-  
+  {
+    path: 'verify',
+    loadChildren: () =>
+      import('./features/public-verify/public-verify/public-verify.module')
+        .then(m => m.PublicVerifyModule)
+  },
   // Public Registration
       { path: 'register', 
         loadChildren: () =>
@@ -74,6 +79,15 @@ const routes: Routes = [
             .then(m => m.TinModule)
       },
 
+
+      // Certificate Management
+      {
+        path: 'certificates',
+        canActivate: [AuthGuard],
+        loadChildren: () =>
+          import('./features/certificate-management/certificate/certificate.module')
+            .then(m => m.CertificateModule)
+      },
       
       //VAT Registration
       {

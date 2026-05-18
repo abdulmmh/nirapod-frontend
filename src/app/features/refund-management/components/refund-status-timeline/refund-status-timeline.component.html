@@ -1,0 +1,47 @@
+<div class="timeline" role="list" aria-label="Refund status history">
+
+  <div *ngIf="!history || history.length === 0" class="text-center text-muted py-3">
+    <i class="bi bi-clock-history fs-4 d-block mb-2"></i>
+    <small>No status history yet.</small>
+  </div>
+
+  <div
+    *ngFor="let item of history; let last = last; trackBy: trackByHistoryId"
+    class="timeline-item"
+    [class.timeline-item--last]="last"
+    role="listitem"
+  >
+    <!-- Dot + line -->
+    <div class="timeline-left">
+      <div class="timeline-dot" [ngClass]="getColor(item.toStatus)">
+        <i [class]="getIcon(item.toStatus)" aria-hidden="true"></i>
+      </div>
+      <div class="timeline-line" *ngIf="!last"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="timeline-content" [class.mb-0]="last">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="timeline-status" [ngClass]="getColor(item.toStatus)">
+          {{ item.toStatus | titlecase }}
+        </span>
+        <span class="timeline-role badge bg-light text-secondary border">
+          {{ item.changedByRole | titlecase }}
+        </span>
+      </div>
+      <div class="timeline-actor mt-1">
+        <i class="bi bi-person me-1" aria-hidden="true"></i>
+        {{ item.changedByName }}
+      </div>
+      <div class="timeline-time">
+        <i class="bi bi-clock me-1" aria-hidden="true"></i>
+        {{ item.changedAt | date: 'dd MMM yyyy, hh:mm a' }}
+      </div>
+      <div class="timeline-reason" *ngIf="item.changeReason">
+        <i class="bi bi-chat-left-text me-1" aria-hidden="true"></i>
+        {{ item.changeReason }}
+      </div>
+    </div>
+  </div>
+
+</div>

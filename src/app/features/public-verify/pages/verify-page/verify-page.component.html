@@ -1,0 +1,99 @@
+<!-- verify-page.component.html -->
+<div class="verify-wrapper">
+
+  <!-- Header -->
+  <div class="verify-header">
+    <div class="gov-badge">
+      <i class="bi bi-shield-fill-check"></i>
+      <span>National Board of Revenue</span>
+    </div>
+    <h1>Certificate Verification Portal</h1>
+    <p>Enter a Tax Clearance Certificate number to verify its authenticity.</p>
+  </div>
+
+  <!-- Search Box -->
+  <div class="verify-card">
+    <div class="search-group">
+      <label class="search-label">Certificate Number</label>
+      <div class="search-row">
+        <input
+          class="search-input"
+          type="text"
+          [(ngModel)]="certNo"
+          placeholder="e.g. CERT-TC-2025-00001"
+          (keyup.enter)="onVerify()"
+        />
+        <button class="btn-verify" (click)="onVerify()" [disabled]="isLoading || !certNo.trim()">
+          <span *ngIf="!isLoading"><i class="bi bi-search"></i> Verify</span>
+          <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm"></span> Verifying...</span>
+        </button>
+        <button class="btn-clear" *ngIf="certNo" (click)="onClear()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <p class="search-hint">Only Tax Clearance Certificates can be verified publicly.</p>
+    </div>
+
+    <!-- ── Valid Result ─────────────────────────────────── -->
+    <div class="result-box result-valid" *ngIf="result?.valid">
+      <div class="result-icon valid-icon">
+        <i class="bi bi-patch-check-fill"></i>
+      </div>
+      <div class="result-content">
+        <div class="result-title">Certificate Verified</div>
+        <div class="result-sub">This is a genuine NBR-issued Tax Clearance Certificate.</div>
+
+        <div class="result-grid">
+          <div class="result-field">
+            <div class="field-label">Certificate No.</div>
+            <div class="field-value mono">{{ result?.certificateNo }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Taxpayer Name</div>
+            <div class="field-value">{{ result?.taxpayerName }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">TIN Number</div>
+            <div class="field-value mono">{{ result?.tinNumber }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Assessment Year</div>
+            <div class="field-value">{{ result?.assessmentYear }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Issued Date</div>
+            <div class="field-value">{{ result?.issuedDate | date:'dd MMM yyyy' }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Valid Until</div>
+            <div class="field-value">{{ result?.validUntil | date:'dd MMM yyyy' }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Status</div>
+            <div class="field-value">
+              <span class="status-badge status-approved">{{ result?.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Invalid Result ──────────────────────────────── -->
+    <div class="result-box result-invalid" *ngIf="searched && result && !result.valid">
+      <div class="result-icon invalid-icon">
+        <i class="bi bi-x-circle-fill"></i>
+      </div>
+      <div class="result-content">
+        <div class="result-title">Not Found</div>
+        <div class="result-sub">{{ result?.message || 'No valid certificate found for this number.' }}</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="verify-footer">
+    <p>For queries, contact NBR at <strong>nbr@nbr.gov.bd</strong></p>
+  </div>
+
+</div>

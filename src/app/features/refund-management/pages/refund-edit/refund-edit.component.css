@@ -1,0 +1,4 @@
+/* Shared with create — import same styles */
+@import url('../refund-create/refund-create.component.css');
+
+.page-title { font-size: 1.2rem; font-weight: 600; }

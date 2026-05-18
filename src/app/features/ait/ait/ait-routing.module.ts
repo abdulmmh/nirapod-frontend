@@ -8,13 +8,27 @@ import { OfficerReviewComponent } from '../pages/officer-review/officer-review.c
 
 const routes: Routes = [
   { path: '', component: AitDashboardComponent, canActivate: [AuthGuard] },
-  { path: 'create', component: AitCreateWizardComponent, canActivate: [AuthGuard] },
-  { path: 'officer-dashboard', component: OfficerDashboardComponent, canActivate: [AuthGuard], data: { roles: ['TAX_OFFICER', 'TAX_COMMISSIONER'] } },
-  { path: 'review/:id', component: OfficerReviewComponent, canActivate: [AuthGuard], data: { roles: ['TAX_OFFICER', 'TAX_COMMISSIONER'] } }
+  {
+    path: 'create',
+    component: AitCreateWizardComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'officer-dashboard',
+    component: OfficerDashboardComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['TAX_OFFICER', 'TAX_COMMISSIONER'] },
+  },
+  {
+    path: 'review/:id',
+    component: OfficerReviewComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['TAX_OFFICER', 'TAX_COMMISSIONER'] },
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AitRoutingModule { }
+export class AitRoutingModule {}

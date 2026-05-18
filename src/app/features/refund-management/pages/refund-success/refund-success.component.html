@@ -1,0 +1,91 @@
+<div class="container py-5 px-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+      </div>
+
+      <!-- Success card -->
+      <div *ngIf="!loading" class="success-card text-center">
+
+        <!-- Icon -->
+        <div class="success-icon-wrap mb-3">
+          <div class="success-icon">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <h4 class="success-title">Application Submitted!</h4>
+        <p class="text-muted mb-4">
+          Your refund application has been successfully submitted and is now under verification.
+          You will be notified at each step of the process.
+        </p>
+
+        <!-- Reference info -->
+        <div class="ref-box mb-4" *ngIf="refund">
+          <div class="ref-box-row">
+            <span class="ref-label">Reference No.</span>
+            <span class="ref-value fw-bold text-primary">{{ refund.refundReferenceNo }}</span>
+          </div>
+          <div class="ref-box-row">
+            <span class="ref-label">Refund Type</span>
+            <span class="ref-value">{{ refund.refundType }}</span>
+          </div>
+          <div class="ref-box-row">
+            <span class="ref-label">Claimed Amount</span>
+            <span class="ref-value fw-semibold text-success">{{ formatCurrency(refund.claimedRefundAmount) }}</span>
+          </div>
+          <div class="ref-box-row">
+            <span class="ref-label">Status</span>
+            <span class="ref-value">
+              <app-refund-status-badge [status]="refund.status" size="sm"></app-refund-status-badge>
+            </span>
+          </div>
+          <div class="ref-box-row">
+            <span class="ref-label">Submitted On</span>
+            <span class="ref-value">
+              {{ refund.submittedAt ? (refund.submittedAt | date:'dd MMMM yyyy, hh:mm a') : (refund.updatedAt | date:'dd MMMM yyyy') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- What happens next -->
+        <div class="next-steps mb-4">
+          <div class="next-steps-title">What happens next?</div>
+          <div class="next-step-item">
+            <div class="next-step-num">1</div>
+            <div class="next-step-text">A Verification Officer will review your application and attached documents.</div>
+          </div>
+          <div class="next-step-item">
+            <div class="next-step-num">2</div>
+            <div class="next-step-text">You may be asked to provide additional information if required.</div>
+          </div>
+          <div class="next-step-item">
+            <div class="next-step-num">3</div>
+            <div class="next-step-text">Once approved, your refund will be transferred to your registered bank account.</div>
+          </div>
+          <div class="next-step-item">
+            <div class="next-step-num">4</div>
+            <div class="next-step-text">You will receive SMS and email notifications at every stage.</div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <button class="btn btn-primary btn-sm" (click)="goToView()">
+            <i class="bi bi-eye me-1"></i> View Application
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="goToList()">
+            <i class="bi bi-list-ul me-1"></i> My Refunds
+          </button>
+          <button class="btn btn-outline-primary btn-sm" (click)="goToCreate()">
+            <i class="bi bi-plus-lg me-1"></i> New Application
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

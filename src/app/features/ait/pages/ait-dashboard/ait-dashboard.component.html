@@ -1,150 +1,188 @@
-<div class="ait-dashboard">
-  <h2 class="sr-only">Taxpayer AIT Dashboard showing summary cards and records table</h2>
+<div class="ait-db">
+  <h2 class="sr-only">Taxpayer AIT Dashboard</h2>
 
-  <!-- Page header -->
-  <div class="page-header">
+  <!-- ── Page Header ──────────────────────────────────────── -->
+  <div class="ait-db__header">
     <div>
-      <div class="page-title">Advance Income Tax (AIT)</div>
-      <div class="page-subtitle">Fiscal Year {{ taxpayerInfo.fiscalYear }} · TIN: {{ taxpayerInfo.tin }}</div>
+      <div class="ait-db__title">Advance Income Tax (AIT)</div>
+      <div class="ait-db__subtitle">
+        Fiscal Year {{ taxpayerInfo.fiscalYear }} &nbsp;·&nbsp; TIN: {{ taxpayerInfo.tin }}
+      </div>
     </div>
-    <button class="btn-create" (click)="createNewAit()" title="Create a new AIT record">
-      <i class="ti ti-plus" aria-hidden="true"></i> Create New AIT
+    <button class="ait-btn ait-btn--primary" (click)="createNewAit()">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+        <path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round"/>
+      </svg>
+      Create New AIT
     </button>
   </div>
 
-  <!-- Error message -->
-  <div *ngIf="error" class="alert-warning">
-    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+  <!-- ── Error Banner ──────────────────────────────────────── -->
+  <div *ngIf="error" class="ait-alert ait-alert--warn">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="7" stroke="#BA7517" stroke-width="1.5"/>
+      <path d="M8 5v4M8 10.5v.5" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
     {{ error }}
   </div>
 
-  <!-- Loading state -->
-  <div *ngIf="loading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading AIT records...</p>
+  <!-- ── Loading ────────────────────────────────────────────── -->
+  <div *ngIf="loading" class="ait-loading">
+    <div class="ait-spinner"></div>
+    <p>Loading AIT records…</p>
   </div>
 
-  <!-- Content (shown when not loading) -->
-  <div *ngIf="!loading" class="dashboard-content">
+  <!-- ── Content ───────────────────────────────────────────── -->
+  <div *ngIf="!loading" class="ait-db__body">
 
-    <!-- KPI cards -->
-    <div class="kpi-container">
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <i class="ti ti-file-text" aria-hidden="true"></i>
+    <!-- KPI Cards -->
+    <div class="ait-kpis">
+      <div class="ait-kpi">
+        <div class="ait-kpi__label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M3 5h7M3 8h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
           Total AITs
         </div>
-        <div class="kpi-value">{{ kpis.totalCount }}</div>
-        <div class="kpi-subtitle">This fiscal year</div>
+        <div class="ait-kpi__value">{{ kpis.totalCount }}</div>
+        <div class="ait-kpi__sub">This fiscal year</div>
       </div>
 
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+      <div class="ait-kpi">
+        <div class="ait-kpi__label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="6.5" r="5.5" stroke="#BA7517" stroke-width="1.3"/>
+            <path d="M6.5 4v3.5M6.5 9v.5" stroke="#BA7517" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
           Needs Action
         </div>
-        <div class="kpi-value" [style.color]="'#BA7517'">{{ kpis.needsActionCount }}</div>
-        <div class="kpi-subtitle">Pending payment / docs</div>
+        <div class="ait-kpi__value" style="color:#BA7517">{{ kpis.needsActionCount }}</div>
+        <div class="ait-kpi__sub">Pending payment / docs</div>
       </div>
 
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <i class="ti ti-check" aria-hidden="true"></i>
+      <div class="ait-kpi">
+        <div class="ait-kpi__label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="6.5" r="5.5" stroke="#3B6D11" stroke-width="1.3"/>
+            <path d="M4 6.5l2 2 3.5-3.5" stroke="#3B6D11" stroke-width="1.3" stroke-linecap="round"
+                  stroke-linejoin="round"/>
+          </svg>
           Approved
         </div>
-        <div class="kpi-value" [style.color]="'#3B6D11'">{{ kpis.approvedCount }}</div>
-        <div class="kpi-subtitle">This fiscal year</div>
+        <div class="ait-kpi__value" style="color:#3B6D11">{{ kpis.approvedCount }}</div>
+        <div class="ait-kpi__sub">This fiscal year</div>
       </div>
 
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <i class="ti ti-receipt" aria-hidden="true"></i>
+      <div class="ait-kpi">
+        <div class="ait-kpi__label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="3" width="11" height="8" rx="1.5" stroke="#0F6E56" stroke-width="1.3"/>
+            <path d="M4 1v2M9 1v2M1 6.5h11" stroke="#0F6E56" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
           Credited to ITR
         </div>
-        <div class="kpi-value" [style.color]="'#0F6E56'">৳ {{ (kpis.creditedAmount | number:'1.0-0') }}</div>
-        <div class="kpi-subtitle">Successfully credited</div>
+        <div class="ait-kpi__value" style="color:#0F6E56">
+          ৳ {{ kpis.creditedAmount | number:'1.0-0' }}
+        </div>
+        <div class="ait-kpi__sub">Successfully credited</div>
       </div>
     </div>
 
-    <!-- Filter row -->
-    <div class="filter-row">
-      <select class="filter-select" (change)="onStatusFilterChange($any($event.target).value)">
+    <!-- Filters -->
+    <div class="ait-filters">
+      <select class="ait-fsel" (change)="onStatusFilterChange($any($event.target).value)">
         <option value="">All Statuses</option>
         <option value="DRAFT">Draft</option>
         <option value="SUBMITTED">Submitted</option>
         <option value="PENDING">Payment Pending</option>
         <option value="UNDER_REVIEW">Under Review</option>
         <option value="APPROVED">Approved</option>
+        <option value="CREDITED">Credited to ITR</option>
+        <option value="REJECTED">Rejected</option>
       </select>
 
-      <select class="filter-select" (change)="onFiscalYearChange($any($event.target).value)">
-        <option value="FY 2024-2025">FY 2024-2025</option>
-        <option value="FY 2023-2024">FY 2023-2024</option>
+      <select class="ait-fsel" (change)="onFiscalYearChange($any($event.target).value)">
+        <option value="FY 2024-2025">FY 2024–2025</option>
+        <option value="FY 2023-2024">FY 2023–2024</option>
       </select>
 
-      <input type="text"
-        class="filter-input"
-        placeholder="Search reference or product…"
-        (input)="onSearchChange($any($event.target).value)">
+      <input type="text" class="ait-search"
+             placeholder="Search reference or HS code…"
+             (input)="onSearchChange($any($event.target).value)" />
 
-      <button class="filter-button" title="Open advanced filters">
-        <i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Filters
+      <button class="ait-fsel" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M1 3h11M3 6.5h7M5 10h3" stroke="currentColor" stroke-width="1.3"
+                stroke-linecap="round"/>
+        </svg>
+        Filters
       </button>
     </div>
 
-    <!-- Records table -->
-    <div class="table-container">
-      <table class="records-table">
+    <!-- Table -->
+    <div class="ait-table-wrap">
+      <table class="ait-table">
         <thead>
           <tr>
             <th>Reference No.</th>
             <th>Import Date</th>
             <th>Product / HS Code</th>
-            <th style="text-align: right">Taxable Value</th>
-            <th style="text-align: right">AIT Amount</th>
+            <th class="text-right">Taxable Value</th>
+            <th class="text-right">AIT Amount</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let record of getPaginatedRecords()" [class]="getRowHighlight(record.status)">
+          <tr *ngFor="let r of getPaginatedRecords()"
+              [class.row-warn]="r.status === 'PENDING'"
+              [class.row-danger]="r.status === 'REJECTED'">
+
             <td>
-              <a class="ref-link" (click)="viewRecord(record.id)" title="View details">
-                {{ record.aitReferenceNo || 'N/A' }}
+              <a class="ait-ref-link" (click)="viewRecord(r.id)" title="View details">
+                {{ r.aitReferenceNo || 'N/A' }}
               </a>
             </td>
-            <td>{{ record.createdAt | date:'short' }}</td>
+
+            <td class="ait-date">{{ r.createdAt | date:'dd MMM yyyy' }}</td>
+
             <td>
-              <div class="product-name">{{ record.hsCode || 'N/A' }}</div>
-              <div class="product-code">{{ record.hsCode }}</div>
+              <div class="ait-product-name">{{ r.hsCode || '—' }}</div>
+              <div class="ait-product-code">{{ r.hsCode }}</div>
             </td>
-            <td class="amount">৳ {{ (record.taxableValue | number:'1.0-0') }}</td>
-            <td class="amount" [style.color]="'#3B6D11'">৳ {{ (record.calculatedAitAmount | number:'1.0-0') }}</td>
+
+            <td class="ait-amt">৳ {{ r.taxableValue | number:'1.0-0' }}</td>
+
+            <td class="ait-amt" style="color:#3B6D11">
+              ৳ {{ r.calculatedAitAmount | number:'1.0-0' }}
+            </td>
+
             <td>
-              <span [class]="'badge ' + getStatusBadgeClass(record.status)">
-                {{ getStatusLabel(record.status) }}
+              <span class="ait-badge" [ngClass]="getStatusBadgeClass(r.status)">
+                {{ getStatusLabel(r.status) }}
               </span>
             </td>
-            <td class="actions-cell">
-              <button *ngIf="record.status === 'DRAFT'"
-                class="btn-action btn-primary"
-                (click)="continueEditingDraft(record.id)"
-                title="Continue editing draft">
+
+            <td class="ait-actions">
+              <button *ngIf="r.status === 'DRAFT'"
+                      class="ait-btn ait-btn--primary ait-btn--sm"
+                      (click)="continueEditingDraft(r.id)">
                 Continue
               </button>
-              <button *ngIf="record.status === 'PENDING'"
-                class="btn-action btn-primary"
-                (click)="uploadDocuments(record.id)"
-                title="Pay now">
+              <button *ngIf="r.status === 'PENDING'"
+                      class="ait-btn ait-btn--primary ait-btn--sm"
+                      (click)="uploadDocuments(r.id)">
                 Pay Now
               </button>
-              <button *ngIf="record.status === 'UNDER_REVIEW'"
-                class="btn-action"
-                (click)="uploadDocuments(record.id)"
-                title="Upload documents">
+              <button *ngIf="r.status === 'UNDER_REVIEW'"
+                      class="ait-btn ait-btn--warn ait-btn--sm"
+                      (click)="uploadDocuments(r.id)">
                 Upload Docs
               </button>
-              <button class="btn-action" (click)="viewRecord(record.id)" title="View details">
+              <button class="ait-btn ait-btn--ghost ait-btn--sm"
+                      (click)="viewRecord(r.id)">
                 View
               </button>
             </td>
@@ -152,29 +190,36 @@
         </tbody>
       </table>
 
-      <!-- Empty state -->
-      <div *ngIf="getPaginatedRecords().length === 0" class="empty-state">
-        <i class="ti ti-file-off" aria-hidden="true"></i>
-        <p>No AIT records found</p>
-        <button class="btn-create" (click)="createNewAit()">
-          <i class="ti ti-plus" aria-hidden="true"></i> Create New AIT
+      <!-- Empty State -->
+      <div *ngIf="getPaginatedRecords().length === 0" class="ait-empty">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="8" y="6" width="28" height="32" rx="4"
+                stroke="#CBD5E1" stroke-width="1.5"/>
+          <path d="M14 16h16M14 22h10M14 28h8"
+                stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <p class="ait-empty__title">No AIT records found</p>
+        <p class="ait-empty__hint">Try changing filters or create a new AIT</p>
+        <button class="ait-btn ait-btn--primary" (click)="createNewAit()">
+          Create New AIT
         </button>
       </div>
     </div>
 
     <!-- Pagination -->
-    <div class="pagination-bar">
-      <span class="pagination-info">
-        Showing {{ getPaginationStart() }}-{{ getPaginationEnd() }} of {{ filteredRecords.length }} records
+    <div class="ait-pagination">
+      <span class="ait-pagination__info">
+        Showing {{ getPaginationStart() }}–{{ getPaginationEnd() }}
+        of {{ filteredRecords.length }} records
       </span>
-      <div class="pagination-controls">
-        <button class="btn-pagination" (click)="prevPage()" [disabled]="currentPage === 1">
+      <div class="ait-pagination__controls">
+        <button class="ait-btn ait-btn--ghost ait-btn--sm"
+                (click)="prevPage()" [disabled]="currentPage === 1">
           ← Prev
         </button>
-        <button *ngFor="let page of [1]" class="btn-page-num" [class.active]="currentPage === page">
-          {{ currentPage }}
-        </button>
-        <button *ngIf="getTotalPages() > 1" class="btn-pagination" (click)="nextPage()" [disabled]="currentPage >= getTotalPages()">
+        <span class="ait-pagination__num">{{ currentPage }}</span>
+        <button class="ait-btn ait-btn--ghost ait-btn--sm"
+                (click)="nextPage()" [disabled]="currentPage >= getTotalPages()">
           Next →
         </button>
       </div>

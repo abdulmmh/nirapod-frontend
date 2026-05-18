@@ -137,6 +137,27 @@ export class SidebarComponent implements OnInit {
       ]
     },
 
+    
+    {
+      label: 'Document Verification',
+      icon: 'bi bi-file-earmark-check-fill',
+      route: '/documents',
+      roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.DATA_ENTRY_OPERATOR, Role.SUPER_ADMIN]
+    },
+    {
+      label: 'Notices & Notifications',
+      icon: 'bi bi-bell-fill',
+      route: '/notices',
+      roles: []
+    },
+
+    {
+      label: 'Certificates',
+      icon:  'bi bi-patch-check-fill',
+      route: '/certificates',
+      roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.TAX_OFFICER, Role.TAXPAYER],
+    },
+    
     { label: 'TAX CONFIGURATION', isGroupHeader: true },
 
     {
@@ -189,19 +210,7 @@ export class SidebarComponent implements OnInit {
         { label: 'Add Fiscal Year', route: '/fiscal-years/create', icon: 'bi bi-plus-circle' }
       ]
     },
-    
-    {
-      label: 'Document Verification',
-      icon: 'bi bi-file-earmark-check-fill',
-      route: '/documents',
-      roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.DATA_ENTRY_OPERATOR, Role.SUPER_ADMIN]
-    },
-    {
-      label: 'Notices & Notifications',
-      icon: 'bi bi-bell-fill',
-      route: '/notices',
-      roles: []
-    },
+
     // ── ADMINISTRATION ──
     { label: 'ADMINISTRATION', isGroupHeader: true },
 

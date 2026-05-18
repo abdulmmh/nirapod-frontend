@@ -3,7 +3,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../constants/api.constants';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -37,6 +36,12 @@ export class BaseApiService {
     );
   }
 
+  protected patch<T>(url: string, body: any): Observable<T> {
+    return this.http.patch<T>(url, body).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   protected delete<T>(url: string): Observable<T> {
     return this.http.delete<T>(url).pipe(
       catchError(this.handleError)
@@ -44,11 +49,11 @@ export class BaseApiService {
   }
 
   downloadTinCertificate(tinId: number): Observable<Blob> {
-    const url = API_ENDPOINTS.TINS.DOWNLOAD_CERT(tinId); 
+    const url = API_ENDPOINTS.TINS.DOWNLOAD_CERT(tinId);
     return this.http.get(url, { responseType: 'blob' });
   }
 
-  private handleError(error: any): Observable<never> {
+  protected handleError(error: any): Observable<never> {
     let errorMessage = 'An unknown error occurred.';
     if (error.error instanceof ErrorEvent) {
       errorMessage = error.error.message;
@@ -56,6 +61,6 @@ export class BaseApiService {
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
     console.error(errorMessage);
-    return throwError(() => new Error(errorMessage));
+    return throwError(() => error);   
   }
 }

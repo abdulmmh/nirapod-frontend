@@ -1,0 +1,148 @@
+<!-- certificate-view.component.html -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Certificate Details</h4>
+    <p>{{ certType === 'tin' ? 'TIN Certificate' : 'BIN Certificate' }}</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button class="btn-download" (click)="onDownload()" [disabled]="isDownloading || isLoading">
+      <span *ngIf="!isDownloading"><i class="bi bi-download"></i> Download PDF</span>
+      <span *ngIf="isDownloading">
+        <span class="spinner-border spinner-border-sm"></span> Downloading...
+      </span>
+    </button>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+  <p>Loading certificate details...</p>
+</div>
+
+<ng-container *ngIf="!isLoading && record">
+
+  <!-- Header Card -->
+  <div class="view-header-card">
+    <div class="cert-icon" [class.tin-icon]="certType === 'tin'" [class.bin-icon]="certType === 'bin'">
+      <i class="bi" [class.bi-person-badge-fill]="certType === 'tin'" [class.bi-building-fill]="certType === 'bin'"></i>
+    </div>
+    <div class="cert-header-info">
+      <div class="cert-no-label">{{ certNo }}</div>
+      <div class="cert-holder">{{ holderName }}</div>
+      <div class="cert-meta">
+        <span class="ref-pill">{{ referenceNo }}</span>
+        <span class="type-badge" [class.type-tin]="certType === 'tin'" [class.type-bin]="certType === 'bin'">
+          {{ certType === 'tin' ? 'TIN' : 'BIN' }}
+        </span>
+        <span class="status-badge" [ngClass]="getStatusClass(status)">{{ status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Sections -->
+  <div class="detail-card">
+    <div class="detail-section-header">
+      <i class="bi bi-info-circle-fill"></i>
+      <span>Certificate Information</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-field">
+        <div class="field-label">Certificate No.</div>
+        <div class="field-value mono">{{ certNo }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">{{ certType === 'tin' ? 'TIN Number' : 'BIN Number' }}</div>
+        <div class="field-value mono">{{ referenceNo }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Issued Date</div>
+        <div class="field-value">{{ issuedDate | date:'dd MMM yyyy' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Expiry Date</div>
+        <div class="field-value">{{ expiryDate ? (expiryDate | date:'dd MMM yyyy') : '—' }}</div>
+      </div>
+      <div class="detail-field" *ngIf="record.taxZone || record.vatZone">
+        <div class="field-label">Tax Zone</div>
+        <div class="field-value">{{ record.taxZone || record.vatZone }}</div>
+      </div>
+      <div class="detail-field" *ngIf="record.taxCircle || record.vatCircle">
+        <div class="field-label">Tax Circle</div>
+        <div class="field-value">{{ record.taxCircle || record.vatCircle }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIN-specific fields -->
+  <div class="detail-card" *ngIf="certType === 'tin'">
+    <div class="detail-section-header">
+      <i class="bi bi-person-fill"></i>
+      <span>Taxpayer Information</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-field">
+        <div class="field-label">Name</div>
+        <div class="field-value">{{ record.taxpayerName }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Category</div>
+        <div class="field-value">{{ record.tinCategory }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">NID</div>
+        <div class="field-value mono">{{ record.nid || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Email</div>
+        <div class="field-value">{{ record.email || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Phone</div>
+        <div class="field-value">{{ record.phone || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">District</div>
+        <div class="field-value">{{ record.district || '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIN-specific fields -->
+  <div class="detail-card" *ngIf="certType === 'bin'">
+    <div class="detail-section-header">
+      <i class="bi bi-building-fill"></i>
+      <span>Business Information</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-field">
+        <div class="field-label">Business Name</div>
+        <div class="field-value">{{ record.businessName }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Owner Name</div>
+        <div class="field-value">{{ record.ownerName || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">TIN Number</div>
+        <div class="field-value mono">{{ record.tinNumber || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">VAT Category</div>
+        <div class="field-value">{{ record.vatCategory || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Trade License No.</div>
+        <div class="field-value mono">{{ record.tradeLicenseNo || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">District</div>
+        <div class="field-value">{{ record.district || '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+</ng-container>

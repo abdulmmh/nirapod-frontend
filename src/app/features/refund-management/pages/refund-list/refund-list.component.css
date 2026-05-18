@@ -1,51 +1,55 @@
-/* Refund Type */
+.page-title { font-size: 1.25rem; font-weight: 600; color: #1a1a1a; }
+
+/* Summary cards */
+.summary-card {
+  background: #fff;
+  border: 1px solid #e8e6e1;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  transition: box-shadow .15s;
+}
+.summary-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+
+.summary-icon {
+  width: 46px; height: 46px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; flex-shrink: 0;
+}
+.summary-icon--blue  { background: #e6f1fb; color: #0c447c; }
+.summary-icon--green { background: #eaf3de; color: #27500a; }
+.summary-icon--teal  { background: #e1f5ee; color: #085041; }
+.summary-icon--amber { background: #faeeda; color: #633806; }
+
+.summary-label { font-size: 0.72rem; color: #6c757d; text-transform: uppercase; letter-spacing: .4px; }
+.summary-value { font-size: 1.15rem; font-weight: 600; color: #1a1a1a; margin-top: 2px; }
+.summary-sub   { font-size: 0.72rem; color: #9e9d98; margin-top: 2px; }
+
+/* Table */
+.ref-link {
+  color: #185fa5; cursor: pointer; font-size: 0.83rem;
+  text-decoration: none;
+}
+.ref-link:hover { text-decoration: underline; }
+
 .type-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 9px;
-  border-radius: 5px;
-  white-space: nowrap;
-}
-.type-vat {
-  background: #e6f7f3;
-  color: #1faa8b;
-}
-.type-it {
-  background: #e8eef9;
-  color: #1a3f8f;
-}
-.type-excess {
-  background: #fef3e2;
-  color: #f59e0b;
-}
-.type-other {
-  background: #f0f4f8;
-  color: #666;
+  font-size: 0.72rem; font-weight: 500; padding: 2px 9px;
+  border-radius: 10px; background: #f1efe8; color: #444441;
+  border: 1px solid #dcdbd5;
 }
 
-.method-badge {
-  font-size: 11px;
-  font-weight: 600;
-  background: #f0f4f8;
-  color: #555;
-  padding: 3px 8px;
-  border-radius: 5px;
-  white-space: nowrap;
+.table-warning-light { background: rgba(250,238,218,.2) !important; }
+.table-danger-light  { background: rgba(252,235,235,.2) !important; }
+
+.table thead th {
+  font-size: 0.75rem; font-weight: 600;
+  color: #6c757d; text-transform: uppercase; letter-spacing: .4px;
+  border-bottom: 2px solid #e8e6e1;
 }
 
-.claim-amount {
-  color: #1a2340;
-  font-weight: 700;
-}
-.approved-amount {
-  color: #1faa8b;
-  font-weight: 700;
-}
-.paid-amount {
-  color: #1a3f8f;
-  font-weight: 700;
-}
+.table td { font-size: 0.83rem; }
 
-.data-table {
-  min-width: 1300px;
-}
+.card-footer { border-top: 1px solid #e8e6e1; }

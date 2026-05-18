@@ -1,0 +1,31 @@
+.refund-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+/* Sizes */
+.refund-badge--sm  { font-size: 0.72rem; padding: 2px 8px; }
+.refund-badge--md  { font-size: 0.78rem; padding: 4px 11px; }
+.refund-badge--lg  { font-size: 0.85rem; padding: 5px 14px; }
+
+/* Status colours */
+.badge-draft       { background: #f1efe8; color: #444441; border-color: #dcdbd5; }
+.badge-submitted   { background: #e6f1fb; color: #0c447c; border-color: #b6d4f5; }
+.badge-verify      { background: #eeedfe; color: #3c3489; border-color: #c4c0f8; }
+.badge-info-req    { background: #faeeda; color: #633806; border-color: #f5d898; }
+.badge-response    { background: #fef9ec; color: #8a6200; border-color: #f5d898; }
+.badge-recommended { background: #e1f5ee; color: #085041; border-color: #8fd4bf; }
+.badge-supervisor  { background: #ede9fe; color: #4c1d95; border-color: #c4b5fd; }
+.badge-approved    { background: #eaf3de; color: #27500a; border-color: #a3c97a; }
+.badge-rejected    { background: #fcebeb; color: #791f1f; border-color: #f09595; }
+.badge-pay-pending { background: #e1f5ee; color: #085041; border-color: #8fd4bf; }
+.badge-processing  { background: #e6f1fb; color: #0c447c; border-color: #b6d4f5; }
+.badge-paid        { background: #eaf3de; color: #27500a; border-color: #3b6d11; }
+.badge-failed      { background: #fcebeb; color: #791f1f; border-color: #a32d2d; }
+.badge-cancelled   { background: #f1efe8; color: #5f5e5a; border-color: #dcdbd5; }
+.badge-closed      { background: #e8f5e9; color: #1b5e20; border-color: #66bb6a; }
