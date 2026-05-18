@@ -35,21 +35,21 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 
     if (userRole === Role.TAXPAYER) {
 
-      // PENDING_REVIEW — শুধু application-status page এ যাবে
+      // PENDING_REVIEW 
       if (approvalStatus === 'PENDING_REVIEW' &&
           !state.url.startsWith('/my-portal/application-status')) {
         this.router.navigate(['/my-portal/application-status']);
         return false;
       }
 
-      // REJECTED — শুধু application-status page এ যাবে
+      // REJECTED 
       if (approvalStatus === 'REJECTED' &&
           !state.url.startsWith('/my-portal/application-status')) {
         this.router.navigate(['/my-portal/application-status']);
         return false;
       }
 
-      // APPROVED — শুধু /my-portal/* এ যাবে
+      // APPROVED 
       if (!state.url.startsWith('/my-portal')) {
         this.router.navigate(['/my-portal']);
         return false;
@@ -71,17 +71,6 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     return true;
   }
 
-  /**
-   * Reads `data.roles` only from route snapshots on the **current navigation’s
-   * activation path** (`state.root` → `firstChild` → … → leaf).
-   *
-   * Do not walk `firstChild`/`parent` from an arbitrary `ActivatedRouteSnapshot`
-   * passed to the guard: that can pick up the wrong branch and apply another
-   * sibling segment’s role rules to unrelated routes.
-   *
-   * If several segments define `data.roles`, the **deepest** (most specific)
-   * non-empty array wins.
-   */
   private collectRequiredRoles(state: RouterStateSnapshot): Role[] {
     let current: ActivatedRouteSnapshot | null = state.root;
     let required: Role[] = [];

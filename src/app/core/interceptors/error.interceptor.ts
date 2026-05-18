@@ -10,18 +10,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ToastService } from '../../shared/toast/toast.service';
 
-/**
- * ErrorInterceptor — global HTTP error handler.
- *
- * Responsibility:
- *   • 400 Bad Request  → toast the server message (or a safe fallback).
- *   • 409 Conflict     → toast duplicate/conflict message.
- *   • 5xx / network    → toast a generic server-error message.
- *   • Always rethrows so individual components can react (e.g. stop spinners).
- *
- * NOTE: Components should NOT re-toast 400/409 themselves. They may still
- *       inspect `err.status` to perform UI-only actions (e.g. highlighting a field).
- */
+
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
   constructor(private toast: ToastService) {}
@@ -48,7 +37,6 @@ export class ErrorInterceptor implements HttpInterceptor {
             break;
 
           case 0:
-            // Network error / CORS / server down
             this.toast.error(
               'Cannot reach the server. Check your connection.',
               'Network Error',
@@ -62,7 +50,6 @@ export class ErrorInterceptor implements HttpInterceptor {
                 `Server Error ${err.status}`,
               );
             }
-            // 401 is already handled by AuthInterceptor — no duplicate toast here.
             break;
         }
 

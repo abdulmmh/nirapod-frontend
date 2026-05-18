@@ -87,10 +87,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
       }, 0);
   }
 
-  /**
-   * Compliance score — accepted returns / total returns * 100
-   * 0 returns হলে 100% (no obligation yet)
-   */
+  
   get complianceScore(): number {
     if (this.itrReturns.length === 0) return 100;
     const accepted = this.itrReturns.filter(r => r.status === 'Accepted').length;
@@ -103,9 +100,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
     return '#c0392b';
   }
 
-  /**
-   * Last activity — most recent return-এর submission date
-   */
+
   get lastActivity(): string {
     if (this.itrReturns.length === 0) return '—';
 

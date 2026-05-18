@@ -8,16 +8,14 @@ import { ToastService } from '../../../../shared/toast/toast.service';
   styleUrls: ['./business-picker.component.css'],
 })
 export class BusinessPickerComponent {
-  /** Businesses to display. Populated by the parent once a taxpayer is selected. */
   @Input() businesses: BusinessVatStatus[] = [];
 
-  /** True while the parent is loading businesses from the API. */
+
   @Input() loading = false;
 
-  /** Currently selected business (null if none chosen). */
   @Input() selected: BusinessVatStatus | null = null;
 
-  /** Emits the chosen business when the user clicks an eligible row. */
+
   @Output() businessSelected = new EventEmitter<BusinessVatStatus>();
 
   constructor(private toast: ToastService) {}
