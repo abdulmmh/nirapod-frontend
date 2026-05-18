@@ -16,6 +16,7 @@ import { MasterDataService } from '../../../../core/services/master-data.service
 export class TaxpayerListComponent implements OnInit, OnDestroy {
   // ────────────────── Properties ──────────────────
   taxpayers: Taxpayer[] = [];
+  tp: Taxpayer | null = null;
   searchTerm = '';
   isLoading = false;
   isExporting = false;
@@ -44,6 +45,13 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   approveZone = '';
   approveCircle = '';
   isProcessing = false;
+  showNoticeModal   = false;
+  noticeTargetId:   number | null = null;
+  noticeSubject     = '';
+  noticeBody        = '';
+  noticeType        = 'General';
+  noticePriority    = 'Normal';
+  isSendingNotice   = false;
 
   // Tab filter
   activeTab: 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED' = 'ALL';
@@ -86,7 +94,7 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
 
   private handleFetchSuccess(data: Taxpayer[]): void {
     this.taxpayers = data;
-    // this.taxpayers = data.filter(tp => tp.status !== 'Inactive');
+    this.taxpayers = data.filter(tp => tp.status !== 'Inactive');
     this.notifyIfEmpty(data);
   }
 
@@ -312,6 +320,49 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     this.masterData.getTaxCirclesByZone(zone.id)
       .pipe(finalize(() => this.loadingCircles = false))
       .subscribe(data => this.taxCircles = data.filter((c: any) => !!c.name));
+  }
+
+  openNoticeModal(id: number | undefined): void {
+    if (!id) return;
+    this.noticeTargetId = id;
+    this.noticeSubject  = '';
+    this.noticeBody     = '';
+    this.showNoticeModal = true;
+  }
+
+  closeNoticeModal(): void {
+    this.showNoticeModal  = false;
+    this.noticeTargetId   = null;
+    this.noticeSubject    = '';
+    this.noticeBody       = '';
+  }
+
+  confirmSendNotice(): void {
+    if (!this.noticeSubject.trim() || !this.noticeBody.trim()) {
+      this.toast.warning('Subject and message are required.');
+      return;
+    }
+
+    this.isSendingNotice = true;
+    this.http.post(API_ENDPOINTS.NOTICES.CREATE, {
+      taxpayerId:  this.noticeTargetId,
+      subject:     this.noticeSubject,
+      body:        this.noticeBody,
+      noticeType:  this.noticeType,
+      priority:    this.noticePriority,
+      targetType:  'Specific Taxpayer',
+      issuedBy:    'Officer',
+      issuedDate:  new Date().toISOString().split('T')[0],
+      dueDate:     null,
+      attachmentName: null
+    }).pipe(finalize(() => this.isSendingNotice = false))
+      .subscribe({
+        next: () => {
+          this.toast.success('Notice sent successfully!');
+          this.closeNoticeModal();
+        },
+        error: () => this.toast.error('Failed to send notice.')
+      });
   }
 
   closeApprove(): void {

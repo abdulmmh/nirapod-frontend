@@ -1,7 +1,3 @@
-<!-- ═══════════════════════════════════════════════════════
-     ITR FILING WIZARD  —  Angular 13
-     Design: neutral compact token-based (matches itr_filing_interface.html)
-══════════════════════════════════════════════════════════ -->
 
 <!-- ── Topbar ─────────────────────────────────────────────────────────────── -->
 <div class="itr-topbar">
@@ -685,7 +681,7 @@
   </div>
  
   <!-- ══════════════════════════════════════════════════════════
-       PAYMENT SECTION — শুধু tax due থাকলে দেখাবে
+       PAYMENT SECTION — only shown if tax is due
   ═══════════════════════════════════════════════════════════ -->
   <div class="card" *ngIf="showPaymentSection">
     <div class="card-hdr">
@@ -917,7 +913,7 @@
           <span class="ack-val" style="color:#A32D2D">{{ fmt(balanceDue) }}</span>
         </div>
  
-        <!-- Payment info যোগ হলে দেখাবে -->
+        <!-- Payment info  -->
         <ng-container *ngIf="step6Form.value.challanNo">
           <div class="ack-row">
             <span>Challan no.</span>

@@ -173,19 +173,21 @@ export class NoticeViewComponent implements OnInit {
   private markAsReadIfNeeded(): void {
     if (!this.notice || this.notice.status !== 'Unread') return;
 
-    const readDate = new Date().toISOString().split('T')[0];
-    const updatedNotice: Notice = {
-      ...this.notice,
-      status: 'Read',
-      readDate,
-    };
+    this.notice = { ...this.notice, status: 'Read', readDate: new Date().toISOString().split('T')[0] };
 
-    this.notice = updatedNotice;
-    this.http
-      .put(API_ENDPOINTS.NOTICES.UPDATE(this.notice.id), updatedNotice)
-      .subscribe({
-        next: () => {},
-        error: () => {},
-      });
+    this.http.put(API_ENDPOINTS.NOTICES.UPDATE(this.notice.id), {
+        taxpayerId:     this.notice.taxpayerId,       
+        subject:        this.notice.subject,
+        body:           this.notice.body,
+        noticeType:     this.notice.noticeType,
+        priority:       this.notice.priority,
+        targetType:     this.notice.targetType,
+        issuedBy:       this.notice.issuedBy,
+        issuedDate:     this.notice.issuedDate,
+        dueDate:        this.notice.dueDate || null,
+        attachmentName: this.notice.attachmentName || null,
+        status:         'Read',
+        readDate:       new Date().toISOString().split('T')[0]
+      }).subscribe({ next: () => {}, error: () => {} });
   }
 }

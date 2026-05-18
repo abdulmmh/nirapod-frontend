@@ -1,7 +1,15 @@
-
-
-.tin-code { font-size:12px; font-weight:700; color:#1a3f8f; background:#e8eef9; padding:3px 8px; border-radius:5px; font-family:monospace; }
-.data-table { min-width: 900px; }
+.tin-code {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a3f8f;
+  background: #e8eef9;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-family: monospace;
+}
+.data-table {
+  min-width: 900px;
+}
 /* Tabs */
 .approval-tabs {
   display: flex;
@@ -46,9 +54,18 @@
   border-radius: 20px;
 }
 
-.approval-pending  { background: #faeeda; color: #633806; }
-.approval-approved { background: #e1f5ee; color: #085041; }
-.approval-rejected { background: #fcebeb; color: #791f1f; }
+.approval-pending {
+  background: #faeeda;
+  color: #633806;
+}
+.approval-approved {
+  background: #e1f5ee;
+  color: #085041;
+}
+.approval-rejected {
+  background: #fcebeb;
+  color: #791f1f;
+}
 
 /* Approve/Reject buttons */
 .btn-approve {
@@ -62,7 +79,9 @@
   transition: background 0.2s;
 }
 
-.btn-approve:hover { background: #9fe1cb; }
+.btn-approve:hover {
+  background: #9fe1cb;
+}
 
 .btn-reject {
   background: #fcebeb;
@@ -75,7 +94,9 @@
   transition: background 0.2s;
 }
 
-.btn-reject:hover { background: #f7c1c1; }
+.btn-reject:hover {
+  background: #f7c1c1;
+}
 
 /* Modal form */
 .modal-form {
@@ -114,13 +135,19 @@
   border-color: #1a7a4a;
 }
 
-.modal-accent.success { background: #1a7a4a; }
-.modal-icon-wrap.success { background: #e1f5ee; }
+.modal-accent.success {
+  background: #1a7a4a;
+}
+.modal-icon-wrap.success {
+  background: #e1f5ee;
+}
 .btn-modal-confirm.success {
   background: #1a7a4a;
   color: #fff;
 }
-.btn-modal-confirm.success:hover { background: #155d38; }
+.btn-modal-confirm.success:hover {
+  background: #155d38;
+}
 
 .td-avatar-img {
   width: 36px;
@@ -135,7 +162,7 @@
   height: 72px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid rgba(255,255,255,0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
 }
 .taxpayer-address-info {
   background: #f0faf5;
@@ -161,8 +188,13 @@
   padding: 4px 0;
 }
 
-.tai-key { color: #666; }
-.tai-val { font-weight: 600; color: #111; }
+.tai-key {
+  color: #666;
+}
+.tai-val {
+  font-weight: 600;
+  color: #111;
+}
 
 .no-address-warn {
   background: #fff3cd;
@@ -215,4 +247,17 @@
 
 .btn-modal-confirm.warning:hover {
   background: #cf6d17;
+}
+.btn-notice {
+  background: #e8eeff;
+  color: #1a3f8f;
+  border: 1px solid #b5c4f4;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-notice:hover {
+  background: #b5c4f4;
 }

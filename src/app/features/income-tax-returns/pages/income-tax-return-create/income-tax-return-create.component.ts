@@ -282,10 +282,9 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   }
 
     get isPaymentValid(): boolean {
-    // Tax নেই — payment লাগবে না
+    
     if (!this.showPaymentSection) return true;
  
-    // Method select না হলে invalid
     if (!this.selectedPaymentMethod) return false;
  
     const v = this.step6Form.value;
@@ -431,10 +430,9 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   // ── Wizard navigation ─────────────────────────────────────────────────────
 
   goToStep(target: number): void {
-    // Back-navigation always allowed
+    
     if (target < this.currentStep) { this.currentStep = target; return; }
 
-    // Forward: validate current step
     if (this.currentStep === 1 && !this.step1Form.valid) {
       this.step1Form.markAllAsTouched();
       this.toast.warning('Please complete all required fields before continuing.');
@@ -494,7 +492,7 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    const s1 = this.step1Form.getRawValue(); // includes disabled fields
+    const s1 = this.step1Form.getRawValue(); 
 
     const payload = {
       tinNumber:      s1.tinNumber,

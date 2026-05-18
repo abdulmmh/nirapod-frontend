@@ -573,3 +573,15 @@
   align-items: center;
   gap: 6px;
 }
+
+.btn-notice {
+  background: #e8eeff;
+  color: #1a3f8f;
+  border: 1px solid #b5c4f4;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.btn-notice:hover { background: #b5c4f4; }

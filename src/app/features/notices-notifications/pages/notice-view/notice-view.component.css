@@ -1,20 +1,184 @@
-.notice-icon.type-taxdue {
-  background: #fef3e2;
-  color: #f59e0b;
+/* notice-view.component.css — পুরোটা replace করো */
+
+.btn-back {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #fff; border: 1px solid #d0daf5; color: #1a3f8f;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; cursor: pointer; transition: background .2s;
 }
-.notice-icon.type-penalty {
-  background: #fff0f0;
-  color: #e74c3c;
+.btn-back:hover { background: #f0f4ff; }
+
+.loading-overlay {
+  display: flex; justify-content: center;
+  align-items: center; min-height: 300px;
 }
-.notice-icon.type-compliance {
-  background: #e6f7f3;
-  color: #1faa8b;
+
+/* ── Notice Header Card ── */
+.notice-view-card {
+  background: #fff; border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  padding: 24px; margin-bottom: 16px;
 }
-.notice-icon.type-refund {
-  background: #e0f2f9;
-  color: #0891b2;
+
+.nvc-top {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 16px;
+  flex-wrap: wrap; gap: 12px;
 }
-.notice-icon.type-system {
-  background: #f0f4f8;
-  color: #888;
+
+.nvc-icon-wrap {
+  display: flex; align-items: center; gap: 14px;
 }
+
+.nvc-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: #e8f0fe; color: #1a3f8f;
+  display: flex; align-items: center;
+  justify-content: center; font-size: 22px; flex-shrink: 0;
+}
+
+.nvc-no {
+  font-family: monospace; font-size: 12px;
+  color: #888; margin-bottom: 3px;
+}
+
+.nvc-type {
+  font-size: 13px; font-weight: 600; color: #333;
+}
+
+.nvc-badges { display: flex; align-items: center; gap: 8px; }
+
+.pri-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+}
+.pri-low      { background: #f0fdf4; color: #166534; }
+.pri-normal   { background: #eff6ff; color: #1e40af; }
+.pri-high     { background: #fef3c7; color: #92400e; }
+.pri-urgent   { background: #fee2e2; color: #991b1b; }
+
+.status-badge {
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+}
+.status-unread  { background: #fee2e2; color: #991b1b; }
+.status-read    { background: #f0fdf4; color: #166534; }
+.status-active  { background: #eff6ff; color: #1e40af; }
+.status-inactive{ background: #f3f4f6; color: #6b7280; }
+
+.nvc-subject {
+  font-size: 18px; font-weight: 700;
+  color: #1a1a2e; margin: 0 0 14px;
+}
+
+.nvc-meta {
+  display: flex; flex-wrap: wrap; gap: 12px;
+}
+
+.nvc-meta-item {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: #666; background: #f8fafc;
+  padding: 4px 10px; border-radius: 8px;
+}
+
+/* ── Message Body Card ── */
+.notice-body-card {
+  background: #fff; border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  padding: 24px; margin-bottom: 16px;
+}
+
+.body-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; color: #1a3f8f;
+  margin-bottom: 14px; padding-bottom: 12px;
+  border-bottom: 1px solid #f0f3f8;
+}
+
+.body-content {
+  font-size: 14px; color: #333;
+  line-height: 1.7; white-space: pre-wrap;
+}
+
+.attachment-row { margin-top: 16px; padding-top: 14px; border-top: 1px solid #f0f3f8; }
+
+.attachment-item {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #f8fafc; border: 1px solid #e0e5ed;
+  border-radius: 8px; padding: 8px 14px; font-size: 13px; color: #444;
+}
+
+.btn-download {
+  background: #1a3f8f; color: #fff; border: none;
+  border-radius: 6px; padding: 4px 10px;
+  font-size: 12px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+
+/* ── Response Card ── */
+.response-card {
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  border-radius: 14px; padding: 20px; margin-bottom: 16px;
+}
+
+.response-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; color: #166534;
+  margin-bottom: 10px;
+}
+
+.response-date { margin-left: auto; font-size: 12px; color: #888; font-weight: 400; }
+
+.response-body { font-size: 14px; color: #333; line-height: 1.6; }
+
+/* ── Reply Section ── */
+.reply-section { margin-bottom: 16px; }
+
+.btn-reply {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #1a3f8f; color: #fff; border: none;
+  border-radius: 10px; padding: 10px 20px;
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  transition: background .2s;
+}
+.btn-reply:hover { background: #163578; }
+
+.reply-box {
+  background: #fff; border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07); padding: 20px;
+}
+
+.reply-box-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; color: #1a3f8f;
+  margin-bottom: 12px;
+}
+
+.reply-textarea {
+  width: 100%; border: 1px solid #e0e5ed;
+  border-radius: 10px; padding: 12px 14px;
+  font-size: 14px; outline: none; resize: vertical;
+  transition: border .2s; box-sizing: border-box;
+  font-family: inherit;
+}
+.reply-textarea:focus { border-color: #1a3f8f; }
+
+.reply-actions {
+  display: flex; justify-content: flex-end;
+  gap: 10px; margin-top: 12px;
+}
+
+.btn-cancel-reply {
+  padding: 8px 18px; border: 1px solid #e0e5ed;
+  border-radius: 8px; background: #fff; color: #555;
+  font-size: 13px; cursor: pointer;
+}
+
+.btn-send-reply {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; background: #1a3f8f; color: #fff;
+  border: none; border-radius: 8px; font-size: 13px;
+  font-weight: 500; cursor: pointer; transition: background .2s;
+}
+.btn-send-reply:hover { background: #163578; }

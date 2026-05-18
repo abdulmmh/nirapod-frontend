@@ -213,7 +213,6 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
   }
 
   loadZones(): void {
-    // taxpayer এর district থেকে zone load করব
     const district = this.taxpayer?.presentAddress?.district;
     if (!district) {
       this.toast.warning('Taxpayer has no district address. Please edit profile first.');
@@ -221,7 +220,6 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
     }
 
     this.loadingZones = true;
-    // আগে সব districts load করে match করব
     this.http.get<District[]>(API_ENDPOINTS.MASTER_DATA.DISTRICTS)
       .subscribe({
         next: (districts) => {

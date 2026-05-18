@@ -348,6 +348,66 @@
         <i class="bi bi-x-circle-fill"></i>
         {{ isProcessing ? 'Processing...' : 'Reject Application' }}
       </button>
+      <button
+        *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER', 'TAX_OFFICER']"
+        class="btn-notice"
+        (click)="openNoticeModal(tp!.id)">
+        <i class="bi bi-bell-fill"></i> Notice
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Send Notice Modal -->
+<div class="modal-overlay" *ngIf="showNoticeModal">
+  <div class="modal-card" style="max-width: 500px;">
+    <div class="modal-accent" style="background: #1a3f8f;"></div>
+    <div class="modal-icon-wrap" style="background:#e8eeff;">
+      <i class="bi bi-bell-fill" style="color:#1a3f8f; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Send Notice to Taxpayer</p>
+
+    <div class="modal-form">
+      <div class="modal-field">
+        <label>Notice Type</label>
+        <select [(ngModel)]="noticeType">
+          <option>General</option>
+          <option>Tax Due</option>
+          <option>Audit Notice</option>
+          <option>Compliance</option>
+          <option>Reminder</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Priority</label>
+        <select [(ngModel)]="noticePriority">
+          <option>Low</option>
+          <option>Normal</option>
+          <option>High</option>
+          <option>Urgent</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Subject *</label>
+        <input type="text" [(ngModel)]="noticeSubject"
+               placeholder="Enter notice subject"/>
+      </div>
+      <div class="modal-field">
+        <label>Message *</label>
+        <textarea [(ngModel)]="noticeBody" rows="4"
+                  placeholder="Enter notice message..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="closeNoticeModal()">Cancel</button>
+      <button class="btn-modal-confirm"
+              style="background:#1a3f8f;"
+              (click)="confirmSendNotice()"
+              [disabled]="isSendingNotice">
+        <i class="bi bi-send-fill"></i>
+        {{ isSendingNotice ? 'Sending...' : 'Send Notice' }}
+      </button>
     </div>
   </div>
 </div>

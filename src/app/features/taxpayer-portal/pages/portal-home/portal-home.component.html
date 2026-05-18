@@ -25,30 +25,34 @@
   </div>
 
   <!-- Profile Completion Card -->
-  <div class="completion-card" *ngIf="missingFields.length > 0">
-    <div class="completion-header">
-      <div class="completion-left">
-        <span class="completion-title">Profile Completion</span>
-        <span class="completion-hint">Complete your profile to get full access</span>
-      </div>
-      <span class="completion-percent" [ngStyle]="{'color': completionColor}">
-        {{ profileCompletion }}%
-      </span>
+<div class="completion-card" *ngIf="missingFields.length > 0">
+  <div class="completion-header">
+    <div class="completion-left">
+      <span class="completion-title">Profile Completion</span>
+      <span class="completion-hint">Complete your profile to get full access</span>
     </div>
+    <span class="completion-percent" [ngStyle]="{'color': completionColor}">
+      {{ profileCompletion }}%
+    </span>
+  </div>
 
-    <div class="completion-bar">
-      <div class="completion-fill"
-           [ngStyle]="{'width': profileCompletion + '%', 'background': completionColor}">
-      </div>
-    </div>
-
-    <div class="missing-section">
-      <span class="missing-title">Missing:</span>
-      <div class="missing-tags">
-        <span *ngFor="let f of missingFields" class="missing-tag">{{ f }}</span>
-      </div>
+  <div class="completion-bar">
+    <div class="completion-fill"
+         [ngStyle]="{'width': profileCompletion + '%', 'background': completionColor}">
     </div>
   </div>
+
+  <div class="missing-section">
+    <span class="missing-title">Missing:</span>
+    <div class="missing-tags">
+      <span *ngFor="let f of missingFields" class="missing-tag">{{ f }}</span>
+    </div>
+  </div>
+
+  <button (click)="onComplete()" class="complete-btn">
+    Complete Profile →
+  </button>
+</div>
 
   <!-- Profile Complete Banner -->
   <div class="completion-done" *ngIf="missingFields.length === 0">

@@ -36,23 +36,37 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     if (userRole === Role.TAXPAYER) {
 
       // PENDING_REVIEW 
-      if (approvalStatus === 'PENDING_REVIEW' &&
-          !state.url.startsWith('/my-portal/application-status')) {
-        this.router.navigate(['/my-portal/application-status']);
-        return false;
+      if (approvalStatus === 'PENDING_REVIEW') {
+        const allowed =
+          state.url.startsWith('/my-portal/application-status') ||
+          state.url.includes('/taxpayers/edit/')   ||
+          state.url.includes('/my-portal/notices');
+
+        if (!allowed) {
+          this.router.navigate(['/my-portal/application-status']);
+          return false;
+        }
       }
 
       // REJECTED 
-      if (approvalStatus === 'REJECTED' &&
-          !state.url.startsWith('/my-portal/application-status')) {
-        this.router.navigate(['/my-portal/application-status']);
-        return false;
+      if (approvalStatus === 'REJECTED') {
+        const allowed =
+          state.url.startsWith('/my-portal/application-status') ||
+          state.url.includes('/taxpayers/edit/')       ||
+          state.url.includes('/my-portal/notices');   
+
+        if (!allowed) {
+          this.router.navigate(['/my-portal/application-status']);
+          return false;
+        }
       }
 
       // APPROVED 
-      if (!state.url.startsWith('/my-portal')) {
-        this.router.navigate(['/my-portal']);
-        return false;
+      if (approvalStatus === 'APPROVED') {
+        if (!state.url.startsWith('/my-portal')) {
+          this.router.navigate(['/my-portal']);
+          return false;
+        }
       }
     }
 
