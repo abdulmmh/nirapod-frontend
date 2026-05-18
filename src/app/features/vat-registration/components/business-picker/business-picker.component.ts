@@ -10,18 +10,10 @@ import { ToastService } from '../../../../shared/toast/toast.service';
 export class BusinessPickerComponent {
   @Input() businesses: BusinessVatStatus[] = [];
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 43206aa5a978ca012497e25b7f5387c2b0d42be3
   @Input() loading = false;
 
   @Input() selected: BusinessVatStatus | null = null;
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 43206aa5a978ca012497e25b7f5387c2b0d42be3
   @Output() businessSelected = new EventEmitter<BusinessVatStatus>();
 
   constructor(private toast: ToastService) {}
