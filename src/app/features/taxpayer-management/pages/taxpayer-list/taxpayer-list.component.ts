@@ -226,11 +226,10 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     this.taxCircles    = [];
     this.showApproveModal = true;
 
-    // Taxpayer find করো
     this.selectedTaxpayerForApproval = 
       this.taxpayers.find(tp => tp.id === id) || null;
 
-    // Address আছে → district দিয়ে zones pre-load
+    // Address 
     const district = 
       this.selectedTaxpayerForApproval?.presentAddress?.district;
 
@@ -344,6 +343,8 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
       return;
     }
 
+    
+
     this.isProcessing = true;
     const url = `${API_ENDPOINTS.TAXPAYERS.LIST}/${this.pendingApprovalId}/approve`;
 
@@ -368,14 +369,18 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     this.isProcessing = true;
 
     this.http.post(API_ENDPOINTS.NOTICES.CREATE, {
-      taxpayerId: taxpayerId,
-      title:      'Action Required: Complete Your Profile',
-      message:    'Your registration application is pending approval. ' +
+      taxpayerId:  taxpayerId,
+      subject:     'Action Required: Complete Your Profile',   
+      body:        'Your registration application is pending approval. ' +
                   'Please complete your profile by adding your present address ' +
-                  '(Division and District) to proceed with TIN issuance.',
-      noticeType: 'Profile Completion',
-      priority:   'High',
-      status:     'Active'
+                  '(Division and District) to proceed with TIN issuance.',    
+      noticeType:  'General',                                  
+      priority:    'High',
+      targetType:  'Specific Taxpayer',                        
+      issuedBy:    'System',
+      issuedDate:  new Date().toISOString().split('T')[0],     
+      dueDate:     null,
+      attachmentName: null
     }).pipe(
       takeUntil(this.destroy$),
       finalize(() => this.isProcessing = false)
@@ -476,4 +481,6 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
    getPhotoUrl(photoPath: string): string {
     return 'http://localhost:8080' + photoPath;
   }
+
+  
 }

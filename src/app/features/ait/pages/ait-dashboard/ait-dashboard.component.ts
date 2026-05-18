@@ -182,23 +182,23 @@ export class AitDashboardComponent implements OnInit {
 
   viewRecord(id: number | undefined) {
     if (id) {
-      this.router.navigate(['/aits/view', id]);
+      this.router.navigate(['/ait/view', id]);
     }
   }
 
   continueEditingDraft(id: number | undefined) {
     if (id) {
-      this.router.navigate(['/aits/edit', id]);
+      this.router.navigate(['/ait/edit', id]);
     }
   }
 
   createNewAit() {
-    this.router.navigate(['/aits/create']);
+    this.router.navigate(['/ait/create']);
   }
 
   uploadDocuments(id: number | undefined) {
     if (id) {
-      this.router.navigate(['/aits/upload-docs', id]);
+      this.router.navigate(['/ait/upload-docs', id]);
     }
   }
 

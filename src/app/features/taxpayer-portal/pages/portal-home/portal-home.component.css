@@ -23,7 +23,11 @@
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* Profile Card */
 .profile-card {
@@ -33,7 +37,7 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .avatar-wrap {
@@ -63,7 +67,9 @@
   justify-content: center;
 }
 
-.profile-info { flex: 1; }
+.profile-info {
+  flex: 1;
+}
 
 .profile-info h2 {
   font-size: 20px;
@@ -85,8 +91,14 @@
   border-radius: 20px;
 }
 
-.badge.green { background: #e1f5ee; color: #085041; }
-.badge.blue  { background: #e6f1fb; color: #0c447c; }
+.badge.green {
+  background: #e1f5ee;
+  color: #085041;
+}
+.badge.blue {
+  background: #e6f1fb;
+  color: #0c447c;
+}
 
 .tin {
   font-size: 13px;
@@ -94,14 +106,16 @@
   margin: 0;
 }
 
-.tin.pending { color: #e67e22; }
+.tin.pending {
+  color: #e67e22;
+}
 
 /* Completion Card */
 .completion-card {
   background: #fff;
   border-radius: 16px;
   padding: 20px 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   border-left: 4px solid #e67e22;
 }
 
@@ -189,7 +203,10 @@
   transition: background 0.2s;
 }
 
-.complete-btn:hover { background: #155d38; color: #fff; }
+.complete-btn:hover {
+  background: #155d38;
+  color: #fff;
+}
 
 /* Done banner */
 .completion-done {
@@ -215,7 +232,7 @@
   background: #fff;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
 }
 
 .stat-label {
@@ -233,11 +250,20 @@
   margin-bottom: 4px;
 }
 
-.stat-value.green { color: #1a7a4a; }
-.stat-value.red   { color: #c0392b; }
-.stat-value.small { font-size: 16px; }
+.stat-value.green {
+  color: #1a7a4a;
+}
+.stat-value.red {
+  color: #c0392b;
+}
+.stat-value.small {
+  font-size: 16px;
+}
 
-.stat-sub { font-size: 12px; color: #aaa; }
+.stat-sub {
+  font-size: 12px;
+  color: #aaa;
+}
 
 /* Section title */
 .section-title {
@@ -265,18 +291,22 @@
   gap: 10px;
   text-decoration: none;
   color: #111;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
   position: relative;
 }
 
 .menu-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   color: #111;
 }
 
-.menu-icon { font-size: 28px; }
+.menu-icon {
+  font-size: 28px;
+}
 
 .menu-label {
   font-size: 13px;
@@ -303,7 +333,9 @@
   gap: 12px;
 }
 
-.coming-soon-icon { font-size: 20px; }
+.coming-soon-icon {
+  font-size: 20px;
+}
 
 .coming-soon-text {
   display: flex;
@@ -311,5 +343,42 @@
   gap: 2px;
 }
 
-.coming-soon-text strong { font-size: 13px; color: #333; }
-.coming-soon-text span   { font-size: 12px; color: #888; }
+.coming-soon-text strong {
+  font-size: 13px;
+  color: #333;
+}
+.coming-soon-text span {
+  font-size: 12px;
+  color: #888;
+}
+
+.completion-done {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* ← left e icon+text, right e button */
+}
+
+.done-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #fff;
+  border: 1px solid #1a7a4a;
+  color: #1a7a4a;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.edit-profile-btn:hover {
+  background: #e8faf0;
+}

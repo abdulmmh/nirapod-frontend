@@ -29,6 +29,7 @@ const routes: Routes = [
       import('./features/public-verify/public-verify/public-verify.module')
         .then(m => m.PublicVerifyModule)
   },
+  
   // Public Registration
       { path: 'register', 
         loadChildren: () =>

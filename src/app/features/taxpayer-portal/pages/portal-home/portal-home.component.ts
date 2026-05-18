@@ -178,6 +178,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
 
   // ── Profile Completion ────────────────────────────────────────
 
+
   get profileCompletion(): number {
     if (!this.taxpayer) return 0;
     const tp = this.taxpayer;
@@ -244,6 +245,14 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
     }
 
     return missing;
+  }
+
+  get isProfileApprovalReady(): boolean {
+    if (!this.taxpayer) return false;
+    return !!(
+      this.taxpayer.presentAddress?.district &&
+      this.taxpayer.presentAddress?.division
+    );
   }
 
   logout(): void {
