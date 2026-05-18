@@ -13,8 +13,8 @@ export interface Refund {
   id: number;
   refundNo: string;
   taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
+  taxpayerName: string;
+  tinNumber: string;
   refundType: RefundType;
   refundMethod: RefundMethod;
   claimAmount: number;
@@ -36,7 +36,7 @@ export interface Refund {
 }
 
 export interface RefundCreateRequest {
-  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
+  taxpayerId: number | null;
   refundType: string;
   refundMethod: string;
   claimAmount: number;

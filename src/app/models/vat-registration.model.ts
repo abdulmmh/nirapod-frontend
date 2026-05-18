@@ -24,7 +24,6 @@ export interface VatRegistration {
   division:         string;
   vatZone:          string;
   vatCircle:        string;
-  /** Persisted DB column (`zone_id`). Used in edit cascade restore. */
   zoneId:           number;
   status:           VatStatus;
   remarks:          string;

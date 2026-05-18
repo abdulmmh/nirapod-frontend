@@ -6,8 +6,8 @@ export interface Penalty {
   id: number;
   penaltyNo: string;
   taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
+  taxpayerName: string;
+  tinNumber: string;
   penaltyType: PenaltyType;
   severity: PenaltySeverity;
   penaltyAmount: number;
@@ -27,7 +27,7 @@ export interface Penalty {
 }
 
 export interface PenaltyCreateRequest {
-  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
+  taxpayerId: number | null;
   penaltyType: string;
   severity: string;
   penaltyAmount: number;

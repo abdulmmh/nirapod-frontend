@@ -16,7 +16,6 @@ export class LoginComponent {
   errorMsg = '';
   showPassword = false;
 
-  // Quick-login demo accounts
   demoAccounts = [
     { label: 'Super Admin', email: 'admin@vattax.gov.bd', role: 'SUPER_ADMIN' },
     {

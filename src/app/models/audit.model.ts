@@ -6,8 +6,8 @@ export interface Audit {
   id: number;
   auditNo: string;
   taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
+  taxpayerName: string;
+  tinNumber: string;
   auditType: AuditType;
   priority: AuditPriority;
   assessmentYear: string;
@@ -25,7 +25,7 @@ export interface Audit {
 }
 
 export interface AuditCreateRequest {
-  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
+  taxpayerId: number | null;
   auditType: string;
   priority: string;
   assessmentYear: string;

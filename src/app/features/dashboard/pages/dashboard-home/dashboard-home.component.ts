@@ -48,7 +48,7 @@ export class DashboardHomeComponent
   hasError = false;
   
 
-  years = ['2024-25', '2023-24', '2022-23']; // fallback until API loads
+  years = ['2024-25', '2023-24', '2022-23'];
 
   // ── Fiscal Years ──
   fiscalYears: FiscalYear[] = [];
@@ -403,7 +403,6 @@ export class DashboardHomeComponent
       amount: p.amount,
       type: p.paymentType,
       date: p.paymentDate,
-      // backend sends 'Completed'; CSS class expects 'Cleared'
       status: p.status === 'Completed' ? 'Cleared' : p.status,
     }));
   }

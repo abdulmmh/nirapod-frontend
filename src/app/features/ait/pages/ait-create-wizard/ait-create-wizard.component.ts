@@ -113,7 +113,6 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   }
 
   loadTransactions(): void {
-    // In real app, fetch from API endpoint for import duty records
     this.transactionList = this.mockTransactions;
     this.filteredTransactions = [...this.transactionList];
   }
@@ -228,7 +227,6 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
       this.successMessage = `AIT successfully created and submitted! Reference: ${this.newAitRefNo}`;
       sessionStorage.removeItem('ait_draft');
 
-      // Redirect after 3 seconds
       timer(3000).pipe(takeUntil(this.destroy$))
         .subscribe(() => this.router.navigate(['/aits/dashboard']));
 

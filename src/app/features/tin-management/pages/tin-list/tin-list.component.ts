@@ -86,7 +86,6 @@ export class TinListComponent implements OnInit, OnDestroy {
   }
 
   private matchesSearch(t: Tin, term: string): boolean {
-    // Null-safe search logic
     const tinNo = t.tinNumber ? t.tinNumber.toLowerCase() : '';
     const name = t.taxpayerName ? t.taxpayerName.toLowerCase() : '';
     const category = t.tinCategory ? t.tinCategory.toLowerCase() : '';

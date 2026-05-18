@@ -6,8 +6,8 @@ export interface Document {
   id: number;
   documentNo: string;
   taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
+  taxpayerName: string;
+  tinNumber: string;
   documentType: DocumentType;
   documentCategory: DocumentCategory;
   documentTitle: string;
@@ -23,7 +23,7 @@ export interface Document {
 }
 
 export interface DocumentCreateRequest {
-  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
+  taxpayerId: number | null;
   documentType: string;
   documentCategory: string;
   documentTitle: string;

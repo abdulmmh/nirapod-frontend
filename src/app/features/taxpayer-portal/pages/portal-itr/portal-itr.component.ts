@@ -24,9 +24,7 @@ export class PortalItrComponent implements OnInit, OnDestroy {
     'Rejected', 'Overdue', 'Amended', 'Send Back',
   ];
 
-  // ── returnUrl passed to child routes so they know where to come back ──
-  // income-tax-return-create and income-tax-return-view both read this
-  // query param in their onCancel() / onBack() methods.
+  
   private readonly RETURN_URL = '/my-portal/itr';
 
   private destroy$ = new Subject<void>();
@@ -119,11 +117,7 @@ export class PortalItrComponent implements OnInit, OnDestroy {
 
   // ── Navigation ────────────────────────────────────────────────────────────
 
-  /**
-   * Navigate to the existing create component, passing returnUrl so that
-   * onCancel() and goToList() in that component know to come back here
-   * instead of going to the officer list.
-   */
+ 
   fileNew(): void {
     this.router.navigate(
       ['/my-portal/income-tax-returns/create'],
@@ -131,10 +125,7 @@ export class PortalItrComponent implements OnInit, OnDestroy {
     );
   }
 
-  /**
-   * Navigate to the existing view component, passing returnUrl so that
-   * onBack() in that component comes back to the portal, not the officer list.
-   */
+  
   view(id: number): void {
     this.router.navigate(
       ['/my-portal/income-tax-returns/view', id],

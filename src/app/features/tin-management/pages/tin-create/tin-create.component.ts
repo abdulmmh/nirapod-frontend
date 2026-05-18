@@ -148,7 +148,6 @@ export class TinCreateComponent implements OnDestroy {
       )
       .subscribe({
         next: (data) => {
-          // FIX: filter zones where name is null/empty (backend data quality guard)
           this.taxZones = data.filter((z) => !!z.name);
           if (this.taxZones.length === 0)
             this.toast.info('No tax zones found for this district.');
@@ -161,7 +160,6 @@ export class TinCreateComponent implements OnDestroy {
     this.form.taxCircle = '';
     this.taxCircles = [];
 
-    // FIX: DB field is 'name', was 'name' — zone.name was always undefined
     const zone = this.taxZones.find((z) => z.name === this.form.taxZone);
     if (!zone) return;
 
@@ -257,7 +255,6 @@ export class TinCreateComponent implements OnDestroy {
       this.form.nid = taxpayer.nid || '';
     }
 
-    // Address auto-fill cascade
     const addr = taxpayer.presentAddress;
     if (addr) {
       this.form.address = [addr.houseNo, addr.roadVillage, addr.thana]
@@ -289,8 +286,6 @@ export class TinCreateComponent implements OnDestroy {
                 if (matchedDist) {
                   this.form.district = matchedDist.name;
                   this.onDistrictChange();
-                  // NOTE: Zone & Circle cannot be auto-filled from taxpayer address —
-                  // taxpayer record doesn't store taxZone/taxCircle. User must select manually.
                 }
               },
               error: () =>

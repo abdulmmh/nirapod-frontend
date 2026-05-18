@@ -224,7 +224,6 @@ export class OfficerDashboardComponent implements OnInit {
   }
 
   // ── SLA Helpers ───────────────────────────────────────
-  /** Returns remaining SLA hours (negative = overdue) */
   getSlaHours(record: AitRecord): number {
     if (!record.createdAt) return this.SLA_HOURS;
     const created = new Date(record.createdAt).getTime();

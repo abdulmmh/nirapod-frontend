@@ -23,11 +23,6 @@ const routes: Routes = [
     data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] },
   },
   {
-    /**
-     * Success route — placed before 'view/:id' so the static segment
-     * 'success' is matched before the dynamic ':id' segment.
-     * Accessible only to roles that can create registrations.
-     */
     path: 'success',
     component: VatRegistrationSuccessComponent,
     canActivate: [AuthGuard],

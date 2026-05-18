@@ -19,11 +19,6 @@ export class VatRegistrationService {
   ) {}
 
   // ── Mock data ─────────────────────────────────────────────────────────────
-  /**
-   * Returned by READ operations when the backend is unreachable (HTTP status 0).
-   * Lets officers continue reviewing data during planned maintenance or network
-   * outages. WRITE operations never use mock data — they always propagate errors.
-   */
   private readonly MOCK: VatRegistration[] = [
     {
       id: 1,
@@ -129,13 +124,7 @@ export class VatRegistrationService {
 
   // ── Read: all ──────────────────────────────────────────────────────────────
 
-  /**
-   * Fetches all non-deleted VAT registrations.
-   *
-   * Offline strategy: if the request fails due to a network error (status 0),
-   * the mock dataset is returned so the list page remains usable.
-   * Server errors (4xx / 5xx) are re-thrown — the ErrorInterceptor handles them.
-   */
+
   getAll(): Observable<VatRegistration[]> {
     return this.http
       .get<VatRegistration[]>(API_ENDPOINTS.VAT_REGISTRATIONS.LIST)
@@ -144,13 +133,6 @@ export class VatRegistrationService {
 
   // ── Read: by ID ────────────────────────────────────────────────────────────
 
-  /**
-   * Fetches a single VAT registration by ID.
-   *
-   * Offline strategy: if the request fails due to a network error, the matching
-   * mock record is returned. If no mock record exists for the given ID the error
-   * is re-thrown so the component can redirect to the list.
-   */
   getById(id: number): Observable<VatRegistration> {
     return this.http
       .get<VatRegistration>(API_ENDPOINTS.VAT_REGISTRATIONS.GET(id))
@@ -170,24 +152,16 @@ export class VatRegistrationService {
 
   // ── Write: create ──────────────────────────────────────────────────────────
 
-  /**
-   * Submits a new VAT registration.
-   * Errors are always propagated — writing mock data for a creation is unsafe.
-   */
   create(payload: VatRegistrationCreateRequest): Observable<VatRegistration> {
     return this.http.post<VatRegistration>(
       API_ENDPOINTS.VAT_REGISTRATIONS.CREATE,
       payload,
     );
-    // No catchError: let ErrorInterceptor surface 400 / 409 to the officer.
+    
   }
 
   // ── Write: update ──────────────────────────────────────────────────────────
 
-  /**
-   * Updates an existing VAT registration.
-   * Errors are always propagated.
-   */
   update(id: number, data: Partial<VatRegistration>): Observable<VatRegistration> {
     return this.http.put<VatRegistration>(
       API_ENDPOINTS.VAT_REGISTRATIONS.UPDATE(id),
@@ -197,24 +171,13 @@ export class VatRegistrationService {
 
   // ── Write: delete (soft) ───────────────────────────────────────────────────
 
-  /**
-   * Soft-deletes a VAT registration.
-   * Errors are always propagated.
-   */
+
   remove(id: number): Observable<void> {
     return this.http.delete<void>(API_ENDPOINTS.VAT_REGISTRATIONS.DELETE(id));
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────
 
-  /**
-   * Shared offline handler for READ operations.
-   *
-   * status === 0  → network failure, backend offline.
-   *                 Return the fallback data and show a single warning toast.
-   * status !== 0  → backend returned an error response (4xx/5xx).
-   *                 Re-throw so ErrorInterceptor surfaces it as a user toast.
-   */
   private handleReadError<T>(
     err: HttpErrorResponse,
     fallback: T,

@@ -14,7 +14,7 @@ export class RegStepIdentityComponent implements OnInit {
 
   form!: FormGroup;
 
-  /** Mirrors the toggle checkbox — drives conditional validation & template */
+  
   hasExistingTin = false;
 
   private readonly nidPattern      = /^\d{10}$|^\d{17}$/;
@@ -33,7 +33,7 @@ export class RegStepIdentityComponent implements OnInit {
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
-    // Restore toggle state when navigating back
+   
     this.hasExistingTin = this.state.hasExistingTin ?? false;
 
     if (this.state.accountCategory === 'Individual') {
@@ -46,17 +46,13 @@ export class RegStepIdentityComponent implements OnInit {
   get isIndividual(): boolean { return this.state.accountCategory === 'Individual'; }
   ctrl(name: string) { return this.form.get(name); }
 
-  /**
-   * Called when the "I already have a TIN" checkbox is toggled.
-   * Swaps validation: when ON, only existingTin is required.
-   * When OFF, the normal NID / date-of-birth / gender fields are required.
-   */
+
   onToggleExistingTin(checked: boolean): void {
     this.hasExistingTin = checked;
 
     if (this.isIndividual) {
       if (checked) {
-        // Disable mandatory identity fields — only existingTin required
+        
         this.ctrl('nid')?.clearValidators();
         this.ctrl('nid')?.updateValueAndValidity();
         this.ctrl('dateOfBirth')?.clearValidators();
@@ -69,7 +65,7 @@ export class RegStepIdentityComponent implements OnInit {
         ]);
         this.ctrl('existingTin')?.updateValueAndValidity();
       } else {
-        // Restore mandatory fields
+
         this.ctrl('nid')?.setValidators([Validators.required, Validators.pattern(this.nidPattern)]);
         this.ctrl('nid')?.updateValueAndValidity();
         this.ctrl('dateOfBirth')?.setValidators([Validators.required]);
@@ -80,7 +76,7 @@ export class RegStepIdentityComponent implements OnInit {
         this.ctrl('existingTin')?.updateValueAndValidity();
       }
     } else {
-      // Company form: existingTin only
+
       if (checked) {
         this.ctrl('existingTin')?.setValidators([
           Validators.required,
@@ -95,16 +91,16 @@ export class RegStepIdentityComponent implements OnInit {
 
   private buildIndividualForm(): void {
     this.form = this.fb.group({
-      // TIN toggle input — starts optional, becomes required when toggled on
+     
       existingTin:  [this.state.existingTin,  []],
-      // Identity fields — required by default, cleared when existingTin toggled on
+      
       nid:          [this.state.nid,          [Validators.required, Validators.pattern(this.nidPattern)]],
       dateOfBirth:  [this.state.dateOfBirth,  [Validators.required]],
       gender:       [this.state.gender,       [Validators.required]],
       profession:   [this.state.profession,   []],
     });
 
-    // If navigating back with toggle on, re-apply correct validators
+    
     if (this.hasExistingTin) {
       this.onToggleExistingTin(true);
     }

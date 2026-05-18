@@ -36,7 +36,6 @@ export class AitDashboardComponent implements OnInit {
     creditedAmount: 0
   };
 
-  // Tax payer info (would come from auth service in real app)
   taxpayerInfo = {
     fiscalYear: '2024-2025',
     tin: '123456789012'

@@ -32,7 +32,6 @@ export class TaxableProductEditComponent implements OnInit {
     status:         'Active'
   };
 
-  /** Read-only tax preview derived from the selected TaxStructure. */
   taxRatePreview: number | null = null;
   taxTypePreview: string        = '';
 
@@ -54,10 +53,6 @@ export class TaxableProductEditComponent implements OnInit {
 
   // ── Data loading ──────────────────────────────────────────────────────────
 
-  /**
-   * Load all dropdowns first, then load the product so that the
-   * tax-rate preview can be resolved as soon as the form is populated.
-   */
   private loadDropdownsThenProduct(): void {
     let categoriesDone    = false;
     let unitsDone         = false;
@@ -97,7 +92,6 @@ export class TaxableProductEditComponent implements OnInit {
           description:    product.description,
           status:         product.status
         };
-        // Seed the preview immediately without waiting for a user event
         this.refreshTaxPreview(product.taxStructureId);
         this.initialising = false;
       },

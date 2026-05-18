@@ -231,13 +231,10 @@ export const API_ENDPOINTS = {
     DELETE:        (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
     GET:           (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
  
-    /** GET  /api/tax-structures/master-data — taxTypes, applicables, statuses, rateTypes */
     MASTER_DATA:   `${API_BASE_URL}/tax-structures/master-data`,
  
-    /** POST /api/tax-structures/{id}/preview  body: { amount } */
     PREVIEW:       (id: number) => `${API_BASE_URL}/tax-structures/${id}/preview`,
  
-    /** POST /api/tax-structures/preview  body: { amount, rateType, rate, slabs } */
     PREVIEW_ADHOC: `${API_BASE_URL}/tax-structures/preview`,
  
     BY_SOURCE:     (source: string) => `${API_BASE_URL}/tax-structures?source=${source}`,

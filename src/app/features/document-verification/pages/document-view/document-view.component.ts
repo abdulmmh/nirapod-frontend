@@ -77,7 +77,6 @@ export class DocumentViewComponent implements OnInit {
             this.toast.info(`This document is currently ${data.status}.`);
           }
         },
-          // FIX #1: Removed fake fallback array entirely — show a real error instead
           error: (error) => {
             console.error('Failed to load document details', error);
             this.toast.error('Failed to load document details. Please go back and try again.');

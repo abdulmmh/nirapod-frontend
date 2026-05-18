@@ -17,11 +17,6 @@ import { VatRegistration } from '../../../../models/vat-registration.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
 
 // ── VAT-rate map ───────────────────────────────────────────────────────────────
-// Centralises the rate logic so it is easy to update when BD VAT law changes.
-// 'Standard' → 15 %  (core rate under the VAT & SD Act 2012)
-// 'Zero Rated' → 0 %  (exports, specified goods)
-// 'Exempt'    → 0 %  (basic necessities, healthcare, etc.)
-// 'Special'   → 5 %  (truncated rates — e.g. restaurants, construction)
 const VAT_RATES: Record<string, number> = {
   'Standard'   : 0.15,
   'Zero Rated' : 0.00,
@@ -30,9 +25,6 @@ const VAT_RATES: Record<string, number> = {
 };
 
 // ── Return-period enum alignment ───────────────────────────────────────────────
-// Maps exactly to the Spring Boot VatReturn.returnPeriod column.
-// The backend stores plain strings ('Monthly', 'Quarterly', 'Annually') — no Java
-// @Enumerated needed, but these must match perfectly to pass server-side validation.
 export type ReturnPeriod = 'Monthly' | 'Quarterly' | 'Annually';
 
 // ── Custom validator: submissionDate must not precede the start of the filing period
@@ -46,7 +38,6 @@ function submissionNotBeforePeriodValidator(): ValidatorFn {
 
     if (!submissionDate || !periodMonth || !periodYear) return null;
 
-    // Derive the first day of the filing period
     let periodStart: Date;
 
     if (returnPeriod === 'Quarterly') {
@@ -54,7 +45,6 @@ function submissionNotBeforePeriodValidator(): ValidatorFn {
       const month = quarterMap[periodMonth] ?? 0;
       periodStart = new Date(Number(periodYear), month, 1);
     } else {
-      // Monthly or Annually — periodMonth is a month name
       const monthNames = [
         'January','February','March','April','May','June',
         'July','August','September','October','November','December',
@@ -66,7 +56,6 @@ function submissionNotBeforePeriodValidator(): ValidatorFn {
 
     const submission = new Date(submissionDate);
 
-    // submissionDate must be ≥ the first day of the period
     if (submission < periodStart) {
       return { submissionBeforePeriod: true };
     }
@@ -133,7 +122,7 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
         taxableSupplies  : [0, Validators.min(0)],
         exemptSupplies   : [0, Validators.min(0)],
         zeroRatedSupplies: [0, Validators.min(0)],
-        outputTax        : [{ value: 0, disabled: true }],   // always auto-calculated
+        outputTax        : [{ value: 0, disabled: true }],
         inputTax         : [0, Validators.min(0)],
         taxPaid          : [0, Validators.min(0)],
         submittedBy      : [''],
@@ -143,19 +132,12 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
     );
   }
 
-  /**
-   * Reactive wiring:
-   *  1. taxableSupplies → auto-recalculate outputTax using the selected reg's vatCategory rate
-   *  2. returnPeriod   → reset periodMonth when period type changes (months ↔ quarters)
-   */
   private wireValueChanges(): void {
-    // 1. Output tax auto-calculation via valueChanges (replaces the (input) binding)
     this.form.get('taxableSupplies')!
       .valueChanges
       .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((taxable: number) => this.recalcOutputTax(taxable ?? 0));
 
-    // 2. Reset periodMonth when the filer switches between Monthly/Quarterly/Annually
     this.form.get('returnPeriod')!
       .valueChanges
       .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
@@ -170,7 +152,7 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
     return this.ctrl('returnPeriod')?.value === 'Quarterly' ? this.quarters : this.months;
   }
 
-  // ── Computed display values (real-time; backend always recalculates on save) ──
+  // ── Computed display values ──
 
   get totalSupplies(): number {
     const v = this.form.getRawValue();
@@ -186,12 +168,10 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
     return Math.max(0, this.netTaxPayable - (this.form.getRawValue().taxPaid || 0));
   }
 
-  /** Returns the effective VAT rate (0–1) based on the selected registration's category. */
   get effectiveVatRate(): number {
     return this.selectedReg ? (VAT_RATES[this.selectedReg.vatCategory] ?? 0.15) : 0.15;
   }
 
-  /** Display string, e.g. "15%" or "5%". */
   get effectiveVatRateLabel(): string {
     return `${(this.effectiveVatRate * 100).toFixed(0)}%`;
   }
@@ -208,7 +188,6 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
     this.form.patchValue({ vatRegistrationId: reg.id });
     this.form.get('vatRegistrationId')!.disable();
 
-    // Re-run output-tax calculation with the newly-known VAT rate
     this.recalcOutputTax(this.form.get('taxableSupplies')!.value ?? 0);
   }
 
@@ -233,7 +212,6 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    // getRawValue() includes disabled controls (vatRegistrationId, outputTax)
     const payload = this.form.getRawValue();
 
     this.http.post(API_ENDPOINTS.VAT_RETURNS.CREATE, payload)
@@ -247,14 +225,10 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
               { relativeTo: this.route }
             ));
         },
-        // 409 Conflict and generic errors are handled by the global HttpInterceptor.
-        // This subscriber only needs to react to validation errors (400) that carry
-        // a human-readable message from the backend.
         error: (err) => {
           if (err?.status === 400) {
             this.toast.error(err.error?.message || 'Invalid data. Please check all fields.');
           }
-          // All other statuses (409, 500, etc.) → global interceptor shows the toast.
         },
       });
   }

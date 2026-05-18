@@ -205,7 +205,6 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
 
   // ── Tax computation (step 4) ──────────────────────────────────────────────
 
-  /** HRA exemption: 50% of HRA, max ৳ 50,000 */
   get hraExemption(): number {
     return Math.min((this.v2.hra||0) * 0.5, 50000);
   }
@@ -237,7 +236,6 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   }
   get localNetTax():  number { return Math.max(0, this.localGrossTax - this.taxRebate); }
 
-  /** Positive = amount due; negative = refund */
   get taxResult():   number { return this.localNetTax - this.totalTds; }
   get balanceDue():  number { return Math.max(0,  this.taxResult); }
   get refundable():  number { return Math.max(0, -this.taxResult); }
@@ -299,9 +297,8 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
     if (this.isMfsMethod) {
       return !!(v.mfsNumber && v.mfsAmount > 0 && v.mfsDate);
     }
- 
+
     if (this.isCardMethod) {
-      // Card — online gateway, এখন placeholder
       return true;
     }
  
@@ -509,7 +506,6 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
       incomeYear:     s1.incomeYear,
       submissionDate: s1.submissionDate,
       dueDate:        s1.dueDate,
-      // Aggregated from granular step-2 fields — no backend model change needed
       grossIncome:    this.totalGrossIncome,
       exemptIncome:   this.hraExemption,
       taxRebate:      this.taxRebate,
@@ -518,10 +514,8 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
       taxPaid:        0,
       remarks:        this.step6Form.value.remarks || '',
       submittedBy:    this.authService.currentUser?.fullName ?? '',
-      // Fix: TAXPAYER role gets their taxpayerId from the auth session
       taxpayerId: this.selectedTaxpayer?.id ?? this.authService.currentUser?.taxpayerId,
 
-            // Payment info
       paymentMethod:  this.step6Form.value.paymentMethod  || '',
       challanNo:      this.step6Form.value.challanNo      || '',
       challanBank:    this.step6Form.value.challanBank     || '',
@@ -541,7 +535,6 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
             returnId: itr.id,
             filedAt:  new Date().toLocaleString('en-BD'),
           };
-          // If assets were entered in step 5, submit IT10B inline
           if (this.totalAssets > 0) {
             this.submitIT10B(itr.id);
           } else {
@@ -559,7 +552,6 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
 
   private submitIT10B(returnId: number): void {
     const v = this.v5;
-    // Map granular step-5 fields → IT10B backend fields (no backend change)
     const payload = {
       returnId,
       nonAgriculturalProperty: (v.landBuilding||0) + (v.businessCapital||0) + (v.gold||0) + (v.otherAssets||0),
@@ -575,7 +567,6 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
       .subscribe({
         next:  () => { this.currentStep = 7; },
         error: () => {
-          // ITR saved, IT10B failed — still show success but warn
           this.toast.warning('ITR filed. Assets statement could not be saved — file IT-10B separately from the return view.');
           this.currentStep = 7;
         }
@@ -595,7 +586,6 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
  
   goToView(): void {
     if (this.successData) {
-      // Pass returnUrl forward so the view page also knows where to go back
       this.router.navigate(
         ['/my-portal/income-tax-returns/view', this.successData.returnId],
         { queryParams: { returnUrl: this.returnUrl } }

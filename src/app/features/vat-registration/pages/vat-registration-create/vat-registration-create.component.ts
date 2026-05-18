@@ -66,12 +66,6 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   ];
 
   // ── Document upload state ─────────────────────────────────────────────────
-  /**
-   * File objects live in component memory only — they cannot be serialised
-   * to localStorage. Officers must re-attach files after a page refresh.
-   * This is standard behaviour for government document portals.
-   * Actual multipart upload to the backend is deferred to Phase 6.
-   */
   uploadedFiles: Record<DocKey, File | null> = {
     tradeLicense:   null,
     tinCertificate: null,
@@ -84,7 +78,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     { key: 'nidAuthorized',  label: 'NID (Authorized Person)', hint: 'PDF or image — max 5 MB' },
   ];
 
-  private readonly MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
+  private readonly MAX_FILE_BYTES = 5 * 1024 * 1024; 
 
   // ── Dynamic master-data ───────────────────────────────────────────────────
   divisions:  Division[] = [];
@@ -266,7 +260,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   onFileSelected(event: Event, key: DocKey): void {
     const input  = event.target as HTMLInputElement;
     const file   = input.files?.[0];
-    // Reset the input immediately so the same file can be re-selected after removal
+
     input.value  = '';
     if (!file) return;
 
@@ -323,8 +317,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       businesses:       this.businesses,
       selectedBusiness: this.selectedBusiness,
       formValues:       this.form.getRawValue(),
-      // Note: uploadedFiles (File objects) cannot be serialised — officer
-      // must re-attach documents after restoring a draft from a page refresh.
+    
     };
     try { localStorage.setItem(this.DRAFT_KEY, JSON.stringify(draft)); } catch { /* quota */ }
   }
@@ -439,7 +432,6 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
   // ── Step 2 ─────────────────────────────────────────────────────────────────
 
   private loadBusinesses(taxpayerId: number): void {
-    // TODO Phase 6: migrate to BusinessService with mock fallback
     this.loadingBusinesses = true; this.businesses = [];
     this.http
       .get<BusinessVatStatus[]>(API_ENDPOINTS.BUSINESSES.BY_TAXPAYER_VAT_STATUS(taxpayerId))
@@ -531,8 +523,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       remarks:          raw['remarks']       || undefined,
     };
 
-    // TODO Phase 6: attach uploadedFiles as FormData for multipart upload
-
+   
     this.vatService.create(payload)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
       .subscribe({

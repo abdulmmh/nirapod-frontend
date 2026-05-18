@@ -7,7 +7,7 @@ export interface Tin {
   id: number;
   tinNumber: string;
   taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server via FK
+  taxpayerName: string;
   tinCategory: TinCategory;
   nid: string;
   passportNo: string;
@@ -28,7 +28,7 @@ export interface Tin {
 }
 
 export interface TinCreateRequest {
-  taxpayerId: number | null;  // FK — required. taxpayerName NOT sent
+  taxpayerId: number | null;
   tinCategory: string;
   nid: string;
   passportNo: string;

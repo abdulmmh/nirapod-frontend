@@ -271,7 +271,6 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
       (t) => t.id === data.taxpayerType?.id,
     );
 
-    // Format dates for input type="date"
     const formattedData = {
       ...data,
       taxpayerType: matchedType,

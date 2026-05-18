@@ -11,23 +11,6 @@ import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ToastService } from '../../shared/toast/toast.service';
 
-/**
- * Global HTTP Interceptor
- *
- * Handles cross-cutting HTTP error concerns so individual components
- * do not need to duplicate error-handling logic:
- *
- *  401 → clear token, redirect to login
- *  403 → "Access denied" toast
- *  404 → "Not found" toast
- *  409 → Duplicate-record conflict toast (e.g. duplicate VAT return for same BIN + period)
- *  500 → Generic server-error toast
- *
- * Components should only handle errors that require LOCAL context, such as:
- *  - 400 Bad Request (field-level validation with a server message to display inline)
- *
- * Any error not caught here is re-thrown so the component's error callback still fires.
- */
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
@@ -44,8 +27,6 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = localStorage.getItem('auth_token');
 
     if (token) {
-      // File upload হলে Content-Type set করো না
-      // Browser নিজে multipart/form-data set করবে
       const headers: any = {
         Authorization: `Bearer ${token}`
       };
@@ -76,8 +57,6 @@ export class AuthInterceptor implements HttpInterceptor {
             break;
 
           case 409:
-            // Conflict — most commonly a duplicate VAT return for the same BIN + period.
-            // The backend sends a descriptive message in error.error.message.
             this.toast.error(
               error.error?.message || 'A record with these details already exists.',
             );
@@ -88,11 +67,9 @@ export class AuthInterceptor implements HttpInterceptor {
             break;
 
           default:
-            // Let the component decide what to do for anything else (e.g. 400)
             break;
         }
 
-        // Always re-throw so component-level error callbacks still fire if needed
         return throwError(() => error);
       }),
     );

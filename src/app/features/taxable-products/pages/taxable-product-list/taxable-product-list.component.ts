@@ -60,8 +60,6 @@ export class TaxableProductListComponent implements OnInit {
         p.productName.toLowerCase().includes(term) ||
         p.hsCode.toLowerCase().includes(term) ||
         p.category.toLowerCase().includes(term) ||
-        // FIX: taxType enrichProduct এ সবসময় 'N/A' fallback পায়, তাই safe
-        // কিন্তু তবুও optional chaining দেওয়া হলো extra safety-র জন্য
         (p.taxType ?? '').toLowerCase().includes(term),
     );
   }

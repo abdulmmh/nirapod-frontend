@@ -13,18 +13,6 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { VatRegistration } from '../../../../models/vat-registration.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
 
-/**
- * VatRegistrationPickerComponent
- *
- * Responsibilities (only):
- *  - Accept a query string, call the API, filter to Active-only results
- *  - Show results list OR a "selected card + Change button" — never both
- *  - Emit `registrationSelected` when the user picks a record
- *  - Emit `registrationCleared` when the user clicks "Change"
- *
- * The parent (VatReturnCreateComponent) is responsible for patching
- * vatRegistrationId into its own form and storing selectedReg locally.
- */
 @Component({
   selector: 'app-vat-registration-picker',
   templateUrl: './vat-registration-picker.component.html',
@@ -32,22 +20,28 @@ import { ToastService } from '../../../../shared/toast/toast.service';
 })
 export class VatRegistrationPickerComponent implements OnInit, OnDestroy {
 
-  /** Fires once when the user clicks a result row. */
+  /**
+   * Sends the selected active VAT registration to the parent return form.
+   * Result: the parent can enable or populate the VAT return details.
+   */
   @Output() registrationSelected = new EventEmitter<VatRegistration>();
 
-  /** Fires when the user hits the "Change" button on the selected card. */
+  /**
+   * Tells the parent that no VAT registration is selected anymore.
+   * Result: the parent can reset any return data tied to the old selection.
+   */
   @Output() registrationCleared = new EventEmitter<void>();
 
-  // ── Search state ──────────────────────────────────────────────────────────
+  // Search state: controls the search input, loading spinner, and results list.
   searchQuery   = '';
   isSearching   = false;
   hasSearched   = false;
   searchResults : VatRegistration[] = [];
 
-  // ── Selection state ───────────────────────────────────────────────────────
-  /** Set internally after emission so the card renders correctly. */
+  // Selection state: stores the registration currently shown as selected.
   selectedReg: VatRegistration | null = null;
 
+  // Stops active HTTP subscriptions when this component is destroyed.
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -62,12 +56,17 @@ export class VatRegistrationPickerComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ── Computed helpers ──────────────────────────────────────────────────────
+  // Computed helpers
 
+  // Result is true after a registration is selected, so the selected card can show.
   get isSelected(): boolean { return this.selectedReg !== null; }
 
-  // ── Search ────────────────────────────────────────────────────────────────
+  // Search
 
+  /**
+   * Clears old results when the user empties the search box.
+   * Result: the UI returns to its initial "no search yet" state.
+   */
   onSearchInput(): void {
     if (!this.searchQuery.trim()) {
       this.searchResults = [];
@@ -75,6 +74,10 @@ export class VatRegistrationPickerComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Searches VAT registrations by BIN, TIN, or business name.
+   * Result: only Active registrations are shown because only they can file returns.
+   */
   search(): void {
     const q = this.searchQuery.trim();
     if (!q) {
@@ -86,6 +89,7 @@ export class VatRegistrationPickerComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Show a loading state and clear stale results before the new request starts.
     this.isSearching  = true;
     this.hasSearched  = false;
     this.searchResults = [];
@@ -95,12 +99,13 @@ export class VatRegistrationPickerComponent implements OnInit, OnDestroy {
         `${API_ENDPOINTS.VAT_REGISTRATIONS.LIST}?search=${encodeURIComponent(q)}`
       )
       .pipe(
+        // If the user leaves this component, cancel the pending response safely.
         takeUntil(this.destroy$),
         finalize(() => (this.isSearching = false))
       )
       .subscribe({
         next: (data) => {
-          // Only Active registrations can file returns
+          // Result shown to the user: only active businesses appear in the list.
           this.searchResults = data.filter((r) => r.status === 'Active');
           this.hasSearched   = true;
           if (this.searchResults.length === 0) {
@@ -113,11 +118,15 @@ export class VatRegistrationPickerComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ── Selection ─────────────────────────────────────────────────────────────
+  // Selection
 
+  /**
+   * Stores the chosen registration and sends it to the parent component.
+   * Result: search results disappear and the return form can continue below.
+   */
   select(reg: VatRegistration): void {
     this.selectedReg   = reg;
-    this.searchResults = [];    // hide the list immediately
+    this.searchResults = [];
     this.hasSearched   = false;
     this.searchQuery   = '';
 
@@ -125,6 +134,10 @@ export class VatRegistrationPickerComponent implements OnInit, OnDestroy {
     this.toast.success(`"${reg.businessName}" selected. Fill in the return details below.`);
   }
 
+  /**
+   * Removes the current selection and tells the parent to clear related return data.
+   * Result: the user can search again and choose another business.
+   */
   clear(): void {
     this.selectedReg   = null;
     this.searchQuery   = '';

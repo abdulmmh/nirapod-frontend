@@ -125,7 +125,6 @@ export class TaxStructureCreateComponent implements OnInit, OnDestroy {
     this.triggerPreview();
   }
 
-  /** Seed the slab table with Bangladesh FY-2024-25 income-tax slabs as a starting point. */
   private addDefaultSlabs(): void {
     this.form.slabs = [
       { minAmount: 0,         maxAmount: 350000,  rate: 0,  label: 'Up to ৳3,50,000',            sortOrder: 0 },

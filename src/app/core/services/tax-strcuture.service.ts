@@ -14,7 +14,7 @@ import {
   TaxPreviewRequest,
 } from '../../models/tax-structure.model';
 
-/** Fallback master data shown when the API is unreachable (e.g. during development). */
+
 const FALLBACK_MASTER: TaxMasterData = {
   taxTypes:   ['VAT', 'AIT', 'Import Duty', 'Income Tax', 'Excise Duty', 'Supplementary Duty', 'Other'],
   applicables: ['All', 'Individual', 'Company', 'Import', 'Export', 'Service', 'Goods'],
@@ -35,10 +35,6 @@ export class TaxStructureService {
 
   // ── Master Data ────────────────────────────────────────────────────────────
 
-  /**
-   * Fetch dropdown reference values from the backend.
-   * Falls back to FALLBACK_MASTER if the API is unavailable.
-   */
   getMasterData(): Observable<TaxMasterData> {
     return this.http
       .get<TaxMasterData>(API_ENDPOINTS.TAX_STRUCTURES.MASTER_DATA)
@@ -59,9 +55,7 @@ export class TaxStructureService {
     return this.http.post<TaxStructure>(API_ENDPOINTS.TAX_STRUCTURES.CREATE, payload);
   }
 
-  /**
-   * Sends X-Updated-By header so the backend can populate the audit-trail field.
-   */
+
   update(id: number, payload: TaxStructureUpdateRequest): Observable<TaxStructure> {
     const updatedBy = this.authService.currentUser?.fullName
                    || this.authService.currentUser?.fullName
@@ -77,19 +71,13 @@ export class TaxStructureService {
 
   // ── Preview ────────────────────────────────────────────────────────────────
 
-  /**
-   * Ad-hoc preview (Create page — no saved ID yet).
-   * POST /api/tax-structures/preview
-   */
+
   previewAdHoc(req: TaxPreviewRequest): Observable<TaxPreviewResponse> {
     return this.http.post<TaxPreviewResponse>(
       API_ENDPOINTS.TAX_STRUCTURES.PREVIEW_ADHOC, req);
   }
 
-  /**
-   * Preview using a saved TaxStructure (Edit / View pages).
-   * POST /api/tax-structures/{id}/preview
-   */
+
   previewById(id: number, amount: number): Observable<TaxPreviewResponse> {
     return this.http.post<TaxPreviewResponse>(
       API_ENDPOINTS.TAX_STRUCTURES.PREVIEW(id), { amount });

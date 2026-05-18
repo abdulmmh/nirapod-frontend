@@ -14,10 +14,8 @@ export class VatRegistrationSuccessComponent implements OnInit, OnDestroy {
 
   registration: VatRegistration | null = null;
 
-  /** Toggled true on init — triggers the CSS fade-in + slide-up animation. */
   animateIn = false;
 
-  /** Clipboard feedback flag — resets to false after 2 seconds. */
   binCopied = false;
 
   constructor(private router: Router, private route: ActivatedRoute) {}
@@ -25,13 +23,6 @@ export class VatRegistrationSuccessComponent implements OnInit, OnDestroy {
   // ── Lifecycle ───────────────────────────────────────────────────────────
 
   ngOnInit(): void {
-    /**
-     * Angular passes router state via history.state.
-     * history.state survives the navigation but is lost on a hard refresh,
-     * which is intentional — the success page is a one-time confirmation view.
-     * If the officer refreshes or navigates directly to /success, we redirect
-     * them to the list rather than showing an empty or broken page.
-     */
     this.registration = (history.state as any)['registration'] ?? null;
 
     if (!this.registration) {
@@ -39,8 +30,6 @@ export class VatRegistrationSuccessComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Defer one tick so Angular renders the base template first,
-    // then applies .animate-in to trigger the CSS transition.
     timer(50).pipe(takeUntil(this.destroy$))
       .subscribe(() => (this.animateIn = true));
   }
@@ -76,7 +65,7 @@ export class VatRegistrationSuccessComponent implements OnInit, OnDestroy {
     try {
       document.execCommand('copy');
       this.flashCopied();
-    } catch { /* silent — clipboard unavailable */ }
+    } catch {}
     document.body.removeChild(el);
   }
 

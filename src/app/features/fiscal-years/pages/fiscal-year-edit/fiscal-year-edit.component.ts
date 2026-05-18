@@ -64,7 +64,6 @@ export class FiscalYearEditComponent implements OnInit, OnDestroy {
           this.form = { ...data };
           this.isLoading = false;
         },
-        // FIX #2: Removed fake fallback data — show a real error instead
         error: () => {
           this.isLoading = false;
           this.errorMsg =

@@ -45,7 +45,6 @@ export class FiscalYearListComponent implements OnInit {
           this.years = data;
           this.isLoading = false;
         },
-        // FIX #1: Removed fake fallback — show a real error message instead
         error: () => {
           this.isLoading = false;
           this.errorMsg =

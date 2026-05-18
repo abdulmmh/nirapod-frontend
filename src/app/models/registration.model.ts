@@ -54,7 +54,6 @@ export interface UserRegistrationRequest {
   phone:           string;
   password:        string;
 
-  /** Present only when the taxpayer already has an offline-issued TIN */
   existingTin?:    string;
 
   // Individual only

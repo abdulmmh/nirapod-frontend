@@ -7,8 +7,8 @@ export interface Notice {
   id: number;
   noticeNo: string;
   taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
+  taxpayerName: string;
+  tinNumber: string;
   subject: string;
   body: string;
   noticeType: NoticeType;
@@ -25,7 +25,7 @@ export interface Notice {
 }
 
 export interface NoticeCreateRequest {
-  taxpayerId: number | null;  // FK — required when targetType = 'Specific Taxpayer'
+  taxpayerId: number | null;
   subject: string;
   body: string;
   noticeType: string;

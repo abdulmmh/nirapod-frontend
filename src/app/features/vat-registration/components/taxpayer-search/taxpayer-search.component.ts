@@ -19,13 +19,10 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
   styleUrls: ['./taxpayer-search.component.css'],
 })
 export class TaxpayerSearchComponent implements OnInit, OnDestroy {
-  /** When true the search input is locked (a taxpayer is already selected). */
   @Input() selectedTaxpayer: Taxpayer | null = null;
 
-  /** Emits when the user selects a taxpayer from results. */
   @Output() taxpayerSelected = new EventEmitter<Taxpayer>();
 
-  /** Emits when the user clears the current selection. */
   @Output() taxpayerCleared = new EventEmitter<void>();
 
   searchQuery = '';
@@ -121,10 +118,6 @@ export class TaxpayerSearchComponent implements OnInit, OnDestroy {
     this.taxpayerCleared.emit();
   }
 
-  /**
-   * Checks if this taxpayer's status is Blacklisted or Suspended.
-   * The backend enforces this too, but we surface it early for UX.
-   */
   isIneligible(tp: Taxpayer): boolean {
     return tp.status === 'Suspended';
   }

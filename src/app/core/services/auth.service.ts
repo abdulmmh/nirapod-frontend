@@ -26,7 +26,6 @@ export class AuthService {
     }
   }
 
-  // ── Login: real API; optional dev-only mock if `environment.useMockAuth` ──
   login(credentials: LoginRequest): Observable<any> {
     return this.http.post<any>(API_ENDPOINTS.AUTH.LOGIN, credentials).pipe(
       tap(response => this.handleLoginSuccess(response)),
@@ -62,7 +61,6 @@ export class AuthService {
     this.currentUserSubject.next(user);
   }
 
-  // ── Dev-only demo users (only used when environment.useMockAuth is true) ──
   private getMockUser(email: string): AuthUser | null {
     const mockUsers: Record<string, AuthUser> = {
       'admin@vattax.gov.bd':       { id: 1, fullName: 'System Admin',       email: 'admin@vattax.gov.bd',       role: Role.SUPER_ADMIN,         token: 'mock-token-admin' },
