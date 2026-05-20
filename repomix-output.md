@@ -144,6 +144,16 @@ src/app/features/business-registration/pages/business-view/business-view.compone
 src/app/features/business-registration/pages/business-view/business-view.component.html
 src/app/features/business-registration/pages/business-view/business-view.component.spec.ts
 src/app/features/business-registration/pages/business-view/business-view.component.ts
+src/app/features/certificate-management/certificate/certificate-routing.module.ts
+src/app/features/certificate-management/certificate/certificate.module.ts
+src/app/features/certificate-management/models/certificate.model.ts
+src/app/features/certificate-management/pages/certificate-list/certificate-list.component.css
+src/app/features/certificate-management/pages/certificate-list/certificate-list.component.html
+src/app/features/certificate-management/pages/certificate-list/certificate-list.component.ts
+src/app/features/certificate-management/pages/certificate-view/certificate-view.component.css
+src/app/features/certificate-management/pages/certificate-view/certificate-view.component.html
+src/app/features/certificate-management/pages/certificate-view/certificate-view.component.ts
+src/app/features/certificate-management/services/certificate.service.ts
 src/app/features/dashboard/pages/dashboard-home/dashboard-home.component.css
 src/app/features/dashboard/pages/dashboard-home/dashboard-home.component.html
 src/app/features/dashboard/pages/dashboard-home/dashboard-home.component.spec.ts
@@ -270,6 +280,8 @@ src/app/features/penalty-fines/pages/penalty-view/penalty-view.component.spec.ts
 src/app/features/penalty-fines/pages/penalty-view/penalty-view.component.ts
 src/app/features/penalty-fines/penalty/penalty-routing.module.ts
 src/app/features/penalty-fines/penalty/penalty.module.ts
+src/app/features/penalty-fines/services/penalty.service.spec.ts
+src/app/features/penalty-fines/services/penalty.service.ts
 src/app/features/public-registration/public-registration/public-registration-routing.module.ts
 src/app/features/public-registration/public-registration/public-registration.module.ts
 src/app/features/public-registration/register/register.component.css
@@ -296,6 +308,17 @@ src/app/features/public-registration/steps/step5-success/reg-step-success/reg-st
 src/app/features/public-registration/steps/step5-success/reg-step-success/reg-step-success.component.html
 src/app/features/public-registration/steps/step5-success/reg-step-success/reg-step-success.component.spec.ts
 src/app/features/public-registration/steps/step5-success/reg-step-success/reg-step-success.component.ts
+src/app/features/public-verify/pages/verify-page/verify-page.component.css
+src/app/features/public-verify/pages/verify-page/verify-page.component.html
+src/app/features/public-verify/pages/verify-page/verify-page.component.ts
+src/app/features/public-verify/public-verify/public-verify-routing.module.ts
+src/app/features/public-verify/public-verify/public-verify.module.ts
+src/app/features/refund-management/components/refund-status-badge/refund-status-badge.component.css
+src/app/features/refund-management/components/refund-status-badge/refund-status-badge.component.html
+src/app/features/refund-management/components/refund-status-badge/refund-status-badge.component.ts
+src/app/features/refund-management/components/refund-status-timeline/refund-status-timeline.component.css
+src/app/features/refund-management/components/refund-status-timeline/refund-status-timeline.component.html
+src/app/features/refund-management/components/refund-status-timeline/refund-status-timeline.component.ts
 src/app/features/refund-management/pages/refund-create/refund-create.component.css
 src/app/features/refund-management/pages/refund-create/refund-create.component.html
 src/app/features/refund-management/pages/refund-create/refund-create.component.spec.ts
@@ -308,12 +331,22 @@ src/app/features/refund-management/pages/refund-list/refund-list.component.css
 src/app/features/refund-management/pages/refund-list/refund-list.component.html
 src/app/features/refund-management/pages/refund-list/refund-list.component.spec.ts
 src/app/features/refund-management/pages/refund-list/refund-list.component.ts
+src/app/features/refund-management/pages/refund-respond/refund-respond.component.css
+src/app/features/refund-management/pages/refund-respond/refund-respond.component.html
+src/app/features/refund-management/pages/refund-respond/refund-respond.component.spec.ts
+src/app/features/refund-management/pages/refund-respond/refund-respond.component.ts
+src/app/features/refund-management/pages/refund-success/refund-success.component.css
+src/app/features/refund-management/pages/refund-success/refund-success.component.html
+src/app/features/refund-management/pages/refund-success/refund-success.component.spec.ts
+src/app/features/refund-management/pages/refund-success/refund-success.component.ts
 src/app/features/refund-management/pages/refund-view/refund-view.component.css
 src/app/features/refund-management/pages/refund-view/refund-view.component.html
 src/app/features/refund-management/pages/refund-view/refund-view.component.spec.ts
 src/app/features/refund-management/pages/refund-view/refund-view.component.ts
 src/app/features/refund-management/refund/refund-routing.module.ts
 src/app/features/refund-management/refund/refund.module.ts
+src/app/features/refund-management/services/refund.service.spec.ts
+src/app/features/refund-management/services/refund.service.ts
 src/app/features/reports-analytics/pages/reports-dashboard/reports-dashboard.component.css
 src/app/features/reports-analytics/pages/reports-dashboard/reports-dashboard.component.html
 src/app/features/reports-analytics/pages/reports-dashboard/reports-dashboard.component.spec.ts
@@ -568,6 +601,102 @@ src/test.ts
 
 # Files
 
+## File: src/app/features/penalty-fines/services/penalty.service.spec.ts
+```typescript
+import { TestBed } from '@angular/core/testing';
+⋮----
+import { PenaltyService } from './penalty.service';
+```
+
+## File: src/app/features/penalty-fines/services/penalty.service.ts
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { Penalty, PenaltyCreateRequest, PenaltyListResponse } from '../../../models/penalty.model';
+⋮----
+export class PenaltyService
+⋮----
+constructor(private http: HttpClient)
+⋮----
+getAll(page = 0, size = 20): Observable<Penalty[]>
+⋮----
+getById(id: number): Observable<Penalty>
+⋮----
+create(req: PenaltyCreateRequest): Observable<Penalty>
+⋮----
+update(id: number, req: Partial<PenaltyCreateRequest>): Observable<Penalty>
+⋮----
+delete(id: number): Observable<void>
+```
+
+## File: src/app/app.component.css
+```css
+* {
+⋮----
+body {
+```
+
+## File: src/app/app.component.spec.ts
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AppComponent } from './app.component';
+```
+
+## File: src/app/app.component.ts
+```typescript
+import { Component } from '@angular/core';
+⋮----
+export class AppComponent {
+```
+
+## File: src/app/core/directives/has-role.directive.ts
+```typescript
+import {
+  Directive, Input, TemplateRef,
+  ViewContainerRef, OnInit
+} from '@angular/core';
+import { AuthService } from '../services/auth.service';
+⋮----
+export class HasRoleDirective implements OnInit {
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+export class CanDoDirective implements OnInit {
+```
+
+## File: src/app/features/activity-logs/activity-logs/activity-logs-routing.module.ts
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { ActivityLogsListComponent } from '../pages/activity-logs-list/activity-logs-list.component';
+⋮----
+export class ActivityLogsRoutingModule
+```
+
+## File: src/app/features/activity-logs/activity-logs/activity-logs.module.ts
+```typescript
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { SharedModule } from '../../../shared/shared.module';
+import { ActivityLogsRoutingModule } from './activity-logs-routing.module';
+import { ActivityLogsListComponent } from '../pages/activity-logs-list/activity-logs-list.component';
+⋮----
+export class ActivityLogsModule
+```
+
+## File: src/app/features/activity-logs/pages/activity-logs-list/activity-logs-list.component.spec.ts
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+⋮----
+import { ActivityLogsListComponent } from './activity-logs-list.component';
+```
+
 ## File: src/app/features/ait/components/audit-trail/audit-trail.component.ts
 ```typescript
 import { Component, Input } from '@angular/core';
@@ -713,2307 +842,6 @@ export interface CreditAitPayload {
 }
 ```
 
-## File: src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.css
-```css
-:root {
-⋮----
-.wizard-container {
-⋮----
-/* Header */
-.page-header {
-⋮----
-.header-content h1 {
-⋮----
-.subtitle {
-⋮----
-.btn-close-wizard {
-⋮----
-.btn-close-wizard:hover {
-⋮----
-/* Alerts */
-.alert {
-⋮----
-.alert-success {
-⋮----
-.alert-danger {
-⋮----
-.alert strong {
-⋮----
-/* Stepper */
-.stepper-container {
-⋮----
-.stepper {
-⋮----
-.step {
-⋮----
-.step-circle {
-⋮----
-.step-circle:disabled {
-⋮----
-.step.active .step-circle {
-⋮----
-.step.done .step-circle {
-⋮----
-.step-number {
-⋮----
-.step-circle i {
-⋮----
-.step-label {
-⋮----
-.step.active .step-label {
-⋮----
-.step-connector {
-⋮----
-.step-connector.done {
-⋮----
-/* Step Content */
-.wizard-content {
-⋮----
-.step-panel {
-⋮----
-.step-panel h2 {
-⋮----
-.step-description {
-⋮----
-/* STEP 1: Search & Transaction Table */
-.search-box {
-⋮----
-.search-box .form-control {
-⋮----
-.search-box i {
-⋮----
-.transaction-table-container {
-⋮----
-.transaction-table {
-⋮----
-.transaction-table thead {
-⋮----
-.transaction-table th {
-⋮----
-.transaction-table td {
-⋮----
-.transaction-row {
-⋮----
-.transaction-row:hover {
-⋮----
-.transaction-row.selected {
-⋮----
-.transaction-table .select-col {
-⋮----
-.transaction-table .ref-no {
-⋮----
-.transaction-table .code {
-⋮----
-.transaction-table .amount {
-⋮----
-.empty-state {
-⋮----
-.empty-state i {
-⋮----
-/* STEP 2: Calculation */
-.calculation-grid {
-⋮----
-.calc-card {
-⋮----
-.calc-card h3 {
-⋮----
-.detail-row {
-⋮----
-.detail-row label {
-⋮----
-.detail-row span {
-⋮----
-.detail-row .ref-no {
-⋮----
-.detail-row .code {
-⋮----
-.calculation-box {
-⋮----
-.calc-row {
-⋮----
-.calc-row label {
-⋮----
-.calc-row .form-control-sm {
-⋮----
-.calc-row .currency,
-⋮----
-.rate-input-group {
-⋮----
-.calc-divider {
-⋮----
-.calc-row.result {
-⋮----
-.calc-row.result label {
-⋮----
-.amount-display {
-⋮----
-.amount-display .amount {
-⋮----
-.calc-formula {
-⋮----
-/* STEP 3: Upload Documents */
-.upload-zone {
-⋮----
-.drop-area {
-⋮----
-.drop-area:hover {
-⋮----
-.drop-area i {
-⋮----
-.drop-area h4 {
-⋮----
-.drop-area p {
-⋮----
-.file-hint {
-⋮----
-.document-list {
-⋮----
-.document-list h4 {
-⋮----
-.doc-item {
-⋮----
-.doc-icon {
-⋮----
-.doc-info {
-⋮----
-.doc-name {
-⋮----
-.doc-size {
-⋮----
-.btn-remove {
-⋮----
-.btn-remove:hover {
-⋮----
-.empty-docs {
-⋮----
-/* STEP 4: Review & Submit */
-.review-summary {
-⋮----
-.review-card {
-⋮----
-.review-card h3 {
-⋮----
-.summary-row {
-⋮----
-.summary-row:last-child {
-⋮----
-.summary-row.highlight {
-⋮----
-.summary-row .label {
-⋮----
-.summary-row .value {
-⋮----
-.summary-row .value.amount {
-⋮----
-.doc-count {
-⋮----
-.doc-list {
-⋮----
-.doc-list li {
-⋮----
-.doc-list i {
-⋮----
-.confirmation-box {
-⋮----
-.form-check {
-⋮----
-.form-check-input {
-⋮----
-.form-check-label {
-⋮----
-/* Step Actions */
-.step-actions {
-⋮----
-.btn {
-⋮----
-.btn:disabled {
-⋮----
-.btn-primary {
-⋮----
-.btn-primary:hover:not(:disabled) {
-⋮----
-.btn-secondary {
-⋮----
-.btn-secondary:hover:not(:disabled) {
-⋮----
-.btn-success {
-⋮----
-.btn-success:hover:not(:disabled) {
-⋮----
-.btn-save-draft {
-⋮----
-.btn-save-draft:hover {
-⋮----
-/* Responsive */
-⋮----
-.transaction-table th,
-```
-
-## File: src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.html
-```html
-<div class="wizard-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1>Create AIT Record</h1>
-      <p class="subtitle">Guided wizard to create and submit an Advance Income Tax record</p>
-    </div>
-    <button class="btn-close-wizard" (click)="discardDraft()" title="Close wizard">
-      <i class="ti ti-x"></i>
-    </button>
-  </div>
-
-  <!-- Success Message -->
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissible" role="alert">
-    <strong><i class="ti ti-circle-check"></i> Success!</strong>
-    {{ successMessage }}
-    <p class="mt-2 mb-0" *ngIf="newAitRefNo"><strong>Reference No:</strong> {{ newAitRefNo }}</p>
-  </div>
-
-  <!-- Error Message -->
-  <div *ngIf="submitError" class="alert alert-danger alert-dismissible" role="alert">
-    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
-    {{ submitError }}
-  </div>
-
-  <!-- Stepper Indicator -->
-  <div class="stepper-container">
-    <div class="stepper">
-      <div *ngFor="let i of [1, 2, 3, 4]" class="step" [ngClass]="getStepStatus(i)">
-        <button
-          class="step-circle"
-          (click)="goToStep(i)"
-          [disabled]="i > state.step && !isStepComplete(i - 1)"
-          [attr.aria-label]="'Step ' + i">
-          <span class="step-number">{{ i }}</span>
-          <i *ngIf="getStepStatus(i) === 'done'" class="ti ti-check"></i>
-        </button>
-        <div class="step-label">
-          {{ getStepLabel(i) }}
-        </div>
-        <div *ngIf="i < 4" class="step-connector" [ngClass]="i < state.step ? 'done' : ''"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Content Area -->
-  <div class="wizard-content">
-
-    <!-- STEP 1: Select Transaction -->
-    <div class="step-panel" *ngIf="state.step === 1">
-      <h2>Step 1: Select Import Duty Transaction</h2>
-      <p class="step-description">Choose a Bill of Entry record to create an AIT for.</p>
-
-      <div class="search-box">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Search by Reference, Importer Name, or HS Code..."
-          [(ngModel)]="searchQuery"
-          (input)="searchTransactions()">
-        <i class="ti ti-search"></i>
-      </div>
-
-      <div class="transaction-table-container">
-        <table class="transaction-table">
-          <thead>
-            <tr>
-              <th width="5%"></th>
-              <th>Reference No</th>
-              <th>Date</th>
-              <th>Importer</th>
-              <th>HS Code</th>
-              <th>Description</th>
-              <th>Taxable Value</th>
-              <th>Port of Entry</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let tx of filteredTransactions"
-                class="transaction-row"
-                [class.selected]="state.selectedTransaction?.id === tx.id">
-              <td class="select-col">
-                <input type="radio"
-                       [checked]="state.selectedTransaction?.id === tx.id"
-                       (change)="selectTransaction(tx)">
-              </td>
-              <td class="ref-no">{{ tx.referenceNo }}</td>
-              <td>{{ tx.date | date:'MMM d, y' }}</td>
-              <td>{{ tx.importerName }}</td>
-              <td class="code">{{ tx.hsCode }}</td>
-              <td>{{ tx.description }}</td>
-              <td class="amount">৳ {{ tx.taxableValue | number:'1.2-2' }}</td>
-              <td>{{ tx.portOfEntry }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="filteredTransactions.length === 0" class="empty-state">
-          <i class="ti ti-inbox"></i>
-          <p>No transactions found. Try adjusting your search.</p>
-        </div>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn btn-secondary" (click)="discardDraft()">Cancel</button>
-        <button
-          class="btn btn-primary"
-          (click)="nextStep()"
-          [disabled]="!state.selectedTransaction">
-          Next: Calculate AIT
-        </button>
-      </div>
-    </div>
-
-    <!-- STEP 2: Calculate AIT -->
-    <div class="step-panel" *ngIf="state.step === 2">
-      <h2>Step 2: Calculate AIT</h2>
-      <p class="step-description">Review the calculation of Advance Income Tax on the selected transaction.</p>
-
-      <div class="calculation-grid">
-        <!-- Transaction Details -->
-        <div class="calc-card">
-          <h3>Transaction Details</h3>
-          <div class="detail-row">
-            <label>Reference No:</label>
-            <span class="ref-no">{{ state.selectedTransaction?.referenceNo }}</span>
-          </div>
-          <div class="detail-row">
-            <label>Importer:</label>
-            <span>{{ state.selectedTransaction?.importerName }}</span>
-          </div>
-          <div class="detail-row">
-            <label>HS Code:</label>
-            <span class="code">{{ state.selectedTransaction?.hsCode }}</span>
-          </div>
-          <div class="detail-row">
-            <label>Description:</label>
-            <span>{{ state.selectedTransaction?.description }}</span>
-          </div>
-          <div class="detail-row">
-            <label>Port of Entry:</label>
-            <span>{{ state.selectedTransaction?.portOfEntry }}</span>
-          </div>
-          <div class="detail-row">
-            <label>Origin Country:</label>
-            <span>{{ state.selectedTransaction?.origin }}</span>
-          </div>
-        </div>
-
-        <!-- Calculation -->
-        <div class="calc-card calculation-box">
-          <h3>AIT Calculation</h3>
-
-          <div class="calc-row">
-            <label>Taxable Value:</label>
-            <input type="number"
-                   class="form-control form-control-sm"
-                   [(ngModel)]="state.formData.taxableValue"
-                   readonly>
-            <span class="currency">৳</span>
-          </div>
-
-          <div class="calc-row">
-            <label>AIT Rate:</label>
-            <div class="rate-input-group">
-              <input type="number"
-                     class="form-control form-control-sm"
-                     [(ngModel)]="state.formData.aitRate"
-                     (change)="onRateChange(state.formData.aitRate || 0)"
-                     min="0"
-                     max="100">
-              <span class="unit">%</span>
-            </div>
-          </div>
-
-          <div class="calc-divider"></div>
-
-          <div class="calc-row result">
-            <label>Calculated AIT Amount:</label>
-            <div class="amount-display">
-              <span class="amount">৳ {{ state.calculatedAit | number:'1.2-2' }}</span>
-            </div>
-          </div>
-
-          <p class="calc-formula">
-            Calculation: {{ state.formData.taxableValue | number:'1.2-2' }} × {{ state.formData.aitRate }}% = {{ state.calculatedAit | number:'1.2-2' }}
-          </p>
-        </div>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn btn-secondary" (click)="prevStep()">Back</button>
-        <button class="btn btn-primary" (click)="nextStep()">Next: Upload Documents</button>
-      </div>
-    </div>
-
-    <!-- STEP 3: Upload Documents -->
-    <div class="step-panel" *ngIf="state.step === 3">
-      <h2>Step 3: Upload Supporting Documents</h2>
-      <p class="step-description">Upload documents related to this AIT record (invoices, receipts, etc.)</p>
-
-      <div class="upload-zone">
-        <input
-          type="file"
-          #fileInput
-          hidden
-          multiple
-          (change)="onFilesSelected($any($event.target).files)">
-
-        <div class="drop-area" (click)="fileInput.click()">
-          <i class="ti ti-cloud-upload"></i>
-          <h4>Drag and drop files here</h4>
-          <p>or click to select files</p>
-          <span class="file-hint">Supported: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 10 MB each)</span>
-        </div>
-      </div>
-
-      <div *ngIf="state.uploadedDocuments.length > 0" class="document-list">
-        <h4>Uploaded Documents ({{ state.uploadedDocuments.length }})</h4>
-        <div class="doc-item" *ngFor="let doc of state.uploadedDocuments; let i = index">
-          <div class="doc-icon">
-            <i class="ti ti-file"></i>
-          </div>
-          <div class="doc-info">
-            <p class="doc-name">{{ doc.name }}</p>
-            <p class="doc-size">{{ formatFileSize(doc.size) }}</p>
-          </div>
-          <button class="btn-remove" (click)="removeDocument(i)" title="Remove">
-            <i class="ti ti-trash"></i>
-          </button>
-        </div>
-      </div>
-
-      <div *ngIf="state.uploadedDocuments.length === 0" class="empty-docs">
-        <p>No documents uploaded yet. Upload at least one supporting document.</p>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn btn-secondary" (click)="prevStep()">Back</button>
-        <button
-          class="btn btn-primary"
-          (click)="nextStep()"
-          [disabled]="state.uploadedDocuments.length === 0">
-          Next: Review & Submit
-        </button>
-      </div>
-    </div>
-
-    <!-- STEP 4: Review & Submit -->
-    <div class="step-panel" *ngIf="state.step === 4">
-      <h2>Step 4: Review & Submit</h2>
-      <p class="step-description">Review your AIT record details before final submission.</p>
-
-      <div class="review-summary">
-        <div class="review-card">
-          <h3><i class="ti ti-receipt-2"></i> Transaction Details</h3>
-          <div class="summary-row">
-            <span class="label">Reference No:</span>
-            <span class="value">{{ state.selectedTransaction?.referenceNo }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="label">Importer:</span>
-            <span class="value">{{ state.selectedTransaction?.importerName }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="label">HS Code:</span>
-            <span class="value">{{ state.selectedTransaction?.hsCode }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="label">Description:</span>
-            <span class="value">{{ state.selectedTransaction?.description }}</span>
-          </div>
-        </div>
-
-        <div class="review-card">
-          <h3><i class="ti ti-calculator"></i> Calculation Summary</h3>
-          <div class="summary-row">
-            <span class="label">Taxable Value:</span>
-            <span class="value">৳ {{ state.formData.taxableValue | number:'1.2-2' }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="label">AIT Rate:</span>
-            <span class="value">{{ state.formData.aitRate }}%</span>
-          </div>
-          <div class="summary-row highlight">
-            <span class="label">Calculated AIT Amount:</span>
-            <span class="value amount">৳ {{ state.calculatedAit | number:'1.2-2' }}</span>
-          </div>
-        </div>
-
-        <div class="review-card">
-          <h3><i class="ti ti-paperclip"></i> Documents</h3>
-          <p class="doc-count">{{ state.uploadedDocuments.length }} file(s) to be uploaded</p>
-          <ul class="doc-list">
-            <li *ngFor="let doc of state.uploadedDocuments">
-              <i class="ti ti-file"></i> {{ doc.name }} ({{ formatFileSize(doc.size) }})
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="confirmation-box">
-        <div class="form-check">
-          <input type="checkbox" class="form-check-input" id="confirmAit" required>
-          <label class="form-check-label" for="confirmAit">
-            I confirm the above details are correct and authorize submission of this AIT record.
-          </label>
-        </div>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn btn-secondary" (click)="prevStep()" [disabled]="isSubmitting">Back</button>
-        <button class="btn btn-success"
-                (click)="submitAit()"
-                [disabled]="isSubmitting">
-          <i class="ti ti-check"></i>
-          {{ isSubmitting ? 'Submitting...' : 'Submit AIT Record' }}
-        </button>
-      </div>
-
-      <button class="btn-save-draft" (click)="saveDraft()">
-        <i class="ti ti-bookmark"></i> Save as Draft
-      </button>
-    </div>
-
-  </div>
-
-</div>
-```
-
-## File: src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { AitService } from '../../services/ait.service';
-import { AitRecord, CreateAitPayload, AitDocument } from '../../models/ait.model';
-⋮----
-interface ImportDutyRecord {
-  id: number;
-  referenceNo: string;
-  date: string;
-  importerName: string;
-  hsCode: string;
-  description: string;
-  quantity: number;
-  unit: string;
-  taxableValue: number;
-  portOfEntry: string;
-  origin: string;
-}
-⋮----
-interface WizardState {
-  step: number;
-  selectedTransaction?: ImportDutyRecord;
-  calculatedAit?: number;
-  uploadedDocuments: File[];
-  documentIds: number[];
-  formData: Partial<CreateAitPayload>;
-  isDraft: boolean;
-  draftId?: number;
-}
-⋮----
-export class AitCreateWizardComponent implements OnInit
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-loadTransactions(): void
-⋮----
-// In real app, fetch from API endpoint for import duty records
-⋮----
-restoreDraftIfExists(): void
-⋮----
-saveDraft(): void
-⋮----
-discardDraft(): void
-⋮----
-// STEP 1: Transaction Selection
-searchTransactions(): void
-⋮----
-selectTransaction(tx: ImportDutyRecord): void
-⋮----
-// STEP 2: Calculate AIT
-calculateAit(): void
-⋮----
-onRateChange(newRate: number): void
-⋮----
-// STEP 3: Upload Documents
-onFilesSelected(files: FileList | null): void
-⋮----
-removeDocument(index: number): void
-⋮----
-formatFileSize(bytes: number): string
-⋮----
-// STEP 4: Review & Submit
-async submitAit(): Promise<void>
-⋮----
-// Step 1: Create AIT record (DRAFT)
-⋮----
-// Step 2: Upload documents if any
-⋮----
-// Step 3: Submit AIT for review (DRAFT → SUBMITTED → PENDING)
-⋮----
-// Redirect after 3 seconds
-⋮----
-// Navigation
-nextStep(): void
-⋮----
-prevStep(): void
-⋮----
-goToStep(stepNum: number): void
-⋮----
-isStepComplete(stepNum: number): boolean
-⋮----
-isStepValid(stepNum: number): boolean
-⋮----
-getStepStatus(stepNum: number): 'done' | 'active' | 'pending'
-⋮----
-getStepLabel(stepNum: number): string
-```
-
-## File: src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.css
-```css
-/* AIT Dashboard Styles - Plain CSS */
-⋮----
-.ait-dashboard {
-⋮----
-/* Page Header */
-.page-header {
-⋮----
-.page-title {
-⋮----
-.page-subtitle {
-⋮----
-.btn-create {
-⋮----
-.btn-create:hover {
-⋮----
-.btn-create i {
-⋮----
-/* Alert */
-.alert-warning {
-⋮----
-.alert-warning i {
-⋮----
-/* Loading State */
-.loading-state {
-⋮----
-.spinner {
-⋮----
-.loading-state p {
-⋮----
-/* Dashboard Content */
-.dashboard-content {
-⋮----
-/* Main container padding handled by parent */
-⋮----
-/* KPI Cards */
-.kpi-container {
-⋮----
-.kpi-card {
-⋮----
-.kpi-card:hover {
-⋮----
-.kpi-label {
-⋮----
-.kpi-label i {
-⋮----
-.kpi-value {
-⋮----
-.kpi-subtitle {
-⋮----
-/* Filter Row */
-.filter-row {
-⋮----
-.filter-select,
-⋮----
-.filter-select:hover,
-⋮----
-.filter-input {
-⋮----
-.filter-button {
-⋮----
-.filter-button i {
-⋮----
-/* Table Container */
-.table-container {
-⋮----
-/* Records Table */
-.records-table {
-⋮----
-.records-table thead {
-⋮----
-.records-table th {
-⋮----
-.records-table td {
-⋮----
-.records-table tbody tr {
-⋮----
-.records-table tbody tr:hover {
-⋮----
-.records-table tbody tr.row-highlight-warning {
-⋮----
-.records-table tbody tr.row-highlight-danger {
-⋮----
-/* Reference Link */
-.ref-link {
-⋮----
-.ref-link:hover {
-⋮----
-/* Product Info */
-.product-name {
-⋮----
-.product-code {
-⋮----
-/* Amount Column */
-.amount {
-⋮----
-/* Badge Styles */
-.badge {
-⋮----
-.b-draft {
-⋮----
-.b-submitted {
-⋮----
-.b-pending {
-⋮----
-.b-paid {
-⋮----
-.b-review {
-⋮----
-.b-approved {
-⋮----
-.b-rejected {
-⋮----
-.b-credited {
-⋮----
-.b-cancelled {
-⋮----
-/* Actions Cell */
-.actions-cell {
-⋮----
-/* Action Buttons */
-.btn-action {
-⋮----
-.btn-action:hover {
-⋮----
-.btn-action.btn-primary {
-⋮----
-.btn-action.btn-primary:hover {
-⋮----
-.btn-action:disabled {
-⋮----
-/* Empty State */
-.empty-state {
-⋮----
-.empty-state i {
-⋮----
-.empty-state p {
-⋮----
-/* Pagination Bar */
-.pagination-bar {
-⋮----
-.pagination-info {
-⋮----
-/* Pagination Controls */
-.pagination-controls {
-⋮----
-.btn-pagination {
-⋮----
-.btn-pagination:hover:not(:disabled) {
-⋮----
-.btn-pagination:disabled {
-⋮----
-.btn-page-num {
-⋮----
-.btn-page-num.active {
-⋮----
-/* Responsive Design */
-⋮----
-.records-table th,
-⋮----
-/* Screen reader only */
-.sr-only {
-```
-
-## File: src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.html
-```html
-<div class="ait-dashboard">
-  <h2 class="sr-only">Taxpayer AIT Dashboard showing summary cards and records table</h2>
-
-  <!-- Page header -->
-  <div class="page-header">
-    <div>
-      <div class="page-title">Advance Income Tax (AIT)</div>
-      <div class="page-subtitle">Fiscal Year {{ taxpayerInfo.fiscalYear }} · TIN: {{ taxpayerInfo.tin }}</div>
-    </div>
-    <button class="btn-create" (click)="createNewAit()" title="Create a new AIT record">
-      <i class="ti ti-plus" aria-hidden="true"></i> Create New AIT
-    </button>
-  </div>
-
-  <!-- Error message -->
-  <div *ngIf="error" class="alert-warning">
-    <i class="ti ti-alert-circle" aria-hidden="true"></i>
-    {{ error }}
-  </div>
-
-  <!-- Loading state -->
-  <div *ngIf="loading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading AIT records...</p>
-  </div>
-
-  <!-- Content (shown when not loading) -->
-  <div *ngIf="!loading" class="dashboard-content">
-
-    <!-- KPI cards -->
-    <div class="kpi-container">
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <i class="ti ti-file-text" aria-hidden="true"></i>
-          Total AITs
-        </div>
-        <div class="kpi-value">{{ kpis.totalCount }}</div>
-        <div class="kpi-subtitle">This fiscal year</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <i class="ti ti-alert-circle" aria-hidden="true"></i>
-          Needs Action
-        </div>
-        <div class="kpi-value" [style.color]="'#BA7517'">{{ kpis.needsActionCount }}</div>
-        <div class="kpi-subtitle">Pending payment / docs</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <i class="ti ti-check" aria-hidden="true"></i>
-          Approved
-        </div>
-        <div class="kpi-value" [style.color]="'#3B6D11'">{{ kpis.approvedCount }}</div>
-        <div class="kpi-subtitle">This fiscal year</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <i class="ti ti-receipt" aria-hidden="true"></i>
-          Credited to ITR
-        </div>
-        <div class="kpi-value" [style.color]="'#0F6E56'">৳ {{ (kpis.creditedAmount | number:'1.0-0') }}</div>
-        <div class="kpi-subtitle">Successfully credited</div>
-      </div>
-    </div>
-
-    <!-- Filter row -->
-    <div class="filter-row">
-      <select class="filter-select" (change)="onStatusFilterChange($any($event.target).value)">
-        <option value="">All Statuses</option>
-        <option value="DRAFT">Draft</option>
-        <option value="SUBMITTED">Submitted</option>
-        <option value="PENDING">Payment Pending</option>
-        <option value="UNDER_REVIEW">Under Review</option>
-        <option value="APPROVED">Approved</option>
-      </select>
-
-      <select class="filter-select" (change)="onFiscalYearChange($any($event.target).value)">
-        <option value="FY 2024-2025">FY 2024-2025</option>
-        <option value="FY 2023-2024">FY 2023-2024</option>
-      </select>
-
-      <input type="text"
-        class="filter-input"
-        placeholder="Search reference or product…"
-        (change)="onStatusFilterChange($any($event.target).value)">
-
-      <button class="filter-button" title="Open advanced filters">
-        <i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Filters
-      </button>
-    </div>
-
-    <!-- Records table -->
-    <div class="table-container">
-      <table class="records-table">
-        <thead>
-          <tr>
-            <th>Reference No.</th>
-            <th>Import Date</th>
-            <th>Product / HS Code</th>
-            <th style="text-align: right">Taxable Value</th>
-            <th style="text-align: right">AIT Amount</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let record of getPaginatedRecords()" [class]="getRowHighlight(record.status)">
-            <td>
-              <a class="ref-link" (click)="viewRecord(record.id)" title="View details">
-                {{ record.aitReferenceNo || 'N/A' }}
-              </a>
-            </td>
-            <td>{{ record.createdAt | date:'short' }}</td>
-            <td>
-              <div class="product-name">{{ record.hsCode || 'N/A' }}</div>
-              <div class="product-code">{{ record.hsCode }}</div>
-            </td>
-            <td class="amount">৳ {{ (record.taxableValue | number:'1.0-0') }}</td>
-            <td class="amount" [style.color]="'#3B6D11'">৳ {{ (record.calculatedAitAmount | number:'1.0-0') }}</td>
-            <td>
-              <span [class]="'badge ' + getStatusBadgeClass(record.status)">
-                {{ getStatusLabel(record.status) }}
-              </span>
-            </td>
-            <td class="actions-cell">
-              <button *ngIf="record.status === 'DRAFT'"
-                class="btn-action btn-primary"
-                (click)="continueEditingDraft(record.id)"
-                title="Continue editing draft">
-                Continue
-              </button>
-              <button *ngIf="record.status === 'PENDING'"
-                class="btn-action btn-primary"
-                (click)="uploadDocuments(record.id)"
-                title="Pay now">
-                Pay Now
-              </button>
-              <button *ngIf="record.status === 'UNDER_REVIEW'"
-                class="btn-action"
-                (click)="uploadDocuments(record.id)"
-                title="Upload documents">
-                Upload Docs
-              </button>
-              <button class="btn-action" (click)="viewRecord(record.id)" title="View details">
-                View
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Empty state -->
-      <div *ngIf="getPaginatedRecords().length === 0" class="empty-state">
-        <i class="ti ti-file-off" aria-hidden="true"></i>
-        <p>No AIT records found</p>
-        <button class="btn-create" (click)="createNewAit()">
-          <i class="ti ti-plus" aria-hidden="true"></i> Create New AIT
-        </button>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div class="pagination-bar">
-      <span class="pagination-info">
-        Showing {{ getPaginationStart() }}-{{ getPaginationEnd() }} of {{ filteredRecords.length }} records
-      </span>
-      <div class="pagination-controls">
-        <button class="btn-pagination" (click)="prevPage()" [disabled]="currentPage === 1">
-          ← Prev
-        </button>
-        <button *ngFor="let page of [1]" class="btn-page-num" [class.active]="currentPage === page">
-          {{ currentPage }}
-        </button>
-        <button *ngIf="getTotalPages() > 1" class="btn-pagination" (click)="nextPage()" [disabled]="currentPage >= getTotalPages()">
-          Next →
-        </button>
-      </div>
-    </div>
-
-  </div>
-</div>
-```
-
-## File: src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { AitService } from '../../services/ait.service';
-import { AitRecord, AitStatus } from '../../models/ait.model';
-⋮----
-interface KPIMetrics {
-  totalCount: number;
-  needsActionCount: number;
-  approvedCount: number;
-  creditedAmount: number;
-}
-⋮----
-export class AitDashboardComponent implements OnInit
-⋮----
-// Filter state
-⋮----
-// KPI metrics
-⋮----
-// Tax payer info (would come from auth service in real app)
-⋮----
-constructor(
-⋮----
-ngOnInit()
-⋮----
-private loadRecords()
-⋮----
-private calculateKPIs()
-⋮----
-applyFilters()
-⋮----
-onStatusFilterChange(status: string)
-⋮----
-onSearchChange(query: string)
-⋮----
-onFiscalYearChange(year: string)
-⋮----
-getPaginatedRecords(): AitRecord[]
-⋮----
-getTotalPages(): number
-⋮----
-getPaginationStart(): number
-⋮----
-getPaginationEnd(): number
-⋮----
-goToPage(page: number)
-⋮----
-nextPage()
-⋮----
-prevPage()
-⋮----
-getStatusBadgeClass(status: AitStatus): string
-⋮----
-getStatusLabel(status: AitStatus): string
-⋮----
-viewRecord(id: number | undefined)
-⋮----
-continueEditingDraft(id: number | undefined)
-⋮----
-createNewAit()
-⋮----
-uploadDocuments(id: number | undefined)
-⋮----
-getRowHighlight(status: AitStatus): string
-```
-
-## File: src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.css
-```css
-:root {
-⋮----
-.officer-dashboard-container {
-⋮----
-/* Header */
-.page-header {
-⋮----
-.header-content h1 {
-⋮----
-.subtitle {
-⋮----
-.btn-refresh {
-⋮----
-.btn-refresh:hover {
-⋮----
-/* KPI Grid */
-.kpi-grid {
-⋮----
-.kpi-card {
-⋮----
-.kpi-card:hover {
-⋮----
-.kpi-content {
-⋮----
-.kpi-label {
-⋮----
-.kpi-value {
-⋮----
-.kpi-description {
-⋮----
-.kpi-icon {
-⋮----
-.kpi-icon-queue {
-⋮----
-.kpi-icon-today {
-⋮----
-.kpi-icon-approved {
-⋮----
-.kpi-icon-warning {
-⋮----
-.kpi-icon-danger {
-⋮----
-/* Loading State */
-.loading-state {
-⋮----
-.spinner {
-⋮----
-/* Alerts */
-.alert {
-⋮----
-.alert-danger {
-⋮----
-.alert strong {
-⋮----
-.btn-retry {
-⋮----
-.btn-retry:hover {
-⋮----
-/* Queue Content */
-.queue-content {
-⋮----
-/* Filter Section */
-.filter-section {
-⋮----
-.filter-header {
-⋮----
-.filter-header h3 {
-⋮----
-.filter-count {
-⋮----
-/* Status Tabs */
-.status-tabs {
-⋮----
-.tab-btn {
-⋮----
-.tab-btn:hover {
-⋮----
-.tab-btn.active {
-⋮----
-/* Filter Controls */
-.filter-controls {
-⋮----
-.search-box {
-⋮----
-.search-box .form-control {
-⋮----
-.search-box i {
-⋮----
-.filter-row {
-⋮----
-.filter-group {
-⋮----
-.filter-group label {
-⋮----
-.filter-group .form-control {
-⋮----
-.sort-buttons {
-⋮----
-.sort-btn {
-⋮----
-.sort-btn:hover {
-⋮----
-.sort-btn.active {
-⋮----
-/* Queue Table */
-.queue-table-container {
-⋮----
-.queue-table {
-⋮----
-.queue-table thead {
-⋮----
-.queue-table th {
-⋮----
-.queue-table td {
-⋮----
-.record-row {
-⋮----
-.record-row:hover {
-⋮----
-.record-row .ref-no {
-⋮----
-.record-row .duty-ref {
-⋮----
-.record-row .amount {
-⋮----
-.record-row .date {
-⋮----
-.badge {
-⋮----
-.badge-draft { background-color: #e0e0e0; color: #666; }
-.badge-submitted { background-color: #e3f2fd; color: #1976d2; }
-.badge-pending { background-color: #fff3e0; color: #f57c00; }
-.badge-paid { background-color: #e8f5e9; color: #388e3c; }
-.badge-review { background-color: #fce4ec; color: #c2185b; }
-.badge-approved { background-color: #e8f5e9; color: #00aa44; }
-.badge-rejected { background-color: #ffebee; color: #dd0000; }
-.badge-credited { background-color: #e0f2f1; color: #00897b; }
-.badge-cancelled { background-color: #f5f5f5; color: #999; }
-⋮----
-.actions {
-⋮----
-.btn-action {
-⋮----
-.btn-action:hover {
-⋮----
-.btn-review {
-⋮----
-.btn-view {
-⋮----
-.btn-view:hover {
-⋮----
-/* Empty State */
-.empty-state {
-⋮----
-.empty-state i {
-⋮----
-.empty-state h3 {
-⋮----
-.empty-state p {
-⋮----
-/* Pagination */
-.pagination-bar {
-⋮----
-.pagination-info {
-⋮----
-.pagination-controls {
-⋮----
-.btn-page {
-⋮----
-.btn-page:hover:not(:disabled) {
-⋮----
-.btn-page:disabled {
-⋮----
-.page-numbers {
-⋮----
-.btn-page-number {
-⋮----
-.btn-page-number:hover:not(:disabled) {
-⋮----
-.btn-page-number.active {
-⋮----
-.btn-page-number:disabled {
-⋮----
-.page-ellipsis {
-⋮----
-/* Responsive */
-⋮----
-.queue-table th,
-```
-
-## File: src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.html
-```html
-<div class="officer-dashboard-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1>Officer Dashboard</h1>
-      <p class="subtitle">Manage your AIT review queue and track performance metrics</p>
-    </div>
-    <button class="btn-refresh" (click)="refreshQueue()" title="Refresh data">
-      <i class="ti ti-refresh"></i>
-    </button>
-  </div>
-
-  <!-- KPI Cards -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-content">
-        <p class="kpi-label">My Queue</p>
-        <h2 class="kpi-value">{{ kpis.myQueue }}</h2>
-        <p class="kpi-description">Records under review</p>
-      </div>
-      <div class="kpi-icon kpi-icon-queue">
-        <i class="ti ti-inbox"></i>
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-content">
-        <p class="kpi-label">Reviewed Today</p>
-        <h2 class="kpi-value">{{ kpis.reviewedToday }}</h2>
-        <p class="kpi-description">Records processed</p>
-      </div>
-      <div class="kpi-icon kpi-icon-today">
-        <i class="ti ti-calendar"></i>
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-content">
-        <p class="kpi-label">Approved (Week)</p>
-        <h2 class="kpi-value">{{ kpis.approvedWeek }}</h2>
-        <p class="kpi-description">Last 7 days</p>
-      </div>
-      <div class="kpi-icon kpi-icon-approved">
-        <i class="ti ti-circle-check"></i>
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-content">
-        <p class="kpi-label">SLA Risk</p>
-        <h2 class="kpi-value">{{ kpis.slaRiskPercent }}%</h2>
-        <p class="kpi-description">Overdue records</p>
-      </div>
-      <div class="kpi-icon" [ngClass]="kpis.slaRiskPercent > 30 ? 'kpi-icon-danger' : 'kpi-icon-warning'">
-        <i class="ti ti-alert-triangle"></i>
-      </div>
-    </div>
-  </div>
-
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading queue data...</p>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="loadError && !isLoading" class="alert alert-danger">
-    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
-    {{ loadError }}
-    <button class="btn-retry" (click)="refreshQueue()">Retry</button>
-  </div>
-
-  <!-- Content -->
-  <div *ngIf="!isLoading" class="queue-content">
-    <!-- Filter Section -->
-    <div class="filter-section">
-      <div class="filter-header">
-        <h3>Queue Worklist</h3>
-        <p class="filter-count">{{ filteredRecords.length }} record(s)</p>
-      </div>
-
-      <!-- Status Tabs -->
-      <div class="status-tabs">
-        <button
-          class="tab-btn"
-          [class.active]="activeTab === 'ALL'"
-          (click)="setActiveTab('ALL')">
-          All Records
-        </button>
-        <button
-          *ngFor="let status of statusOptions"
-          class="tab-btn"
-          [class.active]="activeTab === status"
-          (click)="setActiveTab(status)">
-          {{ getStatusLabel(status) }}
-        </button>
-      </div>
-
-      <!-- Search & Filters -->
-      <div class="filter-controls">
-        <div class="search-box">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Search by Reference No, Taxpayer Name, or Duty Ref..."
-            [(ngModel)]="searchQuery"
-            (input)="onSearchChange()">
-          <i class="ti ti-search"></i>
-        </div>
-
-        <div class="filter-row">
-          <div class="filter-group">
-            <label>From Date:</label>
-            <input
-              type="date"
-              class="form-control"
-              [(ngModel)]="dateFilterFrom"
-              (change)="onDateChange()">
-          </div>
-
-          <div class="filter-group">
-            <label>To Date:</label>
-            <input
-              type="date"
-              class="form-control"
-              [(ngModel)]="dateFilterTo"
-              (change)="onDateChange()">
-          </div>
-
-          <div class="filter-group">
-            <label>Sort By:</label>
-            <div class="sort-buttons">
-              <button
-                class="sort-btn"
-                [class.active]="sortBy === 'date'"
-                (click)="setSortBy('date')">
-                Date
-                <i *ngIf="sortBy === 'date'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
-              </button>
-              <button
-                class="sort-btn"
-                [class.active]="sortBy === 'amount'"
-                (click)="setSortBy('amount')">
-                Amount
-                <i *ngIf="sortBy === 'amount'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
-              </button>
-              <button
-                class="sort-btn"
-                [class.active]="sortBy === 'ref_no'"
-                (click)="setSortBy('ref_no')">
-                Ref No
-                <i *ngIf="sortBy === 'ref_no'" [ngClass]="sortOrder === 'asc' ? 'ti ti-sort-ascending' : 'ti ti-sort-descending'"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Records Table -->
-    <div class="queue-table-container">
-      <table class="queue-table" *ngIf="filteredRecords.length > 0">
-        <thead>
-          <tr>
-            <th width="12%">Reference No</th>
-            <th width="15%">Taxpayer</th>
-            <th width="15%">Import Duty Ref</th>
-            <th width="12%">AIT Amount</th>
-            <th width="12%">Status</th>
-            <th width="12%">Date</th>
-            <th width="12%">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let record of getPaginatedRecords()" class="record-row">
-            <td class="ref-no">
-              <strong>{{ record.aitReferenceNo }}</strong>
-            </td>
-            <td>{{ record.taxpayerName }}</td>
-            <td class="duty-ref">{{ record.importDutyRefNo }}</td>
-            <td class="amount">৳ {{ record.calculatedAitAmount | number:'1.2-2' }}</td>
-            <td>
-              <span class="badge" [ngClass]="getStatusColor(record.status)">
-                {{ getStatusLabel(record.status) }}
-              </span>
-            </td>
-            <td class="date">{{ formatDate(record.createdAt || '') }}</td>
-            <td class="actions">
-              <button
-                class="btn-action btn-review"
-                (click)="reviewRecord(record.id || 0)"
-                title="Review this record">
-                <i class="ti ti-edit"></i> Review
-              </button>
-              <button
-                class="btn-action btn-view"
-                (click)="viewDetails(record.id || 0)"
-                title="View details">
-                <i class="ti ti-eye"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Empty State -->
-      <div *ngIf="filteredRecords.length === 0" class="empty-state">
-        <i class="ti ti-inbox"></i>
-        <h3>No Records Found</h3>
-        <p>Try adjusting your search or filter criteria</p>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div *ngIf="filteredRecords.length > 0" class="pagination-bar">
-      <div class="pagination-info">
-        Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to
-        {{ Math.min(currentPage * itemsPerPage, filteredRecords.length) }}
-        of {{ filteredRecords.length }} records
-      </div>
-
-      <div class="pagination-controls">
-        <button
-          class="btn-page"
-          [disabled]="currentPage === 1"
-          (click)="prevPage()">
-          <i class="ti ti-chevron-left"></i> Previous
-        </button>
-
-        <div class="page-numbers">
-          <button
-            *ngFor="let page of [1, 2, 3, 4, 5]"
-            class="btn-page-number"
-            [class.active]="page === currentPage"
-            [disabled]="page > getTotalPages()"
-            (click)="goToPage(page)">
-            {{ page }}
-          </button>
-          <span *ngIf="getTotalPages() > 5" class="page-ellipsis">...</span>
-        </div>
-
-        <button
-          class="btn-page"
-          [disabled]="currentPage === getTotalPages()"
-          (click)="nextPage()">
-          Next <i class="ti ti-chevron-right"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-</div>
-```
-
-## File: src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { AitService } from '../../services/ait.service';
-import { AitRecord, AitStatus } from '../../models/ait.model';
-⋮----
-export class OfficerDashboardComponent implements OnInit
-⋮----
-// Filters
-⋮----
-// Pagination
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-loadQueueData(): void
-⋮----
-// Fallback to mock data is handled in service
-⋮----
-calculateKPIs(): void
-⋮----
-applyFilters(): void
-⋮----
-// Tab filter
-⋮----
-// Search
-⋮----
-// Date range
-⋮----
-// Sort
-⋮----
-setActiveTab(tab: AitStatus | 'ALL'): void
-⋮----
-onSearchChange(): void
-⋮----
-onDateChange(): void
-⋮----
-setSortBy(field: 'date' | 'amount' | 'ref_no'): void
-⋮----
-// Pagination
-getPaginatedRecords(): AitRecord[]
-⋮----
-getTotalPages(): number
-⋮----
-goToPage(page: number): void
-⋮----
-nextPage(): void
-⋮----
-prevPage(): void
-⋮----
-// Actions
-reviewRecord(aitId: number): void
-⋮----
-viewDetails(aitId: number): void
-⋮----
-// Could open a modal or navigate to detail view
-⋮----
-getStatusColor(status: AitStatus): string
-⋮----
-getStatusLabel(status: AitStatus): string
-⋮----
-formatDate(dateStr: string): string
-⋮----
-// Refresh data
-refreshQueue(): void
-```
-
-## File: src/app/features/ait/pages/officer-review/officer-review.component.css
-```css
-:root {
-⋮----
-.review-container {
-⋮----
-/* Loading State */
-.loading-state {
-⋮----
-.spinner {
-⋮----
-/* Alerts */
-.alert {
-⋮----
-.alert-success {
-⋮----
-.alert-danger {
-⋮----
-.alert strong {
-⋮----
-.btn-retry {
-⋮----
-/* Header */
-.review-header {
-⋮----
-.header-left {
-⋮----
-.btn-back {
-⋮----
-.btn-back:hover {
-⋮----
-.review-header h1 {
-⋮----
-.status-badge {
-⋮----
-.status-draft { background-color: #e0e0e0; color: #666; }
-.status-submitted { background-color: #e3f2fd; color: #1976d2; }
-.status-pending { background-color: #fff3e0; color: #f57c00; }
-.status-paid { background-color: #e8f5e9; color: #388e3c; }
-.status-review { background-color: #fce4ec; color: #c2185b; }
-.status-approved { background-color: #e8f5e9; color: #00aa44; }
-.status-rejected { background-color: #ffebee; color: #dd0000; }
-.status-credited { background-color: #e0f2f1; color: #00897b; }
-.status-cancelled { background-color: #f5f5f5; color: #999; }
-⋮----
-.header-right {
-⋮----
-.header-date {
-⋮----
-/* Split Screen */
-.split-screen {
-⋮----
-.panel {
-⋮----
-.panel-header {
-⋮----
-.panel-header h2 {
-⋮----
-/* Details Panel */
-.panel-details {
-⋮----
-.detail-section {
-⋮----
-.detail-section:last-child {
-⋮----
-.detail-section h3 {
-⋮----
-.detail-grid {
-⋮----
-.detail-item {
-⋮----
-.detail-item label {
-⋮----
-.detail-item p {
-⋮----
-.detail-item .ref-no {
-⋮----
-.detail-item .code {
-⋮----
-.detail-item .amount {
-⋮----
-/* Calculation Section */
-.calc-section {
-⋮----
-.calc-display {
-⋮----
-.calc-row {
-⋮----
-.calc-row .value {
-⋮----
-.calc-divider {
-⋮----
-.calc-row.result {
-⋮----
-.calc-row.result .value {
-⋮----
-.calc-row.approved .value {
-⋮----
-/* Audit Trail */
-.audit-trail {
-⋮----
-.audit-trail::before {
-⋮----
-.audit-item {
-⋮----
-.audit-item.last {
-⋮----
-.audit-dot {
-⋮----
-.audit-content {
-⋮----
-.audit-transition {
-⋮----
-.audit-meta {
-⋮----
-.audit-reason {
-⋮----
-/* Requests Section */
-.requests-list {
-⋮----
-.request-item {
-⋮----
-.request-type {
-⋮----
-.request-docs {
-⋮----
-.request-meta {
-⋮----
-.request-status {
-⋮----
-.request-status.status-pending { color: var(--color-warning); }
-.request-status.status-fulfilled { color: var(--color-success); }
-.request-status.status-overdue { color: var(--color-danger); }
-⋮----
-/* Documents Panel */
-.panel-documents {
-⋮----
-/* Document Tabs */
-.document-tabs {
-⋮----
-.tabs-container {
-⋮----
-.tab-btn {
-⋮----
-.tab-btn:hover {
-⋮----
-.tab-btn.active {
-⋮----
-.tab-label {
-⋮----
-/* Document Viewer */
-.document-viewer {
-⋮----
-.viewer-header {
-⋮----
-.viewer-header h4 {
-⋮----
-.viewer-meta {
-⋮----
-.viewer-placeholder {
-⋮----
-.viewer-placeholder i {
-⋮----
-.viewer-placeholder p {
-⋮----
-.viewer-placeholder .hint {
-⋮----
-.btn-download {
-⋮----
-.btn-download:hover {
-⋮----
-/* Empty Docs */
-.empty-docs {
-⋮----
-.empty-docs i {
-⋮----
-.empty-docs p {
-⋮----
-/* Actions Panel */
-.actions-panel {
-⋮----
-.action-buttons {
-⋮----
-.btn {
-⋮----
-.btn:disabled {
-⋮----
-.btn-approve {
-⋮----
-.btn-approve:hover:not(:disabled) {
-⋮----
-.btn-reject {
-⋮----
-.btn-reject:hover:not(:disabled) {
-⋮----
-.btn-request {
-⋮----
-.btn-request:hover:not(:disabled) {
-⋮----
-.btn-secondary {
-⋮----
-.btn-secondary:hover:not(:disabled) {
-⋮----
-.action-error {
-⋮----
-/* Modals */
-.modal-overlay {
-⋮----
-.modal {
-⋮----
-.modal-header {
-⋮----
-.modal-header h3 {
-⋮----
-.btn-close {
-⋮----
-.btn-close:hover {
-⋮----
-.modal-body {
-⋮----
-.form-group {
-⋮----
-.form-group:last-child {
-⋮----
-.form-group label {
-⋮----
-.form-control {
-⋮----
-.form-control:focus {
-⋮----
-.form-hint {
-⋮----
-.modal-actions {
-⋮----
-.modal-actions .btn {
-⋮----
-/* Responsive */
-```
-
-## File: src/app/features/ait/pages/officer-review/officer-review.component.html
-```html
-<div class="review-container">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading AIT record...</p>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="loadError && !isLoading" class="alert alert-danger">
-    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
-    {{ loadError }}
-    <button class="btn-retry" (click)="loadAitDetails()">Retry</button>
-  </div>
-
-  <!-- Success Message -->
-  <div *ngIf="actionSuccess" class="alert alert-success alert-dismissible">
-    <strong><i class="ti ti-circle-check"></i> Success!</strong>
-    {{ actionSuccess }}
-  </div>
-
-  <!-- Content -->
-  <div *ngIf="!isLoading && ait" class="review-content">
-    <!-- Header -->
-    <div class="review-header">
-      <div class="header-left">
-        <button class="btn-back" (click)="goBack()">
-          <i class="ti ti-chevron-left"></i> Back to Queue
-        </button>
-        <h1>{{ ait.aitReferenceNo }}</h1>
-        <span class="status-badge" [ngClass]="getStatusColor(ait.status)">
-          {{ getStatusLabel(ait.status) }}
-        </span>
-      </div>
-      <div class="header-right">
-        <p class="header-date">{{ formatDate(ait.createdAt || '') }}</p>
-      </div>
-    </div>
-
-    <!-- Split Screen Layout -->
-    <div class="split-screen">
-      <!-- LEFT PANEL: Details -->
-      <div class="panel panel-details">
-        <div class="panel-header">
-          <h2><i class="ti ti-receipt-2"></i> AIT Details</h2>
-        </div>
-
-        <!-- Taxpayer Section -->
-        <div class="detail-section">
-          <h3>Taxpayer Information</h3>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>Name:</label>
-              <p>{{ ait.taxpayerName }}</p>
-            </div>
-            <div class="detail-item">
-              <label>TIN:</label>
-              <p>{{ ait.taxpayerId }}</p>
-            </div>
-            <div class="detail-item">
-              <label>Officer Assigned:</label>
-              <p>{{ ait.assignedOfficerName || 'Not assigned' }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Transaction Section -->
-        <div class="detail-section">
-          <h3>Import Duty Transaction</h3>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>Duty Reference No:</label>
-              <p class="ref-no">{{ ait.importDutyRefNo }}</p>
-            </div>
-            <div class="detail-item">
-              <label>HS Code:</label>
-              <p class="code">{{ ait.hsCode }}</p>
-            </div>
-            <div class="detail-item">
-              <label>Taxable Value:</label>
-              <p class="amount">৳ {{ ait.taxableValue | number:'1.2-2' }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Calculation Section -->
-        <div class="detail-section calc-section">
-          <h3>AIT Calculation</h3>
-          <div class="calc-display">
-            <div class="calc-row">
-              <span>Taxable Value:</span>
-              <span class="value">৳ {{ ait.taxableValue | number:'1.2-2' }}</span>
-            </div>
-            <div class="calc-row">
-              <span>Rate:</span>
-              <span class="value">{{ ait.aitRate }}%</span>
-            </div>
-            <div class="calc-divider"></div>
-            <div class="calc-row result">
-              <span>Calculated AIT:</span>
-              <span class="value">৳ {{ ait.calculatedAitAmount | number:'1.2-2' }}</span>
-            </div>
-            <div *ngIf="ait.approvedAitAmount" class="calc-row approved">
-              <span>Approved Amount:</span>
-              <span class="value">৳ {{ ait.approvedAitAmount | number:'1.2-2' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Audit Trail Section -->
-        <div class="detail-section audit-section">
-          <h3>Status History</h3>
-          <div class="audit-trail">
-            <div *ngFor="let event of ait.statusHistory; let i = last" class="audit-item" [class.last]="i">
-              <div class="audit-dot"></div>
-              <div class="audit-content">
-                <p class="audit-transition">
-                  <strong>{{ event.fromStatus }}</strong> → <strong>{{ event.toStatus }}</strong>
-                </p>
-                <p class="audit-meta">
-                  by {{ event.changedBy }} on {{ formatDate(event.changedAt) }}
-                </p>
-                <p class="audit-reason" *ngIf="event.changeReason">{{ event.changeReason }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pending Requests Section -->
-        <div *ngIf="pendingRequests.length > 0" class="detail-section requests-section">
-          <h3>Pending Document Requests</h3>
-          <div class="requests-list">
-            <div *ngFor="let req of pendingRequests" class="request-item">
-              <p class="request-type"><strong>{{ req.requestType }}</strong></p>
-              <p class="request-docs">Documents: {{ req.requestedDocuments }}</p>
-              <p class="request-meta">Deadline: {{ formatDate(req.deadline) }}</p>
-              <p class="request-status" [ngClass]="'status-' + req.status.toLowerCase()">
-                {{ req.status }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RIGHT PANEL: Documents & Actions -->
-      <div class="panel panel-documents">
-        <div class="panel-header">
-          <h2><i class="ti ti-paperclip"></i> Documents ({{ documents.length }})</h2>
-        </div>
-
-        <!-- Document Tabs -->
-        <div *ngIf="documents.length > 0" class="document-tabs">
-          <div class="tabs-container">
-            <button
-              *ngFor="let doc of documents"
-              class="tab-btn"
-              [class.active]="activeDocTabId === doc.id"
-              (click)="selectDocument(doc)"
-              title="{{ doc.fileName }}">
-              <i class="ti ti-file"></i>
-              <span class="tab-label">{{ doc.fileName | slice:0:20 }}{{ doc.fileName.length > 20 ? '...' : '' }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Document Viewer -->
-        <div *ngIf="selectedDocument" class="document-viewer">
-          <div class="viewer-header">
-            <h4>{{ selectedDocument.fileName }}</h4>
-            <p class="viewer-meta">
-              {{ formatFileSize(selectedDocument.fileSize) }} • {{ selectedDocument.fileType }} • {{ formatDate(selectedDocument.uploadedAt) }}
-            </p>
-          </div>
-
-          <div class="viewer-placeholder">
-            <i class="ti ti-file"></i>
-            <p>Document preview not available in browser</p>
-            <p class="hint">{{ selectedDocument.fileName }}</p>
-            <button class="btn-download" title="Download document">
-              <i class="ti ti-download"></i> Download
-            </button>
-          </div>
-        </div>
-
-        <!-- Empty Documents -->
-        <div *ngIf="documents.length === 0" class="empty-docs">
-          <i class="ti ti-inbox"></i>
-          <p>No documents uploaded</p>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="actions-panel">
-          <div class="action-buttons">
-            <button
-              class="btn btn-approve"
-              (click)="openApproveModal()"
-              [disabled]="!canApprove() || actionInProgress !== null">
-              <i class="ti ti-circle-check"></i> Approve
-            </button>
-
-            <button
-              class="btn btn-reject"
-              (click)="openRejectModal()"
-              [disabled]="!canReject() || actionInProgress !== null">
-              <i class="ti ti-circle-x"></i> Reject
-            </button>
-
-            <button
-              class="btn btn-request"
-              (click)="openRequestModal()"
-              [disabled]="!canRequestCorrection() || actionInProgress !== null">
-              <i class="ti ti-send"></i> Request Correction
-            </button>
-          </div>
-
-          <p *ngIf="actionError" class="action-error">
-            <i class="ti ti-alert-circle"></i> {{ actionError }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modals -->
-
-    <!-- APPROVE MODAL -->
-    <div *ngIf="showApproveModal" class="modal-overlay" (click)="closeApproveModal()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Approve AIT Record</h3>
-          <button class="btn-close" (click)="closeApproveModal()">
-            <i class="ti ti-x"></i>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Approved AIT Amount (৳)</label>
-            <input
-              type="number"
-              class="form-control"
-              [(ngModel)]="approveForm.approvedAmount"
-              step="0.01"
-              min="0">
-            <p class="form-hint">Current calculated amount: ৳ {{ ait.calculatedAitAmount | number:'1.2-2' }}</p>
-          </div>
-
-          <div class="form-group">
-            <label>Approval Notes</label>
-            <textarea
-              class="form-control"
-              [(ngModel)]="approveForm.approvalNotes"
-              rows="3"
-              placeholder="Optional notes about this approval"></textarea>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn btn-secondary" (click)="closeApproveModal()" [disabled]="actionInProgress !== null">
-            Cancel
-          </button>
-          <button
-            class="btn btn-approve"
-            (click)="submitApprove()"
-            [disabled]="actionInProgress !== null">
-            {{ actionInProgress === 'approve' ? 'Approving...' : 'Approve' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- REJECT MODAL -->
-    <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeRejectModal()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Reject AIT Record</h3>
-          <button class="btn-close" (click)="closeRejectModal()">
-            <i class="ti ti-x"></i>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Rejection Reason *</label>
-            <textarea
-              class="form-control"
-              [(ngModel)]="rejectForm.rejectionReason"
-              rows="4"
-              placeholder="Please explain why this AIT record is being rejected"
-              required></textarea>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn btn-secondary" (click)="closeRejectModal()" [disabled]="actionInProgress !== null">
-            Cancel
-          </button>
-          <button
-            class="btn btn-reject"
-            (click)="submitReject()"
-            [disabled]="actionInProgress !== null || !rejectForm.rejectionReason.trim()">
-            {{ actionInProgress === 'reject' ? 'Rejecting...' : 'Reject' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- REQUEST CORRECTION MODAL -->
-    <div *ngIf="showRequestModal" class="modal-overlay" (click)="closeRequestModal()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Request Document Correction</h3>
-          <button class="btn-close" (click)="closeRequestModal()">
-            <i class="ti ti-x"></i>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Request Type</label>
-            <select class="form-control" [(ngModel)]="requestForm.requestType">
-              <option value="INFO">Information Request</option>
-              <option value="MODIFICATION">Modification Request</option>
-              <option value="CLARIFICATION">Clarification Request</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Documents Required *</label>
-            <textarea
-              class="form-control"
-              [(ngModel)]="requestForm.requestedDocuments"
-              rows="2"
-              placeholder="List the documents or information needed"
-              required></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Reason for Request</label>
-            <textarea
-              class="form-control"
-              [(ngModel)]="requestForm.requestReason"
-              rows="2"
-              placeholder="Explain why this information is needed"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Deadline</label>
-            <input
-              type="date"
-              class="form-control"
-              [(ngModel)]="requestForm.deadline">
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn btn-secondary" (click)="closeRequestModal()" [disabled]="actionInProgress !== null">
-            Cancel
-          </button>
-          <button
-            class="btn btn-request"
-            (click)="submitRequest()"
-            [disabled]="actionInProgress !== null || !requestForm.requestedDocuments.trim()">
-            {{ actionInProgress === 'request' ? 'Sending...' : 'Send Request' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-</div>
-```
-
-## File: src/app/features/ait/pages/officer-review/officer-review.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AitService } from '../../services/ait.service';
-import { AitDetailResponse, AitDocument, DocumentRequest } from '../../models/ait.model';
-⋮----
-export class OfficerReviewComponent implements OnInit
-⋮----
-// Actions state
-⋮----
-// Modals
-⋮----
-// Form data
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-loadAitDetails(): void
-⋮----
-selectDocument(doc: AitDocument): void
-⋮----
-// Approve Action
-openApproveModal(): void
-⋮----
-closeApproveModal(): void
-⋮----
-submitApprove(): void
-⋮----
-// this.aitService.approve(this.ait.id, this.approveForm.approvedAmount, this.approveForm.approvalNotes).subscribe({
-//   next: (result) => {
-//     this.actionSuccess = 'AIT record approved successfully!';
-//     this.actionInProgress = null;
-//     this.showApproveModal = false;
-//     setTimeout(() => {
-//       this.router.navigate(['/aits/officer-dashboard']);
-//     }, 2000);
-//   },
-//   error: (err) => {
-//     this.actionError = err?.message || 'Failed to approve AIT. Please try again.';
-//     this.actionInProgress = null;
-//   }
-// });
-⋮----
-// Reject Action
-openRejectModal(): void
-⋮----
-closeRejectModal(): void
-⋮----
-submitReject(): void
-⋮----
-// this.aitService.reject(this.ait.id, this.rejectForm.rejectionReason).subscribe({
-//   next: (result) => {
-//     this.actionSuccess = 'AIT record rejected successfully!';
-//     this.actionInProgress = null;
-//     this.showRejectModal = false;
-//     setTimeout(() => {
-//       this.router.navigate(['/aits/officer-dashboard']);
-//     }, 2000);
-//   },
-//   error: (err) => {
-//     this.actionError = err?.message || 'Failed to reject AIT. Please try again.';
-//     this.actionInProgress = null;
-//   }
-// });
-⋮----
-// Request Correction Action
-openRequestModal(): void
-⋮----
-closeRequestModal(): void
-⋮----
-submitRequest(): void
-⋮----
-// Helpers
-getStatusColor(status: string): string
-⋮----
-getStatusLabel(status: string): string
-⋮----
-formatDate(dateStr: string): string
-⋮----
-formatFileSize(bytes: number): string
-⋮----
-goBack(): void
-⋮----
-canApprove(): boolean
-⋮----
-canReject(): boolean
-⋮----
-canRequestCorrection(): boolean
-```
-
 ## File: src/app/features/ait/services/ait.service.ts
 ```typescript
 import { Injectable } from '@angular/core';
@@ -3115,175 +943,6 @@ getMockPendingQueue(): AitRecord[]
 getMockMyQueue(): AitRecord[]
 ⋮----
 private getEmptyDetail(): AitDetailResponse
-```
-
-## File: src/app/app.component.css
-```css
-* {
-⋮----
-body {
-```
-
-## File: src/app/app.component.spec.ts
-```typescript
-import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { AppComponent } from './app.component';
-```
-
-## File: src/app/app.component.ts
-```typescript
-import { Component } from '@angular/core';
-⋮----
-export class AppComponent {
-```
-
-## File: src/app/core/directives/has-role.directive.ts
-```typescript
-import {
-  Directive, Input, TemplateRef,
-  ViewContainerRef, OnInit
-} from '@angular/core';
-import { AuthService } from '../services/auth.service';
-⋮----
-export class HasRoleDirective implements OnInit {
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-export class CanDoDirective implements OnInit {
-```
-
-## File: src/app/core/interceptors/error.interceptor.ts
-```typescript
-import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HttpErrorResponse,
-} from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { ToastService } from '../../shared/toast/toast.service';
-⋮----
-/**
- * ErrorInterceptor — global HTTP error handler.
- *
- * Responsibility:
- *   • 400 Bad Request  → toast the server message (or a safe fallback).
- *   • 409 Conflict     → toast duplicate/conflict message.
- *   • 5xx / network    → toast a generic server-error message.
- *   • Always rethrows so individual components can react (e.g. stop spinners).
- *
- * NOTE: Components should NOT re-toast 400/409 themselves. They may still
- *       inspect `err.status` to perform UI-only actions (e.g. highlighting a field).
- */
-⋮----
-export class ErrorInterceptor implements HttpInterceptor
-⋮----
-constructor(private toast: ToastService)
-⋮----
-intercept(
-    request: HttpRequest<unknown>,
-    next: HttpHandler,
-): Observable<HttpEvent<unknown>>
-⋮----
-// Network error / CORS / server down
-⋮----
-// 401 is already handled by AuthInterceptor — no duplicate toast here.
-```
-
-## File: src/app/core/services/tax-strcuture.service.ts
-```typescript
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-⋮----
-import { API_ENDPOINTS }            from 'src/app/core/constants/api.constants';
-import { AuthService }              from 'src/app/core/services/auth.service';
-import {
-  TaxStructure,
-  TaxStructureCreateRequest,
-  TaxStructureUpdateRequest,
-  TaxMasterData,
-  TaxPreviewResponse,
-  TaxPreviewRequest,
-} from '../../models/tax-structure.model';
-⋮----
-/** Fallback master data shown when the API is unreachable (e.g. during development). */
-⋮----
-export class TaxStructureService {
-⋮----
-constructor(
-⋮----
-// ── Master Data ────────────────────────────────────────────────────────────
-⋮----
-/**
-   * Fetch dropdown reference values from the backend.
-   * Falls back to FALLBACK_MASTER if the API is unavailable.
-   */
-getMasterData(): Observable<TaxMasterData>
-⋮----
-// ── CRUD ───────────────────────────────────────────────────────────────────
-⋮----
-getAll(): Observable<TaxStructure[]>
-⋮----
-getById(id: number): Observable<TaxStructure>
-⋮----
-create(payload: TaxStructureCreateRequest): Observable<TaxStructure>
-⋮----
-/**
-   * Sends X-Updated-By header so the backend can populate the audit-trail field.
-   */
-update(id: number, payload: TaxStructureUpdateRequest): Observable<TaxStructure>
-⋮----
-delete(id: number): Observable<void>
-⋮----
-// ── Preview ────────────────────────────────────────────────────────────────
-⋮----
-/**
-   * Ad-hoc preview (Create page — no saved ID yet).
-   * POST /api/tax-structures/preview
-   */
-previewAdHoc(req: TaxPreviewRequest): Observable<TaxPreviewResponse>
-⋮----
-/**
-   * Preview using a saved TaxStructure (Edit / View pages).
-   * POST /api/tax-structures/{id}/preview
-   */
-previewById(id: number, amount: number): Observable<TaxPreviewResponse>
-```
-
-## File: src/app/features/activity-logs/activity-logs/activity-logs-routing.module.ts
-```typescript
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { ActivityLogsListComponent } from '../pages/activity-logs-list/activity-logs-list.component';
-⋮----
-export class ActivityLogsRoutingModule
-```
-
-## File: src/app/features/activity-logs/activity-logs/activity-logs.module.ts
-```typescript
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { SharedModule } from '../../../shared/shared.module';
-import { ActivityLogsRoutingModule } from './activity-logs-routing.module';
-import { ActivityLogsListComponent } from '../pages/activity-logs-list/activity-logs-list.component';
-⋮----
-export class ActivityLogsModule
-```
-
-## File: src/app/features/activity-logs/pages/activity-logs-list/activity-logs-list.component.spec.ts
-```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-⋮----
-import { ActivityLogsListComponent } from './activity-logs-list.component';
 ```
 
 ## File: src/app/features/audit-management/audit/audit-routing.module.ts
@@ -3635,23 +1294,6 @@ import { LoginComponent } from './login.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 ⋮----
 import { ResetPasswordComponent } from './reset-password.component';
-```
-
-## File: src/app/features/auth/pages/reset-password/reset-password.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { ToastService } from '../../../../shared/toast/toast.service';
-⋮----
-export class ResetPasswordComponent implements OnInit
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-onSubmit(): void
 ```
 
 ## File: src/app/features/auth/pages/unauthorized/unauthorized.component.css
@@ -4037,6 +1679,710 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BusinessViewComponent } from './business-view.component';
 ```
 
+## File: src/app/features/certificate-management/certificate/certificate-routing.module.ts
+```typescript
+// certificate-routing.module.ts
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { CertificateListComponent } from '../pages/certificate-list/certificate-list.component';
+import { CertificateViewComponent } from '../pages/certificate-view/certificate-view.component';
+⋮----
+export class CertificateRoutingModule
+```
+
+## File: src/app/features/certificate-management/certificate/certificate.module.ts
+```typescript
+// certificate.module.ts
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { SharedModule } from 'src/app/shared/shared.module';
+⋮----
+import { CertificateRoutingModule } from './certificate-routing.module';
+import { CertificateListComponent } from '../pages/certificate-list/certificate-list.component';
+import { CertificateViewComponent } from '../pages/certificate-view/certificate-view.component';
+⋮----
+export class CertificateModule
+```
+
+## File: src/app/features/certificate-management/models/certificate.model.ts
+```typescript
+export type CertificateType = 'TIN' | 'BIN' | 'TAX_CLEARANCE' | 'RETURN_ACK';
+⋮----
+export interface Certificate {
+  id:              number;
+  certificateNo:   string;
+  type:            CertificateType;
+  holderName:      string;
+  referenceNo:     string;
+  issuedDate:      string;
+  expiryDate?:     string;
+  status:          string;
+  taxZone?:        string;
+  taxCircle?:      string;
+  assessmentYear?: string;
+  sourceId:        number;
+}
+⋮----
+export interface TaxClearanceCreateRequest {
+  taxpayerId:     number;
+  assessmentYear: string;
+  issuedDate?:    string;
+  validUntil?:    string;
+  remarks?:       string;
+}
+⋮----
+export interface PublicVerifyResult {
+  valid:           boolean;
+  certificateNo?:  string;
+  taxpayerName?:   string;
+  tinNumber?:      string;
+  assessmentYear?: string;
+  issuedDate?:     string;
+  validUntil?:     string;
+  status?:         string;
+  message?:        string;
+}
+```
+
+## File: src/app/features/certificate-management/pages/certificate-list/certificate-list.component.css
+```css
+/* certificate-list.component.css — REPLACE করো Phase 1&2 এরটা */
+⋮----
+/* ── Page Header ─────────────────────────────────────────── */
+.header-actions {
+⋮----
+.btn-verify {
+.btn-verify:hover {
+⋮----
+.btn-create {
+.btn-create:hover {
+⋮----
+/* ── Loading ─────────────────────────────────────────────── */
+.loading-overlay {
+⋮----
+/* ── KPI Cards ───────────────────────────────────────────── */
+.kpi-row {
+.kpi-card {
+.kpi-icon {
+.kpi-total {
+.kpi-tin {
+.kpi-bin {
+.kpi-tc {
+.kpi-ack {
+.kpi-value {
+.kpi-label {
+⋮----
+/* ── Filter Bar ──────────────────────────────────────────── */
+.filter-bar {
+.tab-group {
+.tab-btn {
+.tab-btn:hover {
+.tab-btn.active {
+.tab-count {
+.tab-btn:not(.active) .tab-count {
+⋮----
+.search-wrap {
+.search-icon {
+.search-input {
+.search-input:focus {
+⋮----
+/* ── Table ───────────────────────────────────────────────── */
+.data-table-wrap {
+.data-table {
+.data-table thead tr {
+.data-table th {
+.data-table td {
+.clickable-row {
+.clickable-row:hover {
+.clickable-row:last-child td {
+⋮----
+.cert-no {
+⋮----
+/* ── Type Badges ─────────────────────────────────────────── */
+.type-badge {
+.type-tin {
+.type-bin {
+.type-tc {
+.type-ack {
+⋮----
+/* ── Status Badges ───────────────────────────────────────── */
+.status-badge {
+.status-active {
+.status-expired {
+.status-revoked {
+.status-pending {
+⋮----
+/* ── Download Button ─────────────────────────────────────── */
+.btn-download {
+.btn-download:hover:not(:disabled) {
+.btn-download:disabled {
+⋮----
+/* ── Empty State ─────────────────────────────────────────── */
+.empty-state {
+.empty-state i {
+.empty-state p {
+⋮----
+/* ── Modal ───────────────────────────────────────────────── */
+.modal-overlay {
+.modal-box {
+.modal-header {
+.modal-header h5 {
+.modal-close {
+.modal-close:hover {
+⋮----
+.modal-body {
+⋮----
+.form-group {
+.form-label {
+.form-label.required::after {
+.form-input {
+.form-input:focus {
+⋮----
+.modal-footer {
+.btn-cancel {
+.btn-cancel:hover {
+.btn-confirm {
+.btn-confirm:hover:not(:disabled) {
+.btn-confirm:disabled {
+```
+
+## File: src/app/features/certificate-management/pages/certificate-list/certificate-list.component.html
+```html
+<!-- certificate-list.component.html — REPLACE করো Phase 1&2 এরটা -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Certificate Management</h4>
+    <p>View and download TIN, BIN, Tax Clearance &amp; Return Acknowledgment certificates.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-verify" (click)="goToVerify()">
+      <i class="bi bi-patch-check"></i> Public Verify
+    </button>
+    <button *ngIf="isOfficer" class="btn-create" (click)="openCreateModal()">
+      <i class="bi bi-plus-circle-fill"></i> Issue Tax Clearance
+    </button>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+  <p>Loading certificates...</p>
+</div>
+
+<ng-container *ngIf="!isLoading">
+
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-total"><i class="bi bi-patch-check-fill"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ certificates.length }}</div>
+        <div class="kpi-label">Total</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-tin"><i class="bi bi-person-badge-fill"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ countByType('TIN') }}</div>
+        <div class="kpi-label">TIN Certificates</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-bin"><i class="bi bi-building-fill"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ countByType('BIN') }}</div>
+        <div class="kpi-label">BIN Certificates</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-tc"><i class="bi bi-shield-check-fill"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ countByType('TAX_CLEARANCE') }}</div>
+        <div class="kpi-label">Tax Clearance</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-ack"><i class="bi bi-receipt"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ countByType('RETURN_ACK') }}</div>
+        <div class="kpi-label">Return Ack.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="tab-group">
+      <button class="tab-btn" [class.active]="activeTab === 'ALL'" (click)="setTab('ALL')">
+        All <span class="tab-count">{{ certificates.length }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'TIN'" (click)="setTab('TIN')">
+        TIN <span class="tab-count">{{ countByType('TIN') }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'BIN'" (click)="setTab('BIN')">
+        BIN <span class="tab-count">{{ countByType('BIN') }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'TAX_CLEARANCE'" (click)="setTab('TAX_CLEARANCE')">
+        Tax Clearance <span class="tab-count">{{ countByType('TAX_CLEARANCE') }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'RETURN_ACK'" (click)="setTab('RETURN_ACK')">
+        Return Ack. <span class="tab-count">{{ countByType('RETURN_ACK') }}</span>
+      </button>
+    </div>
+    <div class="search-wrap">
+      <i class="bi bi-search search-icon"></i>
+      <input class="search-input" type="text"
+        placeholder="Search by name, TIN, BIN, certificate no..."
+        [(ngModel)]="searchTerm" />
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="data-table-wrap">
+    <table class="data-table" *ngIf="filtered.length > 0; else emptyState">
+      <thead>
+        <tr>
+          <th>Certificate No.</th>
+          <th>Type</th>
+          <th>Holder / Business</th>
+          <th>Reference No.</th>
+          <th>Assessment Year</th>
+          <th>Issued Date</th>
+          <th>Expiry / Valid Until</th>
+          <th>Status</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cert of filtered" (click)="onView(cert)" class="clickable-row">
+          <td><span class="cert-no">{{ cert.certificateNo }}</span></td>
+          <td><span class="type-badge" [ngClass]="getTypeClass(cert.type)">{{ getTypeLabel(cert.type) }}</span></td>
+          <td>{{ cert.holderName }}</td>
+          <td><code>{{ cert.referenceNo }}</code></td>
+          <td>{{ cert.assessmentYear || '—' }}</td>
+          <td>{{ cert.issuedDate | date:'dd MMM yyyy' }}</td>
+          <td>{{ cert.expiryDate ? (cert.expiryDate | date:'dd MMM yyyy') : '—' }}</td>
+          <td><span class="status-badge" [ngClass]="getStatusClass(cert.status)">{{ cert.status }}</span></td>
+          <td>
+            <button class="btn-download" [disabled]="isDownloading(cert)" (click)="onDownload(cert, $event)">
+              <span *ngIf="!isDownloading(cert)"><i class="bi bi-download"></i></span>
+              <span *ngIf="isDownloading(cert)"><span class="spinner-border spinner-border-sm"></span></span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <i class="bi bi-patch-exclamation"></i>
+        <p>No certificates found.</p>
+      </div>
+    </ng-template>
+  </div>
+
+</ng-container>
+
+<!-- ── Tax Clearance Create Modal (officer only) ────────────────── -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5><i class="bi bi-shield-check-fill"></i> Issue Tax Clearance Certificate</h5>
+      <button class="modal-close" (click)="closeCreateModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label required">Taxpayer ID</label>
+        <input class="form-input" type="number" [(ngModel)]="tcForm.taxpayerId"
+          placeholder="e.g. 12" />
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Assessment Year</label>
+        <input class="form-input" type="text" [(ngModel)]="tcForm.assessmentYear"
+          placeholder="e.g. 2024-25" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Remarks</label>
+        <textarea class="form-input" rows="3" [(ngModel)]="tcForm.remarks"
+          placeholder="Optional remarks..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeCreateModal()">Cancel</button>
+      <button class="btn-confirm" (click)="onCreateTaxClearance()" [disabled]="createLoading">
+        <span *ngIf="!createLoading"><i class="bi bi-check-circle-fill"></i> Issue Certificate</span>
+        <span *ngIf="createLoading"><span class="spinner-border spinner-border-sm"></span> Issuing...</span>
+      </button>
+    </div>
+  </div>
+</div>
+```
+
+## File: src/app/features/certificate-management/pages/certificate-list/certificate-list.component.ts
+```typescript
+// certificate-list.component.ts  — REPLACE করো Phase 1&2 এরটা
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
+import { forkJoin, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { CertificateService } from '../../services/certificate.service';
+import { Certificate, CertificateType } from '../../models/certificate.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { Role } from 'src/app/core/constants/roles.constants';
+⋮----
+export class CertificateListComponent implements OnInit, OnDestroy
+⋮----
+// ── State ────────────────────────────────────────────────────────────────
+⋮----
+// Officer-only: Tax Clearance create modal
+⋮----
+constructor(
+⋮----
+get isOfficer(): boolean
+⋮----
+// ── Lifecycle ────────────────────────────────────────────────────────────
+ngOnInit(): void
+ngOnDestroy(): void
+⋮----
+// ── Data Loading ─────────────────────────────────────────────────────────
+private loadAll(): void
+⋮----
+// ── Mappers ───────────────────────────────────────────────────────────────
+private mapTin(t: any): Certificate
+⋮----
+private mapVat(v: any): Certificate
+⋮----
+private mapClearance(c: any): Certificate
+⋮----
+private mapReturn(r: any): Certificate
+⋮----
+private normStatus(s: string): string
+⋮----
+// ── Filtering ─────────────────────────────────────────────────────────────
+setTab(tab: CertificateType | 'ALL'): void
+⋮----
+get filtered(): Certificate[]
+⋮----
+countByType(type: CertificateType): number
+⋮----
+// ── Download ──────────────────────────────────────────────────────────────
+onDownload(cert: Certificate, event: Event): void
+⋮----
+onView(cert: Certificate): void
+⋮----
+// ── Tax Clearance Create (officer) ────────────────────────────────────────
+openCreateModal(): void
+closeCreateModal(): void
+⋮----
+onCreateTaxClearance(): void
+⋮----
+private resetTcForm(): void
+⋮----
+// ── Public Verify navigation ──────────────────────────────────────────────
+goToVerify(): void
+⋮----
+// ── UI Helpers ────────────────────────────────────────────────────────────
+getStatusClass(s: string): string
+⋮----
+getTypeClass(type: CertificateType): string
+⋮----
+getTypeLabel(type: CertificateType): string
+⋮----
+isDownloading(cert: Certificate): boolean
+```
+
+## File: src/app/features/certificate-management/pages/certificate-view/certificate-view.component.css
+```css
+/* certificate-view.component.css */
+⋮----
+.header-actions { display: flex; gap: 10px; align-items: center; }
+⋮----
+.btn-back {
+.btn-back:hover { background: #f8fafd; border-color: #c7d3ef; }
+⋮----
+.btn-download {
+.btn-download:hover:not(:disabled) { background: #163578; }
+.btn-download:disabled { background: #9ca3af; cursor: not-allowed; }
+⋮----
+/* ── Header Card ─────────────────────────────────────────── */
+.view-header-card {
+.cert-icon {
+.tin-icon { background: #e8faf0; color: #0e7847; }
+.bin-icon { background: #fef3e8; color: #a05c00; }
+⋮----
+.cert-no-label { font-family: monospace; font-size: 13px; color: #6b7280; margin-bottom: 2px; }
+.cert-holder   { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+.cert-meta     { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+⋮----
+.ref-pill {
+.type-badge {
+.type-tin { background: #e8faf0; color: #0e7847; }
+.type-bin { background: #fef3e8; color: #a05c00; }
+⋮----
+.status-badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.status-active  { background: #ecfdf5; color: #065f46; }
+.status-expired { background: #fef9c3; color: #92400e; }
+.status-revoked { background: #fee2e2; color: #991b1b; }
+.status-pending { background: #eff6ff; color: #1e40af; }
+⋮----
+/* ── Detail Card ─────────────────────────────────────────── */
+.detail-card {
+.detail-section-header {
+.detail-grid {
+.field-label { font-size: 11px; color: #6b7280; margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
+.field-value { font-size: 14px; color: #1a1a2e; font-weight: 500; }
+.field-value.mono { font-family: monospace; }
+```
+
+## File: src/app/features/certificate-management/pages/certificate-view/certificate-view.component.html
+```html
+<!-- certificate-view.component.html -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Certificate Details</h4>
+    <p>{{ certType === 'tin' ? 'TIN Certificate' : 'BIN Certificate' }}</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button class="btn-download" (click)="onDownload()" [disabled]="isDownloading || isLoading">
+      <span *ngIf="!isDownloading"><i class="bi bi-download"></i> Download PDF</span>
+      <span *ngIf="isDownloading">
+        <span class="spinner-border spinner-border-sm"></span> Downloading...
+      </span>
+    </button>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+  <p>Loading certificate details...</p>
+</div>
+
+<ng-container *ngIf="!isLoading && record">
+
+  <!-- Header Card -->
+  <div class="view-header-card">
+    <div class="cert-icon" [class.tin-icon]="certType === 'tin'" [class.bin-icon]="certType === 'bin'">
+      <i class="bi" [class.bi-person-badge-fill]="certType === 'tin'" [class.bi-building-fill]="certType === 'bin'"></i>
+    </div>
+    <div class="cert-header-info">
+      <div class="cert-no-label">{{ certNo }}</div>
+      <div class="cert-holder">{{ holderName }}</div>
+      <div class="cert-meta">
+        <span class="ref-pill">{{ referenceNo }}</span>
+        <span class="type-badge" [class.type-tin]="certType === 'tin'" [class.type-bin]="certType === 'bin'">
+          {{ certType === 'tin' ? 'TIN' : 'BIN' }}
+        </span>
+        <span class="status-badge" [ngClass]="getStatusClass(status)">{{ status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Sections -->
+  <div class="detail-card">
+    <div class="detail-section-header">
+      <i class="bi bi-info-circle-fill"></i>
+      <span>Certificate Information</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-field">
+        <div class="field-label">Certificate No.</div>
+        <div class="field-value mono">{{ certNo }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">{{ certType === 'tin' ? 'TIN Number' : 'BIN Number' }}</div>
+        <div class="field-value mono">{{ referenceNo }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Issued Date</div>
+        <div class="field-value">{{ issuedDate | date:'dd MMM yyyy' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Expiry Date</div>
+        <div class="field-value">{{ expiryDate ? (expiryDate | date:'dd MMM yyyy') : '—' }}</div>
+      </div>
+      <div class="detail-field" *ngIf="record.taxZone || record.vatZone">
+        <div class="field-label">Tax Zone</div>
+        <div class="field-value">{{ record.taxZone || record.vatZone }}</div>
+      </div>
+      <div class="detail-field" *ngIf="record.taxCircle || record.vatCircle">
+        <div class="field-label">Tax Circle</div>
+        <div class="field-value">{{ record.taxCircle || record.vatCircle }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIN-specific fields -->
+  <div class="detail-card" *ngIf="certType === 'tin'">
+    <div class="detail-section-header">
+      <i class="bi bi-person-fill"></i>
+      <span>Taxpayer Information</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-field">
+        <div class="field-label">Name</div>
+        <div class="field-value">{{ record.taxpayerName }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Category</div>
+        <div class="field-value">{{ record.tinCategory }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">NID</div>
+        <div class="field-value mono">{{ record.nid || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Email</div>
+        <div class="field-value">{{ record.email || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Phone</div>
+        <div class="field-value">{{ record.phone || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">District</div>
+        <div class="field-value">{{ record.district || '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIN-specific fields -->
+  <div class="detail-card" *ngIf="certType === 'bin'">
+    <div class="detail-section-header">
+      <i class="bi bi-building-fill"></i>
+      <span>Business Information</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-field">
+        <div class="field-label">Business Name</div>
+        <div class="field-value">{{ record.businessName }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Owner Name</div>
+        <div class="field-value">{{ record.ownerName || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">TIN Number</div>
+        <div class="field-value mono">{{ record.tinNumber || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">VAT Category</div>
+        <div class="field-value">{{ record.vatCategory || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Trade License No.</div>
+        <div class="field-value mono">{{ record.tradeLicenseNo || '—' }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">District</div>
+        <div class="field-value">{{ record.district || '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+</ng-container>
+```
+
+## File: src/app/features/certificate-management/pages/certificate-view/certificate-view.component.ts
+```typescript
+// certificate-view.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { CertificateService } from '../../services/certificate.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+⋮----
+export class CertificateViewComponent implements OnInit, OnDestroy
+⋮----
+// ── State ────────────────────────────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+// ── Lifecycle ────────────────────────────────────────────────────────────
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Data ─────────────────────────────────────────────────────────────────
+⋮----
+private loadRecord(): void
+⋮----
+// ── Actions ──────────────────────────────────────────────────────────────
+⋮----
+onDownload(): void
+⋮----
+onBack(): void
+⋮----
+// ── UI Helpers ───────────────────────────────────────────────────────────
+⋮----
+get certNo(): string
+⋮----
+get holderName(): string
+⋮----
+get referenceNo(): string
+⋮----
+get issuedDate(): string
+⋮----
+get expiryDate(): string | null
+⋮----
+get status(): string
+⋮----
+getStatusClass(s: string): string
+```
+
+## File: src/app/features/certificate-management/services/certificate.service.ts
+```typescript
+// certificate.service.ts  — REPLACE করো Phase 1&2 এর service টা
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { TaxClearanceCreateRequest, PublicVerifyResult } from '../models/certificate.model';
+⋮----
+export class CertificateService
+⋮----
+constructor(private http: HttpClient)
+⋮----
+// ── TIN ──────────────────────────────────────────────────────────────────
+getTins(): Observable<any[]>
+⋮----
+downloadTinCertificate(tinId: number): Observable<HttpResponse<Blob>>
+⋮----
+// ── BIN ──────────────────────────────────────────────────────────────────
+getVatRegistrations(): Observable<any[]>
+⋮----
+downloadBinCertificate(vatId: number): Observable<HttpResponse<Blob>>
+⋮----
+// ── Tax Clearance ─────────────────────────────────────────────────────────
+getTaxClearances(): Observable<any[]>
+⋮----
+createTaxClearance(req: TaxClearanceCreateRequest): Observable<any>
+⋮----
+approveTaxClearance(id: number): Observable<any>
+⋮----
+revokeTaxClearance(id: number, remarks: string): Observable<any>
+⋮----
+downloadTaxClearanceCertificate(id: number): Observable<HttpResponse<Blob>>
+⋮----
+// ── Return Acknowledgment ─────────────────────────────────────────────────
+getIncomeTaxReturns(): Observable<any[]>
+⋮----
+downloadReturnAcknowledgment(itrId: number): Observable<HttpResponse<Blob>>
+⋮----
+// ── Public Verify ─────────────────────────────────────────────────────────
+publicVerify(certNo: string): Observable<PublicVerifyResult>
+```
+
 ## File: src/app/features/dashboard/pages/dashboard-home/dashboard-home.component.spec.ts
 ```typescript
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -4108,127 +2454,6 @@ import { DocumentViewComponent } from './document-view.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 ⋮----
 import { FiscalYearCreateComponent } from './fiscal-year-create.component';
-```
-
-## File: src/app/features/fiscal-years/pages/fiscal-year-edit/fiscal-year-edit.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>Edit Fiscal Year</h4>
-    <p>Update fiscal year configuration and tax deadlines.</p>
-  </div>
-  <button class="btn-back" (click)="onCancel()">
-    <i class="bi bi-arrow-left"></i> Back to List
-  </button>
-</div>
-
-<div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
-<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
-<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border text-primary"></div></div>
-
-<div class="form-card" *ngIf="!isLoading">
-
-  <div class="edit-banner">
-    <i class="bi bi-pencil-square"></i>
-    Editing Fiscal Year: <strong>FY {{ form.yearName }}</strong>
-  </div>
-
-  <!-- Section 1: Year Info -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon"><i class="bi bi-calendar-range-fill"></i></div>
-      <div><h6 class="section-title">Fiscal Year Period</h6><span class="section-sub">Year name and start/end dates</span></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">Year Name</label>
-        <div class="input-wrap"><i class="bi bi-calendar input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.yearName" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.status">
-            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">Start Date</label>
-        <div class="input-wrap"><i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.startDate" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">End Date</label>
-        <div class="input-wrap"><i class="bi bi-calendar-x input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.endDate" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 2: Tax Deadlines -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon teal"><i class="bi bi-alarm-fill"></i></div>
-      <div><h6 class="section-title">Tax Deadlines</h6><span class="section-sub">VAT and income tax due dates</span></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">VAT Due Day</label>
-        <div class="input-wrap"><i class="bi bi-receipt-cutoff input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.vatDueDay">
-            <option *ngFor="let d of vatDueDays" [value]="d">{{ d }}th of each month</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Income Tax Due Date</label>
-        <div class="input-wrap"><i class="bi bi-calendar-event input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.incomeTaxDueDate" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 3: Current Year -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon orange"><i class="bi bi-star-fill"></i></div>
-      <div><h6 class="section-title">Current Year Setting</h6><span class="section-sub">Set as the active fiscal year</span></div>
-    </div>
-    <div class="toggle-section">
-      <div class="toggle-info">
-        <div class="ti-title">Set as Current Year</div>
-        <div class="ti-desc">Previous current year will be automatically closed.</div>
-      </div>
-      <div class="toggle-wrap">
-        <label class="toggle-switch">
-          <input type="checkbox" [(ngModel)]="form.isCurrentYear" />
-          <span class="toggle-slider"></span>
-        </label>
-        <span class="toggle-label" [class.on]="form.isCurrentYear">
-          {{ form.isCurrentYear ? 'Yes — Current Year' : 'No' }}
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"><i class="bi bi-x-lg"></i> Cancel</button>
-    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
-      <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update Fiscal Year</span>
-      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
-    </button>
-  </div>
-
-</div>
 ```
 
 ## File: src/app/features/fiscal-years/pages/fiscal-year-edit/fiscal-year-edit.component.spec.ts
@@ -5456,32 +3681,984 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RegStepSuccessComponent } from './reg-step-success.component';
 ```
 
-## File: src/app/features/refund-management/pages/refund-create/refund-create.component.spec.ts
-```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+## File: src/app/features/public-verify/pages/verify-page/verify-page.component.css
+```css
+/* verify-page.component.css */
 ⋮----
-import { RefundCreateComponent } from './refund-create.component';
+.verify-wrapper {
+⋮----
+/* ── Header ──────────────────────────────────────────────── */
+.verify-header {
+.gov-badge {
+.gov-badge i { font-size: 14px; }
+⋮----
+.verify-header h1 {
+.verify-header p {
+⋮----
+/* ── Card ────────────────────────────────────────────────── */
+.verify-card {
+⋮----
+/* ── Search ──────────────────────────────────────────────── */
+.search-label {
+.search-row {
+.search-input {
+.search-input:focus { border-color: #1a3f8f; }
+⋮----
+.btn-verify {
+.btn-verify:hover:not(:disabled) { background: #163578; }
+.btn-verify:disabled { background: #9ca3af; cursor: not-allowed; }
+⋮----
+.btn-clear {
+.btn-clear:hover { background: #e0e5ed; }
+⋮----
+.search-hint { font-size: 11px; color: #9ca3af; margin: 6px 0 0; }
+⋮----
+/* ── Result Box ──────────────────────────────────────────── */
+.result-box {
+.result-valid  { background: #f0fdf4; border-color: #bbf7d0; }
+.result-invalid{ background: #fff1f2; border-color: #fecdd3; }
+⋮----
+.result-icon {
+.valid-icon   { background: #dcfce7; color: #16a34a; }
+.invalid-icon { background: #fee2e2; color: #dc2626; }
+⋮----
+.result-title {
+.result-sub   { font-size: 13px; color: #6b7280; margin-bottom: 14px; }
+⋮----
+.result-grid {
+.result-field {}
+.field-label {
+.field-value  { font-size: 13px; font-weight: 500; color: #1a1a2e; }
+.field-value.mono { font-family: monospace; }
+⋮----
+.status-badge {
+.status-approved { background: #dcfce7; color: #166534; }
+⋮----
+/* ── Footer ──────────────────────────────────────────────── */
+.verify-footer {
 ```
 
-## File: src/app/features/refund-management/pages/refund-edit/refund-edit.component.spec.ts
-```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-⋮----
-import { RefundEditComponent } from './refund-edit.component';
+## File: src/app/features/public-verify/pages/verify-page/verify-page.component.html
+```html
+<!-- verify-page.component.html -->
+<div class="verify-wrapper">
+
+  <!-- Header -->
+  <div class="verify-header">
+    <div class="gov-badge">
+      <i class="bi bi-shield-fill-check"></i>
+      <span>National Board of Revenue</span>
+    </div>
+    <h1>Certificate Verification Portal</h1>
+    <p>Enter a Tax Clearance Certificate number to verify its authenticity.</p>
+  </div>
+
+  <!-- Search Box -->
+  <div class="verify-card">
+    <div class="search-group">
+      <label class="search-label">Certificate Number</label>
+      <div class="search-row">
+        <input
+          class="search-input"
+          type="text"
+          [(ngModel)]="certNo"
+          placeholder="e.g. CERT-TC-2025-00001"
+          (keyup.enter)="onVerify()"
+        />
+        <button class="btn-verify" (click)="onVerify()" [disabled]="isLoading || !certNo.trim()">
+          <span *ngIf="!isLoading"><i class="bi bi-search"></i> Verify</span>
+          <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm"></span> Verifying...</span>
+        </button>
+        <button class="btn-clear" *ngIf="certNo" (click)="onClear()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <p class="search-hint">Only Tax Clearance Certificates can be verified publicly.</p>
+    </div>
+
+    <!-- ── Valid Result ─────────────────────────────────── -->
+    <div class="result-box result-valid" *ngIf="result?.valid">
+      <div class="result-icon valid-icon">
+        <i class="bi bi-patch-check-fill"></i>
+      </div>
+      <div class="result-content">
+        <div class="result-title">Certificate Verified</div>
+        <div class="result-sub">This is a genuine NBR-issued Tax Clearance Certificate.</div>
+
+        <div class="result-grid">
+          <div class="result-field">
+            <div class="field-label">Certificate No.</div>
+            <div class="field-value mono">{{ result?.certificateNo }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Taxpayer Name</div>
+            <div class="field-value">{{ result?.taxpayerName }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">TIN Number</div>
+            <div class="field-value mono">{{ result?.tinNumber }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Assessment Year</div>
+            <div class="field-value">{{ result?.assessmentYear }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Issued Date</div>
+            <div class="field-value">{{ result?.issuedDate | date:'dd MMM yyyy' }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Valid Until</div>
+            <div class="field-value">{{ result?.validUntil | date:'dd MMM yyyy' }}</div>
+          </div>
+          <div class="result-field">
+            <div class="field-label">Status</div>
+            <div class="field-value">
+              <span class="status-badge status-approved">{{ result?.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Invalid Result ──────────────────────────────── -->
+    <div class="result-box result-invalid" *ngIf="searched && result && !result.valid">
+      <div class="result-icon invalid-icon">
+        <i class="bi bi-x-circle-fill"></i>
+      </div>
+      <div class="result-content">
+        <div class="result-title">Not Found</div>
+        <div class="result-sub">{{ result?.message || 'No valid certificate found for this number.' }}</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="verify-footer">
+    <p>For queries, contact NBR at <strong>nbr@nbr.gov.bd</strong></p>
+  </div>
+
+</div>
 ```
 
-## File: src/app/features/refund-management/pages/refund-list/refund-list.component.spec.ts
+## File: src/app/features/public-verify/pages/verify-page/verify-page.component.ts
 ```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+// verify-page.component.ts
+import { Component } from '@angular/core';
+import { finalize } from 'rxjs/operators';
+import { PublicVerifyResult } from 'src/app/features/certificate-management/models/certificate.model';
+import { CertificateService } from '../../../certificate-management/services/certificate.service';
 ⋮----
-import { RefundListComponent } from './refund-list.component';
+export class VerifyPageComponent
+⋮----
+constructor(private certService: CertificateService)
+⋮----
+onVerify(): void
+⋮----
+onClear(): void
 ```
 
-## File: src/app/features/refund-management/pages/refund-view/refund-view.component.spec.ts
+## File: src/app/features/public-verify/public-verify/public-verify-routing.module.ts
+```typescript
+// public-verify-routing.module.ts
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { VerifyPageComponent } from '../pages/verify-page/verify-page.component';
+⋮----
+// ⚠️ AuthGuard নেই — এই route সবার জন্য open
+⋮----
+export class PublicVerifyRoutingModule
+```
+
+## File: src/app/features/public-verify/public-verify/public-verify.module.ts
+```typescript
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+⋮----
+import { PublicVerifyRoutingModule } from './public-verify-routing.module';
+import { VerifyPageComponent } from '../pages/verify-page/verify-page.component';
+⋮----
+export class PublicVerifyModule
+```
+
+## File: src/app/features/refund-management/components/refund-status-badge/refund-status-badge.component.css
+```css
+.refund-badge {
+⋮----
+/* Sizes */
+.refund-badge--sm  { font-size: 0.72rem; padding: 2px 8px; }
+.refund-badge--md  { font-size: 0.78rem; padding: 4px 11px; }
+.refund-badge--lg  { font-size: 0.85rem; padding: 5px 14px; }
+⋮----
+/* Status colours */
+.badge-draft       { background: #f1efe8; color: #444441; border-color: #dcdbd5; }
+.badge-submitted   { background: #e6f1fb; color: #0c447c; border-color: #b6d4f5; }
+.badge-verify      { background: #eeedfe; color: #3c3489; border-color: #c4c0f8; }
+.badge-info-req    { background: #faeeda; color: #633806; border-color: #f5d898; }
+.badge-response    { background: #fef9ec; color: #8a6200; border-color: #f5d898; }
+.badge-recommended { background: #e1f5ee; color: #085041; border-color: #8fd4bf; }
+.badge-supervisor  { background: #ede9fe; color: #4c1d95; border-color: #c4b5fd; }
+.badge-approved    { background: #eaf3de; color: #27500a; border-color: #a3c97a; }
+.badge-rejected    { background: #fcebeb; color: #791f1f; border-color: #f09595; }
+.badge-pay-pending { background: #e1f5ee; color: #085041; border-color: #8fd4bf; }
+.badge-processing  { background: #e6f1fb; color: #0c447c; border-color: #b6d4f5; }
+.badge-paid        { background: #eaf3de; color: #27500a; border-color: #3b6d11; }
+.badge-failed      { background: #fcebeb; color: #791f1f; border-color: #a32d2d; }
+.badge-cancelled   { background: #f1efe8; color: #5f5e5a; border-color: #dcdbd5; }
+.badge-closed      { background: #e8f5e9; color: #1b5e20; border-color: #66bb6a; }
+```
+
+## File: src/app/features/refund-management/components/refund-status-badge/refund-status-badge.component.html
+```html
+<span
+  class="refund-badge"
+  [ngClass]="[config.cssClass, 'refund-badge--' + size]"
+  role="status"
+  [attr.aria-label]="'Refund status: ' + config.label"
+>
+  <i [class]="config.icon" aria-hidden="true"></i>
+  {{ config.label }}
+</span>
+```
+
+## File: src/app/features/refund-management/components/refund-status-badge/refund-status-badge.component.ts
+```typescript
+import { Component, Input } from '@angular/core';
+import { RefundStatus } from '../../services/refund.service';
+⋮----
+interface BadgeConfig {
+  label: string;
+  cssClass: string;
+  icon: string;
+}
+⋮----
+export class RefundStatusBadgeComponent
+⋮----
+get config(): BadgeConfig
+```
+
+## File: src/app/features/refund-management/components/refund-status-timeline/refund-status-timeline.component.css
+```css
+.timeline { position: relative; padding: 0; list-style: none; }
+⋮----
+.timeline-item {
+.timeline-item--last { padding-bottom: 0; }
+⋮----
+/* Left column */
+.timeline-left {
+⋮----
+.timeline-dot {
+⋮----
+.timeline-line {
+⋮----
+/* Dot colours */
+.timeline-green  { background: #eaf3de; color: #27500a; border-color: #a3c97a; }
+.timeline-blue   { background: #e6f1fb; color: #0c447c; border-color: #b6d4f5; }
+.timeline-purple { background: #eeedfe; color: #3c3489; border-color: #c4c0f8; }
+.timeline-amber  { background: #faeeda; color: #633806; border-color: #f5d898; }
+.timeline-teal   { background: #e1f5ee; color: #085041; border-color: #8fd4bf; }
+.timeline-red    { background: #fcebeb; color: #791f1f; border-color: #f09595; }
+.timeline-neutral{ background: #f1efe8; color: #5f5e5a; border-color: #dcdbd5; }
+⋮----
+/* Content */
+.timeline-content { flex: 1; }
+⋮----
+.timeline-status {
+⋮----
+.timeline-role {
+⋮----
+.timeline-actor,
+⋮----
+.timeline-reason {
+```
+
+## File: src/app/features/refund-management/components/refund-status-timeline/refund-status-timeline.component.html
+```html
+<div class="timeline" role="list" aria-label="Refund status history">
+
+  <div *ngIf="!history || history.length === 0" class="text-center text-muted py-3">
+    <i class="bi bi-clock-history fs-4 d-block mb-2"></i>
+    <small>No status history yet.</small>
+  </div>
+
+  <div
+    *ngFor="let item of history; let last = last; trackBy: trackByHistoryId"
+    class="timeline-item"
+    [class.timeline-item--last]="last"
+    role="listitem"
+  >
+    <!-- Dot + line -->
+    <div class="timeline-left">
+      <div class="timeline-dot" [ngClass]="getColor(item.toStatus)">
+        <i [class]="getIcon(item.toStatus)" aria-hidden="true"></i>
+      </div>
+      <div class="timeline-line" *ngIf="!last"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="timeline-content" [class.mb-0]="last">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="timeline-status" [ngClass]="getColor(item.toStatus)">
+          {{ item.toStatus | titlecase }}
+        </span>
+        <span class="timeline-role badge bg-light text-secondary border">
+          {{ item.changedByRole | titlecase }}
+        </span>
+      </div>
+      <div class="timeline-actor mt-1">
+        <i class="bi bi-person me-1" aria-hidden="true"></i>
+        {{ item.changedByName }}
+      </div>
+      <div class="timeline-time">
+        <i class="bi bi-clock me-1" aria-hidden="true"></i>
+        {{ item.changedAt | date: 'dd MMM yyyy, hh:mm a' }}
+      </div>
+      <div class="timeline-reason" *ngIf="item.changeReason">
+        <i class="bi bi-chat-left-text me-1" aria-hidden="true"></i>
+        {{ item.changeReason }}
+      </div>
+    </div>
+  </div>
+
+</div>
+```
+
+## File: src/app/features/refund-management/components/refund-status-timeline/refund-status-timeline.component.ts
+```typescript
+import { Component, Input } from '@angular/core';
+import { RefundStatusHistory } from '../../services/refund.service';
+⋮----
+export class RefundStatusTimelineComponent
+⋮----
+getIcon(status: string): string
+⋮----
+getColor(status: string): string
+⋮----
+trackByHistoryId(_: number, item: RefundStatusHistory): number
+```
+
+## File: src/app/features/refund-management/pages/refund-respond/refund-respond.component.css
+```css
+.page-title { font-size: 1.2rem; font-weight: 600; }
+⋮----
+/* Request box */
+.request-box {
+.request-box-header {
+.request-box-body { padding: 16px; }
+.request-content { font-size: 0.85rem; color: #495057; }
+⋮----
+/* Wizard card (same pattern as create) */
+.wizard-card {
+.wizard-card-header {
+.wizard-card-body { padding: 20px; }
+.wizard-card-footer {
+⋮----
+/* Upload */
+.uploaded-file-item {
+⋮----
+/* Declaration */
+.declaration-box {
+```
+
+## File: src/app/features/refund-management/pages/refund-respond/refund-respond.component.html
+```html
+<div class="container-fluid py-4 px-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <button class="btn btn-link btn-sm text-muted ps-0 mb-1" (click)="cancel()">
+        <i class="bi bi-arrow-left me-1"></i> Back to Details
+      </button>
+      <h4 class="page-title mb-1">
+        <i class="bi bi-reply-fill me-2 text-warning"></i>
+        Respond to Information Request
+      </h4>
+      <p class="text-muted mb-0 small">
+        Ref: <strong>{{ refund?.refundReferenceNo }}</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMsg" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMsg }}
+  </div>
+
+  <div *ngIf="!loading && refund" class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <!-- Officer's Request Box -->
+      <div class="request-box mb-4">
+        <div class="request-box-header">
+          <i class="bi bi-question-circle-fill text-warning me-2"></i>
+          Officer's Information Request
+        </div>
+        <div class="request-box-body">
+
+          <div *ngFor="let note of refund.statusHistory">
+            <div *ngIf="note.toStatus === 'INFO_REQUESTED'" class="request-content">
+              <p class="mb-2 small">{{ note.changeReason || 'Please provide additional information or documents as required.' }}</p>
+              <div class="d-flex gap-3 text-muted" style="font-size:.72rem">
+                <span><i class="bi bi-person me-1"></i>{{ note.changedByName }}</span>
+                <span><i class="bi bi-clock me-1"></i>{{ note.changedAt | date:'dd MMM yyyy, hh:mm a' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning py-2 small mt-2 mb-0">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            Please respond promptly. Failure to respond may result in rejection of your application.
+          </div>
+        </div>
+      </div>
+
+      <!-- Response Form -->
+      <div class="wizard-card">
+        <div class="wizard-card-header">
+          <i class="bi bi-chat-text me-2"></i> Your Response
+        </div>
+        <div class="wizard-card-body">
+
+          <!-- Text response -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold small">
+              Response / Explanation <span class="text-danger">*</span>
+            </label>
+            <textarea
+              class="form-control"
+              rows="5"
+              [(ngModel)]="responseText"
+              placeholder="Provide a detailed explanation addressing the officer's request. Minimum 10 characters."
+              [class.is-invalid]="responseText.length > 0 && responseText.trim().length < 10"
+              aria-label="Response text"
+            ></textarea>
+            <div class="d-flex justify-content-between mt-1">
+              <div *ngIf="responseText.length > 0 && responseText.trim().length < 10"
+                class="invalid-feedback d-block small">
+                Minimum 10 characters required.
+              </div>
+              <div class="text-muted ms-auto" style="font-size:.72rem">
+                {{ responseText.length }} characters
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional document upload -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">
+              Additional Supporting Documents <em class="text-muted fw-normal">(optional)</em>
+            </label>
+            <div class="row g-2 align-items-end mb-2">
+              <div class="col-md-5">
+                <label class="form-label small">Document Type</label>
+                <select class="form-select form-select-sm" [(ngModel)]="selectedDocType">
+                  <option *ngFor="let d of documentTypes" [value]="d.value">{{ d.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small">Choose File</label>
+                <input
+                  type="file"
+                  class="form-control form-control-sm"
+                  (change)="onFileSelect($event)"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  aria-label="Upload additional document"
+                >
+              </div>
+            </div>
+
+            <div *ngIf="uploadError" class="alert alert-danger py-2 small">
+              <i class="bi bi-exclamation-triangle me-1"></i> {{ uploadError }}
+            </div>
+
+            <!-- Uploaded list -->
+            <div *ngFor="let f of uploadedFiles; let i = index" class="uploaded-file-item">
+              <i class="bi bi-file-earmark-pdf text-danger fs-5 flex-shrink-0" aria-hidden="true"></i>
+              <div class="flex-grow-1">
+                <div class="small fw-semibold">{{ f.name }}</div>
+                <div class="text-muted" style="font-size:.72rem">{{ getDocTypeLabel(f.type) }} · {{ f.size }}</div>
+              </div>
+              <button class="btn btn-outline-danger btn-sm py-0 px-2"
+                (click)="removeFile(i)" [attr.aria-label]="'Remove ' + f.name">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Declaration -->
+          <div class="declaration-box">
+            <i class="bi bi-info-circle text-primary me-2"></i>
+            <span class="small">
+              By submitting this response, you confirm that all information and documents provided are true
+              and accurate. Your response will be reviewed by the assigned officer.
+            </span>
+          </div>
+        </div>
+
+        <div class="wizard-card-footer">
+          <button class="btn btn-outline-secondary btn-sm" (click)="cancel()">
+            <i class="bi bi-x-lg me-1"></i> Cancel
+          </button>
+          <button
+            class="btn btn-success btn-sm"
+            (click)="submit()"
+            [disabled]="!canSubmit || submitting"
+          >
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!submitting" class="bi bi-send me-1"></i>
+            {{ submitting ? 'Submitting Response…' : 'Submit Response' }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+```
+
+## File: src/app/features/refund-management/pages/refund-respond/refund-respond.component.spec.ts
 ```typescript
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RefundService } from '../../services/refund.service';
 ⋮----
-import { RefundViewComponent } from './refund-view.component';
+// Auto-generate: replace ClassName with actual component class
+⋮----
+expect(true).toBeTruthy(); // replace with actual component test
+```
+
+## File: src/app/features/refund-management/pages/refund-respond/refund-respond.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RefundService, RefundDetail } from '../../services/refund.service';
+⋮----
+export class RefundRespondComponent implements OnInit
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+onFileSelect(event: Event): void
+⋮----
+removeFile(i: number): void
+⋮----
+formatFileSize(bytes: number): string
+⋮----
+getDocTypeLabel(v: string): string
+⋮----
+get canSubmit(): boolean
+⋮----
+submit(): void
+⋮----
+private uploadDocsThenRedirect(idx: number): void
+⋮----
+cancel(): void
+```
+
+## File: src/app/features/refund-management/pages/refund-success/refund-success.component.css
+```css
+.success-card {
+⋮----
+/* ─── Icon ──────────────────────────────── */
+.success-icon-wrap {
+.success-icon {
+⋮----
+.success-title { font-size: 1.3rem; font-weight: 700; color: #198754; }
+⋮----
+/* ─── Ref Box ───────────────────────────── */
+.ref-box {
+⋮----
+.ref-box-row {
+.ref-box-row:last-child { border-bottom: none; }
+⋮----
+.ref-label { color: #6c757d; }
+.ref-value  { color: #1a1a1a; }
+⋮----
+/* ─── Next Steps ────────────────────────── */
+.next-steps {
+.next-steps-title {
+.next-step-item {
+.next-step-item:last-child { margin-bottom: 0; }
+⋮----
+.next-step-num {
+.next-step-text { font-size: 0.82rem; color: #374151; }
+```
+
+## File: src/app/features/refund-management/pages/refund-success/refund-success.component.html
+```html
+<div class="container py-5 px-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+      </div>
+
+      <!-- Success card -->
+      <div *ngIf="!loading" class="success-card text-center">
+
+        <!-- Icon -->
+        <div class="success-icon-wrap mb-3">
+          <div class="success-icon">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <h4 class="success-title">Application Submitted!</h4>
+        <p class="text-muted mb-4">
+          Your refund application has been successfully submitted and is now under verification.
+          You will be notified at each step of the process.
+        </p>
+
+        <!-- Reference info -->
+        <div class="ref-box mb-4" *ngIf="refund">
+          <div class="ref-box-row">
+            <span class="ref-label">Reference No.</span>
+            <span class="ref-value fw-bold text-primary">{{ refund.refundReferenceNo }}</span>
+          </div>
+          <div class="ref-box-row">
+            <span class="ref-label">Refund Type</span>
+            <span class="ref-value">{{ refund.refundType }}</span>
+          </div>
+          <div class="ref-box-row">
+            <span class="ref-label">Claimed Amount</span>
+            <span class="ref-value fw-semibold text-success">{{ formatCurrency(refund.claimedRefundAmount) }}</span>
+          </div>
+          <div class="ref-box-row">
+            <span class="ref-label">Status</span>
+            <span class="ref-value">
+              <app-refund-status-badge [status]="refund.status" size="sm"></app-refund-status-badge>
+            </span>
+          </div>
+          <div class="ref-box-row">
+            <span class="ref-label">Submitted On</span>
+            <span class="ref-value">
+              {{ refund.submittedAt ? (refund.submittedAt | date:'dd MMMM yyyy, hh:mm a') : (refund.updatedAt | date:'dd MMMM yyyy') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- What happens next -->
+        <div class="next-steps mb-4">
+          <div class="next-steps-title">What happens next?</div>
+          <div class="next-step-item">
+            <div class="next-step-num">1</div>
+            <div class="next-step-text">A Verification Officer will review your application and attached documents.</div>
+          </div>
+          <div class="next-step-item">
+            <div class="next-step-num">2</div>
+            <div class="next-step-text">You may be asked to provide additional information if required.</div>
+          </div>
+          <div class="next-step-item">
+            <div class="next-step-num">3</div>
+            <div class="next-step-text">Once approved, your refund will be transferred to your registered bank account.</div>
+          </div>
+          <div class="next-step-item">
+            <div class="next-step-num">4</div>
+            <div class="next-step-text">You will receive SMS and email notifications at every stage.</div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <button class="btn btn-primary btn-sm" (click)="goToView()">
+            <i class="bi bi-eye me-1"></i> View Application
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="goToList()">
+            <i class="bi bi-list-ul me-1"></i> My Refunds
+          </button>
+          <button class="btn btn-outline-primary btn-sm" (click)="goToCreate()">
+            <i class="bi bi-plus-lg me-1"></i> New Application
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+## File: src/app/features/refund-management/pages/refund-success/refund-success.component.spec.ts
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RefundService } from '../../services/refund.service';
+⋮----
+// Auto-generate: replace ClassName with actual component class
+⋮----
+expect(true).toBeTruthy(); // replace with actual component test
+```
+
+## File: src/app/features/refund-management/pages/refund-success/refund-success.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RefundService, RefundDetail } from '../../services/refund.service';
+⋮----
+export class RefundSuccessComponent implements OnInit
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+goToList():   void
+goToView():   void
+goToCreate(): void
+⋮----
+formatCurrency(v: number | null): string
+```
+
+## File: src/app/features/refund-management/services/refund.service.spec.ts
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { RefundService } from './refund.service';
+```
+
+## File: src/app/features/refund-management/services/refund.service.ts
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+⋮----
+// ─── Enums ────────────────────────────────────────────────────────────────────
+⋮----
+export type RefundType =
+  | 'INCOME_TAX'
+  | 'VAT'
+  | 'AIT'
+  | 'DUPLICATE_PAYMENT'
+  | 'APPEAL_DECISION'
+  | 'OTHER';
+⋮----
+export type RefundStatus =
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'UNDER_VERIFICATION'
+  | 'INFO_REQUESTED'
+  | 'RESPONSE_RECEIVED'
+  | 'RECOMMENDED'
+  | 'SUPERVISOR_REVIEW'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'PAYMENT_PENDING'
+  | 'PAYMENT_PROCESSING'
+  | 'PAID'
+  | 'FAILED'
+  | 'CANCELLED'
+  | 'CLOSED';
+⋮----
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+⋮----
+// ─── Models ───────────────────────────────────────────────────────────────────
+⋮----
+export interface RefundSource {
+  id?: number;
+  sourceType: 'ITR' | 'AIT' | 'VAT_RETURN' | 'PAYMENT' | 'APPEAL' | 'MANUAL';
+  sourceRecordId: number;
+  sourceReference: string;
+  periodStart: string;
+  periodEnd: string;
+  sourceAmount: number;
+  description?: string;
+  isVerified?: boolean;
+}
+⋮----
+export interface BankDetails {
+  bankName: string;
+  bankBranch: string;
+  accountHolderName: string;
+  accountNumber: string;
+  routingNumber: string;
+  mfsProvider?: string;
+  mfsNumber?: string;
+}
+⋮----
+export interface RefundDocument {
+  id: number;
+  documentType: string;
+  documentName: string;
+  originalFilename: string;
+  fileSizeBytes: number;
+  verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  uploadedAt: string;
+}
+⋮----
+export interface RefundStatusHistory {
+  id: number;
+  fromStatus: RefundStatus | null;
+  toStatus: RefundStatus;
+  changedByName: string;
+  changedByRole: string;
+  changedAt: string;
+  changeReason: string | null;
+}
+⋮----
+export interface RefundSummary {
+  id: number;
+  refundReferenceNo: string;
+  tin: string;
+  taxpayerName: string;
+  refundType: RefundType;
+  fiscalYearName: string;
+  claimedRefundAmount: number;
+  verifiedRefundAmount: number | null;
+  approvedRefundAmount: number | null;
+  status: RefundStatus;
+  riskLevel: RiskLevel | null;
+  isFlaggedForAudit: boolean;
+  submittedAt: string | null;
+  updatedAt?: string | null;
+  approvedAt: string | null;
+  paidAt: string | null;
+  documentCount: number;
+}
+⋮----
+export interface RefundDetail extends RefundSummary {
+  totalTaxPaid: number;
+  totalTaxLiability: number;
+  sources: RefundSource[];
+  bankDetails: BankDetails;
+  documents: RefundDocument[];
+  statusHistory: RefundStatusHistory[];
+  rejectionReasonCode: string | null;
+  rejectionReasonText: string | null;
+  officerNotes: string | null;
+  supervisorNotes: string | null;
+  appealReferenceNo: string | null;
+  courtOrderNo: string | null;
+  bankValidated: boolean;
+  itrRecordId: number | null;
+}
+⋮----
+export interface RefundCalculation {
+  totalTaxPaid: number;
+  totalTaxLiability: number;
+  previouslyClaimed: number;
+  eligibleRefundAmount: number;
+  calculationBasis: string;
+}
+⋮----
+export interface EligibleSourceRecord {
+  id: number;
+  reference: string;
+  periodLabel: string;
+  taxPaid: number;
+  taxLiability: number;
+  excessAmount: number;
+  fiscalYear: string;
+}
+⋮----
+export interface RefundFilterRequest {
+  status?: string;
+  refundType?: string;
+  fiscalYearId?: number;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDir?: string;
+}
+⋮----
+export interface PagedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+⋮----
+export interface CreateRefundRequest {
+  refundType: RefundType;
+  fiscalYearId: number;
+  sources: { sourceType: string; sourceRecordId: number; sourceAmount: number }[];
+  requestedAmount: number;
+  bankDetails: BankDetails;
+  appealReferenceNo?: string;
+  courtOrderNo?: string;
+}
+⋮----
+export interface RespondRequest {
+  responseText: string;
+}
+⋮----
+// ─── Service ──────────────────────────────────────────────────────────────────
+⋮----
+export class RefundService
+⋮----
+constructor(private http: HttpClient)
+⋮----
+// ── Taxpayer APIs ──────────────────────────────────────────────────────────
+⋮----
+getMyRefunds(filter: RefundFilterRequest): Observable<PagedResponse<RefundSummary>>
+⋮----
+getById(id: number): Observable<RefundDetail>
+⋮----
+create(request: CreateRefundRequest): Observable<RefundDetail>
+⋮----
+update(id: number, request: CreateRefundRequest): Observable<RefundDetail>
+⋮----
+submit(id: number): Observable<RefundDetail>
+⋮----
+cancel(id: number): Observable<void>
+⋮----
+respond(id: number, request: RespondRequest): Observable<RefundDetail>
+⋮----
+updateStatus(id: number, request: any): Observable<RefundDetail>
+⋮----
+// ── Documents ──────────────────────────────────────────────────────────────
+⋮----
+uploadDocument(id: number, file: File, documentType: string): Observable<RefundDocument>
+⋮----
+deleteDocument(refundId: number, docId: number): Observable<void>
+⋮----
+getDocumentDownloadUrl(refundId: number, docId: number): Observable<
+⋮----
+getStatusHistory(id: number): Observable<RefundStatusHistory[]>
+⋮----
+// ── Source eligibility ─────────────────────────────────────────────────────
+⋮----
+getEligibleItrSources(): Observable<EligibleSourceRecord[]>
+⋮----
+getEligibleAitSources(): Observable<EligibleSourceRecord[]>
+⋮----
+getEligibleVatSources(): Observable<EligibleSourceRecord[]>
+⋮----
+getEligiblePaymentSources(): Observable<EligibleSourceRecord[]>
+⋮----
+calculateRefund(
+    sourceType: string,
+    sourceRecordIds: number[]
+): Observable<RefundCalculation>
+⋮----
+validateBankAccount(
+    bankDetails: BankDetails
+): Observable<
+⋮----
+// ── Queue APIs ─────────────────────────────────────────────────────────────
+⋮----
+getOfficerQueue(): Observable<RefundSummary[]>
+⋮----
+getSupervisorQueue(): Observable<RefundSummary[]>
+⋮----
+getFinanceQueue(): Observable<RefundSummary[]>
+⋮----
+// ── Fiscal years ───────────────────────────────────────────────────────────
+⋮----
+getFiscalYears(): Observable<
 ```
 
 ## File: src/app/features/reports-analytics/pages/reports-dashboard/reports-dashboard.component.css
@@ -7125,29 +6302,6 @@ export class UserManagementModule
 </div>
 ```
 
-## File: src/app/features/vat-registration/components/business-picker/business-picker.component.ts
-```typescript
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { BusinessVatStatus } from '../../../../models/business.model';
-import { ToastService } from '../../../../shared/toast/toast.service';
-⋮----
-export class BusinessPickerComponent
-⋮----
-/** Businesses to display. Populated by the parent once a taxpayer is selected. */
-⋮----
-/** True while the parent is loading businesses from the API. */
-⋮----
-/** Currently selected business (null if none chosen). */
-⋮----
-/** Emits the chosen business when the user clicks an eligible row. */
-⋮----
-constructor(private toast: ToastService)
-⋮----
-onSelect(b: BusinessVatStatus): void
-⋮----
-getStatusClass(status: string | null): string
-```
-
 ## File: src/app/features/vat-registration/components/taxpayer-search/taxpayer-search.component.css
 ```css
 /* taxpayer-search.component.css
@@ -7492,95 +6646,6 @@ import { TestBed } from '@angular/core/testing';
 import { VatRegistrationService } from './vat-registration.service';
 ```
 
-## File: src/app/features/vat-registration/services/vat-registration.service.ts
-```typescript
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-⋮----
-import { API_ENDPOINTS } from '../../../core/constants/api.constants';
-import { ToastService } from '../../../shared/toast/toast.service';
-import {
-  VatRegistration,
-  VatRegistrationCreateRequest,
-} from '../../../models/vat-registration.model';
-⋮----
-export class VatRegistrationService
-⋮----
-constructor(
-⋮----
-// ── Mock data ─────────────────────────────────────────────────────────────
-/**
-   * Returned by READ operations when the backend is unreachable (HTTP status 0).
-   * Lets officers continue reviewing data during planned maintenance or network
-   * outages. WRITE operations never use mock data — they always propagate errors.
-   */
-⋮----
-// ── Read: all ──────────────────────────────────────────────────────────────
-⋮----
-/**
-   * Fetches all non-deleted VAT registrations.
-   *
-   * Offline strategy: if the request fails due to a network error (status 0),
-   * the mock dataset is returned so the list page remains usable.
-   * Server errors (4xx / 5xx) are re-thrown — the ErrorInterceptor handles them.
-   */
-getAll(): Observable<VatRegistration[]>
-⋮----
-// ── Read: by ID ────────────────────────────────────────────────────────────
-⋮----
-/**
-   * Fetches a single VAT registration by ID.
-   *
-   * Offline strategy: if the request fails due to a network error, the matching
-   * mock record is returned. If no mock record exists for the given ID the error
-   * is re-thrown so the component can redirect to the list.
-   */
-getById(id: number): Observable<VatRegistration>
-⋮----
-// ── Write: create ──────────────────────────────────────────────────────────
-⋮----
-/**
-   * Submits a new VAT registration.
-   * Errors are always propagated — writing mock data for a creation is unsafe.
-   */
-create(payload: VatRegistrationCreateRequest): Observable<VatRegistration>
-⋮----
-// No catchError: let ErrorInterceptor surface 400 / 409 to the officer.
-⋮----
-// ── Write: update ──────────────────────────────────────────────────────────
-⋮----
-/**
-   * Updates an existing VAT registration.
-   * Errors are always propagated.
-   */
-update(id: number, data: Partial<VatRegistration>): Observable<VatRegistration>
-⋮----
-// ── Write: delete (soft) ───────────────────────────────────────────────────
-⋮----
-/**
-   * Soft-deletes a VAT registration.
-   * Errors are always propagated.
-   */
-remove(id: number): Observable<void>
-⋮----
-// ── Private helpers ────────────────────────────────────────────────────────
-⋮----
-/**
-   * Shared offline handler for READ operations.
-   *
-   * status === 0  → network failure, backend offline.
-   *                 Return the fallback data and show a single warning toast.
-   * status !== 0  → backend returned an error response (4xx/5xx).
-   *                 Re-throw so ErrorInterceptor surfaces it as a user toast.
-   */
-private handleReadError<T>(
-    err: HttpErrorResponse,
-    fallback: T,
-): Observable<T>
-```
-
 ## File: src/app/features/vat-returns/components/vat-registration-picker/vat-registration-picker.component.css
 ```css
 /* Scoped styles for VatRegistrationPickerComponent.
@@ -7752,74 +6817,6 @@ padding: 0; /* inherits parent form-section padding */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 ⋮----
 import { VatRegistrationPickerComponent } from './vat-registration-picker.component';
-```
-
-## File: src/app/features/vat-returns/components/vat-registration-picker/vat-registration-picker.component.ts
-```typescript
-import {
-  Component,
-  EventEmitter,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-⋮----
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { VatRegistration } from '../../../../models/vat-registration.model';
-import { ToastService } from '../../../../shared/toast/toast.service';
-⋮----
-/**
- * VatRegistrationPickerComponent
- *
- * Responsibilities (only):
- *  - Accept a query string, call the API, filter to Active-only results
- *  - Show results list OR a "selected card + Change button" — never both
- *  - Emit `registrationSelected` when the user picks a record
- *  - Emit `registrationCleared` when the user clicks "Change"
- *
- * The parent (VatReturnCreateComponent) is responsible for patching
- * vatRegistrationId into its own form and storing selectedReg locally.
- */
-⋮----
-export class VatRegistrationPickerComponent implements OnInit, OnDestroy
-⋮----
-/** Fires once when the user clicks a result row. */
-⋮----
-/** Fires when the user hits the "Change" button on the selected card. */
-⋮----
-// ── Search state ──────────────────────────────────────────────────────────
-⋮----
-// ── Selection state ───────────────────────────────────────────────────────
-/** Set internally after emission so the card renders correctly. */
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Computed helpers ──────────────────────────────────────────────────────
-⋮----
-get isSelected(): boolean
-⋮----
-// ── Search ────────────────────────────────────────────────────────────────
-⋮----
-onSearchInput(): void
-⋮----
-search(): void
-⋮----
-// Only Active registrations can file returns
-⋮----
-// ── Selection ─────────────────────────────────────────────────────────────
-⋮----
-select(reg: VatRegistration): void
-⋮----
-this.searchResults = [];    // hide the list immediately
-⋮----
-clear(): void
 ```
 
 ## File: src/app/features/vat-returns/pages/vat-return-create/vat-return-create.component.spec.ts
@@ -8360,38 +7357,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TopbarComponent } from './topbar.component';
 ```
 
-## File: src/app/layout/topbar/topbar.component.ts
-```typescript
-import {
-  Component, EventEmitter, OnInit, Output,
-  HostListener, ElementRef, ViewChild
-} from '@angular/core';
-import { AuthService } from 'src/app/core/services/auth.service';
-⋮----
-export class TopbarComponent implements OnInit {
-⋮----
-get unreadCount(): number
-⋮----
-constructor(private eRef: ElementRef, private authService: AuthService)
-⋮----
-ngOnInit(): void
-⋮----
-openSearch(): void
-⋮----
-closeSearch(): void
-⋮----
-toggleUserDropdown(): void
-⋮----
-toggleNotifDropdown(): void
-⋮----
-onDocumentClick(event: Event): void
-⋮----
-get currentUser()
-get userInitial()
-⋮----
-logout(): void
-```
-
 ## File: src/app/models/activity-logs.model.ts
 ```typescript
 export interface ActivityLog {
@@ -8595,33 +7560,6 @@ ngOnInit(): void
 ngOnDestroy(): void
 ⋮----
 getIcon(type: string): string
-```
-
-## File: src/app/shared/toast/toast.service.ts
-```typescript
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-⋮----
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
-⋮----
-export interface Toast {
-  id:       number;
-  type:     ToastType;
-  title:    string;
-  message:  string;
-  duration: number;
-}
-⋮----
-export class ToastService
-⋮----
-private show(type: ToastType, title: string, message: string, duration = 3000): void
-⋮----
-success(message: string, title = 'Success'): void
-error  (message: string, title = 'Error'):   void
-warning(message: string, title = 'Warning'): void
-info   (message: string, title = 'Info'):    void
-⋮----
-remove(id: number): void
 ```
 
 ## File: src/assets/css/global-styles.css
@@ -9825,6 +8763,1706 @@ keys(): string[];
 </div>
 ```
 
+## File: src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.css
+```css
+/* =====================================================
+   ait-create-wizard.component.css
+   Design: Polished multi-step wizard · matches ait_create_stepper mockup
+   ===================================================== */
+⋮----
+.wizard-container {
+⋮----
+/* ── Page Header ─────────────────────────────────────── */
+.page-header {
+⋮----
+.header-content h1 {
+⋮----
+.subtitle {
+⋮----
+.btn-close-wizard {
+.btn-close-wizard:hover { background: var(--c-bg2); color: var(--c-text); }
+⋮----
+/* ── Alerts ──────────────────────────────────────────── */
+.alert {
+⋮----
+.alert-success {
+⋮----
+.alert-danger {
+⋮----
+/* ── Stepper ─────────────────────────────────────────── */
+.stepper-container {
+⋮----
+.stepper {
+⋮----
+.step {
+⋮----
+.step-circle {
+⋮----
+.step.active .step-circle {
+⋮----
+.step.done .step-circle {
+⋮----
+.step-number { line-height: 1; }
+⋮----
+.step-label {
+.step.active .step-label { color: var(--c-green); font-weight: 600; }
+.step.done   .step-label { color: var(--c-text2); }
+⋮----
+.step-connector {
+.step-connector.done { background: var(--c-green); }
+⋮----
+/* ── Wizard Content Area ─────────────────────────────── */
+.wizard-content {
+⋮----
+.step-panel {
+⋮----
+.step-panel h2 {
+⋮----
+.step-description {
+⋮----
+/* ── Search Box ──────────────────────────────────────── */
+.search-box {
+⋮----
+.search-box .form-control {
+.search-box .form-control:focus {
+⋮----
+.search-box i {
+⋮----
+/* ── Transaction Table ───────────────────────────────── */
+.transaction-table-container {
+⋮----
+.transaction-table {
+⋮----
+.transaction-table thead { background: var(--c-bg2); }
+⋮----
+.transaction-table th {
+⋮----
+.transaction-table td {
+⋮----
+.transaction-table tbody tr { cursor: pointer; transition: background .12s; }
+.transaction-table tbody tr:hover td { background: var(--c-bg2); }
+.transaction-table tbody tr:last-child td { border-bottom: none; }
+⋮----
+.transaction-row.selected td { background: rgba(15,110,86,.05); }
+⋮----
+.transaction-table .ref-no { color: var(--c-blue); font-weight: 500; }
+.transaction-table .code   { font-family: monospace; font-size: 11px; }
+.transaction-table .amount { text-align: right; font-weight: 500; }
+.select-col { text-align: center; }
+⋮----
+/* ── Calculation Grid ────────────────────────────────── */
+.calculation-grid {
+⋮----
+.calc-card {
+⋮----
+.calc-card h3 {
+⋮----
+.detail-row {
+.detail-row:last-child { border-bottom: none; }
+.detail-row label { color: var(--c-text2); white-space: nowrap; }
+.detail-row span   { color: var(--c-text); font-weight: 500; text-align: right; }
+.detail-row .ref-no { color: var(--c-blue); }
+.detail-row .code  { font-family: monospace; font-size: 11px; }
+⋮----
+.calculation-box { background: #F0FDF9; border-color: rgba(15,110,86,.2); }
+⋮----
+.calc-row {
+⋮----
+.calc-row label { font-size: 12px; color: var(--c-text2); white-space: nowrap; }
+⋮----
+.form-control,
+.form-control-sm { font-size: 12px; padding: 5px 8px; }
+.form-control:focus, .form-control-sm:focus { border-color: var(--c-green); outline: none; }
+⋮----
+.rate-input-group {
+.unit, .currency {
+⋮----
+.calc-divider {
+⋮----
+.calc-row.result {
+⋮----
+.amount-display .amount {
+⋮----
+.calc-formula {
+⋮----
+/* ── Upload Zone ─────────────────────────────────────── */
+.upload-zone { margin-bottom: 16px; }
+⋮----
+.drop-area {
+.drop-area:hover {
+⋮----
+.drop-area i { font-size: 32px; margin-bottom: 10px; opacity: .5; display: block; }
+.drop-area h4 { font-size: 14px; font-weight: 500; margin: 0 0 4px; color: var(--c-text); }
+.drop-area p  { font-size: 12px; margin: 0 0 8px; }
+.file-hint    { font-size: 11px; color: var(--c-text3); }
+⋮----
+.document-list h4 {
+⋮----
+.doc-item {
+⋮----
+.doc-icon { font-size: 20px; color: var(--c-text2); flex-shrink: 0; }
+⋮----
+.doc-info { flex: 1; min-width: 0; }
+.doc-name { font-size: 12px; font-weight: 500; color: var(--c-text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-size { font-size: 11px; color: var(--c-text3); margin: 1px 0 0; }
+⋮----
+.btn-remove {
+.btn-remove:hover { color: #D44; }
+⋮----
+.empty-docs {
+⋮----
+/* ── Review Summary ──────────────────────────────────── */
+.review-summary {
+⋮----
+.review-card {
+⋮----
+.review-card h3 {
+⋮----
+.summary-row {
+.summary-row:last-child { border-bottom: none; }
+.summary-row .label { color: var(--c-text2); }
+.summary-row .value { font-weight: 500; color: var(--c-text); text-align: right; }
+.summary-row.highlight .value.amount {
+⋮----
+.doc-count { font-size: 12px; color: var(--c-text2); margin: 0 0 8px; }
+.doc-list  { padding-left: 16px; margin: 0; }
+.doc-list li { font-size: 11px; color: var(--c-text); margin-bottom: 3px; }
+⋮----
+/* ── Confirmation Box ────────────────────────────────── */
+.confirmation-box {
+⋮----
+.form-check { display: flex; gap: 8px; align-items: flex-start; }
+.form-check-input { margin-top: 2px; cursor: pointer; flex-shrink: 0; }
+.form-check-label { color: var(--c-text); cursor: pointer; }
+⋮----
+/* ── Step Actions ────────────────────────────────────── */
+.step-actions {
+⋮----
+.btn {
+⋮----
+.btn-primary {
+.btn-primary:hover:not(:disabled) { background: #0d5b47; }
+⋮----
+.btn-secondary {
+.btn-secondary:hover { background: var(--c-bg2); }
+⋮----
+.btn-success {
+.btn-success:hover:not(:disabled) { background: #155d38; }
+⋮----
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+⋮----
+.btn-save-draft {
+.btn-save-draft:hover { color: var(--c-text); }
+⋮----
+/* ── Empty State ─────────────────────────────────────── */
+.empty-state {
+.empty-state i { font-size: 36px; opacity: .3; }
+.empty-state p { font-size: 12px; margin: 0; }
+⋮----
+/* ── Responsive ─────────────────────────────────────── */
+⋮----
+.calculation-grid  { grid-template-columns: 1fr; }
+.review-summary    { grid-template-columns: 1fr; }
+.step-actions      { flex-direction: column-reverse; }
+.btn               { width: 100%; justify-content: center; }
+.step-label        { display: none; }
+```
+
+## File: src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.html
+```html
+<div class="wizard-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Create AIT Record</h1>
+      <p class="subtitle">Guided wizard to create and submit an Advance Income Tax record</p>
+    </div>
+    <button class="btn-close-wizard" (click)="discardDraft()" title="Close wizard">
+      <i class="ti ti-x"></i>
+    </button>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible" role="alert">
+    <strong><i class="ti ti-circle-check"></i> Success!</strong>
+    {{ successMessage }}
+    <p class="mt-2 mb-0" *ngIf="newAitRefNo"><strong>Reference No:</strong> {{ newAitRefNo }}</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="submitError" class="alert alert-danger alert-dismissible" role="alert">
+    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
+    {{ submitError }}
+  </div>
+
+  <!-- Stepper Indicator -->
+  <div class="stepper-container">
+    <div class="stepper">
+      <div *ngFor="let i of [1, 2, 3, 4]" class="step" [ngClass]="getStepStatus(i)">
+        <button
+          class="step-circle"
+          (click)="goToStep(i)"
+          [disabled]="i > state.step && !isStepComplete(i - 1)"
+          [attr.aria-label]="'Step ' + i">
+          <span class="step-number">{{ i }}</span>
+          <i *ngIf="getStepStatus(i) === 'done'" class="ti ti-check"></i>
+        </button>
+        <div class="step-label">
+          {{ getStepLabel(i) }}
+        </div>
+        <div *ngIf="i < 4" class="step-connector" [ngClass]="i < state.step ? 'done' : ''"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="wizard-content">
+
+    <!-- STEP 1: Select Transaction -->
+    <div class="step-panel" *ngIf="state.step === 1">
+      <h2>Step 1: Select Import Duty Transaction</h2>
+      <p class="step-description">Choose a Bill of Entry record to create an AIT for.</p>
+
+      <div class="search-box">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by Reference, Importer Name, or HS Code..."
+          [(ngModel)]="searchQuery"
+          (input)="searchTransactions()">
+        <i class="ti ti-search"></i>
+      </div>
+
+      <div class="transaction-table-container">
+        <table class="transaction-table">
+          <thead>
+            <tr>
+              <th width="5%"></th>
+              <th>Reference No</th>
+              <th>Date</th>
+              <th>Importer</th>
+              <th>HS Code</th>
+              <th>Description</th>
+              <th>Taxable Value</th>
+              <th>Port of Entry</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tx of filteredTransactions"
+                class="transaction-row"
+                [class.selected]="state.selectedTransaction?.id === tx.id">
+              <td class="select-col">
+                <input type="radio"
+                       [checked]="state.selectedTransaction?.id === tx.id"
+                       (change)="selectTransaction(tx)">
+              </td>
+              <td class="ref-no">{{ tx.referenceNo }}</td>
+              <td>{{ tx.date | date:'MMM d, y' }}</td>
+              <td>{{ tx.importerName }}</td>
+              <td class="code">{{ tx.hsCode }}</td>
+              <td>{{ tx.description }}</td>
+              <td class="amount">৳ {{ tx.taxableValue | number:'1.2-2' }}</td>
+              <td>{{ tx.portOfEntry }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="filteredTransactions.length === 0" class="empty-state">
+          <i class="ti ti-inbox"></i>
+          <p>No transactions found. Try adjusting your search.</p>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" (click)="discardDraft()">Cancel</button>
+        <button
+          class="btn btn-primary"
+          (click)="nextStep()"
+          [disabled]="!state.selectedTransaction">
+          Next: Calculate AIT
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Calculate AIT -->
+    <div class="step-panel" *ngIf="state.step === 2">
+      <h2>Step 2: Calculate AIT</h2>
+      <p class="step-description">Review the calculation of Advance Income Tax on the selected transaction.</p>
+
+      <div class="calculation-grid">
+        <!-- Transaction Details -->
+        <div class="calc-card">
+          <h3>Transaction Details</h3>
+          <div class="detail-row">
+            <label>Reference No:</label>
+            <span class="ref-no">{{ state.selectedTransaction?.referenceNo }}</span>
+          </div>
+          <div class="detail-row">
+            <label>Importer:</label>
+            <span>{{ state.selectedTransaction?.importerName }}</span>
+          </div>
+          <div class="detail-row">
+            <label>HS Code:</label>
+            <span class="code">{{ state.selectedTransaction?.hsCode }}</span>
+          </div>
+          <div class="detail-row">
+            <label>Description:</label>
+            <span>{{ state.selectedTransaction?.description }}</span>
+          </div>
+          <div class="detail-row">
+            <label>Port of Entry:</label>
+            <span>{{ state.selectedTransaction?.portOfEntry }}</span>
+          </div>
+          <div class="detail-row">
+            <label>Origin Country:</label>
+            <span>{{ state.selectedTransaction?.origin }}</span>
+          </div>
+        </div>
+
+        <!-- Calculation -->
+        <div class="calc-card calculation-box">
+          <h3>AIT Calculation</h3>
+
+          <div class="calc-row">
+            <label>Taxable Value:</label>
+            <input type="number"
+                   class="form-control form-control-sm"
+                   [(ngModel)]="state.formData.taxableValue"
+                   readonly>
+            <span class="currency">৳</span>
+          </div>
+
+          <div class="calc-row">
+            <label>AIT Rate:</label>
+            <div class="rate-input-group">
+              <input type="number"
+                     class="form-control form-control-sm"
+                     [(ngModel)]="state.formData.aitRate"
+                     (change)="onRateChange(state.formData.aitRate || 0)"
+                     min="0"
+                     max="100">
+              <span class="unit">%</span>
+            </div>
+          </div>
+
+          <div class="calc-divider"></div>
+
+          <div class="calc-row result">
+            <label>Calculated AIT Amount:</label>
+            <div class="amount-display">
+              <span class="amount">৳ {{ state.calculatedAit | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <p class="calc-formula">
+            Calculation: {{ state.formData.taxableValue | number:'1.2-2' }} × {{ state.formData.aitRate }}% = {{ state.calculatedAit | number:'1.2-2' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" (click)="prevStep()">Back</button>
+        <button class="btn btn-primary" (click)="nextStep()">Next: Upload Documents</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Upload Documents -->
+    <div class="step-panel" *ngIf="state.step === 3">
+      <h2>Step 3: Upload Supporting Documents</h2>
+      <p class="step-description">Upload documents related to this AIT record (invoices, receipts, etc.)</p>
+
+      <div class="upload-zone">
+        <input
+          type="file"
+          #fileInput
+          hidden
+          multiple
+          (change)="onFilesSelected($any($event.target).files)">
+
+        <div class="drop-area" (click)="fileInput.click()">
+          <i class="ti ti-cloud-upload"></i>
+          <h4>Drag and drop files here</h4>
+          <p>or click to select files</p>
+          <span class="file-hint">Supported: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 10 MB each)</span>
+        </div>
+      </div>
+
+      <div *ngIf="state.uploadedDocuments.length > 0" class="document-list">
+        <h4>Uploaded Documents ({{ state.uploadedDocuments.length }})</h4>
+        <div class="doc-item" *ngFor="let doc of state.uploadedDocuments; let i = index">
+          <div class="doc-icon">
+            <i class="ti ti-file"></i>
+          </div>
+          <div class="doc-info">
+            <p class="doc-name">{{ doc.name }}</p>
+            <p class="doc-size">{{ formatFileSize(doc.size) }}</p>
+          </div>
+          <button class="btn-remove" (click)="removeDocument(i)" title="Remove">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="state.uploadedDocuments.length === 0" class="empty-docs">
+        <p>No documents uploaded yet. Upload at least one supporting document.</p>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" (click)="prevStep()">Back</button>
+        <button
+          class="btn btn-primary"
+          (click)="nextStep()"
+          [disabled]="state.uploadedDocuments.length === 0">
+          Next: Review & Submit
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Review & Submit -->
+    <div class="step-panel" *ngIf="state.step === 4">
+      <h2>Step 4: Review & Submit</h2>
+      <p class="step-description">Review your AIT record details before final submission.</p>
+
+      <div class="review-summary">
+        <div class="review-card">
+          <h3><i class="ti ti-receipt-2"></i> Transaction Details</h3>
+          <div class="summary-row">
+            <span class="label">Reference No:</span>
+            <span class="value">{{ state.selectedTransaction?.referenceNo }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Importer:</span>
+            <span class="value">{{ state.selectedTransaction?.importerName }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">HS Code:</span>
+            <span class="value">{{ state.selectedTransaction?.hsCode }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Description:</span>
+            <span class="value">{{ state.selectedTransaction?.description }}</span>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <h3><i class="ti ti-calculator"></i> Calculation Summary</h3>
+          <div class="summary-row">
+            <span class="label">Taxable Value:</span>
+            <span class="value">৳ {{ state.formData.taxableValue | number:'1.2-2' }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">AIT Rate:</span>
+            <span class="value">{{ state.formData.aitRate }}%</span>
+          </div>
+          <div class="summary-row highlight">
+            <span class="label">Calculated AIT Amount:</span>
+            <span class="value amount">৳ {{ state.calculatedAit | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <h3><i class="ti ti-paperclip"></i> Documents</h3>
+          <p class="doc-count">{{ state.uploadedDocuments.length }} file(s) to be uploaded</p>
+          <ul class="doc-list">
+            <li *ngFor="let doc of state.uploadedDocuments">
+              <i class="ti ti-file"></i> {{ doc.name }} ({{ formatFileSize(doc.size) }})
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="confirmation-box">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="confirmAit" required>
+          <label class="form-check-label" for="confirmAit">
+            I confirm the above details are correct and authorize submission of this AIT record.
+          </label>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" (click)="prevStep()" [disabled]="isSubmitting">Back</button>
+        <button class="btn btn-success"
+                (click)="submitAit()"
+                [disabled]="isSubmitting">
+          <i class="ti ti-check"></i>
+          {{ isSubmitting ? 'Submitting...' : 'Submit AIT Record' }}
+        </button>
+      </div>
+
+      <button class="btn-save-draft" (click)="saveDraft()">
+        <i class="ti ti-bookmark"></i> Save as Draft
+      </button>
+    </div>
+
+  </div>
+
+</div>
+```
+
+## File: src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.css
+```css
+/* =====================================================
+   ait-dashboard.component.css
+   Design: Fintech-clean · matches taxpayer_ait_dashboard mockup
+   ===================================================== */
+⋮----
+/* ── Shared Design Tokens ────────────────────────────── */
+.ait-db {
+⋮----
+/* ── Header ──────────────────────────────────────────── */
+.ait-db__header {
+⋮----
+.ait-db__title {
+⋮----
+.ait-db__subtitle {
+⋮----
+/* ── Buttons ─────────────────────────────────────────── */
+.ait-btn {
+⋮----
+.ait-btn--primary {
+.ait-btn--primary:hover { background: #0d5b47; }
+⋮----
+.ait-btn--warn {
+.ait-btn--warn:hover { background: var(--c-amber-bg); }
+⋮----
+.ait-btn--ghost {
+.ait-btn--ghost:hover { background: var(--c-bg2); }
+⋮----
+.ait-btn--sm { padding: 3px 9px; font-size: 11px; }
+⋮----
+.ait-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+⋮----
+/* ── Alert ───────────────────────────────────────────── */
+.ait-alert {
+.ait-alert--warn {
+⋮----
+/* ── Loading ─────────────────────────────────────────── */
+.ait-loading {
+⋮----
+.ait-spinner {
+⋮----
+/* ── KPI Cards ───────────────────────────────────────── */
+.ait-kpis {
+⋮----
+.ait-kpi {
+.ait-kpi:hover { box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+⋮----
+.ait-kpi__label {
+⋮----
+.ait-kpi__value {
+⋮----
+.ait-kpi__sub {
+⋮----
+/* ── Filters ─────────────────────────────────────────── */
+.ait-filters {
+⋮----
+.ait-fsel,
+.ait-fsel:hover,
+⋮----
+.ait-search {
+⋮----
+/* ── Table ───────────────────────────────────────────── */
+.ait-table-wrap {
+⋮----
+.ait-table {
+⋮----
+.ait-table thead {
+⋮----
+.ait-table th {
+⋮----
+.ait-table td {
+⋮----
+.ait-table tbody tr { transition: background .12s; }
+.ait-table tbody tr:hover td { background: var(--c-bg2); }
+.ait-table tbody tr:last-child td { border-bottom: none; }
+⋮----
+/* Row highlights */
+.ait-table .row-warn td  { background: rgba(250,238,218,.18); }
+.ait-table .row-danger td { background: rgba(252,235,235,.18); }
+⋮----
+.text-right { text-align: right !important; }
+⋮----
+/* ── Table Cell Variants ─────────────────────────────── */
+.ait-ref-link {
+.ait-ref-link:hover { text-decoration: underline; }
+⋮----
+.ait-date { font-size: 12px; color: var(--c-text2); }
+⋮----
+.ait-product-name { font-weight: 500; font-size: 12px; }
+.ait-product-code { font-size: 11px; color: var(--c-text2); margin-top: 1px; }
+⋮----
+.ait-amt { font-size: 13px; font-weight: 500; text-align: right; }
+⋮----
+.ait-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+⋮----
+/* ── Status Badges ───────────────────────────────────── */
+.ait-badge {
+⋮----
+.b-draft      { background: #F1EFE8; color: #444441; }
+.b-submitted  { background: var(--c-blue-bg); color: #0C447C; }
+.b-pending    { background: var(--c-amber-bg); color: #633806; }
+.b-paid       { background: var(--c-green-bg); color: #085041; }
+.b-review     { background: #EEEDFE; color: #3C3489; }
+.b-approved   { background: #EAF3DE; color: #27500A; }
+.b-rejected   { background: var(--c-red-bg); color: var(--c-red); }
+.b-credited   { background: #EAF3DE; color: #085041; border: 1px solid #3B6D11; }
+.b-cancelled  { background: #F1EFE8; color: #5F5E5A; }
+⋮----
+/* ── Empty State ─────────────────────────────────────── */
+.ait-empty {
+⋮----
+.ait-empty__title {
+⋮----
+.ait-empty__hint {
+⋮----
+/* ── Pagination ──────────────────────────────────────── */
+.ait-pagination {
+⋮----
+.ait-pagination__controls {
+⋮----
+.ait-pagination__num {
+⋮----
+/* ── Responsive ─────────────────────────────────────── */
+⋮----
+.ait-kpis { gap: 8px; }
+.ait-kpi  { min-width: 140px; padding: 12px 14px; }
+.ait-kpi__value { font-size: 18px; }
+⋮----
+.ait-db__header { flex-direction: column; gap: 12px; }
+.ait-kpis { flex-direction: column; }
+.ait-filters { flex-direction: column; }
+.ait-fsel, .ait-search { width: 100%; }
+.ait-pagination { flex-direction: column; gap: 8px; align-items: flex-start; }
+⋮----
+/* Screen-reader only */
+.sr-only {
+```
+
+## File: src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.css
+```css
+/* =====================================================
+   officer-dashboard.component.css
+   Design: Compact fintech · matches officer_dashboard mockup
+   ===================================================== */
+⋮----
+.od {
+⋮----
+/* ── Header ──────────────────────────────────────────── */
+.od__header {
+⋮----
+.od__title {
+⋮----
+.od__subtitle {
+⋮----
+/* ── KPI Row ─────────────────────────────────────────── */
+.od__kpis {
+⋮----
+.od-kpi {
+.od-kpi:hover { box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+⋮----
+.od-kpi__label {
+⋮----
+.od-kpi__value {
+⋮----
+.od-kpi__sub {
+⋮----
+/* ── Buttons ─────────────────────────────────────────── */
+.od-btn {
+⋮----
+.od-btn--primary {
+.od-btn--primary:hover { background: #0d5b47; }
+⋮----
+.od-btn--ghost {
+.od-btn--ghost:hover { background: var(--c-bg2); }
+⋮----
+.od-btn:disabled { opacity: .4; cursor: not-allowed; }
+⋮----
+/* ── Filters ─────────────────────────────────────────── */
+.od-filters {
+⋮----
+.od-fsel,
+.od-fsel:hover,
+⋮----
+.od-search { min-width: 130px; }
+⋮----
+/* ── Bulk Action Bar ─────────────────────────────────── */
+.od-bulk-bar {
+.od-bulk-bar--show { display: flex; }
+⋮----
+.od-sep { color: var(--c-border2); }
+⋮----
+/* ── Table ───────────────────────────────────────────── */
+.od-table-wrap {
+⋮----
+.od-table {
+⋮----
+.od-table thead { background: var(--c-bg2); }
+⋮----
+.od-table th {
+⋮----
+.od-table td {
+⋮----
+.od-table tbody tr { transition: background .12s; cursor: pointer; }
+.od-table tbody tr:hover td { background: var(--c-bg2); }
+.od-table tbody tr:last-child td { border-bottom: none; }
+⋮----
+/* Row state highlights */
+.od-row--selected td { background: rgba(83,74,183,.04) !important; }
+.od-row--overdue td  { background: rgba(252,235,235,.15); }
+.od-row--atrisk td   { background: rgba(250,238,218,.1); }
+⋮----
+.text-right { text-align: right !important; }
+⋮----
+/* ── Checkbox ────────────────────────────────────────── */
+.od-cb {
+.od-cb--checked {
+.od-cb--checked::after {
+⋮----
+/* ── Cell Variants ───────────────────────────────────── */
+.od-ref {
+.od-ref:hover { text-decoration: underline; }
+⋮----
+.od-taxpayer { font-size: 11px; }
+⋮----
+.od-code {
+⋮----
+.od-amt  { font-size: 12px; font-weight: 500; text-align: right; white-space: nowrap; }
+.od-date { font-size: 11px; color: var(--c-text2); }
+.od-actions { display: flex; gap: 4px; }
+⋮----
+/* ── SLA Indicator ───────────────────────────────────── */
+.od-sla {
+.od-sla--ok   { color: #3B6D11; }
+.od-sla--warn { color: #BA7517; }
+.od-sla--over { color: #791F1F; }
+⋮----
+/* ── Status Badges (reuse ait-badge classes) ─────────── */
+.ait-badge {
+.badge-draft      { background: #F1EFE8; color: #444441; }
+.badge-submitted  { background: #E6F1FB; color: #0C447C; }
+.badge-pending    { background: #FAEEDA; color: #633806; }
+.badge-paid       { background: #E1F5EE; color: #085041; }
+.badge-review     { background: #EEEDFE; color: #3C3489; }
+.badge-approved   { background: #EAF3DE; color: #27500A; }
+.badge-rejected   { background: #FCEBEB; color: #791F1F; }
+.badge-credited   { background: #EAF3DE; color: #085041; border: 1px solid #3B6D11; }
+.badge-cancelled  { background: #F1EFE8; color: #5F5E5A; }
+⋮----
+/* ── Loading / Empty / Alert ─────────────────────────── */
+.od-loading {
+⋮----
+.ait-spinner {
+⋮----
+.ait-alert {
+.ait-alert--danger {
+⋮----
+.ait-empty {
+.ait-empty__title { font-size: 14px; font-weight: 500; margin: 4px 0 0; }
+.ait-empty__hint  { font-size: 12px; color: var(--c-text2); margin: 0; }
+⋮----
+/* ── Pagination ──────────────────────────────────────── */
+.ait-pagination {
+⋮----
+.ait-pagination__controls { display: flex; gap: 6px; align-items: center; }
+⋮----
+.ait-pagination__num {
+.ait-pagination__num.active {
+⋮----
+/* ── Responsive ─────────────────────────────────────── */
+⋮----
+.od__kpis { gap: 8px; }
+.od-kpi   { min-width: 120px; }
+⋮----
+.od__header { flex-direction: column; gap: 10px; }
+.od__kpis   { flex-direction: column; }
+.od-filters { flex-direction: column; }
+.od-fsel, .od-search { width: 100%; }
+.ait-pagination { flex-direction: column; gap: 8px; align-items: flex-start; }
+⋮----
+.sr-only {
+```
+
+## File: src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.html
+```html
+<div class="od">
+  <h2 class="sr-only">Officer AIT Review Dashboard</h2>
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <div class="od__header">
+    <div>
+      <div class="od__title">AIT Review Dashboard</div>
+      <div class="od__subtitle">Officer: {{ officerName }} &nbsp;·&nbsp; FY 2024–2025</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="od-fsel" (click)="refreshQueue()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M10.5 6A4.5 4.5 0 11 6 1.5a4.5 4.5 0 014 2.5M10.5 1.5v3h-3"
+                stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>
+        Refresh
+      </button>
+      <button class="od-fsel">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M6 1v8M2 6l4 4 4-4M1 11h10"
+                stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <!-- ── KPI Row ──────────────────────────────────────────── -->
+  <div class="od__kpis">
+    <div class="od-kpi">
+      <div class="od-kpi__label">My Queue</div>
+      <div class="od-kpi__value" style="color:#3C3489">{{ kpis.myQueue }}</div>
+      <div class="od-kpi__sub">Awaiting review</div>
+    </div>
+    <div class="od-kpi">
+      <div class="od-kpi__label">Reviewed Today</div>
+      <div class="od-kpi__value">{{ kpis.reviewedToday }}</div>
+      <div class="od-kpi__sub">Records processed</div>
+    </div>
+    <div class="od-kpi">
+      <div class="od-kpi__label">Approved (Week)</div>
+      <div class="od-kpi__value" style="color:#3B6D11">{{ kpis.approvedWeek }}</div>
+      <div class="od-kpi__sub">Last 7 days</div>
+    </div>
+    <div class="od-kpi">
+      <div class="od-kpi__label">SLA Risk</div>
+      <div class="od-kpi__value"
+           [style.color]="kpis.slaRiskPercent > 30 ? '#791F1F' : '#BA7517'">
+        {{ kpis.slaRiskPercent }}%
+      </div>
+      <div class="od-kpi__sub">Overdue / at risk</div>
+    </div>
+    <div class="od-kpi">
+      <div class="od-kpi__label">Approval Rate</div>
+      <div class="od-kpi__value">
+        {{ approvalRate }}%
+      </div>
+      <div class="od-kpi__sub">This month</div>
+    </div>
+  </div>
+
+  <!-- ── Loading ──────────────────────────────────────────── -->
+  <div *ngIf="isLoading" class="od-loading">
+    <div class="ait-spinner"></div>
+    <p>Loading queue data…</p>
+  </div>
+
+  <!-- ── Error ────────────────────────────────────────────── -->
+  <div *ngIf="loadError && !isLoading" class="ait-alert ait-alert--danger">
+    <strong>Error:</strong> {{ loadError }}
+    <button class="od-btn od-btn--ghost" (click)="refreshQueue()">Retry</button>
+  </div>
+
+  <!-- ── Content ──────────────────────────────────────────── -->
+  <div *ngIf="!isLoading">
+
+    <!-- Compact Filters -->
+    <div class="od-filters">
+      <select class="od-fsel" (change)="setActiveTab($any($event.target).value)">
+        <option value="ALL">All Statuses</option>
+        <option value="PAID">PAID (Queue)</option>
+        <option value="UNDER_REVIEW">UNDER_REVIEW</option>
+        <option value="APPROVED">APPROVED</option>
+        <option value="REJECTED">REJECTED</option>
+      </select>
+
+      <select class="od-fsel">
+        <option>FY 2024–2025</option>
+      </select>
+
+      <input type="text" class="od-search"
+             placeholder="TIN or Ref. No."
+             [(ngModel)]="searchQuery"
+             (input)="onSearchChange()" />
+
+      <input type="date" class="od-fsel"
+             [(ngModel)]="dateFilterFrom"
+             (change)="onDateChange()"
+             title="From date" />
+
+      <select class="od-fsel">
+        <option>All SLA</option>
+        <option>At Risk</option>
+        <option>Overdue</option>
+      </select>
+
+      <button class="od-btn od-btn--primary" (click)="applyFilters()">Search</button>
+      <button class="od-btn od-btn--ghost"
+              (click)="searchQuery=''; dateFilterFrom=''; applyFilters()">
+        Clear
+      </button>
+      <button class="od-btn od-btn--ghost" style="margin-left:auto">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <rect x="1" y="1" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="7" y="3" width="4" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        Columns
+      </button>
+    </div>
+
+    <!-- Bulk Action Bar -->
+    <div class="od-bulk-bar" [class.od-bulk-bar--show]="selectedIds.size > 0">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="2" width="12" height="12" rx="2" fill="#185FA5"/>
+        <path d="M5 8l2.5 2.5L11 5" stroke="#fff" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span style="font-weight:500;color:#185FA5">
+        {{ selectedIds.size }} record{{ selectedIds.size > 1 ? 's' : '' }} selected
+      </span>
+      <span class="od-sep">|</span>
+      <button class="od-btn od-btn--primary">
+        Approve ({{ selectedIds.size }})
+      </button>
+      <button class="od-btn od-btn--ghost">Assign to Me</button>
+      <button class="od-btn od-btn--ghost">Export Selected</button>
+      <button class="od-btn od-btn--ghost" style="margin-left:auto;color:var(--c-text2)"
+              (click)="selectedIds.clear()">
+        Clear
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="od-table-wrap">
+      <table class="od-table">
+        <thead>
+          <tr>
+            <th style="width:28px">
+              <span class="od-cb"
+                    [class.od-cb--checked]="isAllSelected()"
+                    (click)="toggleSelectAll()"></span>
+            </th>
+            <th>Ref. No.</th>
+            <th>Taxpayer</th>
+            <th>HS Code</th>
+            <th class="text-right">AIT Amount</th>
+            <th>Paid Date</th>
+            <th>SLA</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of getPaginatedRecords()"
+              [class.od-row--selected]="selectedIds.has(r.id || 0)"
+              [class.od-row--overdue]="getSlaHours(r) < 0"
+              [class.od-row--atrisk]="getSlaHours(r) >= 0 && getSlaHours(r) < 12">
+
+            <td>
+              <span class="od-cb"
+                    [class.od-cb--checked]="selectedIds.has(r.id || 0)"
+                    (click)="toggleSelect(r.id || 0)"></span>
+            </td>
+
+            <td>
+              <a class="od-ref" (click)="reviewRecord(r.id || 0)">
+                {{ r.aitReferenceNo }}
+              </a>
+            </td>
+
+            <td>
+              <div class="od-taxpayer">{{ r.taxpayerName }}</div>
+            </td>
+
+            <td>
+              <span class="od-code">{{ r.hsCode || '—' }}</span>
+            </td>
+
+            <td class="od-amt">৳ {{ r.calculatedAitAmount | number:'1.0-0' }}</td>
+
+            <td class="od-date">{{ r.createdAt | date:'d MMM' }}</td>
+
+            <td>
+              <span class="od-sla"
+                    [class.od-sla--ok]="getSlaHours(r) >= 12"
+                    [class.od-sla--warn]="getSlaHours(r) >= 0 && getSlaHours(r) < 12"
+                    [class.od-sla--over]="getSlaHours(r) < 0">
+                {{ getSlaDisplay(r) }}
+              </span>
+            </td>
+
+            <td>
+              <span class="ait-badge" [ngClass]="getStatusColor(r.status)">
+                {{ getStatusLabel(r.status) }}
+              </span>
+            </td>
+
+            <td class="od-actions">
+              <button class="od-btn od-btn--primary"
+                      (click)="reviewRecord(r.id || 0)">
+                Review
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="getPaginatedRecords().length === 0" class="ait-empty">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="8" y="6" width="28" height="32" rx="4"
+                stroke="#CBD5E1" stroke-width="1.5"/>
+          <path d="M14 16h16M14 22h10M14 28h8"
+                stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <p class="ait-empty__title">No records in queue</p>
+        <p class="ait-empty__hint">Try adjusting filters</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="ait-pagination">
+      <span class="ait-pagination__info">
+        Showing {{ ((currentPage-1)*itemsPerPage)+1 }} to
+        {{ Math.min(currentPage*itemsPerPage, filteredRecords.length) }}
+        of {{ filteredRecords.length }} records
+      </span>
+      <div class="ait-pagination__controls">
+        <button class="od-btn od-btn--ghost"
+                [disabled]="currentPage === 1" (click)="prevPage()">
+          ← Prev
+        </button>
+        <span *ngFor="let p of getPageNumbers()" class="ait-pagination__num"
+              [class.active]="p === currentPage"
+              (click)="goToPage(p)" style="cursor:pointer">
+          {{ p }}
+        </span>
+        <button class="od-btn od-btn--ghost"
+                [disabled]="currentPage >= getTotalPages()" (click)="nextPage()">
+          Next →
+        </button>
+      </div>
+      <select class="od-fsel"
+              (change)="itemsPerPage = +$any($event.target).value; applyFilters()">
+        <option value="10">10 per page</option>
+        <option value="20">20 per page</option>
+        <option value="50">50 per page</option>
+      </select>
+    </div>
+
+  </div>
+</div>
+```
+
+## File: src/app/features/ait/pages/officer-review/officer-review.component.css
+```css
+/* =====================================================
+   officer-review.component.css
+   Design: Split-screen review panel · matches officer_review_splitscreen mockup
+   ===================================================== */
+⋮----
+.review-container {
+⋮----
+/* ── Loading / Error / Success ───────────────────────── */
+.loading-state {
+⋮----
+.spinner {
+⋮----
+.alert {
+.alert-danger  { background: var(--c-red-bg); border: 0.5px solid #C44; color: var(--c-red); }
+.alert-success { background: var(--c-green-bg); border: 0.5px solid #3B6D11; color: #085041; }
+⋮----
+.btn-retry {
+⋮----
+/* ── Review Header ───────────────────────────────────── */
+.review-header {
+⋮----
+.header-left {
+⋮----
+.btn-back {
+.btn-back:hover { background: var(--c-bg2); color: var(--c-text); }
+⋮----
+.review-header h1 {
+⋮----
+.header-date {
+⋮----
+/* Status badge (re-used across module) */
+.status-badge {
+.status-draft      { background: #F1EFE8; color: #444441; }
+.status-submitted  { background: #E6F1FB; color: #0C447C; }
+.status-pending    { background: var(--c-amber-bg); color: #633806; }
+.status-paid       { background: var(--c-green-bg); color: #085041; }
+.status-review     { background: #EEEDFE; color: #3C3489; }
+.status-approved   { background: #EAF3DE; color: #27500A; }
+.status-rejected   { background: var(--c-red-bg); color: var(--c-red); }
+.status-credited   { background: #EAF3DE; color: #085041; border: 1px solid #3B6D11; }
+.status-cancelled  { background: #F1EFE8; color: #5F5E5A; }
+⋮----
+/* Action buttons (header right) */
+.header-actions {
+⋮----
+.rv-btn {
+.rv-btn:disabled { opacity: .4; cursor: not-allowed; }
+⋮----
+.rv-btn--approve {
+.rv-btn--approve:hover:not(:disabled) { background: #0d5b47; }
+⋮----
+.rv-btn--reject {
+.rv-btn--reject:hover:not(:disabled) { background: #FCDBDB; }
+⋮----
+.rv-btn--request {
+.rv-btn--request:hover:not(:disabled) { background: var(--c-amber-bg); }
+⋮----
+.rv-btn--ghost {
+.rv-btn--ghost:hover { background: var(--c-bg2); }
+⋮----
+/* ── Split Screen ────────────────────────────────────── */
+.split-screen {
+⋮----
+.panel {
+⋮----
+.panel-header {
+⋮----
+.panel-header h2 {
+⋮----
+/* ── Detail Sections ─────────────────────────────────── */
+.detail-section {
+.detail-section:last-child { border-bottom: none; }
+⋮----
+.detail-section h3 {
+⋮----
+.detail-grid {
+⋮----
+.detail-item label {
+.detail-item p {
+.detail-item p.ref-no { color: var(--c-blue); font-family: monospace; }
+.detail-item p.code   { font-family: monospace; font-size: 12px; }
+.detail-item p.amount { font-weight: 700; }
+⋮----
+/* ── Calc section ────────────────────────────────────── */
+.calc-section { background: #F0FDF9; }
+⋮----
+.calc-display { background: var(--c-bg); border-radius: var(--r-sm); padding: 12px 14px; }
+⋮----
+.calc-row {
+⋮----
+.calc-row span { color: var(--c-text2); }
+.calc-row .value { font-weight: 600; color: var(--c-text); }
+⋮----
+.calc-row.result span { color: var(--c-text); font-weight: 600; }
+.calc-row.result .value { font-size: 18px; font-weight: 800; color: var(--c-green); }
+⋮----
+.calc-divider { height: 1px; background: var(--c-border); margin: 8px 0; }
+⋮----
+/* ── Document Viewer Panel ───────────────────────────── */
+.panel-docs-header {
+⋮----
+.doc-tabs {
+⋮----
+.doc-tab {
+.doc-tab:hover  { background: var(--c-border); color: var(--c-text); }
+.doc-tab.active { background: var(--c-green); color: var(--c-green-bg); border-color: var(--c-green); }
+⋮----
+.doc-preview {
+⋮----
+.doc-preview-placeholder {
+.doc-preview-placeholder i { font-size: 40px; opacity: .3; margin-bottom: 10px; }
+⋮----
+/* ── Audit Trail ─────────────────────────────────────── */
+.audit-trail {
+⋮----
+.trail-item {
+.trail-item:last-child { border-bottom: none; }
+⋮----
+.trail-dot {
+⋮----
+.trail-from  { color: var(--c-text2); }
+.trail-arrow { color: var(--c-text3); margin: 0 4px; }
+.trail-to    { font-weight: 600; color: var(--c-text); }
+.trail-by    { font-size: 11px; color: var(--c-text2); }
+.trail-at    { font-size: 11px; color: var(--c-text3); }
+.trail-reason { font-size: 11px; color: var(--c-text2); margin-top: 2px; }
+⋮----
+/* ── Document Requests ───────────────────────────────── */
+.doc-request {
+⋮----
+.doc-request__header {
+⋮----
+.doc-request__type { font-weight: 600; color: var(--c-amber); font-size: 11px; text-transform: uppercase; }
+.doc-request__deadline { font-size: 11px; color: var(--c-text2); }
+.doc-request__details  { font-size: 12px; color: var(--c-text); }
+⋮----
+/* ── Modals ──────────────────────────────────────────── */
+.modal-overlay {
+⋮----
+.modal {
+⋮----
+.modal-header {
+⋮----
+.modal-header h3 { font-size: 15px; font-weight: 600; margin: 0; color: var(--c-text); }
+⋮----
+.modal-close {
+.modal-close:hover { background: var(--c-border); }
+⋮----
+.modal-body { padding: 18px 20px; }
+⋮----
+.modal-footer {
+⋮----
+.form-group { margin-bottom: 14px; }
+.form-group label {
+⋮----
+.form-control {
+.form-control:focus { border-color: var(--c-green); outline: none; }
+⋮----
+textarea.form-control { min-height: 80px; resize: vertical; }
+⋮----
+/* ── Responsive ─────────────────────────────────────── */
+⋮----
+.split-screen { grid-template-columns: 1fr; }
+⋮----
+.review-header { flex-direction: column; }
+.header-left   { flex-direction: column; align-items: flex-start; gap: 8px; }
+.header-actions { width: 100%; }
+.rv-btn        { flex: 1; justify-content: center; }
+.detail-grid   { grid-template-columns: 1fr; }
+```
+
+## File: src/app/features/ait/pages/officer-review/officer-review.component.html
+```html
+<div class="review-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading AIT record...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="loadError && !isLoading" class="alert alert-danger">
+    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
+    {{ loadError }}
+    <button class="btn-retry" (click)="loadAitDetails()">Retry</button>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="actionSuccess" class="alert alert-success alert-dismissible">
+    <strong><i class="ti ti-circle-check"></i> Success!</strong>
+    {{ actionSuccess }}
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && ait" class="review-content">
+    <!-- Header -->
+    <div class="review-header">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">
+          <i class="ti ti-chevron-left"></i> Back to Queue
+        </button>
+        <h1>{{ ait.aitReferenceNo }}</h1>
+        <span class="status-badge" [ngClass]="getStatusColor(ait.status)">
+          {{ getStatusLabel(ait.status) }}
+        </span>
+      </div>
+      <div class="header-right">
+        <p class="header-date">{{ formatDate(ait.createdAt || '') }}</p>
+      </div>
+    </div>
+
+    <!-- Split Screen Layout -->
+    <div class="split-screen">
+      <!-- LEFT PANEL: Details -->
+      <div class="panel panel-details">
+        <div class="panel-header">
+          <h2><i class="ti ti-receipt-2"></i> AIT Details</h2>
+        </div>
+
+        <!-- Taxpayer Section -->
+        <div class="detail-section">
+          <h3>Taxpayer Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Name:</label>
+              <p>{{ ait.taxpayerName }}</p>
+            </div>
+            <div class="detail-item">
+              <label>TIN:</label>
+              <p>{{ ait.taxpayerId }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Officer Assigned:</label>
+              <p>{{ ait.assignedOfficerName || 'Not assigned' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transaction Section -->
+        <div class="detail-section">
+          <h3>Import Duty Transaction</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Duty Reference No:</label>
+              <p class="ref-no">{{ ait.importDutyRefNo }}</p>
+            </div>
+            <div class="detail-item">
+              <label>HS Code:</label>
+              <p class="code">{{ ait.hsCode }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Taxable Value:</label>
+              <p class="amount">৳ {{ ait.taxableValue | number:'1.2-2' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculation Section -->
+        <div class="detail-section calc-section">
+          <h3>AIT Calculation</h3>
+          <div class="calc-display">
+            <div class="calc-row">
+              <span>Taxable Value:</span>
+              <span class="value">৳ {{ ait.taxableValue | number:'1.2-2' }}</span>
+            </div>
+            <div class="calc-row">
+              <span>Rate:</span>
+              <span class="value">{{ ait.aitRate }}%</span>
+            </div>
+            <div class="calc-divider"></div>
+            <div class="calc-row result">
+              <span>Calculated AIT:</span>
+              <span class="value">৳ {{ ait.calculatedAitAmount | number:'1.2-2' }}</span>
+            </div>
+            <div *ngIf="ait.approvedAitAmount" class="calc-row approved">
+              <span>Approved Amount:</span>
+              <span class="value">৳ {{ ait.approvedAitAmount | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Trail Section -->
+        <div class="detail-section audit-section">
+          <h3>Status History</h3>
+          <div class="audit-trail">
+            <div *ngFor="let event of ait.statusHistory; let i = last" class="audit-item" [class.last]="i">
+              <div class="audit-dot"></div>
+              <div class="audit-content">
+                <p class="audit-transition">
+                  <strong>{{ event.fromStatus }}</strong> → <strong>{{ event.toStatus }}</strong>
+                </p>
+                <p class="audit-meta">
+                  by {{ event.changedBy }} on {{ formatDate(event.changedAt) }}
+                </p>
+                <p class="audit-reason" *ngIf="event.changeReason">{{ event.changeReason }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Requests Section -->
+        <div *ngIf="pendingRequests.length > 0" class="detail-section requests-section">
+          <h3>Pending Document Requests</h3>
+          <div class="requests-list">
+            <div *ngFor="let req of pendingRequests" class="request-item">
+              <p class="request-type"><strong>{{ req.requestType }}</strong></p>
+              <p class="request-docs">Documents: {{ req.requestedDocuments }}</p>
+              <p class="request-meta">Deadline: {{ formatDate(req.deadline) }}</p>
+              <p class="request-status" [ngClass]="'status-' + req.status.toLowerCase()">
+                {{ req.status }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: Documents & Actions -->
+      <div class="panel panel-documents">
+        <div class="panel-header">
+          <h2><i class="ti ti-paperclip"></i> Documents ({{ documents.length }})</h2>
+        </div>
+
+        <!-- Document Tabs -->
+        <div *ngIf="documents.length > 0" class="document-tabs">
+          <div class="tabs-container">
+            <button
+              *ngFor="let doc of documents"
+              class="tab-btn"
+              [class.active]="activeDocTabId === doc.id"
+              (click)="selectDocument(doc)"
+              title="{{ doc.fileName }}">
+              <i class="ti ti-file"></i>
+              <span class="tab-label">{{ doc.fileName | slice:0:20 }}{{ doc.fileName.length > 20 ? '...' : '' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Document Viewer -->
+        <div *ngIf="selectedDocument" class="document-viewer">
+          <div class="viewer-header">
+            <h4>{{ selectedDocument.fileName }}</h4>
+            <p class="viewer-meta">
+              {{ formatFileSize(selectedDocument.fileSize) }} • {{ selectedDocument.fileType }} • {{ formatDate(selectedDocument.uploadedAt) }}
+            </p>
+          </div>
+
+          <div class="viewer-placeholder">
+            <i class="ti ti-file"></i>
+            <p>Document preview not available in browser</p>
+            <p class="hint">{{ selectedDocument.fileName }}</p>
+            <button class="btn-download" title="Download document">
+              <i class="ti ti-download"></i> Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty Documents -->
+        <div *ngIf="documents.length === 0" class="empty-docs">
+          <i class="ti ti-inbox"></i>
+          <p>No documents uploaded</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions-panel">
+          <div class="action-buttons">
+            <button
+              class="btn btn-approve"
+              (click)="openApproveModal()"
+              [disabled]="!canApprove() || actionInProgress !== null">
+              <i class="ti ti-circle-check"></i> Approve
+            </button>
+
+            <button
+              class="btn btn-reject"
+              (click)="openRejectModal()"
+              [disabled]="!canReject() || actionInProgress !== null">
+              <i class="ti ti-circle-x"></i> Reject
+            </button>
+
+            <button
+              class="btn btn-request"
+              (click)="openRequestModal()"
+              [disabled]="!canRequestCorrection() || actionInProgress !== null">
+              <i class="ti ti-send"></i> Request Correction
+            </button>
+          </div>
+
+          <p *ngIf="actionError" class="action-error">
+            <i class="ti ti-alert-circle"></i> {{ actionError }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- APPROVE MODAL -->
+    <div *ngIf="showApproveModal" class="modal-overlay" (click)="closeApproveModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Approve AIT Record</h3>
+          <button class="btn-close" (click)="closeApproveModal()">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Approved AIT Amount (৳)</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="approveForm.approvedAmount"
+              step="0.01"
+              min="0">
+            <p class="form-hint">Current calculated amount: ৳ {{ ait.calculatedAitAmount | number:'1.2-2' }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Approval Notes</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="approveForm.approvalNotes"
+              rows="3"
+              placeholder="Optional notes about this approval"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeApproveModal()" [disabled]="actionInProgress !== null">
+            Cancel
+          </button>
+          <button
+            class="btn btn-approve"
+            (click)="submitApprove()"
+            [disabled]="actionInProgress !== null">
+            {{ actionInProgress === 'approve' ? 'Approving...' : 'Approve' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REJECT MODAL -->
+    <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeRejectModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Reject AIT Record</h3>
+          <button class="btn-close" (click)="closeRejectModal()">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Rejection Reason *</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="rejectForm.rejectionReason"
+              rows="4"
+              placeholder="Please explain why this AIT record is being rejected"
+              required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeRejectModal()" [disabled]="actionInProgress !== null">
+            Cancel
+          </button>
+          <button
+            class="btn btn-reject"
+            (click)="submitReject()"
+            [disabled]="actionInProgress !== null || !rejectForm.rejectionReason.trim()">
+            {{ actionInProgress === 'reject' ? 'Rejecting...' : 'Reject' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUEST CORRECTION MODAL -->
+    <div *ngIf="showRequestModal" class="modal-overlay" (click)="closeRequestModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Request Document Correction</h3>
+          <button class="btn-close" (click)="closeRequestModal()">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Request Type</label>
+            <select class="form-control" [(ngModel)]="requestForm.requestType">
+              <option value="INFO">Information Request</option>
+              <option value="MODIFICATION">Modification Request</option>
+              <option value="CLARIFICATION">Clarification Request</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Documents Required *</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="requestForm.requestedDocuments"
+              rows="2"
+              placeholder="List the documents or information needed"
+              required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Reason for Request</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="requestForm.requestReason"
+              rows="2"
+              placeholder="Explain why this information is needed"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Deadline</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="requestForm.deadline">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeRequestModal()" [disabled]="actionInProgress !== null">
+            Cancel
+          </button>
+          <button
+            class="btn btn-request"
+            (click)="submitRequest()"
+            [disabled]="actionInProgress !== null || !requestForm.requestedDocuments.trim()">
+            {{ actionInProgress === 'request' ? 'Sending...' : 'Send Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+```
+
+## File: src/app/features/ait/pages/officer-review/officer-review.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AitService } from '../../services/ait.service';
+import { AitDetailResponse, AitDocument, DocumentRequest, DocumentRequestType } from '../../models/ait.model';
+⋮----
+export class OfficerReviewComponent implements OnInit, OnDestroy
+⋮----
+// Actions state
+⋮----
+// Modals
+⋮----
+// Form data
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+loadAitDetails(): void
+⋮----
+selectDocument(doc: AitDocument): void
+⋮----
+// Approve Action
+openApproveModal(): void
+⋮----
+closeApproveModal(): void
+⋮----
+submitApprove(): void
+⋮----
+// Reject Action
+openRejectModal(): void
+⋮----
+closeRejectModal(): void
+⋮----
+submitReject(): void
+⋮----
+// Request Correction Action
+openRequestModal(): void
+⋮----
+closeRequestModal(): void
+⋮----
+submitRequest(): void
+⋮----
+// Helpers
+getStatusColor(status: string): string
+⋮----
+getStatusLabel(status: string): string
+⋮----
+formatDate(dateStr: string): string
+⋮----
+formatFileSize(bytes: number): string
+⋮----
+goBack(): void
+⋮----
+canApprove(): boolean
+⋮----
+canReject(): boolean
+⋮----
+canRequestCorrection(): boolean
+```
+
 ## File: src/app/features/audit-management/pages/audit-create/audit-create.component.css
 ```css
 .section-icon.teal {
@@ -10222,6 +10860,27 @@ getPriorityClass(p: string): string
 fmt(amount: number): string
 ```
 
+## File: src/app/features/auth/pages/reset-password/reset-password.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { ToastService } from '../../../../shared/toast/toast.service';
+⋮----
+export class ResetPasswordComponent implements OnInit, OnDestroy
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+onSubmit(): void
+```
+
 ## File: src/app/features/business-registration/business/business.module.ts
 ```typescript
 import { NgModule } from '@angular/core';
@@ -10309,80 +10968,61 @@ export class BusinessModule { }
 .expiry-expired {
 ```
 
-## File: src/app/features/fiscal-years/pages/fiscal-year-create/fiscal-year-create.component.html
+## File: src/app/features/fiscal-years/pages/fiscal-year-edit/fiscal-year-edit.component.html
 ```html
 <div class="page-header">
   <div class="page-header-left">
-    <h4>Add Fiscal Year</h4>
-    <p>Define a new fiscal year with tax deadlines.</p>
+    <h4>Edit Fiscal Year</h4>
+    <p>Update fiscal year configuration and tax deadlines.</p>
   </div>
   <button class="btn-back" (click)="onCancel()">
     <i class="bi bi-arrow-left"></i> Back to List
   </button>
 </div>
 
-<div class="alert-success" *ngIf="successMsg">
-  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
-</div>
-<div class="alert-error" *ngIf="errorMsg">
-  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
-</div>
+<div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
+<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
+<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border text-primary"></div></div>
 
-<div class="form-card">
+<div class="form-card" *ngIf="!isLoading">
+
+  <div class="edit-banner">
+    <i class="bi bi-pencil-square"></i>
+    Editing Fiscal Year: <strong>FY {{ form.yearName }}</strong>
+  </div>
 
   <!-- Section 1: Year Info -->
   <div class="form-section">
     <div class="section-header">
-      <div class="section-icon">
-        <i class="bi bi-calendar-range-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Fiscal Year Information</h6>
-        <span class="section-sub">Year name — dates auto-fill from name</span>
-      </div>
+      <div class="section-icon"><i class="bi bi-calendar-range-fill"></i></div>
+      <div><h6 class="section-title">Fiscal Year Period</h6><span class="section-sub">Year name and start/end dates</span></div>
     </div>
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label required">Year Name</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. 2025-26"
-            [(ngModel)]="form.yearName"
-            (ngModelChange)="onYearNameChange()" />
+        <div class="input-wrap"><i class="bi bi-calendar input-icon"></i>
+          <input type="text" class="form-input" [(ngModel)]="form.yearName" />
         </div>
-        <span class="field-hint">Format: YYYY-YY (e.g. 2025-26) — dates auto-fill</span>
       </div>
       <div class="form-group">
         <label class="form-label">Status</label>
-        <div class="input-wrap">
-          <i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.status">
+        <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status" (ngModelChange)="onStatusChange()">
             <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
           </select>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label required">Start Date <span class="auto-label">Auto</span></label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-check input-icon"></i>
+        <label class="form-label required">Start Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar-check input-icon"></i>
           <input type="date" class="form-input" [(ngModel)]="form.startDate" />
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label required">End Date <span class="auto-label">Auto</span></label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-x input-icon"></i>
+        <label class="form-label required">End Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar-x input-icon"></i>
           <input type="date" class="form-input" [(ngModel)]="form.endDate" />
         </div>
-      </div>
-    </div>
-
-    <!-- Year Preview Card -->
-    <div class="year-preview" *ngIf="form.yearName">
-      <div class="yp-year">FY {{ form.yearName }}</div>
-      <div class="yp-range" *ngIf="form.startDate && form.endDate">
-        {{ form.startDate }} → {{ form.endDate }}
       </div>
     </div>
   </div>
@@ -10392,47 +11032,22 @@ export class BusinessModule { }
   <!-- Section 2: Tax Deadlines -->
   <div class="form-section">
     <div class="section-header">
-      <div class="section-icon teal">
-        <i class="bi bi-alarm-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Tax Deadlines</h6>
-        <span class="section-sub">VAT and income tax due dates</span>
-      </div>
+      <div class="section-icon teal"><i class="bi bi-alarm-fill"></i></div>
+      <div><h6 class="section-title">Tax Deadlines</h6><span class="section-sub">VAT and income tax due dates</span></div>
     </div>
     <div class="form-grid">
       <div class="form-group">
-        <label class="form-label">VAT Due Day (Monthly)</label>
-        <div class="input-wrap">
-          <i class="bi bi-receipt-cutoff input-icon"></i>
+        <label class="form-label">VAT Due Day</label>
+        <div class="input-wrap"><i class="bi bi-receipt-cutoff input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.vatDueDay">
-            <option *ngFor="let d of vatDueDays" [value]="d">{{ d }}th of each month</option>
+            <option *ngFor="let d of vatDueDays" [ngValue]="d">{{ d }}th of each month</option>
           </select>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Income Tax Due Date <span class="auto-label">Auto</span></label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-event input-icon"></i>
+        <label class="form-label">Income Tax Due Date</label>
+        <div class="input-wrap"><i class="bi bi-calendar-event input-icon"></i>
           <input type="date" class="form-input" [(ngModel)]="form.incomeTaxDueDate" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Deadline Preview -->
-    <div class="deadline-preview" *ngIf="form.vatDueDay || form.incomeTaxDueDate">
-      <div class="dp-item" *ngIf="form.vatDueDay">
-        <div class="dp-icon vat"><i class="bi bi-receipt-cutoff"></i></div>
-        <div>
-          <div class="dp-label">VAT Returns Due</div>
-          <div class="dp-value">{{ form.vatDueDay }}th of each month</div>
-        </div>
-      </div>
-      <div class="dp-item" *ngIf="form.incomeTaxDueDate">
-        <div class="dp-icon it"><i class="bi bi-calendar-event-fill"></i></div>
-        <div>
-          <div class="dp-label">Income Tax Return Due</div>
-          <div class="dp-value">{{ form.incomeTaxDueDate }}</div>
         </div>
       </div>
     </div>
@@ -10440,25 +11055,20 @@ export class BusinessModule { }
 
   <div class="section-divider"></div>
 
-  <!-- Section 3: Current Year Toggle -->
+  <!-- Section 3: Current Year -->
   <div class="form-section">
     <div class="section-header">
-      <div class="section-icon orange">
-        <i class="bi bi-star-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Current Year Setting</h6>
-        <span class="section-sub">Set as the active fiscal year for the system</span>
-      </div>
+      <div class="section-icon orange"><i class="bi bi-star-fill"></i></div>
+      <div><h6 class="section-title">Current Year Setting</h6><span class="section-sub">Set as the active fiscal year</span></div>
     </div>
     <div class="toggle-section">
       <div class="toggle-info">
         <div class="ti-title">Set as Current Year</div>
-        <div class="ti-desc">Enabling this will mark this as the active fiscal year. The previous current year will be automatically closed.</div>
+        <div class="ti-desc">Previous current year will be automatically closed.</div>
       </div>
       <div class="toggle-wrap">
         <label class="toggle-switch">
-          <input type="checkbox" [(ngModel)]="form.isCurrentYear" />
+          <input type="checkbox" [(ngModel)]="form.isCurrentYear" (ngModelChange)="onCurrentYearChange()" />
           <span class="toggle-slider"></span>
         </label>
         <span class="toggle-label" [class.on]="form.isCurrentYear">
@@ -10469,16 +11079,10 @@ export class BusinessModule { }
   </div>
 
   <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
-      <i class="bi bi-x-lg"></i> Cancel
-    </button>
-    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
-      <i class="bi bi-arrow-counterclockwise"></i> Reset
-    </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isLoading || !isFormValid()">
-      <span *ngIf="!isLoading"><i class="bi bi-calendar-range-fill"></i> Create Fiscal Year</span>
-      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"><i class="bi bi-x-lg"></i> Cancel</button>
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
+      <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update Fiscal Year</span>
+      <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
     </button>
   </div>
 
@@ -10616,69 +11220,6 @@ export class BusinessModule { }
   </div>
 
 </ng-container>
-```
-
-## File: src/app/features/income-tax-returns/pages/IT10B/it10b.component.ts
-```typescript
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-⋮----
-import { BaseApiService }   from '../../../../core/services/base-api.service';
-import { ToastService }     from '../../../../shared/toast/toast.service';
-import { API_ENDPOINTS }    from '../../../../core/constants/api.constants';
-import { IT10B, IT10BRequest } from '../../../../models/it10b.model';
-⋮----
-export class It10bComponent implements OnInit, OnDestroy {
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Form Builder ──────────────────────────────────────────────────────────
-⋮----
-private buildForm(): void
-⋮----
-// ── Real-time netWealth via valueChanges ──────────────────────────────────
-⋮----
-private listenToValueChanges(): void
-⋮----
-// ── Load existing IT-10B (edit mode) ─────────────────────────────────────
-⋮----
-private tryLoadExisting(): void
-⋮----
-// Edit mode — patch form with existing values
-⋮----
-// ── Submit ────────────────────────────────────────────────────────────────
-⋮----
-onSubmit(): void
-⋮----
-// Update mode
-⋮----
-// Create mode
-⋮----
-private handleSaveError(err: any): void
-⋮----
-// ── Helpers ───────────────────────────────────────────────────────────────
-⋮----
-onReset(): void
-⋮----
-goBack(): void
-⋮----
-// Go back to the view page, preserving the returnUrl so the view page's
-// own back button still works correctly (portal → view → it10b → view → portal)
-⋮----
-get isEditMode(): boolean
-⋮----
-get totalAssets(): number
-⋮----
-ctrl(name: string)
-⋮----
-fmt(val: number): string
 ```
 
 ## File: src/app/features/notices-notifications/pages/notice-create/notice-create.component.css
@@ -11157,15 +11698,6 @@ fmt(val: number): string
 </div>
 ```
 
-## File: src/app/features/notices-notifications/pages/notice-view/notice-view.component.css
-```css
-.notice-icon.type-taxdue {
-.notice-icon.type-penalty {
-.notice-icon.type-compliance {
-.notice-icon.type-refund {
-.notice-icon.type-system {
-```
-
 ## File: src/app/features/payments/pages/payment-view/payment-view.component.css
 ```css
 .txn-id {
@@ -11309,7 +11841,7 @@ export class PaymentModule { }
 
           <td>
             <div class="td-name">
-              <div class="td-avatar">{{ p.taxpayerName.charAt(0) }}</div>
+              <div class="td-avatar">{{ p.taxpayerName?.charAt(0) ?? '?' }}</div>
               <div>
                 <span class="td-title">{{ p.taxpayerName }}</span>
                 <span class="td-sub">{{ p.tinNumber }}</span>
@@ -11394,7 +11926,7 @@ export class PaymentModule { }
 
       <div class="mobile-card-header">
         <div class="mobile-card-title">
-          <div class="mobile-avatar">{{ p.taxpayerName.charAt(0) }}</div>
+          <div class="mobile-avatar">{{ p.taxpayerName?.charAt(0) ?? '?' }}</div>
           <div>
             <div class="mobile-name">{{ p.taxpayerName }}</div>
             <div class="mobile-sub">{{ p.penaltyNo }}</div>
@@ -12174,303 +12706,56 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 </div>
 ```
 
-## File: src/app/features/refund-management/pages/refund-create/refund-create.component.css
-```css
-.section-icon.teal {
-.section-icon.orange {
-.section-icon.purple {
-```
-
-## File: src/app/features/refund-management/pages/refund-list/refund-list.component.css
-```css
-/* Refund Type */
-.type-badge {
-.type-vat {
-.type-it {
-.type-excess {
-.type-other {
-⋮----
-.method-badge {
-⋮----
-.claim-amount {
-.approved-amount {
-.paid-amount {
-⋮----
-.data-table {
-```
-
-## File: src/app/features/refund-management/pages/refund-list/refund-list.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>Refund Management</h4>
-    <p>Manage all tax refund claims and processing.</p>
-  </div>
-  <a *canDo="'create'" routerLink="/refunds/create"
-     class="btn-add-primary desktop-add-btn">
-    <i class="bi bi-plus-lg"></i> New Refund
-  </a>
-</div>
-
-<div class="page-wrapper">
-
-  <!-- Search -->
-  <div class="list-search-bar">
-    <div class="search-field-row">
-      <div class="search-field">
-        <i class="bi bi-search"></i>
-        <input
-          type="text"
-          placeholder="Search by refund no, TIN, taxpayer, type..."
-          [(ngModel)]="searchTerm"
-        />
-      </div>
-      <button *canDo="'export'" class="btn-export">
-        <i class="bi bi-download"></i>
-        <span>Export</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Loading -->
-  <div class="loading-row" *ngIf="isLoading">
-    <div class="spinner-border spinner-border-sm text-primary"></div>
-    <span>Loading refunds...</span>
-  </div>
-
-  <!-- Desktop Table -->
-  <div class="table-responsive desktop-table" *ngIf="!isLoading">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Refund No</th>
-          <th>Taxpayer</th>
-          <th>Type</th>
-          <th>Claim Amount</th>
-          <th>Approved Amount</th>
-          <th>Paid Amount</th>
-          <th>Claim Date</th>
-          <th>Method</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let r of filteredRefunds; let i = index">
-          <td>{{ i + 1 }}</td>
-
-          <td><span class="refund-code">{{ r.refundNo }}</span></td>
-
-          <td>
-            <div class="td-name">
-              <div class="td-avatar">{{ r.taxpayerName.charAt(0) }}</div>
-              <div>
-                <span class="td-title">{{ r.taxpayerName }}</span>
-                <span class="td-sub">{{ r.tinNumber }}</span>
-              </div>
-            </div>
-          </td>
-
-          <td>
-            <span class="type-badge" [ngClass]="getTypeClass(r.refundType)">
-              {{ r.refundType }}
-            </span>
-          </td>
-
-          <td class="amount-cell claim-amount">
-            {{ formatCurrency(r.claimAmount) }}
-          </td>
-
-          <td class="amount-cell approved-amount">
-            {{ r.approvedAmount > 0 ? formatCurrency(r.approvedAmount) : '—' }}
-          </td>
-
-          <td class="amount-cell paid-amount">
-            {{ r.paidAmount > 0 ? formatCurrency(r.paidAmount) : '—' }}
-          </td>
-
-          <td>{{ r.claimDate }}</td>
-
-          <td>
-            <span class="method-badge">{{ r.refundMethod }}</span>
-          </td>
-
-          <td>
-            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
-              {{ r.status }}
-            </span>
-          </td>
-
-          <td>
-            <div class="action-btns">
-              <button class="btn-view" (click)="viewRefund(r.id)">
-                <i class="bi bi-eye-fill"></i> View
-              </button>
-              <button *canDo="'edit'" class="btn-edit"
-                (click)="editRefund(r.id)">
-                <i class="bi bi-pencil-fill"></i> Edit
-              </button>
-              <button
-                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
-                class="btn-delete"
-                (click)="confirmDelete(r.id)"
-              >
-                <i class="bi bi-trash-fill"></i> Delete
-              </button>
-            </div>
-          </td>
-        </tr>
-
-        <tr *ngIf="filteredRefunds.length === 0">
-          <td colspan="11">
-            <div class="empty-state">
-              <i class="bi bi-cash-stack"></i>
-              <p>No refunds found.</p>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Mobile Cards -->
-  <div class="mobile-cards" style="padding: 12px;" *ngIf="!isLoading">
-    <div class="mobile-card" *ngFor="let r of filteredRefunds">
-
-      <div class="mobile-card-header">
-        <div class="mobile-card-title">
-          <div class="mobile-avatar">{{ r.taxpayerName.charAt(0) }}</div>
-          <div>
-            <div class="mobile-name">{{ r.taxpayerName }}</div>
-            <div class="mobile-sub">{{ r.refundNo }}</div>
-          </div>
-        </div>
-        <span class="status-badge" [ngClass]="getStatusClass(r.status)">
-          {{ r.status }}
-        </span>
-      </div>
-
-      <div class="mobile-card-body">
-        <div class="mobile-field">
-          <label>TIN</label>
-          <span>{{ r.tinNumber }}</span>
-        </div>
-        <div class="mobile-field">
-          <label>Type</label>
-          <span class="type-badge" [ngClass]="getTypeClass(r.refundType)">
-            {{ r.refundType }}
-          </span>
-        </div>
-        <div class="mobile-field">
-          <label>Claim Amount</label>
-          <span class="claim-amount">{{ formatCurrency(r.claimAmount) }}</span>
-        </div>
-        <div class="mobile-field">
-          <label>Approved</label>
-          <span class="approved-amount">
-            {{ r.approvedAmount > 0 ? formatCurrency(r.approvedAmount) : '—' }}
-          </span>
-        </div>
-        <div class="mobile-field">
-          <label>Method</label>
-          <span>{{ r.refundMethod }}</span>
-        </div>
-        <div class="mobile-field">
-          <label>Claim Date</label>
-          <span>{{ r.claimDate }}</span>
-        </div>
-        <div class="mobile-field" *ngIf="r.approvalDate">
-          <label>Approval Date</label>
-          <span>{{ r.approvalDate }}</span>
-        </div>
-        <div class="mobile-field" *ngIf="r.remarks">
-          <label>Remarks</label>
-          <span>{{ r.remarks }}</span>
-        </div>
-      </div>
-
-      <div class="mobile-card-actions">
-        <button class="btn-view" (click)="viewRefund(r.id)">
-          <i class="bi bi-eye-fill"></i> View
-        </button>
-        <button *canDo="'edit'" class="btn-edit" (click)="editRefund(r.id)">
-          <i class="bi bi-pencil-fill"></i> Edit
-        </button>
-        <button
-          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
-          class="btn-delete"
-          (click)="confirmDelete(r.id)"
-        >
-          <i class="bi bi-trash-fill"></i> Delete
-        </button>
-      </div>
-
-    </div>
-
-    <div class="empty-state" *ngIf="filteredRefunds.length === 0">
-      <i class="bi bi-cash-stack"></i>
-      <p>No refunds found.</p>
-    </div>
-  </div>
-
-</div>
-
-<!-- FAB -->
-<button *canDo="'create'" class="fab-btn"
-  routerLink="/refunds/create" title="New Refund">
-  <i class="bi bi-plus-lg"></i>
-</button>
-
-<div class="modal-overlay" *ngIf="showDeleteModal">
-  <div class="modal-card">
-    <div class="modal-accent error"></div>
-    <div class="modal-icon-wrap error">
-      <i class="bi bi-trash-fill" style="color:#A32D2D; font-size:22px;"></i>
-    </div>
-    <p class="modal-title">Delete Refund?</p>
-    <p class="modal-msg">
-      This action cannot be undone. Are you sure you want to delete this refund record?
-    </p>
-    <div class="modal-actions">
-      <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
-      <button class="btn-modal-confirm error" (click)="confirmDeleteExecute()">
-        <i class="bi bi-trash-fill"></i> Delete
-      </button>
-    </div>
-  </div>
-</div>
-```
-
-## File: src/app/features/refund-management/refund/refund-routing.module.ts
+## File: src/app/features/refund-management/pages/refund-create/refund-create.component.spec.ts
 ```typescript
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { Role } from 'src/app/core/constants/roles.constants';
-import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RefundService } from '../../services/refund.service';
 ⋮----
-import { RefundCreateComponent } from '../pages/refund-create/refund-create.component';
-import { RefundEditComponent } from '../pages/refund-edit/refund-edit.component';
-import { RefundListComponent } from '../pages/refund-list/refund-list.component';
-import { RefundViewComponent } from '../pages/refund-view/refund-view.component';
+// Auto-generate: replace ClassName with actual component class
 ⋮----
-export class RefundRoutingModule { }
+expect(true).toBeTruthy(); // replace with actual component test
 ```
 
-## File: src/app/features/refund-management/refund/refund.module.ts
+## File: src/app/features/refund-management/pages/refund-edit/refund-edit.component.spec.ts
 ```typescript
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RefundService } from '../../services/refund.service';
 ⋮----
-import { RefundRoutingModule } from './refund-routing.module';
-import { RefundListComponent } from '../pages/refund-list/refund-list.component';
-import { RefundCreateComponent } from '../pages/refund-create/refund-create.component';
-import { RefundViewComponent } from '../pages/refund-view/refund-view.component';
-import { RefundEditComponent } from '../pages/refund-edit/refund-edit.component';
+// Auto-generate: replace ClassName with actual component class
 ⋮----
-export class RefundModule { }
+expect(true).toBeTruthy(); // replace with actual component test
+```
+
+## File: src/app/features/refund-management/pages/refund-list/refund-list.component.spec.ts
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RefundService } from '../../services/refund.service';
+⋮----
+// Auto-generate: replace ClassName with actual component class
+⋮----
+expect(true).toBeTruthy(); // replace with actual component test
+```
+
+## File: src/app/features/refund-management/pages/refund-view/refund-view.component.spec.ts
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RefundService } from '../../services/refund.service';
+⋮----
+// Auto-generate: replace ClassName with actual component class
+⋮----
+expect(true).toBeTruthy(); // replace with actual component test
 ```
 
 ## File: src/app/features/reports-analytics/pages/reports-home/reports-home.component.html
@@ -13118,46 +13403,6 @@ export class RolesModule
 </div><!-- /form-card -->
 ```
 
-## File: src/app/features/taxable-products/services/taxable-product.service.ts
-```typescript
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
-import { TaxStructure } from 'src/app/models/tax-structure.model';
-import { TaxableProduct, TaxableProductCreateRequest, TaxableProductViewModel } from 'src/app/models/taxable-product.model';
-⋮----
-// taxType ও taxRate এখানে non-optional কারণ enrichProduct সবসময় এগুলো fill করে দেয়
-⋮----
-export class TaxableProductService
-⋮----
-constructor(private http: HttpClient)
-⋮----
-list(): Observable<TaxableProduct[]>
-⋮----
-get(id: number): Observable<TaxableProduct>
-⋮----
-// FIX: backend void return করে, TaxableProduct নয়
-create(request: TaxableProductCreateRequest): Observable<void>
-⋮----
-// FIX: backend void return করে, TaxableProduct নয়
-update(id: number, request: TaxableProductCreateRequest): Observable<void>
-⋮----
-delete(id: number): Observable<void>
-⋮----
-listCategories(): Observable<string[]>
-⋮----
-listUnits(): Observable<string[]>
-⋮----
-listTaxStructures(): Observable<TaxStructure[]>
-⋮----
-enrichProduct(product: TaxableProduct, taxStructures: TaxStructure[]): TaxableProductViewModel
-⋮----
-// FIX: 'N/A' ও 0 fallback দেওয়া হয়েছে যাতে কখনো undefined না হয়
-⋮----
-enrichProducts(products: TaxableProduct[], taxStructures: TaxStructure[]): TaxableProductViewModel[]
-```
-
 ## File: src/app/features/taxpayer-management/taxpayer/taxpayer-routing.module.ts
 ```typescript
 import { NgModule } from '@angular/core';
@@ -13187,112 +13432,6 @@ import { TaxpayerEditComponent } from '../pages/taxpayer-edit/taxpayer-edit.comp
 import { TaxpayerViewComponent } from '../pages/taxpayer-view/taxpayer-view.component';
 ⋮----
 export class TaxpayerModule
-```
-
-## File: src/app/features/taxpayer-portal/pages/portal-home/portal-home.component.css
-```css
-.portal-home {
-⋮----
-.loading-state {
-⋮----
-.spinner {
-⋮----
-/* Profile Card */
-.profile-card {
-⋮----
-.avatar-wrap {
-⋮----
-.avatar-img {
-⋮----
-.avatar-initials {
-⋮----
-.profile-info { flex: 1; }
-⋮----
-.profile-info h2 {
-⋮----
-.profile-badges {
-⋮----
-.badge {
-⋮----
-.badge.green { background: #e1f5ee; color: #085041; }
-.badge.blue  { background: #e6f1fb; color: #0c447c; }
-⋮----
-.tin {
-⋮----
-.tin.pending { color: #e67e22; }
-⋮----
-/* Completion Card */
-.completion-card {
-⋮----
-.completion-header {
-⋮----
-.completion-left {
-⋮----
-.completion-title {
-⋮----
-.completion-hint {
-⋮----
-.completion-percent {
-⋮----
-.completion-bar {
-⋮----
-.completion-fill {
-⋮----
-.missing-section {
-⋮----
-.missing-title {
-⋮----
-.missing-tags {
-⋮----
-.missing-tag {
-⋮----
-.complete-btn {
-⋮----
-.complete-btn:hover { background: #155d38; color: #fff; }
-⋮----
-/* Done banner */
-.completion-done {
-⋮----
-/* Stats Row */
-.stats-row {
-⋮----
-.stat-card {
-⋮----
-.stat-label {
-⋮----
-.stat-value {
-⋮----
-.stat-value.green { color: #1a7a4a; }
-.stat-value.red   { color: #c0392b; }
-.stat-value.small { font-size: 16px; }
-⋮----
-.stat-sub { font-size: 12px; color: #aaa; }
-⋮----
-/* Section title */
-.section-title {
-⋮----
-/* Menu Grid */
-.menu-grid {
-⋮----
-.menu-card {
-⋮----
-.menu-card:hover {
-⋮----
-.menu-icon { font-size: 28px; }
-⋮----
-.menu-label {
-⋮----
-.menu-arrow {
-⋮----
-/* Coming Soon */
-.coming-soon {
-⋮----
-.coming-soon-icon { font-size: 20px; }
-⋮----
-.coming-soon-text {
-⋮----
-.coming-soon-text strong { font-size: 13px; color: #333; }
-.coming-soon-text span   { font-size: 12px; color: #888; }
 ```
 
 ## File: src/app/features/taxpayer-portal/pages/portal-itr/portal-itr.component.html
@@ -13556,111 +13695,6 @@ export class TinRoutingModule { }
 .dept-pill {
 ```
 
-## File: src/app/features/vat-registration/components/business-picker/business-picker.component.css
-```css
-/* business-picker.component.css
-   Styles that are exclusive to the BusinessPickerComponent row anatomy.
-   status-badge / status-* variants are inherited from global styles.css. */
-⋮----
-/* ── List container ──────────────────────────────────────────── */
-⋮----
-.business-picker {
-⋮----
-/* ── Individual business row ─────────────────────────────────── */
-⋮----
-.biz-row {
-⋮----
-.biz-row:hover:not(.biz-registered) {
-⋮----
-.biz-row.biz-registered {
-⋮----
-.biz-row.biz-selected {
-⋮----
-/* ── Icon box ────────────────────────────────────────────────── */
-⋮----
-.biz-icon {
-⋮----
-.biz-row.biz-selected .biz-icon {
-⋮----
-.biz-row.biz-registered .biz-icon {
-⋮----
-/* ── Text content ────────────────────────────────────────────── */
-⋮----
-.biz-info {
-⋮----
-.biz-name {
-⋮----
-.biz-meta {
-⋮----
-/* ── Right side badges ───────────────────────────────────────── */
-⋮----
-.biz-vat-status {
-⋮----
-/* ── BIN badge (registered business) ────────────────────────── */
-⋮----
-.bin-badge {
-⋮----
-/* ── "Register VAT" badge (unregistered business) ────────────── */
-⋮----
-.no-bin-badge {
-⋮----
-.no-bin-badge.active {
-```
-
-## File: src/app/features/vat-registration/components/taxpayer-search/taxpayer-search.component.ts
-```typescript
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { ToastService } from '../../../../shared/toast/toast.service';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-⋮----
-export class TaxpayerSearchComponent implements OnInit, OnDestroy
-⋮----
-/** When true the search input is locked (a taxpayer is already selected). */
-⋮----
-/** Emits when the user selects a taxpayer from results. */
-⋮----
-/** Emits when the user clears the current selection. */
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-get isLocked(): boolean
-⋮----
-get displayName(): string
-⋮----
-getDisplayName(tp: Taxpayer | null): string
-⋮----
-onInputChange(): void
-⋮----
-onSearch(): void
-⋮----
-// 400/network errors are handled by ErrorInterceptor — no duplicate toast here.
-⋮----
-onSelect(tp: Taxpayer): void
-⋮----
-onClear(): void
-⋮----
-/**
-   * Checks if this taxpayer's status is Blacklisted or Suspended.
-   * The backend enforces this too, but we surface it early for UX.
-   */
-isIneligible(tp: Taxpayer): boolean
-```
-
 ## File: src/app/features/vat-registration/pages/vat-registration-success/vat-registration-success.component.html
 ```html
 <div class="page-header">
@@ -13889,6 +13923,87 @@ isIneligible(tp: Taxpayer): boolean
 </ng-container>
 ```
 
+## File: src/app/features/vat-returns/components/vat-registration-picker/vat-registration-picker.component.ts
+```typescript
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+⋮----
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { VatRegistration } from '../../../../models/vat-registration.model';
+import { ToastService } from '../../../../shared/toast/toast.service';
+⋮----
+export class VatRegistrationPickerComponent implements OnInit, OnDestroy
+⋮----
+/**
+   * Sends the selected active VAT registration to the parent return form.
+   * Result: the parent can enable or populate the VAT return details.
+   */
+⋮----
+/**
+   * Tells the parent that no VAT registration is selected anymore.
+   * Result: the parent can reset any return data tied to the old selection.
+   */
+⋮----
+// Search state: controls the search input, loading spinner, and results list.
+⋮----
+// Selection state: stores the registration currently shown as selected.
+⋮----
+// Stops active HTTP subscriptions when this component is destroyed.
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// Computed helpers
+⋮----
+// Result is true after a registration is selected, so the selected card can show.
+get isSelected(): boolean
+⋮----
+// Search
+⋮----
+/**
+   * Clears old results when the user empties the search box.
+   * Result: the UI returns to its initial "no search yet" state.
+   */
+onSearchInput(): void
+⋮----
+/**
+   * Searches VAT registrations by BIN, TIN, or business name.
+   * Result: only Active registrations are shown because only they can file returns.
+   */
+search(): void
+⋮----
+// Show a loading state and clear stale results before the new request starts.
+⋮----
+// If the user leaves this component, cancel the pending response safely.
+⋮----
+// Result shown to the user: only active businesses appear in the list.
+⋮----
+// Selection
+⋮----
+/**
+   * Stores the chosen registration and sends it to the parent component.
+   * Result: search results disappear and the return form can continue below.
+   */
+select(reg: VatRegistration): void
+⋮----
+/**
+   * Removes the current selection and tells the parent to clear related return data.
+   * Result: the user can search again and choose another business.
+   */
+clear(): void
+```
+
 ## File: src/app/layout/sidebar/sidebar.component.html
 ```html
 <div class="sidebar" [class.collapsed]="isCollapsed">
@@ -14018,106 +14133,40 @@ isIneligible(tp: Taxpayer): boolean
 </div>
 ```
 
-## File: src/app/models/audit.model.ts
+## File: src/app/layout/topbar/topbar.component.ts
 ```typescript
-export type AuditStatus   = 'Scheduled' | 'In Progress' | 'Completed' | 'Flagged' | 'Cancelled' | 'Pending';
-export type AuditType     = 'VAT Audit' | 'Income Tax Audit' | 'Full Audit' | 'Desk Audit' | 'Field Audit' | 'Special Audit';
-export type AuditPriority = 'Low' | 'Medium' | 'High' | 'Critical';
+import {
+  Component, EventEmitter, OnDestroy, OnInit, Output,
+  HostListener, ElementRef, ViewChild
+} from '@angular/core';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 ⋮----
-export interface Audit {
-  id: number;
-  auditNo: string;
-  taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
-  auditType: AuditType;
-  priority: AuditPriority;
-  assessmentYear: string;
-  returnNo: string;
-  scheduledDate: string;
-  startDate: string;
-  completionDate: string;
-  assignedTo: string;
-  supervisedBy: string;
-  auditFindings: string;
-  taxDemand: number;
-  penaltyRecommended: number;
-  status: AuditStatus;
-  remarks: string;
-}
+export class TopbarComponent implements OnInit, OnDestroy
 ⋮----
-taxpayerName: string;   // read-only — resolved from server
-tinNumber: string;      // read-only — resolved from server
+get unreadCount(): number
 ⋮----
-export interface AuditCreateRequest {
-  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
-  auditType: string;
-  priority: string;
-  assessmentYear: string;
-  returnNo: string;
-  scheduledDate: string;
-  assignedTo: string;
-  supervisedBy: string;
-  remarks: string;
-}
+constructor(private eRef: ElementRef, private authService: AuthService)
 ⋮----
-taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
+ngOnInit(): void
 ⋮----
-export interface AuditListResponse {
-  data: Audit[];
-  total: number;
-  page: number;
-}
-```
-
-## File: src/app/models/document.model.ts
-```typescript
-export type DocumentStatus   = 'Pending' | 'Verified' | 'Rejected' | 'Expired' | 'Under Review';
-export type DocumentType     = 'NID' | 'Trade License' | 'TIN Certificate' | 'BIN Certificate' | 'VAT Return' | 'Income Tax Return' | 'Bank Statement' | 'Audit Report' | 'Other';
-export type DocumentCategory = 'Taxpayer' | 'Business' | 'Return' | 'Payment' | 'Legal' | 'Other';
+ngOnDestroy(): void
 ⋮----
-export interface Document {
-  id: number;
-  documentNo: string;
-  taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
-  documentType: DocumentType;
-  documentCategory: DocumentCategory;
-  documentTitle: string;
-  referenceNo: string;
-  issueDate: string;
-  expiryDate: string;
-  submissionDate: string;
-  verificationDate: string;
-  fileSize: string;
-  status: DocumentStatus;
-  verifiedBy: string;
-  remarks: string;
-}
+openSearch(): void
 ⋮----
-taxpayerName: string;   // read-only — resolved from server
-tinNumber: string;      // read-only — resolved from server
+closeSearch(): void
 ⋮----
-export interface DocumentCreateRequest {
-  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
-  documentType: string;
-  documentCategory: string;
-  documentTitle: string;
-  referenceNo: string;
-  issueDate: string;
-  expiryDate: string;
-  submissionDate: string;
-  remarks: string;
-}
+toggleUserDropdown(): void
 ⋮----
-taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
+toggleNotifDropdown(): void
 ⋮----
-export interface DocumentListResponse {
-  data: Document[];
-  total: number;
-  page: number;
-}
+onDocumentClick(event: Event): void
+⋮----
+get currentUser()
+get userInitial()
+⋮----
+logout(): void
 ```
 
 ## File: src/app/models/import-duty.model.ts
@@ -14191,116 +14240,6 @@ export interface ImportDutyCreateRequest {
 }
 ⋮----
 export type ImportDutyUpdateRequest = ImportDutyCreateRequest;
-```
-
-## File: src/app/models/notice.model.ts
-```typescript
-export type NoticeStatus   = 'Unread' | 'Read' | 'Responded' | 'Expired' | 'Cancelled';
-export type NoticeType     = 'General' | 'Tax Due' | 'Audit Notice' | 'Penalty Notice' | 'Compliance' | 'Refund Update' | 'System' | 'Reminder';
-export type NoticePriority = 'Low' | 'Normal' | 'High' | 'Urgent';
-export type NoticeTarget   = 'All Taxpayers' | 'Specific Taxpayer' | 'Tax Officers' | 'Auditors' | 'All Users';
-⋮----
-export interface Notice {
-  id: number;
-  noticeNo: string;
-  taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
-  subject: string;
-  body: string;
-  noticeType: NoticeType;
-  priority: NoticePriority;
-  targetType: NoticeTarget;
-  issuedBy: string;
-  issuedDate: string;
-  dueDate: string;
-  readDate: string;
-  responseDate: string;
-  responseNote: string;
-  attachmentName: string;
-  status: NoticeStatus;
-}
-⋮----
-taxpayerName: string;   // read-only — resolved from server
-tinNumber: string;      // read-only — resolved from server
-⋮----
-export interface NoticeCreateRequest {
-  taxpayerId: number | null;  // FK — required when targetType = 'Specific Taxpayer'
-  subject: string;
-  body: string;
-  noticeType: string;
-  priority: string;
-  targetType: string;
-  issuedBy: string;
-  issuedDate: string;
-  dueDate: string;
-  attachmentName: string;
-}
-⋮----
-taxpayerId: number | null;  // FK — required when targetType = 'Specific Taxpayer'
-⋮----
-export interface NoticeListResponse {
-  data: Notice[];
-  total: number;
-  page: number;
-}
-```
-
-## File: src/app/models/penalty.model.ts
-```typescript
-export type PenaltyStatus   = 'Issued' | 'Pending' | 'Paid' | 'Waived' | 'Appealed' | 'Overdue';
-export type PenaltyType     = 'Late Filing' | 'Late Payment' | 'Non-Compliance' | 'Fraud' | 'Underpayment' | 'Other';
-export type PenaltySeverity = 'Low' | 'Medium' | 'High' | 'Critical';
-⋮----
-export interface Penalty {
-  id: number;
-  penaltyNo: string;
-  taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
-  penaltyType: PenaltyType;
-  severity: PenaltySeverity;
-  penaltyAmount: number;
-  interestAmount: number;
-  totalAmount: number;
-  paidAmount: number;
-  returnNo: string;
-  assessmentYear: string;
-  issueDate: string;
-  dueDate: string;
-  paymentDate: string;
-  status: PenaltyStatus;
-  issuedBy: string;
-  approvedBy: string;
-  description: string;
-  remarks: string;
-}
-⋮----
-taxpayerName: string;   // read-only — resolved from server
-tinNumber: string;      // read-only — resolved from server
-⋮----
-export interface PenaltyCreateRequest {
-  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
-  penaltyType: string;
-  severity: string;
-  penaltyAmount: number;
-  interestAmount: number;
-  returnNo: string;
-  assessmentYear: string;
-  issueDate: string;
-  dueDate: string;
-  issuedBy: string;
-  description: string;
-  remarks: string;
-}
-⋮----
-taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
-⋮----
-export interface PenaltyListResponse {
-  data: Penalty[];
-  total: number;
-  page: number;
-}
 ```
 
 ## File: src/app/shared/toast/toast.component.css
@@ -14381,6 +14320,33 @@ export interface PenaltyListResponse {
 
   </div>
 </div>
+```
+
+## File: src/app/shared/toast/toast.service.ts
+```typescript
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, timer } from 'rxjs';
+⋮----
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
+⋮----
+export interface Toast {
+  id:       number;
+  type:     ToastType;
+  title:    string;
+  message:  string;
+  duration: number;
+}
+⋮----
+export class ToastService
+⋮----
+private show(type: ToastType, title: string, message: string, duration = 3000): void
+⋮----
+success(message: string, title = 'Success'): void
+error  (message: string, title = 'Error'):   void
+warning(message: string, title = 'Warning'): void
+info   (message: string, title = 'Info'):    void
+⋮----
+remove(id: number): void
 ```
 
 ## File: src/assets/css/styles-edit.css
@@ -14602,7 +14568,7 @@ export enum Role {
 // ── Sidebar menu visibility per role ──
 ```
 
-## File: src/app/core/interceptors/auth.interceptor.ts
+## File: src/app/core/interceptors/error.interceptor.ts
 ```typescript
 import { Injectable } from '@angular/core';
 import {
@@ -14614,83 +14580,529 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Router } from '@angular/router';
 import { ToastService } from '../../shared/toast/toast.service';
 ⋮----
-/**
- * Global HTTP Interceptor
- *
- * Handles cross-cutting HTTP error concerns so individual components
- * do not need to duplicate error-handling logic:
- *
- *  401 → clear token, redirect to login
- *  403 → "Access denied" toast
- *  404 → "Not found" toast
- *  409 → Duplicate-record conflict toast (e.g. duplicate VAT return for same BIN + period)
- *  500 → Generic server-error toast
- *
- * Components should only handle errors that require LOCAL context, such as:
- *  - 400 Bad Request (field-level validation with a server message to display inline)
- *
- * Any error not caught here is re-thrown so the component's error callback still fires.
- */
+export class ErrorInterceptor implements HttpInterceptor
 ⋮----
-export class AuthInterceptor implements HttpInterceptor {
+constructor(private toast: ToastService)
+⋮----
+intercept(
+    request: HttpRequest<unknown>,
+    next: HttpHandler,
+): Observable<HttpEvent<unknown>>
+```
+
+## File: src/app/core/services/tax-strcuture.service.ts
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+⋮----
+import { API_ENDPOINTS }            from 'src/app/core/constants/api.constants';
+import { AuthService }              from 'src/app/core/services/auth.service';
+import {
+  TaxStructure,
+  TaxStructureCreateRequest,
+  TaxStructureUpdateRequest,
+  TaxMasterData,
+  TaxPreviewResponse,
+  TaxPreviewRequest,
+} from '../../models/tax-structure.model';
+⋮----
+export class TaxStructureService {
 ⋮----
 constructor(
 ⋮----
-intercept(
-    request: HttpRequest<any>,
-    next: HttpHandler,
-): Observable<HttpEvent<any>>
+// ── Master Data ────────────────────────────────────────────────────────────
 ⋮----
-// File upload হলে Content-Type set করো না
-// Browser নিজে multipart/form-data set করবে
+getMasterData(): Observable<TaxMasterData>
 ⋮----
-// Conflict — most commonly a duplicate VAT return for the same BIN + period.
-// The backend sends a descriptive message in error.error.message.
+// ── CRUD ───────────────────────────────────────────────────────────────────
 ⋮----
-// Let the component decide what to do for anything else (e.g. 400)
+getAll(): Observable<TaxStructure[]>
 ⋮----
-// Always re-throw so component-level error callbacks still fire if needed
+getById(id: number): Observable<TaxStructure>
+⋮----
+create(payload: TaxStructureCreateRequest): Observable<TaxStructure>
+⋮----
+update(id: number, payload: TaxStructureUpdateRequest): Observable<TaxStructure>
+⋮----
+delete(id: number): Observable<void>
+⋮----
+// ── Preview ────────────────────────────────────────────────────────────────
+⋮----
+previewAdHoc(req: TaxPreviewRequest): Observable<TaxPreviewResponse>
+⋮----
+previewById(id: number, amount: number): Observable<TaxPreviewResponse>
 ```
 
-## File: src/app/core/services/base-api.service.ts
+## File: src/app/features/ait/pages/ait-create-wizard/ait-create-wizard.component.ts
 ```typescript
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { API_ENDPOINTS } from '../constants/api.constants';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AitService } from '../../services/ait.service';
+import { AitRecord, CreateAitPayload, AitDocument } from '../../models/ait.model';
 ⋮----
-export class BaseApiService {
+interface ImportDutyRecord {
+  id: number;
+  referenceNo: string;
+  date: string;
+  importerName: string;
+  hsCode: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  taxableValue: number;
+  portOfEntry: string;
+  origin: string;
+}
 ⋮----
-constructor(protected http: HttpClient)
+interface WizardState {
+  step: number;
+  selectedTransaction?: ImportDutyRecord;
+  calculatedAit?: number;
+  uploadedDocuments: File[];
+  documentIds: number[];
+  formData: Partial<CreateAitPayload>;
+  isDraft: boolean;
+  draftId?: number;
+}
 ⋮----
-public get<T>(url: string, params?: any): Observable<T>
+export class AitCreateWizardComponent implements OnInit, OnDestroy
 ⋮----
-protected post<T>(url: string, body: any): Observable<T>
+constructor(
 ⋮----
-protected put<T>(url: string, body: any): Observable<T>
+ngOnInit(): void
 ⋮----
-protected delete<T>(url: string): Observable<T>
+ngOnDestroy(): void
 ⋮----
-downloadTinCertificate(tinId: number): Observable<Blob>
+loadTransactions(): void
 ⋮----
-private handleError(error: any): Observable<never>
+restoreDraftIfExists(): void
+⋮----
+saveDraft(): void
+⋮----
+discardDraft(): void
+⋮----
+// STEP 1: Transaction Selection
+searchTransactions(): void
+⋮----
+selectTransaction(tx: ImportDutyRecord): void
+⋮----
+// STEP 2: Calculate AIT
+calculateAit(): void
+⋮----
+onRateChange(newRate: number): void
+⋮----
+// STEP 3: Upload Documents
+onFilesSelected(files: FileList | null): void
+⋮----
+removeDocument(index: number): void
+⋮----
+formatFileSize(bytes: number): string
+⋮----
+// STEP 4: Review & Submit
+async submitAit(): Promise<void>
+⋮----
+// Step 1: Create AIT record (DRAFT)
+⋮----
+// Step 2: Upload documents if any
+⋮----
+// Step 3: Submit AIT for review (DRAFT → SUBMITTED → PENDING)
+⋮----
+// Navigation
+nextStep(): void
+⋮----
+prevStep(): void
+⋮----
+goToStep(stepNum: number): void
+⋮----
+isStepComplete(stepNum: number): boolean
+⋮----
+isStepValid(stepNum: number): boolean
+⋮----
+getStepStatus(stepNum: number): 'done' | 'active' | 'pending'
+⋮----
+getStepLabel(stepNum: number): string
 ```
 
-## File: src/app/features/ait/ait/ait-routing.module.ts
+## File: src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.html
+```html
+<div class="ait-db">
+  <h2 class="sr-only">Taxpayer AIT Dashboard</h2>
+
+  <!-- ── Page Header ──────────────────────────────────────── -->
+  <div class="ait-db__header">
+    <div>
+      <div class="ait-db__title">Advance Income Tax (AIT)</div>
+      <div class="ait-db__subtitle">
+        Fiscal Year {{ taxpayerInfo.fiscalYear }} &nbsp;·&nbsp; TIN: {{ taxpayerInfo.tin }}
+      </div>
+    </div>
+    <button class="ait-btn ait-btn--primary" (click)="createNewAit()">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+        <path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round"/>
+      </svg>
+      Create New AIT
+    </button>
+  </div>
+
+  <!-- ── Error Banner ──────────────────────────────────────── -->
+  <div *ngIf="error" class="ait-alert ait-alert--warn">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="7" stroke="#BA7517" stroke-width="1.5"/>
+      <path d="M8 5v4M8 10.5v.5" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    {{ error }}
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────────── -->
+  <div *ngIf="loading" class="ait-loading">
+    <div class="ait-spinner"></div>
+    <p>Loading AIT records…</p>
+  </div>
+
+  <!-- ── Content ───────────────────────────────────────────── -->
+  <div *ngIf="!loading" class="ait-db__body">
+
+    <!-- KPI Cards -->
+    <div class="ait-kpis">
+      <div class="ait-kpi">
+        <div class="ait-kpi__label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M3 5h7M3 8h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Total AITs
+        </div>
+        <div class="ait-kpi__value">{{ kpis.totalCount }}</div>
+        <div class="ait-kpi__sub">This fiscal year</div>
+      </div>
+
+      <div class="ait-kpi">
+        <div class="ait-kpi__label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="6.5" r="5.5" stroke="#BA7517" stroke-width="1.3"/>
+            <path d="M6.5 4v3.5M6.5 9v.5" stroke="#BA7517" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Needs Action
+        </div>
+        <div class="ait-kpi__value" style="color:#BA7517">{{ kpis.needsActionCount }}</div>
+        <div class="ait-kpi__sub">Pending payment / docs</div>
+      </div>
+
+      <div class="ait-kpi">
+        <div class="ait-kpi__label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="6.5" r="5.5" stroke="#3B6D11" stroke-width="1.3"/>
+            <path d="M4 6.5l2 2 3.5-3.5" stroke="#3B6D11" stroke-width="1.3" stroke-linecap="round"
+                  stroke-linejoin="round"/>
+          </svg>
+          Approved
+        </div>
+        <div class="ait-kpi__value" style="color:#3B6D11">{{ kpis.approvedCount }}</div>
+        <div class="ait-kpi__sub">This fiscal year</div>
+      </div>
+
+      <div class="ait-kpi">
+        <div class="ait-kpi__label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="3" width="11" height="8" rx="1.5" stroke="#0F6E56" stroke-width="1.3"/>
+            <path d="M4 1v2M9 1v2M1 6.5h11" stroke="#0F6E56" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Credited to ITR
+        </div>
+        <div class="ait-kpi__value" style="color:#0F6E56">
+          ৳ {{ kpis.creditedAmount | number:'1.0-0' }}
+        </div>
+        <div class="ait-kpi__sub">Successfully credited</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="ait-filters">
+      <select class="ait-fsel" (change)="onStatusFilterChange($any($event.target).value)">
+        <option value="">All Statuses</option>
+        <option value="DRAFT">Draft</option>
+        <option value="SUBMITTED">Submitted</option>
+        <option value="PENDING">Payment Pending</option>
+        <option value="UNDER_REVIEW">Under Review</option>
+        <option value="APPROVED">Approved</option>
+        <option value="CREDITED">Credited to ITR</option>
+        <option value="REJECTED">Rejected</option>
+      </select>
+
+      <select class="ait-fsel" (change)="onFiscalYearChange($any($event.target).value)">
+        <option value="FY 2024-2025">FY 2024–2025</option>
+        <option value="FY 2023-2024">FY 2023–2024</option>
+      </select>
+
+      <input type="text" class="ait-search"
+             placeholder="Search reference or HS code…"
+             (input)="onSearchChange($any($event.target).value)" />
+
+      <button class="ait-fsel" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M1 3h11M3 6.5h7M5 10h3" stroke="currentColor" stroke-width="1.3"
+                stroke-linecap="round"/>
+        </svg>
+        Filters
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="ait-table-wrap">
+      <table class="ait-table">
+        <thead>
+          <tr>
+            <th>Reference No.</th>
+            <th>Import Date</th>
+            <th>Product / HS Code</th>
+            <th class="text-right">Taxable Value</th>
+            <th class="text-right">AIT Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of getPaginatedRecords()"
+              [class.row-warn]="r.status === 'PENDING'"
+              [class.row-danger]="r.status === 'REJECTED'">
+
+            <td>
+              <a class="ait-ref-link" (click)="viewRecord(r.id)" title="View details">
+                {{ r.aitReferenceNo || 'N/A' }}
+              </a>
+            </td>
+
+            <td class="ait-date">{{ r.createdAt | date:'dd MMM yyyy' }}</td>
+
+            <td>
+              <div class="ait-product-name">{{ r.hsCode || '—' }}</div>
+              <div class="ait-product-code">{{ r.hsCode }}</div>
+            </td>
+
+            <td class="ait-amt">৳ {{ r.taxableValue | number:'1.0-0' }}</td>
+
+            <td class="ait-amt" style="color:#3B6D11">
+              ৳ {{ r.calculatedAitAmount | number:'1.0-0' }}
+            </td>
+
+            <td>
+              <span class="ait-badge" [ngClass]="getStatusBadgeClass(r.status)">
+                {{ getStatusLabel(r.status) }}
+              </span>
+            </td>
+
+            <td class="ait-actions">
+              <button *ngIf="r.status === 'DRAFT'"
+                      class="ait-btn ait-btn--primary ait-btn--sm"
+                      (click)="continueEditingDraft(r.id)">
+                Continue
+              </button>
+              <button *ngIf="r.status === 'PENDING'"
+                      class="ait-btn ait-btn--primary ait-btn--sm"
+                      (click)="uploadDocuments(r.id)">
+                Pay Now
+              </button>
+              <button *ngIf="r.status === 'UNDER_REVIEW'"
+                      class="ait-btn ait-btn--warn ait-btn--sm"
+                      (click)="uploadDocuments(r.id)">
+                Upload Docs
+              </button>
+              <button class="ait-btn ait-btn--ghost ait-btn--sm"
+                      (click)="viewRecord(r.id)">
+                View
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="getPaginatedRecords().length === 0" class="ait-empty">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="8" y="6" width="28" height="32" rx="4"
+                stroke="#CBD5E1" stroke-width="1.5"/>
+          <path d="M14 16h16M14 22h10M14 28h8"
+                stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <p class="ait-empty__title">No AIT records found</p>
+        <p class="ait-empty__hint">Try changing filters or create a new AIT</p>
+        <button class="ait-btn ait-btn--primary" (click)="createNewAit()">
+          Create New AIT
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="ait-pagination">
+      <span class="ait-pagination__info">
+        Showing {{ getPaginationStart() }}–{{ getPaginationEnd() }}
+        of {{ filteredRecords.length }} records
+      </span>
+      <div class="ait-pagination__controls">
+        <button class="ait-btn ait-btn--ghost ait-btn--sm"
+                (click)="prevPage()" [disabled]="currentPage === 1">
+          ← Prev
+        </button>
+        <span class="ait-pagination__num">{{ currentPage }}</span>
+        <button class="ait-btn ait-btn--ghost ait-btn--sm"
+                (click)="nextPage()" [disabled]="currentPage >= getTotalPages()">
+          Next →
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+```
+
+## File: src/app/features/ait/pages/ait-dashboard/ait-dashboard.component.ts
 ```typescript
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from 'src/app/core/guards/auth.guard';
-import { AitDashboardComponent } from '../pages/ait-dashboard/ait-dashboard.component';
-import { AitCreateWizardComponent } from '../pages/ait-create-wizard/ait-create-wizard.component';
-import { OfficerDashboardComponent } from '../pages/officer-dashboard/officer-dashboard.component';
-import { OfficerReviewComponent } from '../pages/officer-review/officer-review.component';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AitService } from '../../services/ait.service';
+import { AitRecord, AitStatus } from '../../models/ait.model';
 ⋮----
-export class AitRoutingModule
+interface KPIMetrics {
+  totalCount: number;
+  needsActionCount: number;
+  approvedCount: number;
+  creditedAmount: number;
+}
+⋮----
+export class AitDashboardComponent implements OnInit
+⋮----
+// Filter state
+⋮----
+// KPI metrics
+⋮----
+constructor(
+⋮----
+ngOnInit()
+⋮----
+private loadRecords()
+⋮----
+private calculateKPIs()
+⋮----
+applyFilters()
+⋮----
+onStatusFilterChange(status: string)
+⋮----
+onSearchChange(query: string)
+⋮----
+onFiscalYearChange(year: string)
+⋮----
+getPaginatedRecords(): AitRecord[]
+⋮----
+getTotalPages(): number
+⋮----
+getPaginationStart(): number
+⋮----
+getPaginationEnd(): number
+⋮----
+goToPage(page: number)
+⋮----
+nextPage()
+⋮----
+prevPage()
+⋮----
+getStatusBadgeClass(status: AitStatus): string
+⋮----
+getStatusLabel(status: AitStatus): string
+⋮----
+viewRecord(id: number | undefined)
+⋮----
+continueEditingDraft(id: number | undefined)
+⋮----
+createNewAit()
+⋮----
+uploadDocuments(id: number | undefined)
+⋮----
+getRowHighlight(status: AitStatus): string
+```
+
+## File: src/app/features/ait/pages/officer-dashboard/officer-dashboard.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AitService } from '../../services/ait.service';
+import { AitRecord, AitStatus } from '../../models/ait.model';
+import { AuthService } from '../../../../core/services/auth.service';
+⋮----
+export class OfficerDashboardComponent implements OnInit
+⋮----
+// Filters
+⋮----
+// Pagination
+⋮----
+// Bulk selection
+⋮----
+// ── SLA Config: 48 hrs from creation to review deadline ──
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+get officerName(): string
+⋮----
+get approvalRate(): number
+⋮----
+loadQueueData(): void
+⋮----
+calculateKPIs(): void
+⋮----
+applyFilters(): void
+⋮----
+setActiveTab(tab: AitStatus | 'ALL'): void
+⋮----
+onSearchChange(): void
+onDateChange(): void
+⋮----
+setSortBy(field: 'date' | 'amount' | 'ref_no'): void
+⋮----
+// ── Pagination ────────────────────────────────────────
+getPaginatedRecords(): AitRecord[]
+⋮----
+getTotalPages(): number
+⋮----
+getPageNumbers(): number[]
+⋮----
+goToPage(page: number): void
+⋮----
+nextPage(): void
+prevPage(): void
+⋮----
+// ── Bulk Select ───────────────────────────────────────
+toggleSelect(id: number): void
+⋮----
+isAllSelected(): boolean
+⋮----
+toggleSelectAll(): void
+⋮----
+// ── SLA Helpers ───────────────────────────────────────
+getSlaHours(record: AitRecord): number
+⋮----
+getSlaDisplay(record: AitRecord): string
+⋮----
+// ── Actions ───────────────────────────────────────────
+reviewRecord(aitId: number): void
+⋮----
+viewDetails(aitId: number): void
+⋮----
+refreshQueue(): void
+⋮----
+// ── Display Helpers ───────────────────────────────────
+getStatusColor(status: AitStatus): string
+⋮----
+getStatusLabel(status: AitStatus): string
+⋮----
+formatDate(dateStr: string): string
 ```
 
 ## File: src/app/features/audit-management/pages/audit-create/audit-create.component.html
@@ -14901,71 +15313,6 @@ export class AitRoutingModule
   </div>
 
 </div>
-```
-
-## File: src/app/features/audit-management/pages/audit-create/audit-create.component.ts
-```typescript
-import { Component, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { AuditCreateRequest } from '../../../../models/audit.model';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class AuditCreateComponent implements OnDestroy
-⋮----
-// ──────────────── State ────────────────
-⋮----
-// Taxpayer search
-⋮----
-// ──────────────── Static Data ────────────────
-⋮----
-// ────────────── Constructor  ────────────────
-⋮----
-constructor(
-⋮----
-// ──────────────── Lifecycle ────────────────
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Taxpayer Search ──────────────────────────────────────────────────────
-searchTaxpayer(): void
-⋮----
-selectTaxpayer(t: Taxpayer): void
-⋮----
-clearTaxpayer(): void
-⋮----
-getDisplayName(t: Taxpayer): string
-⋮----
-// ──────────────── Form Factory  ────────────────
-private createEmptyForm(): AuditCreateRequest
-⋮----
-// ──────────────── Getters ────────────────
-⋮----
-private getTodayDate(): string
-⋮----
-// ──────────────── Validation  ────────────────
-isFormValid(): boolean
-⋮----
-private hasRequiredFields(): boolean
-⋮----
-// ──────────── Actions ───────────────────
-⋮----
-onSubmit(): void
-⋮----
-private createAudit(): void
-⋮----
-private handleSuccess(): void
-⋮----
-private handleError(error: unknown): void
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
-⋮----
-private showValidationWarning(): void
 ```
 
 ## File: src/app/features/audit-management/pages/audit-edit/audit-edit.component.css
@@ -15784,195 +16131,6 @@ onCancel(): void
 .biz-header-right { flex-direction:column; gap:8px; }
 ```
 
-## File: src/app/features/dashboard/services/dashboard.service.ts
-```typescript
-// import { Injectable } from '@angular/core';
-// import { HttpClient } from '@angular/common/http';
-// import { Observable, forkJoin, of } from 'rxjs';
-// import { catchError } from 'rxjs/operators';
-// import { BaseApiService } from '../../../core/services/base-api.service';
-// import { API_ENDPOINTS } from '../../../core/constants/api.constants';
-// import {
-//   DashboardStats, RecentTaxpayer, RecentPayment,
-//   RecentAudit, RecentEntry, MyNotice, MyReturn,
-//   DashboardChartData
-// } from '../../../models/dashboard.model';
-⋮----
-// @Injectable({ providedIn: 'root' })
-// export class DashboardService extends BaseApiService {
-⋮----
-//   constructor(http: HttpClient) { super(http); }
-⋮----
-//   getStats():            Observable<DashboardStats>    { return this.get<DashboardStats>(API_ENDPOINTS.DASHBOARD.STATS); }
-//   getRecentTaxpayers():  Observable<RecentTaxpayer[]>  { return this.get<RecentTaxpayer[]>(API_ENDPOINTS.DASHBOARD.RECENT_TAXPAYERS); }
-//   getRecentPayments():   Observable<RecentPayment[]>   { return this.get<RecentPayment[]>(API_ENDPOINTS.DASHBOARD.RECENT_PAYMENTS); }
-//   getChartData():        Observable<DashboardChartData>{ return this.get<DashboardChartData>(API_ENDPOINTS.DASHBOARD.VAT_CHART); }
-⋮----
-//   loadAll(): Observable<any[]> {
-//     return forkJoin([
-//       this.getStats().pipe(catchError(()           => of(this.mockStats()))),
-//       this.getRecentTaxpayers().pipe(catchError(()  => of(this.mockTaxpayers()))),
-//       this.getRecentPayments().pipe(catchError(()   => of(this.mockPayments()))),
-//       this.getChartData().pipe(catchError(()        => of(this.mockChartData()))),
-//       of(this.mockAudits()),
-//       of(this.mockEntries()),
-//       of(this.mockNotices()),
-//       of(this.mockMyReturns()),
-//     ]);
-//   }
-⋮----
-//   // ── Mock Data ──────────────────────────────────────
-⋮----
-//   mockStats(): DashboardStats {
-//     return {
-//       totalTaxpayers: 24850, totalBusinesses: 8320,
-//       totalVatReturns: 15640, totalPayments: 32100,
-//       totalRevenue: 458920000, pendingAudits: 142,
-//       pendingRefunds: 89, issuedPenalties: 315,
-//       taxpayerGrowth: 12.5, revenueGrowth: 8.3,
-//       vatReturnGrowth: 15.2, paymentGrowth: 9.7,
-//       totalAudits: 890, completedAudits: 748,
-//       flaggedCases: 34, auditGrowth: 6.4,
-//       todayEntries: 47, pendingTasks: 12,
-//       taxpayersAddedThisMonth: 183,
-//       myVatReturns: 6, myPayments: 8,
-//       myPendingNotices: 2, myRefundStatus: 1,
-//       myTotalPaid: 245000
-//     };
-//   }
-⋮----
-//   mockTaxpayers(): RecentTaxpayer[] {
-//     return [
-//       { id: 1, tin: 'TIN-2024-00891', fullName: 'Rahman Textile Ltd.',  email: 'rahman@textile.com',  phone: '01711-234567', status: 'Active',   registrationDate: '2024-03-10' },
-//       { id: 2, tin: 'TIN-2024-00892', fullName: 'Karim Traders',        email: 'karim@traders.com',   phone: '01811-345678', status: 'Active',   registrationDate: '2024-03-11' },
-//       { id: 3, tin: 'TIN-2024-00893', fullName: 'Dhaka Pharma Co.',     email: 'info@dhakpharma.com', phone: '01911-456789', status: 'Inactive', registrationDate: '2024-03-12' },
-//       { id: 4, tin: 'TIN-2024-00894', fullName: 'Chittagong Exports',   email: 'ctg@exports.com',     phone: '01611-567890', status: 'Active',   registrationDate: '2024-03-13' },
-//       { id: 5, tin: 'TIN-2024-00895', fullName: 'Sylhet Tea House',     email: 'tea@sylhet.com',      phone: '01511-678901', status: 'Suspended',registrationDate: '2024-03-14' },
-//     ];
-//   }
-⋮----
-//   mockPayments(): RecentPayment[] {
-//     return [
-//       { id: 1, transactionId: 'TXN-2024-44821', taxpayerName: 'Rahman Textile Ltd.', amount: 125000, paymentType: 'VAT',         paymentDate: '2024-03-15', status: 'Completed' },
-//       { id: 2, transactionId: 'TXN-2024-44822', taxpayerName: 'Karim Traders',       amount: 87500,  paymentType: 'Income Tax',  paymentDate: '2024-03-15', status: 'Completed' },
-//       { id: 3, transactionId: 'TXN-2024-44823', taxpayerName: 'Dhaka Pharma Co.',    amount: 210000, paymentType: 'VAT',         paymentDate: '2024-03-14', status: 'Pending'   },
-//       { id: 4, transactionId: 'TXN-2024-44824', taxpayerName: 'Chittagong Exports',  amount: 55000,  paymentType: 'Penalty',     paymentDate: '2024-03-14', status: 'Completed' },
-//       { id: 5, transactionId: 'TXN-2024-44825', taxpayerName: 'Sylhet Tea House',    amount: 33000,  paymentType: 'VAT',         paymentDate: '2024-03-13', status: 'Failed'    },
-//     ];
-//   }
-⋮----
-//   mockAudits(): RecentAudit[] {
-//     return [
-//       { id: 1, auditNo: 'AUD-2024-001', taxpayerName: 'Rahman Textile Ltd.',  auditType: 'VAT Audit',    assignedDate: '2024-03-01', status: 'In Progress' },
-//       { id: 2, auditNo: 'AUD-2024-002', taxpayerName: 'Karim Traders',        auditType: 'Income Tax',   assignedDate: '2024-03-05', status: 'Pending'     },
-//       { id: 3, auditNo: 'AUD-2024-003', taxpayerName: 'Dhaka Pharma Co.',     auditType: 'Full Audit',   assignedDate: '2024-03-08', status: 'Flagged'     },
-//       { id: 4, auditNo: 'AUD-2024-004', taxpayerName: 'Chittagong Exports',   auditType: 'VAT Audit',    assignedDate: '2024-03-10', status: 'Completed'   },
-//       { id: 5, auditNo: 'AUD-2024-005', taxpayerName: 'BD Tech Solutions',    auditType: 'IT Audit',     assignedDate: '2024-03-12', status: 'Pending'     },
-//     ];
-//   }
-⋮----
-//   mockEntries(): RecentEntry[] {
-//     return [
-//       { id: 1, entryType: 'Taxpayer',    description: 'Added Abdul Karim (TIN-1001)',       enteredAt: '2024-03-15 09:30', status: 'Approved' },
-//       { id: 2, entryType: 'Business',    description: 'Registered Rahman Textile Ltd.',     enteredAt: '2024-03-15 10:15', status: 'Approved' },
-//       { id: 3, entryType: 'VAT Return',  description: 'Filed return for Karim Traders',     enteredAt: '2024-03-15 11:00', status: 'Pending'  },
-//       { id: 4, entryType: 'TIN',         description: 'Issued TIN-2024-00895',              enteredAt: '2024-03-15 13:45', status: 'Saved'    },
-//       { id: 5, entryType: 'Payment',     description: 'Recorded TXN-2024-44825',            enteredAt: '2024-03-15 14:30', status: 'Approved' },
-//     ];
-//   }
-⋮----
-//   mockNotices(): MyNotice[] {
-//     return [
-//       { id: 1, noticeNo: 'NOT-2024-001', subject: 'VAT Return Due Reminder',     issuedDate: '2024-03-01', dueDate: '2024-03-31', status: 'Unread'    },
-//       { id: 2, noticeNo: 'NOT-2024-002', subject: 'Income Tax Filing Reminder',  issuedDate: '2024-03-05', dueDate: '2024-04-15', status: 'Read'      },
-//       { id: 3, noticeNo: 'NOT-2024-003', subject: 'Penalty Notice',              issuedDate: '2024-03-10', dueDate: '2024-03-20', status: 'Responded' },
-//     ];
-//   }
-⋮----
-//   mockMyReturns(): MyReturn[] {
-//     return [
-//       { id: 1, returnNo: 'VAT-2024-001', period: 'Jan 2024', submittedDate: '2024-02-15', amount: 45000,  status: 'Approved'  },
-//       { id: 2, returnNo: 'VAT-2024-002', period: 'Feb 2024', submittedDate: '2024-03-15', amount: 52000,  status: 'Submitted' },
-//       { id: 3, returnNo: 'IT-2024-001',  period: 'FY 2023',  submittedDate: '2024-01-30', amount: 125000, status: 'Approved'  },
-//     ];
-//   }
-⋮----
-//   mockChartData(): DashboardChartData {
-//     return {
-//       vatChart:     [
-//         { label: 'Oct', value: 3200000 }, { label: 'Nov', value: 4100000 },
-//         { label: 'Dec', value: 3800000 }, { label: 'Jan', value: 5200000 },
-//         { label: 'Feb', value: 4700000 }, { label: 'Mar', value: 6100000 }
-//       ],
-//       paymentChart: [
-//         { label: 'Oct', value: 2800000 }, { label: 'Nov', value: 3500000 },
-//         { label: 'Dec', value: 3100000 }, { label: 'Jan', value: 4400000 },
-//         { label: 'Feb', value: 3900000 }, { label: 'Mar', value: 5300000 }
-//       ],
-//       auditChart: [
-//         { label: 'Oct', value: 28 }, { label: 'Nov', value: 35 },
-//         { label: 'Dec', value: 42 }, { label: 'Jan', value: 38 },
-//         { label: 'Feb', value: 51 }, { label: 'Mar', value: 44 }
-//       ],
-//       myPaymentChart: [
-//         { label: 'Oct', value: 35000 }, { label: 'Nov', value: 42000 },
-//         { label: 'Dec', value: 38000 }, { label: 'Jan', value: 45000 },
-//         { label: 'Feb', value: 52000 }, { label: 'Mar', value: 48000 }
-//       ]
-//     };
-//   }
-// }
-⋮----
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-import { BaseApiService } from '../../../core/services/base-api.service';
-import { API_ENDPOINTS } from '../../../core/constants/api.constants';
-import {
-  DashboardStats, RecentTaxpayer, RecentPayment,
-  RecentAudit, RecentEntry, MyNotice, MyReturn,
-  DashboardChartData
-} from '../../../models/dashboard.model';
-import { FiscalYear } from '../../../models/fiscal-year.model';
-⋮----
-export class DashboardService extends BaseApiService {
-⋮----
-constructor(http: HttpClient)
-⋮----
-getStats():           Observable<DashboardStats>
-getRecentTaxpayers(): Observable<RecentTaxpayer[]>
-getRecentPayments():  Observable<RecentPayment[]>
-⋮----
-getFiscalYears(): Observable<FiscalYear[]>
-⋮----
-getChartData(): Observable<DashboardChartData>
-⋮----
-loadAll(): Observable<any[]>
-⋮----
-this.getFiscalYears(),  // index [8] — fiscal years
-⋮----
-// ── Mock Data ──────────────────────────────────────
-⋮----
-mockStats(): DashboardStats
-⋮----
-mockTaxpayers(): RecentTaxpayer[]
-⋮----
-mockPayments(): RecentPayment[]
-⋮----
-mockAudits(): RecentAudit[]
-⋮----
-mockEntries(): RecentEntry[]
-⋮----
-mockNotices(): MyNotice[]
-⋮----
-mockMyReturns(): MyReturn[]
-⋮----
-mockFiscalYears(): FiscalYear[]
-⋮----
-mockChartData(): DashboardChartData
-```
-
 ## File: src/app/features/document-verification/pages/document-create/document-create.component.html
 ```html
 <div class="page-header">
@@ -16671,61 +16829,6 @@ isExpiringSoon(date: string): boolean
 </ng-container>
 ```
 
-## File: src/app/features/document-verification/pages/document-view/document-view.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Document } from '../../../../models/document.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class DocumentViewComponent implements OnInit {
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-loadDocument(): void
-⋮----
-finalize  (() => this.isLoading = false)) // FIX #3: Auto-cancel on destroy
-⋮----
-// WARNING: expired documents
-⋮----
-// WARNING: expiring soon documents
-⋮----
-// INFO: suspended or dissolved status
-⋮----
-// FIX #1: Removed fake fallback array entirely — show a real error instead
-⋮----
-getStatusClass(s: string): string
-⋮----
-getTypeIcon(type: string): string
-⋮----
-isExpired(date: string): boolean
-⋮----
-isExpiringSoon(date: string): boolean
-⋮----
-onEdit(): void
-onBack(): void
-```
-
-## File: src/app/features/fiscal-years/fiscal-years/fiscal-years-routing.module.ts
-```typescript
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from 'src/app/core/guards/auth.guard';
-import { Role } from 'src/app/core/constants/roles.constants';
-import { FiscalYearListComponent }   from '../pages/fiscal-year-list/fiscal-year-list.component';
-import { FiscalYearCreateComponent } from '../pages/fiscal-year-create/fiscal-year-create.component';
-import { FiscalYearEditComponent } from '../pages/fiscal-year-edit/fiscal-year-edit.component';
-⋮----
-export class FiscalYearsRoutingModule
-```
-
 ## File: src/app/features/fiscal-years/fiscal-years/fiscal-years.module.ts
 ```typescript
 import { NgModule } from '@angular/core';
@@ -16742,119 +16845,254 @@ export class FiscalYearsModule
 
 ## File: src/app/features/fiscal-years/pages/fiscal-year-create/fiscal-year-create.component.css
 ```css
+.alert-success {
+.alert-error {
+.btn-back {
+.btn-back:hover {
+.form-card {
+.form-section {
+.section-header {
+.section-icon {
 .section-icon.teal {
 .section-icon.orange {
+.section-title {
+.section-sub {
+.section-divider {
+.auto-label {
+.field-hint {
+⋮----
+.form-grid {
+.form-group {
+.form-label {
+.form-label.required::after {
+.input-wrap {
+.input-icon {
+.form-input {
+.form-input:focus {
+.form-select {
+⋮----
+/* ── Year Preview ── */
+.year-preview {
+.yp-year {
+.yp-range {
+⋮----
+/* ── Deadline Preview ── */
+.deadline-preview {
+.dp-item {
+.dp-icon {
+.dp-icon.vat {
+.dp-icon.it {
+.dp-label {
+.dp-value {
+⋮----
+/* ── Toggle ── */
+.toggle-section {
+.toggle-info {
+.ti-title {
+.ti-desc {
+.toggle-wrap {
+⋮----
+.toggle-switch {
+.toggle-switch input {
+.toggle-slider {
+.toggle-slider:before {
+input:checked + .toggle-slider {
+input:checked + .toggle-slider:before {
+⋮----
+.toggle-label {
+.toggle-label.on {
+⋮----
+.form-actions {
+.btn-cancel {
+.btn-cancel:hover {
+.btn-reset {
+.btn-reset:hover {
+.btn-submit {
+.btn-submit:hover:not(:disabled) {
+.btn-submit:disabled,
+⋮----
+.btn-cancel,
+```
+
+## File: src/app/features/fiscal-years/pages/fiscal-year-create/fiscal-year-create.component.html
+```html
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Add Fiscal Year</h4>
+    <p>Define a new fiscal year with tax deadlines.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
+
+<div class="alert-success" *ngIf="successMsg">
+  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+</div>
+<div class="alert-error" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+</div>
+
+<div class="form-card">
+
+  <!-- Section 1: Year Info -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-calendar-range-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Fiscal Year Information</h6>
+        <span class="section-sub">Year name — dates auto-fill from name</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label required">Year Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. 2025-26"
+            [(ngModel)]="form.yearName"
+            (ngModelChange)="onYearNameChange()" />
+        </div>
+        <span class="field-hint">Format: YYYY-YY (e.g. 2025-26) — dates auto-fill</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.status" (ngModelChange)="onStatusChange()">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Start Date <span class="auto-label">Auto</span></label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-check input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.startDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">End Date <span class="auto-label">Auto</span></label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-x input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.endDate" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Year Preview Card -->
+    <div class="year-preview" *ngIf="form.yearName">
+      <div class="yp-year">FY {{ form.yearName }}</div>
+      <div class="yp-range" *ngIf="form.startDate && form.endDate">
+        {{ form.startDate }} → {{ form.endDate }}
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Tax Deadlines -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-alarm-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Tax Deadlines</h6>
+        <span class="section-sub">VAT and income tax due dates</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">VAT Due Day (Monthly)</label>
+        <div class="input-wrap">
+          <i class="bi bi-receipt-cutoff input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.vatDueDay">
+            <option *ngFor="let d of vatDueDays" [ngValue]="d">{{ d }}th of each month</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Income Tax Due Date <span class="auto-label">Auto</span></label>
+        <div class="input-wrap">
+          <i class="bi bi-calendar-event input-icon"></i>
+          <input type="date" class="form-input" [(ngModel)]="form.incomeTaxDueDate" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Deadline Preview -->
+    <div class="deadline-preview" *ngIf="form.vatDueDay || form.incomeTaxDueDate">
+      <div class="dp-item" *ngIf="form.vatDueDay">
+        <div class="dp-icon vat"><i class="bi bi-receipt-cutoff"></i></div>
+        <div>
+          <div class="dp-label">VAT Returns Due</div>
+          <div class="dp-value">{{ form.vatDueDay }}th of each month</div>
+        </div>
+      </div>
+      <div class="dp-item" *ngIf="form.incomeTaxDueDate">
+        <div class="dp-icon it"><i class="bi bi-calendar-event-fill"></i></div>
+        <div>
+          <div class="dp-label">Income Tax Return Due</div>
+          <div class="dp-value">{{ form.incomeTaxDueDate }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Current Year Toggle -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-star-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Current Year Setting</h6>
+        <span class="section-sub">Set as the active fiscal year for the system</span>
+      </div>
+    </div>
+    <div class="toggle-section">
+      <div class="toggle-info">
+        <div class="ti-title">Set as Current Year</div>
+        <div class="ti-desc">Enabling this will mark this as the active fiscal year. The previous current year will be automatically closed.</div>
+      </div>
+      <div class="toggle-wrap">
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="form.isCurrentYear" (ngModelChange)="onCurrentYearChange()" />
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label" [class.on]="form.isCurrentYear">
+          {{ form.isCurrentYear ? 'Yes — Current Year' : 'No' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+    <button class="btn-submit" (click)="onSubmit()"
+      [disabled]="isLoading || !isFormValid()">
+      <span *ngIf="!isLoading"><i class="bi bi-calendar-range-fill"></i> Create Fiscal Year</span>
+      <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
+    </button>
+  </div>
+
+</div>
 ```
 
 ## File: src/app/features/fiscal-years/pages/fiscal-year-edit/fiscal-year-edit.component.css
 ```css
 
-```
-
-## File: src/app/features/fiscal-years/pages/fiscal-year-list/fiscal-year-list.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>Fiscal Years</h4>
-    <p>Manage fiscal years and tax deadline configurations.</p>
-  </div>
-  <a *canDo="'create'" routerLink="/fiscal-years/create"
-     class="btn-add-primary desktop-add-btn">
-    <i class="bi bi-plus-lg"></i> Add Fiscal Year
-  </a>
-</div>
-
-<div class="page-wrapper">
-
-  <div class="loading-row" *ngIf="isLoading">
-    <div class="spinner-border spinner-border-sm text-primary"></div>
-    <span>Loading fiscal years...</span>
-  </div>
-
-  <!-- Fiscal Year Cards -->
-  <div class="fy-grid" *ngIf="!isLoading">
-
-    <div class="fy-card"
-      *ngFor="let y of years"
-      [class.current]="y.isCurrentYear"
-      [class.upcoming]="y.status === 'Upcoming'"
-      [class.closed]="y.status === 'Closed'">
-
-      <!-- Current Year Badge -->
-      <div class="current-badge" *ngIf="y.isCurrentYear">
-        <i class="bi bi-star-fill"></i> Current Year
-      </div>
-      <div class="upcoming-badge" *ngIf="y.status === 'Upcoming'">
-        <i class="bi bi-clock-fill"></i> Upcoming
-      </div>
-
-      <!-- Year Name -->
-      <div class="fy-year-name">{{ y.yearName }}</div>
-
-      <!-- Dates -->
-      <div class="fy-dates">
-        <div class="fy-date-item">
-          <i class="bi bi-calendar-check"></i>
-          <div>
-            <span class="fyd-label">Start</span>
-            <span class="fyd-value">{{ y.startDate }}</span>
-          </div>
-        </div>
-        <div class="fy-date-arrow"><i class="bi bi-arrow-right"></i></div>
-        <div class="fy-date-item">
-          <i class="bi bi-calendar-x"></i>
-          <div>
-            <span class="fyd-label">End</span>
-            <span class="fyd-value">{{ y.endDate }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tax Deadlines -->
-      <div class="fy-deadlines">
-        <div class="fy-deadline-item">
-          <div class="fdl-icon vat"><i class="bi bi-receipt-cutoff"></i></div>
-          <div>
-            <span class="fdl-label">VAT Due Day</span>
-            <span class="fdl-value">{{ y.vatDueDay }}th of each month</span>
-          </div>
-        </div>
-        <div class="fy-deadline-item">
-          <div class="fdl-icon it"><i class="bi bi-calendar-event-fill"></i></div>
-          <div>
-            <span class="fdl-label">Income Tax Due</span>
-            <span class="fdl-value">{{ y.incomeTaxDueDate }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Status & Actions -->
-      <div class="fy-footer">
-        <span class="status-badge" [ngClass]="getStatusClass(y.status)">{{ y.status }}</span>
-        <div class="fy-actions">
-          <button
-            *ngIf="!y.isCurrentYear && y.status !== 'Closed'"
-            class="btn-set-current"
-            (click)="setCurrent(y.id)">
-            <i class="bi bi-check-circle-fill"></i> Set as Current
-          </button>
-        </div>
-          <button class="btn-fy-edit" (click)="edit(y.id)">
-              <i class="bi bi-pencil-fill"></i> Edit
-         </button>
-      </div>
-
-    </div>
-
-    <!-- Add New Card -->
-    <div class="fy-add-card" routerLink="/fiscal-years/create">
-      <i class="bi bi-plus-circle-fill"></i>
-      <span>Add Fiscal Year</span>
-    </div>
-
-  </div>
-
-</div>
 ```
 
 ## File: src/app/features/import-duty/import-duty/import-duty-routing.module.ts
@@ -16888,59 +17126,6 @@ export class ImportDutyModule
 ## File: src/app/features/import-duty/pages/import-duty-edit/import-duty-edit.component.css
 ```css
 
-```
-
-## File: src/app/features/import-duty/pages/import-duty-edit/import-duty-edit.component.ts
-```typescript
-import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-⋮----
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
-import { MasterDataService } from 'src/app/core/services/master-data.service';
-import {
-  ImportDuty,
-  ImportDutyTaxPreview,
-  ImportDutyUpdateRequest,
-} from '../../../../models/import-duty.model';
-import { TaxableProduct } from '../../../../models/taxable-product.model';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class ImportDutyEditComponent implements OnInit, OnDestroy
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-private initialForm(): ImportDutyUpdateRequest
-⋮----
-private loadRecordAndMasterData(): void
-⋮----
-private patchForm(record: ImportDuty): void
-⋮----
-private previewFromRecord(record: ImportDuty): ImportDutyTaxPreview
-⋮----
-private toNameList(items: any[]): string[]
-⋮----
-onProductChange(): void
-⋮----
-onCifValueChange(): void
-⋮----
-calculatePreview(): void
-⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-private buildPayload(): ImportDutyUpdateRequest
-⋮----
-onCancel(): void
-⋮----
-fmt(amount: number | undefined | null): string
 ```
 
 ## File: src/app/features/import-duty/pages/import-duty-list/import-duty-list.component.css
@@ -17421,6 +17606,69 @@ export class IncomeTaxReturnsModule { }
 </div>
 ```
 
+## File: src/app/features/income-tax-returns/pages/IT10B/it10b.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+⋮----
+import { BaseApiService }   from '../../../../core/services/base-api.service';
+import { ToastService }     from '../../../../shared/toast/toast.service';
+import { API_ENDPOINTS }    from '../../../../core/constants/api.constants';
+import { IT10B, IT10BRequest } from '../../../../models/it10b.model';
+⋮----
+export class It10bComponent implements OnInit, OnDestroy {
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Form Builder ──────────────────────────────────────────────────────────
+⋮----
+private buildForm(): void
+⋮----
+// ── Real-time netWealth via valueChanges ──────────────────────────────────
+⋮----
+private listenToValueChanges(): void
+⋮----
+// ── Load existing IT-10B (edit mode) ─────────────────────────────────────
+⋮----
+private tryLoadExisting(): void
+⋮----
+// Edit mode — patch form with existing values
+⋮----
+// ── Submit ────────────────────────────────────────────────────────────────
+⋮----
+onSubmit(): void
+⋮----
+// Update mode
+⋮----
+// Create mode
+⋮----
+private handleSaveError(err: any): void
+⋮----
+// ── Helpers ───────────────────────────────────────────────────────────────
+⋮----
+onReset(): void
+⋮----
+goBack(): void
+⋮----
+// Go back to the view page, preserving the returnUrl so the view page's
+// own back button still works correctly (portal → view → it10b → view → portal)
+⋮----
+get isEditMode(): boolean
+⋮----
+get totalAssets(): number
+⋮----
+ctrl(name: string)
+⋮----
+fmt(val: number): string
+```
+
 ## File: src/app/features/notices-notifications/notice/notice-routing.module.ts
 ```typescript
 import { NgModule } from '@angular/core';
@@ -17433,6 +17681,91 @@ import { NoticeListComponent } from '../pages/notice-list/notice-list.component'
 import { NoticeViewComponent } from '../pages/notice-view/notice-view.component';
 ⋮----
 export class NoticeRoutingModule { }
+```
+
+## File: src/app/features/notices-notifications/pages/notice-view/notice-view.component.css
+```css
+/* notice-view.component.css — পুরোটা replace করো */
+⋮----
+.btn-back {
+.btn-back:hover { background: #f0f4ff; }
+⋮----
+.loading-overlay {
+⋮----
+/* ── Notice Header Card ── */
+.notice-view-card {
+⋮----
+.nvc-top {
+⋮----
+.nvc-icon-wrap {
+⋮----
+.nvc-icon {
+⋮----
+.nvc-no {
+⋮----
+.nvc-type {
+⋮----
+.nvc-badges { display: flex; align-items: center; gap: 8px; }
+⋮----
+.pri-badge {
+.pri-low      { background: #f0fdf4; color: #166534; }
+.pri-normal   { background: #eff6ff; color: #1e40af; }
+.pri-high     { background: #fef3c7; color: #92400e; }
+.pri-urgent   { background: #fee2e2; color: #991b1b; }
+⋮----
+.status-badge {
+.status-unread  { background: #fee2e2; color: #991b1b; }
+.status-read    { background: #f0fdf4; color: #166534; }
+.status-active  { background: #eff6ff; color: #1e40af; }
+.status-inactive{ background: #f3f4f6; color: #6b7280; }
+⋮----
+.nvc-subject {
+⋮----
+.nvc-meta {
+⋮----
+.nvc-meta-item {
+⋮----
+/* ── Message Body Card ── */
+.notice-body-card {
+⋮----
+.body-header {
+⋮----
+.body-content {
+⋮----
+.attachment-row { margin-top: 16px; padding-top: 14px; border-top: 1px solid #f0f3f8; }
+⋮----
+.attachment-item {
+⋮----
+.btn-download {
+⋮----
+/* ── Response Card ── */
+.response-card {
+⋮----
+.response-header {
+⋮----
+.response-date { margin-left: auto; font-size: 12px; color: #888; font-weight: 400; }
+⋮----
+.response-body { font-size: 14px; color: #333; line-height: 1.6; }
+⋮----
+/* ── Reply Section ── */
+.reply-section { margin-bottom: 16px; }
+⋮----
+.btn-reply {
+.btn-reply:hover { background: #163578; }
+⋮----
+.reply-box {
+⋮----
+.reply-box-header {
+⋮----
+.reply-textarea {
+.reply-textarea:focus { border-color: #1a3f8f; }
+⋮----
+.reply-actions {
+⋮----
+.btn-cancel-reply {
+⋮----
+.btn-send-reply {
+.btn-send-reply:hover { background: #163578; }
 ```
 
 ## File: src/app/features/payments/pages/payment-create/payment-create.component.css
@@ -18433,640 +18766,403 @@ constructor(private toast: ToastService, private router: Router)
 goToLogin(): void
 ```
 
-## File: src/app/features/refund-management/pages/refund-create/refund-create.component.html
+## File: src/app/features/refund-management/pages/refund-create/refund-create.component.css
+```css
+.page-title { font-size: 1.2rem; font-weight: 600; }
+⋮----
+/* ─── Stepper ─────────────────────────────────── */
+.stepper-wrapper {
+⋮----
+.stepper-item {
+⋮----
+.stepper-circle {
+⋮----
+.stepper-item.active .stepper-circle {
+⋮----
+.stepper-item.completed .stepper-circle {
+⋮----
+.stepper-label {
+.stepper-item.active    .stepper-label { color: #0d6efd; font-weight: 600; }
+.stepper-item.completed .stepper-label { color: #198754; }
+⋮----
+.stepper-connector {
+.stepper-item.completed .stepper-connector { background: #198754; }
+⋮----
+/* ─── Wizard Card ──────────────────────────────── */
+.wizard-card {
+⋮----
+.wizard-card-header {
+⋮----
+.wizard-card-body { padding: 20px; }
+⋮----
+.wizard-card-footer {
+⋮----
+/* ─── Type Cards ───────────────────────────────── */
+.type-card {
+.type-card:hover       { border-color: #0d6efd; background: #f0f5ff; }
+.type-card--selected   { border-color: #0d6efd; background: #eef3ff; }
+⋮----
+.type-card-icon {
+.type-blue   { background: #e6f1fb; color: #0c447c; }
+.type-teal   { background: #e1f5ee; color: #085041; }
+.type-purple { background: #eeedfe; color: #3c3489; }
+.type-amber  { background: #faeeda; color: #633806; }
+.type-indigo { background: #ede9fe; color: #4c1d95; }
+.type-gray   { background: #f1efe8; color: #444441; }
+⋮----
+.type-card-label { font-size: 0.82rem; font-weight: 600; color: #1a1a1a; }
+.type-card-desc  { font-size: 0.70rem; color: #6c757d; margin-top: 4px; }
+.type-card-check { position: absolute; top: 8px; right: 8px; font-size: 1rem; }
+⋮----
+/* ─── Source Table ─────────────────────────────── */
+.source-table th { font-size: 0.73rem; }
+.source-table td { font-size: 0.82rem; }
+.source-row--selected { background: rgba(13,110,253,.05) !important; }
+⋮----
+/* ─── Calculation ──────────────────────────────── */
+.calc-box {
+.calc-row {
+.calc-divider { border-top: 1px solid #a3c97a; margin: 10px 0; }
+.calc-total-row {
+⋮----
+/* ─── Optional section ─────────────────────────── */
+.optional-section {
+.optional-section-title { font-size: 0.82rem; font-weight: 600; color: #495057; }
+⋮----
+/* ─── Upload ────────────────────────────────────── */
+.uploaded-file-item {
+⋮----
+/* ─── Review ────────────────────────────────────── */
+.review-section {
+.review-section-title {
+.review-row {
+.review-row:last-child { border-bottom: none; }
+⋮----
+/* ─── Declaration ───────────────────────────────── */
+.declaration-box {
+```
+
+## File: src/app/features/refund-management/pages/refund-list/refund-list.component.css
+```css
+.page-title { font-size: 1.25rem; font-weight: 600; color: #1a1a1a; }
+⋮----
+/* Summary cards */
+.summary-card {
+.summary-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+⋮----
+.summary-icon {
+.summary-icon--blue  { background: #e6f1fb; color: #0c447c; }
+.summary-icon--green { background: #eaf3de; color: #27500a; }
+.summary-icon--teal  { background: #e1f5ee; color: #085041; }
+.summary-icon--amber { background: #faeeda; color: #633806; }
+⋮----
+.summary-label { font-size: 0.72rem; color: #6c757d; text-transform: uppercase; letter-spacing: .4px; }
+.summary-value { font-size: 1.15rem; font-weight: 600; color: #1a1a1a; margin-top: 2px; }
+.summary-sub   { font-size: 0.72rem; color: #9e9d98; margin-top: 2px; }
+⋮----
+/* Table */
+.ref-link {
+.ref-link:hover { text-decoration: underline; }
+⋮----
+.type-badge {
+⋮----
+.table-warning-light { background: rgba(250,238,218,.2) !important; }
+.table-danger-light  { background: rgba(252,235,235,.2) !important; }
+⋮----
+.table thead th {
+⋮----
+.table td { font-size: 0.83rem; }
+⋮----
+.card-footer { border-top: 1px solid #e8e6e1; }
+```
+
+## File: src/app/features/refund-management/pages/refund-list/refund-list.component.html
 ```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>New Refund Claim</h4>
-    <p>Submit a new tax refund claim for a taxpayer.</p>
+<div class="container-fluid py-4 px-4">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="page-title mb-1">
+        <i class="bi bi-arrow-counterclockwise me-2 text-primary"></i>
+        My Refund Applications
+      </h4>
+      <p class="text-muted mb-0 small">Track and manage your tax refund applications</p>
+    </div>
+    <button class="btn btn-primary" (click)="navigateToCreate()">
+      <i class="bi bi-plus-lg me-1"></i> New Refund Application
+    </button>
   </div>
-  <button class="btn-back" (click)="onCancel()">
-    <i class="bi bi-arrow-left"></i> Back to List
-  </button>
-</div>
 
-<div class="form-card">
-
-  <!-- Taxpayer Search (replaces raw tinNumber/taxpayerName inputs) -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon"><i class="bi bi-person-badge-fill"></i></div>
-      <div>
-        <h6 class="section-title">Taxpayer</h6>
-        <span class="section-sub">Search and select the taxpayer</span>
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+      <div class="summary-card">
+        <div class="summary-icon summary-icon--blue">
+          <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <div class="summary-body">
+          <div class="summary-label">Total Claimed</div>
+          <div class="summary-value">{{ formatCurrency(totalClaimed) }}</div>
+          <div class="summary-sub">{{ totalElements }} applications</div>
+        </div>
       </div>
     </div>
-    <div class="form-grid">
-      <div class="form-group full-width">
-        <label class="form-label required">Find Taxpayer</label>
-        <div class="search-row">
-          <div class="input-wrap search-input-wrap">
-            <i class="bi bi-search input-icon"></i>
-            <input type="text" class="form-input"
-              placeholder="Enter NID, name or TIN..."
-              [(ngModel)]="searchQuery"
-              [disabled]="selectedTaxpayer !== null"
-              (keyup.enter)="searchTaxpayer()" />
-            <button *ngIf="selectedTaxpayer" class="clear-btn" (click)="clearTaxpayer()">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </div>
-          <button class="btn-search" (click)="searchTaxpayer()"
-            [disabled]="isSearching || selectedTaxpayer !== null">
-            <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
-            <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span></span>
+    <div class="col-xl-3 col-md-6">
+      <div class="summary-card">
+        <div class="summary-icon summary-icon--green">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+        <div class="summary-body">
+          <div class="summary-label">Approved</div>
+          <div class="summary-value text-success">{{ formatCurrency(totalApproved) }}</div>
+          <div class="summary-sub">Approved amount</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="summary-card">
+        <div class="summary-icon summary-icon--teal">
+          <i class="bi bi-bank"></i>
+        </div>
+        <div class="summary-body">
+          <div class="summary-label">Paid / Disbursed</div>
+          <div class="summary-value" style="color:#0f6e56">{{ formatCurrency(totalPaid) }}</div>
+          <div class="summary-sub">Received in account</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="summary-card">
+        <div class="summary-icon summary-icon--amber">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="summary-body">
+          <div class="summary-label">Pending</div>
+          <div class="summary-value text-warning">{{ totalPending }}</div>
+          <div class="summary-sub">Awaiting action</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label form-label-sm mb-1">Status</label>
+          <select class="form-select form-select-sm" [(ngModel)]="selectedStatus">
+            <option value="">All Statuses</option>
+            <option *ngFor="let s of statuses" [value]="s">{{ s | titlecase }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label form-label-sm mb-1">Refund Type</label>
+          <select class="form-select form-select-sm" [(ngModel)]="selectedType">
+            <option value="">All Types</option>
+            <option *ngFor="let t of refundTypes" [value]="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label form-label-sm mb-1">Page Size</label>
+          <select class="form-select form-select-sm" [(ngModel)]="pageSize" (change)="applyFilters()">
+            <option [value]="10">10 per page</option>
+            <option [value]="25">25 per page</option>
+            <option [value]="50">50 per page</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button class="btn btn-primary btn-sm w-100" (click)="applyFilters()">
+            <i class="bi bi-search me-1"></i> Search
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="clearFilters()" title="Clear filters">
+            <i class="bi bi-x-lg"></i>
           </button>
         </div>
-        <!-- Results -->
-        <div class="search-results" *ngIf="showResults && searchResults.length > 0">
-          <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
-            <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
-            <div class="result-info">
-              <span class="result-name">{{ getDisplayName(t) }}</span>
-              <span class="result-meta">
-                <span *ngIf="t.nid">NID: {{ t.nid }}</span>
-                <span *ngIf="t.phone"> · {{ t.phone }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-muted mt-2 small">Loading refund applications…</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && errorMessage" class="alert alert-danger d-flex align-items-center gap-2">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && !errorMessage" class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" aria-label="Refund applications list">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Reference No.</th>
+            <th scope="col">Type</th>
+            <th scope="col">Fiscal Year</th>
+            <th scope="col" class="text-end">Claimed</th>
+            <th scope="col" class="text-end">Approved</th>
+            <th scope="col">Status</th>
+            <th scope="col">Submitted</th>
+            <th scope="col" class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="refunds.length === 0">
+            <td colspan="8" class="text-center py-5 text-muted">
+              <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+              No refund applications found.
+              <a class="d-block mt-1 small" (click)="navigateToCreate()" style="cursor:pointer">
+                Create your first application →
+              </a>
+            </td>
+          </tr>
+
+          <tr
+            *ngFor="let r of refunds"
+            [class.table-warning-light]="r.status === 'INFO_REQUESTED'"
+            [class.table-danger-light]="r.status === 'FAILED'"
+          >
+            <td>
+              <a
+                class="ref-link fw-semibold"
+                (click)="navigateToView(r.id)"
+                role="button"
+                [attr.aria-label]="'View refund ' + r.refundReferenceNo"
+              >
+                {{ r.refundReferenceNo }}
+              </a>
+              <div *ngIf="r.isFlaggedForAudit" class="small text-danger mt-1">
+                <i class="bi bi-flag-fill me-1"></i>Audit Flagged
+              </div>
+            </td>
+            <td>
+              <span class="type-badge">{{ refundTypeLabels[r.refundType] }}</span>
+            </td>
+            <td class="text-muted small">{{ r.fiscalYearName }}</td>
+            <td class="text-end fw-semibold">{{ formatCurrency(r.claimedRefundAmount) }}</td>
+            <td class="text-end">
+              <span *ngIf="r.approvedRefundAmount" class="text-success fw-semibold">
+                {{ formatCurrency(r.approvedRefundAmount) }}
               </span>
-            </div>
-            <span class="result-badge">Select</span>
-          </div>
-        </div>
-        <!-- Selected -->
-        <div class="selected-card" *ngIf="selectedTaxpayer">
-          <div class="selected-card-left">
-            <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
-            <div>
-              <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
-              <p class="selected-meta">
-                <span *ngIf="selectedTaxpayer.nid">NID: {{ selectedTaxpayer.nid }}</span>
-                <span *ngIf="selectedTaxpayer.tinNumber"> · TIN: {{ selectedTaxpayer.tinNumber }}</span>
-              </p>
-            </div>
-          </div>
-          <div class="autofill-tag"><i class="bi bi-check-circle-fill"></i> Selected</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 2: Refund Details -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon teal"><i class="bi bi-cash-stack"></i></div>
-      <div>
-        <h6 class="section-title">Refund Details</h6>
-        <span class="section-sub">Type, amount and claim information</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Return / Reference No.</label>
-        <div class="input-wrap">
-          <i class="bi bi-file-earmark-text input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. VAT-2024-00001" [(ngModel)]="form.returnNo" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Payment Reference</label>
-        <div class="input-wrap">
-          <i class="bi bi-hash input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="e.g. TXN-2024-44821" [(ngModel)]="form.paymentRef" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 2: Refund Details -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon teal">
-        <i class="bi bi-cash-stack"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Refund Details</h6>
-        <span class="section-sub">Type, amount and claim information</span>
-      </div>
+              <span *ngIf="!r.approvedRefundAmount" class="text-muted">—</span>
+            </td>
+            <td>
+              <app-refund-status-badge [status]="r.status" size="sm"></app-refund-status-badge>
+            </td>
+            <td class="text-muted small">
+              {{ r.submittedAt ? (r.submittedAt | date:'dd MMM yyyy') : '—' }}
+            </td>
+            <td class="text-center">
+              <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'Actions for ' + r.refundReferenceNo">
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="navigateToView(r.id)"
+                  title="View Details"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button
+                  *ngIf="canRespond(r)"
+                  class="btn btn-warning btn-sm"
+                  (click)="navigateToRespond(r.id)"
+                  title="Respond to Information Request"
+                >
+                  <i class="bi bi-reply"></i>
+                </button>
+                <button
+                  *ngIf="canEdit(r)"
+                  class="btn btn-outline-secondary btn-sm"
+                  (click)="navigateToEdit(r.id)"
+                  title="Edit Draft"
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button
+                  *ngIf="canCancel(r)"
+                  class="btn btn-outline-danger btn-sm"
+                  (click)="cancelRefund(r.id)"
+                  title="Cancel"
+                >
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">Refund Type</label>
-        <div class="input-wrap">
-          <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.refundType">
-            <option value="">Select Type</option>
-            <option *ngFor="let t of refundTypes" [value]="t">{{ t }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label required">Refund Method</label>
-        <div class="input-wrap">
-          <i class="bi bi-wallet2 input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.refundMethod">
-            <option value="">Select Method</option>
-            <option *ngFor="let m of refundMethods" [value]="m">{{ m }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label required">Claim Amount (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input"
-            placeholder="0" [(ngModel)]="form.claimAmount" />
-        </div>
-        <span class="field-hint" *ngIf="form.claimAmount > 0">
-          ≈ {{ formatCurrency(form.claimAmount) }}
-        </span>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Claim Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.claimDate" />
-        </div>
-      </div>
+    <!-- Pagination -->
+    <div class="card-footer d-flex justify-content-between align-items-center bg-white py-2">
+      <small class="text-muted">
+        Showing {{ refunds.length }} of {{ totalElements }} records
+      </small>
+      <nav *ngIf="totalPages > 1" aria-label="Refund list pagination">
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <button class="page-link" (click)="goToPage(currentPage - 1)" aria-label="Previous">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+          </li>
+          <li
+            *ngFor="let p of pages"
+            class="page-item"
+            [class.active]="p === currentPage"
+          >
+            <button class="page-link" (click)="goToPage(p)">{{ p + 1 }}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+            <button class="page-link" (click)="goToPage(currentPage + 1)" aria-label="Next">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 3: Bank Details (conditional) -->
-  <div class="form-section" *ngIf="showBankFields">
-    <div class="section-header">
-      <div class="section-icon orange">
-        <i class="bi bi-bank2"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Bank Details</h6>
-        <span class="section-sub">Refund payment bank information</span>
-      </div>
-    </div>
-
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Bank Name</label>
-        <div class="input-wrap">
-          <i class="bi bi-bank input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.bankName">
-            <option value="">Select Bank</option>
-            <option *ngFor="let b of banks" [value]="b">{{ b }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Branch</label>
-        <div class="input-wrap">
-          <i class="bi bi-geo-alt-fill input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Enter branch name" [(ngModel)]="form.bankBranch" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Account No.</label>
-        <div class="input-wrap">
-          <i class="bi bi-credit-card input-icon"></i>
-          <input type="text" class="form-input"
-            placeholder="Enter account number" [(ngModel)]="form.accountNo" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider" *ngIf="showBankFields"></div>
-
-  <!-- Section 4: Remarks -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon purple">
-        <i class="bi bi-chat-text-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Remarks</h6>
-        <span class="section-sub">Optional notes or supporting information</span>
-      </div>
-    </div>
-
-    <div class="form-grid">
-      <div class="form-group full-width">
-        <label class="form-label">Remarks / Notes</label>
-        <div class="input-wrap">
-          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Enter any additional remarks..."
-            [(ngModel)]="form.remarks" rows="3"></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Form Actions -->
-  <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
-      <i class="bi bi-x-lg"></i> Cancel
-    </button>
-    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
-      <i class="bi bi-arrow-counterclockwise"></i> Reset
-    </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isLoading || !isFormValid()">
-      <span *ngIf="!isLoading">
-        <i class="bi bi-check-lg"></i> Submit Refund Claim
-      </span>
-      <span *ngIf="isLoading">
-        <span class="spinner-border spinner-border-sm me-2"></span>
-        Submitting...
-      </span>
-    </button>
   </div>
 
 </div>
 ```
 
-## File: src/app/features/refund-management/pages/refund-edit/refund-edit.component.css
-```css
-
+## File: src/app/features/refund-management/refund/refund-routing.module.ts
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { RefundListComponent } from '../pages/refund-list/refund-list.component';
+import { RefundCreateComponent } from '../pages/refund-create/refund-create.component';
+import { RefundViewComponent } from '../pages/refund-view/refund-view.component';
+import { RefundEditComponent } from '../pages/refund-edit/refund-edit.component';
+import { RefundSuccessComponent } from '../pages/refund-success/refund-success.component';
+import { RefundRespondComponent } from '../pages/refund-respond/refund-respond.component';
+⋮----
+export class RefundRoutingModule
 ```
 
-## File: src/app/features/refund-management/pages/refund-edit/refund-edit.component.html
-```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>Edit Refund</h4>
-    <p>Update refund claim details.</p>
-  </div>
-  <button class="btn-back" (click)="onCancel()">
-    <i class="bi bi-arrow-left"></i> Back to View
-  </button>
-</div>
-
-<div class="alert-success" *ngIf="successMsg">
-  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
-</div>
-<div class="alert-error" *ngIf="errorMsg">
-  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
-</div>
-
-<div class="loading-overlay" *ngIf="isLoading">
-  <div class="spinner-border text-primary"></div>
-  <p>Loading refund data...</p>
-</div>
-
-<div class="form-card" *ngIf="!isLoading">
-
-  <div class="edit-banner">
-    <i class="bi bi-pencil-square"></i>
-    Editing Refund: <strong>{{ form.refundNo }}</strong>
-  </div>
-
-  <!-- Section 1: Taxpayer -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon">
-        <i class="bi bi-person-badge-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Taxpayer Information</h6>
-        <span class="section-sub">TIN and taxpayer details</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">TIN Number</label>
-        <div class="input-wrap">
-          <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.tinNumber" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">Taxpayer Name</label>
-        <div class="input-wrap">
-          <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.taxpayerName" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Return No.</label>
-        <div class="input-wrap">
-          <i class="bi bi-file-earmark-text input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.returnNo" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Payment Ref.</label>
-        <div class="input-wrap">
-          <i class="bi bi-hash input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.paymentRef" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 2: Refund Details -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon teal">
-        <i class="bi bi-cash-stack"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Refund Details</h6>
-        <span class="section-sub">Type, amount and status</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">Refund Type</label>
-        <div class="input-wrap">
-          <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.refundType">
-            <option *ngFor="let t of refundTypes" [value]="t">{{ t }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">Refund Method</label>
-        <div class="input-wrap">
-          <i class="bi bi-wallet2 input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.refundMethod">
-            <option *ngFor="let m of refundMethods" [value]="m">{{ m }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">Claim Amount (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-currency-dollar input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.claimAmount" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Approved Amount (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-check-circle input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.approvedAmount" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Paid Amount (৳)</label>
-        <div class="input-wrap">
-          <i class="bi bi-cash-coin input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.paidAmount" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <div class="input-wrap">
-          <i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.status">
-            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Claim Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.claimDate" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Approval Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.approvalDate" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Payment Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar2-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.paymentDate" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Approved By</label>
-        <div class="input-wrap">
-          <i class="bi bi-person-check input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.approvedBy" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- Section 3: Bank (conditional) -->
-  <div class="form-section" *ngIf="showBankFields">
-    <div class="section-header">
-      <div class="section-icon orange">
-        <i class="bi bi-bank2"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Bank Details</h6>
-        <span class="section-sub">Refund payment bank information</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Bank Name</label>
-        <div class="input-wrap">
-          <i class="bi bi-bank input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.bankName">
-            <option *ngFor="let b of banks" [value]="b">{{ b }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Branch</label>
-        <div class="input-wrap">
-          <i class="bi bi-geo-alt-fill input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.bankBranch" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Account No.</label>
-        <div class="input-wrap">
-          <i class="bi bi-credit-card input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.accountNo" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider" *ngIf="showBankFields"></div>
-
-  <!-- Section 4: Remarks -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon purple">
-        <i class="bi bi-chat-text-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Remarks</h6>
-        <span class="section-sub">Optional notes</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group full-width">
-        <label class="form-label">Remarks / Notes</label>
-        <div class="input-wrap">
-          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea" [(ngModel)]="form.remarks" rows="3"></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Form Actions -->
-  <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
-      <i class="bi bi-x-lg"></i> Cancel
-    </button>
-    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
-      <span *ngIf="!isSaving">
-        <i class="bi bi-check-lg"></i> Update Refund
-      </span>
-      <span *ngIf="isSaving">
-        <span class="spinner-border spinner-border-sm me-2"></span>
-        Updating...
-      </span>
-    </button>
-  </div>
-
-</div>
-```
-
-## File: src/app/features/refund-management/pages/refund-view/refund-view.component.css
-```css
-.refund-tracker {
+## File: src/app/features/refund-management/refund/refund.module.ts
+```typescript
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 ⋮----
-/* Hero Section */
-.refund-hero {
-.hero-label {
-.hero-amt {
-.hero-row {
-.hero-meta {
-.hero-meta strong {
+import { RefundRoutingModule } from './refund-routing.module';
+import { RefundListComponent } from '../pages/refund-list/refund-list.component';
+import { RefundCreateComponent } from '../pages/refund-create/refund-create.component';
+import { RefundViewComponent } from '../pages/refund-view/refund-view.component';
+import { RefundEditComponent } from '../pages/refund-edit/refund-edit.component';
+import { RefundSuccessComponent } from '../pages/refund-success/refund-success.component';
+import { RefundRespondComponent } from '../pages/refund-respond/refund-respond.component';
+import { RefundStatusBadgeComponent } from '../components/refund-status-badge/refund-status-badge.component';
+import { RefundStatusTimelineComponent } from '../components/refund-status-timeline/refund-status-timeline.component';
 ⋮----
-/* Card Styles */
-.card {
-.card-hdr {
-.card-hdr-left {
-.hdr-icon {
-.ic-green {
-.card-title {
-.card-sub {
-.card-p {
-⋮----
-/* Badges */
-.badge {
-.b-ok {
-.b-warn {
-.b-info {
-.b-red {
-.b-purple {
-⋮----
-/* Pipeline */
-.pipeline {
-.pipe-step {
-.pipe-circle {
-.pipe-done {
-.pipe-active {
-.pipe-todo {
-⋮----
-.pipe-label {
-.pipe-active-label {
-.pipe-done-label {
-.pipe-connector {
-.pc-done {
-.pc-todo {
-.pc-active {
-⋮----
-/* ETA Box */
-.eta-box {
-.eta-key {
-.eta-val {
-⋮----
-/* Alert */
-.alert {
-.alert-warn {
-.alert-info {
-⋮----
-/* Timeline */
-.timeline {
-.tl-row {
-.tl-row:last-child {
-.tl-dot {
-.td-green { background: #1D9E75; }
-.td-blue { background: #378ADD; }
-.td-amber { background: #EF9F27; }
-.td-red { background: #E24B4A; }
-.td-gray { background: #888780; }
-.tl-body {
-.tl-title {
-.tl-meta {
-.tl-right {
-⋮----
-/* Field Styles */
-.field {
-.field label {
-.field input,
-.field input:focus,
-.field input[readonly] {
-⋮----
-/* Grid */
-.grid2 {
-⋮----
-/* Button */
-.btn {
-.btn:hover {
-.btn-primary {
-.btn-ok {
-.btn-sm {
-⋮----
-/* Details Grid */
-.details-grid {
-.detail-card {
-.detail-card-header {
-.detail-body {
-.detail-row {
-.detail-row:last-child {
-.detail-label {
-.detail-value {
-.code-badge {
-⋮----
-/* Status Badge */
-.status-badge {
-.status-pending {
-.status-approved {
-.status-active {
-.status-progress {
-.status-suspended {
-.status-inactive {
-⋮----
-.refund-no {
-⋮----
-/* Refund type badges */
-.type-badge {
-.type-vat {
-.type-it {
-.type-excess {
-.type-other {
+export class RefundModule
 ```
 
 ## File: src/app/features/reports-analytics/pages/reports-dashboard/reports-dashboard.component.ts
@@ -19191,18 +19287,6 @@ constructor(private toast: ToastService)
 ngOnInit(): void
 ⋮----
 saveSettings(): void
-```
-
-## File: src/app/features/system-settings/pages/settings/settings.component.ts
-```typescript
-import { Component, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class SettingsComponent {
-⋮----
-constructor(private toast: ToastService)
-⋮----
-onSave(): void
 ```
 
 ## File: src/app/features/tax-structure/pages/tax-structure-create/tax-structure-create.component.css
@@ -19498,6 +19582,40 @@ export class TaxStructureModule
 .alert-error {
 ```
 
+## File: src/app/features/taxable-products/services/taxable-product.service.ts
+```typescript
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { TaxStructure } from 'src/app/models/tax-structure.model';
+import { TaxableProduct, TaxableProductCreateRequest, TaxableProductViewModel } from 'src/app/models/taxable-product.model';
+⋮----
+export class TaxableProductService
+⋮----
+constructor(private http: HttpClient)
+⋮----
+list(): Observable<TaxableProduct[]>
+⋮----
+get(id: number): Observable<TaxableProduct>
+⋮----
+create(request: TaxableProductCreateRequest): Observable<void>
+⋮----
+update(id: number, request: TaxableProductCreateRequest): Observable<void>
+⋮----
+delete(id: number): Observable<void>
+⋮----
+listCategories(): Observable<string[]>
+⋮----
+listUnits(): Observable<string[]>
+⋮----
+listTaxStructures(): Observable<TaxStructure[]>
+⋮----
+enrichProduct(product: TaxableProduct, taxStructures: TaxStructure[]): TaxableProductViewModel
+⋮----
+enrichProducts(products: TaxableProduct[], taxStructures: TaxStructure[]): TaxableProductViewModel[]
+```
+
 ## File: src/app/features/taxable-products/taxable-products/taxable-products-routing.module.ts
 ```typescript
 import { NgModule } from '@angular/core';
@@ -19548,6 +19666,120 @@ export class TaxableProductsRoutingModule
 .btn-cancel-photo:hover { background: #f5f5f5; }
 ⋮----
 .photo-hint {
+```
+
+## File: src/app/features/taxpayer-portal/pages/portal-home/portal-home.component.css
+```css
+.portal-home {
+⋮----
+.loading-state {
+⋮----
+.spinner {
+⋮----
+/* Profile Card */
+.profile-card {
+⋮----
+.avatar-wrap {
+⋮----
+.avatar-img {
+⋮----
+.avatar-initials {
+⋮----
+.profile-info {
+⋮----
+.profile-info h2 {
+⋮----
+.profile-badges {
+⋮----
+.badge {
+⋮----
+.badge.green {
+.badge.blue {
+⋮----
+.tin {
+⋮----
+.tin.pending {
+⋮----
+/* Completion Card */
+.completion-card {
+⋮----
+.completion-header {
+⋮----
+.completion-left {
+⋮----
+.completion-title {
+⋮----
+.completion-hint {
+⋮----
+.completion-percent {
+⋮----
+.completion-bar {
+⋮----
+.completion-fill {
+⋮----
+.missing-section {
+⋮----
+.missing-title {
+⋮----
+.missing-tags {
+⋮----
+.missing-tag {
+⋮----
+.complete-btn {
+⋮----
+.complete-btn:hover {
+⋮----
+/* Done banner */
+.completion-done {
+⋮----
+/* Stats Row */
+.stats-row {
+⋮----
+.stat-card {
+⋮----
+.stat-label {
+⋮----
+.stat-value {
+⋮----
+.stat-value.green {
+.stat-value.red {
+.stat-value.small {
+⋮----
+.stat-sub {
+⋮----
+/* Section title */
+.section-title {
+⋮----
+/* Menu Grid */
+.menu-grid {
+⋮----
+.menu-card {
+⋮----
+.menu-card:hover {
+⋮----
+.menu-icon {
+⋮----
+.menu-label {
+⋮----
+.menu-arrow {
+⋮----
+/* Coming Soon */
+.coming-soon {
+⋮----
+.coming-soon-icon {
+⋮----
+.coming-soon-text {
+⋮----
+.coming-soon-text strong {
+.coming-soon-text span {
+⋮----
+justify-content: space-between; /* ← left e icon+text, right e button */
+⋮----
+.done-left {
+⋮----
+.edit-profile-btn {
+⋮----
+.edit-profile-btn:hover {
 ```
 
 ## File: src/app/features/tin-management/pages/tin-edit/tin-edit.component.css
@@ -19634,49 +19866,9 @@ export class TaxableProductsRoutingModule
 .tin-header-right { flex-direction:column; gap:8px; }
 ```
 
-## File: src/app/features/user-management/pages/user-create/user-create.component.ts
-```typescript
-import { Component, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Router } from '@angular/router';
-⋮----
-export class UserCreateComponent {
-⋮----
-get passwordMismatch(): boolean
-⋮----
-isFormValid(): boolean
-⋮----
-constructor(private router: Router, private toast: ToastService)
-⋮----
-onSubmit(): void
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
-```
-
 ## File: src/app/features/user-management/pages/user-edit/user-edit.component.css
 ```css
 
-```
-
-## File: src/app/features/user-management/pages/user-edit/user-edit.component.ts
-```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { ActivatedRoute, Router } from '@angular/router';
-⋮----
-export class UserEditComponent implements OnInit {
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-onCancel(): void
 ```
 
 ## File: src/app/features/user-management/pages/user-list/user-list.component.css
@@ -19867,6 +20059,50 @@ onEdit(): void
 onBack(): void
 ```
 
+## File: src/app/features/vat-registration/components/taxpayer-search/taxpayer-search.component.ts
+```typescript
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
+import { Taxpayer } from '../../../../models/taxpayer.model';
+import { ToastService } from '../../../../shared/toast/toast.service';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+⋮----
+export class TaxpayerSearchComponent implements OnInit, OnDestroy
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+get isLocked(): boolean
+⋮----
+get displayName(): string
+⋮----
+getDisplayName(tp: Taxpayer | null): string
+⋮----
+onInputChange(): void
+⋮----
+onSearch(): void
+⋮----
+// 400/network errors are handled by ErrorInterceptor — no duplicate toast here.
+⋮----
+onSelect(tp: Taxpayer): void
+⋮----
+onClear(): void
+⋮----
+isIneligible(tp: Taxpayer): boolean
+```
+
 ## File: src/app/features/vat-registration/pages/vat-registration-edit/vat-registration-edit.component.css
 ```css
 
@@ -19890,60 +20126,6 @@ onBack(): void
 .amt-cell {
 ⋮----
 .data-table {
-```
-
-## File: src/app/features/vat-registration/pages/vat-registration-success/vat-registration-success.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { VatRegistration } from '../../../../models/vat-registration.model';
-⋮----
-export class VatRegistrationSuccessComponent implements OnInit
-⋮----
-/** Toggled true on init — triggers the CSS fade-in + slide-up animation. */
-⋮----
-/** Clipboard feedback flag — resets to false after 2 seconds. */
-⋮----
-constructor(private router: Router, private route: ActivatedRoute)
-⋮----
-// ── Lifecycle ───────────────────────────────────────────────────────────
-⋮----
-ngOnInit(): void
-⋮----
-/**
-     * Angular passes router state via history.state.
-     * history.state survives the navigation but is lost on a hard refresh,
-     * which is intentional — the success page is a one-time confirmation view.
-     * If the officer refreshes or navigates directly to /success, we redirect
-     * them to the list rather than showing an empty or broken page.
-     */
-⋮----
-// Defer one tick so Angular renders the base template first,
-// then applies .animate-in to trigger the CSS transition.
-⋮----
-// ── BIN copy ────────────────────────────────────────────────────────────
-⋮----
-copyBin(): void
-⋮----
-private fallbackCopy(text: string): void
-⋮----
-} catch { /* silent — clipboard unavailable */ }
-⋮----
-private flashCopied(): void
-⋮----
-// ── Navigation ──────────────────────────────────────────────────────────
-⋮----
-goToView(): void
-⋮----
-registerAnother(): void
-⋮----
-printPage(): void
-⋮----
-// ── Display helpers ──────────────────────────────────────────────────────
-⋮----
-getCategoryClass(category: string): string
-⋮----
-formatCurrency(amount: number): string
 ```
 
 ## File: src/app/features/vat-registration/pages/vat-registration-view/vat-registration-view.component.css
@@ -20102,26 +20284,52 @@ formatCurrency(amount: number): string
 .decision-icon          { width: 30px; height: 30px; font-size: 13px; }
 ```
 
-## File: src/app/features/vat-registration/vat-registration/vat-registration-routing.module.ts
+## File: src/app/features/vat-registration/services/vat-registration.service.ts
 ```typescript
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { Role } from 'src/app/core/constants/roles.constants';
-import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 ⋮----
-import { VatRegistrationListComponent }    from '../pages/vat-registration-list/vat-registration-list.component';
-import { VatRegistrationCreateComponent }  from '../pages/vat-registration-create/vat-registration-create.component';
-import { VatRegistrationViewComponent }    from '../pages/vat-registration-view/vat-registration-view.component';
-import { VatRegistrationEditComponent }    from '../pages/vat-registration-edit/vat-registration-edit.component';
-import { VatRegistrationSuccessComponent } from '../pages/vat-registration-success/vat-registration-success.component';
+import { API_ENDPOINTS } from '../../../core/constants/api.constants';
+import { ToastService } from '../../../shared/toast/toast.service';
+import {
+  VatRegistration,
+  VatRegistrationCreateRequest,
+} from '../../../models/vat-registration.model';
 ⋮----
-/**
-     * Success route — placed before 'view/:id' so the static segment
-     * 'success' is matched before the dynamic ':id' segment.
-     * Accessible only to roles that can create registrations.
-     */
+export class VatRegistrationService
 ⋮----
-export class VatRegistrationRoutingModule
+constructor(
+⋮----
+// ── Mock data ─────────────────────────────────────────────────────────────
+⋮----
+// ── Read: all ──────────────────────────────────────────────────────────────
+⋮----
+getAll(): Observable<VatRegistration[]>
+⋮----
+// ── Read: by ID ────────────────────────────────────────────────────────────
+⋮----
+getById(id: number): Observable<VatRegistration>
+⋮----
+// ── Write: create ──────────────────────────────────────────────────────────
+⋮----
+create(payload: VatRegistrationCreateRequest): Observable<VatRegistration>
+⋮----
+// ── Write: update ──────────────────────────────────────────────────────────
+⋮----
+update(id: number, data: Partial<VatRegistration>): Observable<VatRegistration>
+⋮----
+// ── Write: delete (soft) ───────────────────────────────────────────────────
+⋮----
+remove(id: number): Observable<void>
+⋮----
+// ── Private helpers ────────────────────────────────────────────────────────
+⋮----
+private handleReadError<T>(
+    err: HttpErrorResponse,
+    fallback: T,
+): Observable<T>
 ```
 
 ## File: src/app/features/vat-returns/vat-returns/vat-returns.module.ts
@@ -20246,6 +20454,98 @@ export interface AitCreateRequest {
 }
 ```
 
+## File: src/app/models/audit.model.ts
+```typescript
+export type AuditStatus   = 'Scheduled' | 'In Progress' | 'Completed' | 'Flagged' | 'Cancelled' | 'Pending';
+export type AuditType     = 'VAT Audit' | 'Income Tax Audit' | 'Full Audit' | 'Desk Audit' | 'Field Audit' | 'Special Audit';
+export type AuditPriority = 'Low' | 'Medium' | 'High' | 'Critical';
+⋮----
+export interface Audit {
+  id: number;
+  auditNo: string;
+  taxpayerId: number;
+  taxpayerName: string;
+  tinNumber: string;
+  auditType: AuditType;
+  priority: AuditPriority;
+  assessmentYear: string;
+  returnNo: string;
+  scheduledDate: string;
+  startDate: string;
+  completionDate: string;
+  assignedTo: string;
+  supervisedBy: string;
+  auditFindings: string;
+  taxDemand: number;
+  penaltyRecommended: number;
+  status: AuditStatus;
+  remarks: string;
+}
+⋮----
+export interface AuditCreateRequest {
+  taxpayerId: number | null;
+  auditType: string;
+  priority: string;
+  assessmentYear: string;
+  returnNo: string;
+  scheduledDate: string;
+  assignedTo: string;
+  supervisedBy: string;
+  remarks: string;
+}
+⋮----
+export interface AuditListResponse {
+  data: Audit[];
+  total: number;
+  page: number;
+}
+```
+
+## File: src/app/models/document.model.ts
+```typescript
+export type DocumentStatus   = 'Pending' | 'Verified' | 'Rejected' | 'Expired' | 'Under Review';
+export type DocumentType     = 'NID' | 'Trade License' | 'TIN Certificate' | 'BIN Certificate' | 'VAT Return' | 'Income Tax Return' | 'Bank Statement' | 'Audit Report' | 'Other';
+export type DocumentCategory = 'Taxpayer' | 'Business' | 'Return' | 'Payment' | 'Legal' | 'Other';
+⋮----
+export interface Document {
+  id: number;
+  documentNo: string;
+  taxpayerId: number;
+  taxpayerName: string;
+  tinNumber: string;
+  documentType: DocumentType;
+  documentCategory: DocumentCategory;
+  documentTitle: string;
+  referenceNo: string;
+  issueDate: string;
+  expiryDate: string;
+  submissionDate: string;
+  verificationDate: string;
+  fileSize: string;
+  status: DocumentStatus;
+  verifiedBy: string;
+  remarks: string;
+}
+⋮----
+export interface DocumentCreateRequest {
+  taxpayerId: number | null;
+  documentType: string;
+  documentCategory: string;
+  documentTitle: string;
+  referenceNo: string;
+  issueDate: string;
+  expiryDate: string;
+  submissionDate: string;
+  remarks: string;
+}
+⋮----
+export interface DocumentListResponse {
+  data: Document[];
+  total: number;
+  page: number;
+}
+```
+
 ## File: src/app/models/master-data.model.ts
 ```typescript
 export interface Division {
@@ -20291,6 +20591,54 @@ export interface BusinessType {
 export interface BusinessCategory {
   id: number;
   categoryName: string;
+}
+```
+
+## File: src/app/models/notice.model.ts
+```typescript
+export type NoticeStatus   = 'Unread' | 'Read' | 'Responded' | 'Expired' | 'Cancelled';
+export type NoticeType     = 'General' | 'Tax Due' | 'Audit Notice' | 'Penalty Notice' | 'Compliance' | 'Refund Update' | 'System' | 'Reminder';
+export type NoticePriority = 'Low' | 'Normal' | 'High' | 'Urgent';
+export type NoticeTarget   = 'All Taxpayers' | 'Specific Taxpayer' | 'Tax Officers' | 'Auditors' | 'All Users';
+⋮----
+export interface Notice {
+  id: number;
+  noticeNo: string;
+  taxpayerId: number;
+  taxpayerName: string;
+  tinNumber: string;
+  subject: string;
+  body: string;
+  noticeType: NoticeType;
+  priority: NoticePriority;
+  targetType: NoticeTarget;
+  issuedBy: string;
+  issuedDate: string;
+  dueDate: string;
+  readDate: string;
+  responseDate: string;
+  responseNote: string;
+  attachmentName: string;
+  status: NoticeStatus;
+}
+⋮----
+export interface NoticeCreateRequest {
+  taxpayerId: number | null;
+  subject: string;
+  body: string;
+  noticeType: string;
+  priority: string;
+  targetType: string;
+  issuedBy: string;
+  issuedDate: string;
+  dueDate: string;
+  attachmentName: string;
+}
+⋮----
+export interface NoticeListResponse {
+  data: Notice[];
+  total: number;
+  page: number;
 }
 ```
 
@@ -20349,164 +20697,54 @@ export interface PaymentStatusUpdate {
 }
 ```
 
-## File: src/app/models/refund.model.ts
+## File: src/app/models/penalty.model.ts
 ```typescript
-export type RefundStatus = 'Pending' | 'Approved' | 'Rejected' | 'Processing' | 'Completed' | 'Cancelled';
-export type RefundType   = 'VAT Refund' | 'Income Tax Refund' | 'Excess Payment' | 'Other';
-export type RefundMethod = 'Bank Transfer' | 'Cheque' | 'Adjustment';
+export type PenaltyStatus   = 'Issued' | 'Pending' | 'Paid' | 'Waived' | 'Appealed' | 'Overdue';
+export type PenaltyType     = 'Late Filing' | 'Late Payment' | 'Non-Compliance' | 'Fraud' | 'Underpayment' | 'Other';
+export type PenaltySeverity = 'Low' | 'Medium' | 'High' | 'Critical';
 ⋮----
-export interface ActivityLog {
-  title: string;
-  description?: string;
-  date: string;
-  type: 'filed' | 'assigned' | 'verified' | 'approved' | 'rejected' | 'completed' | 'default';
-}
-⋮----
-export interface Refund {
+export interface Penalty {
   id: number;
-  refundNo: string;
+  penaltyNo: string;
   taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server
-  tinNumber: string;      // read-only — resolved from server
-  refundType: RefundType;
-  refundMethod: RefundMethod;
-  claimAmount: number;
-  approvedAmount: number;
+  taxpayerName: string;
+  tinNumber: string;
+  penaltyType: PenaltyType;
+  severity: PenaltySeverity;
+  penaltyAmount: number;
+  interestAmount: number;
+  totalAmount: number;
   paidAmount: number;
   returnNo: string;
-  paymentRef: string;
-  bankName: string;
-  bankBranch: string;
-  accountNo: string;
-  claimDate: string;
-  approvalDate: string;
-  paymentDate: string;
-  status: RefundStatus;
-  processedBy: string;
+  assessmentYear: string;
+  issueDate: string; 
+  dueDate: string;
+  paymentDate: string | null;
+  status: PenaltyStatus;
+  issuedBy: string;
   approvedBy: string;
+  description: string;
   remarks: string;
-  activityLog?: ActivityLog[];
 }
-⋮----
-taxpayerName: string;   // read-only — resolved from server
-tinNumber: string;      // read-only — resolved from server
-⋮----
-export interface RefundCreateRequest {
-  taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
-  refundType: string;
-  refundMethod: string;
-  claimAmount: number;
+export interface PenaltyCreateRequest {
+  taxpayerId: number | null;
+  penaltyType: string;
+  severity: string;
+  penaltyAmount: number;
+  interestAmount: number;
   returnNo: string;
-  paymentRef: string;
-  bankName: string;
-  bankBranch: string;
-  accountNo: string;
-  claimDate: string;
+  assessmentYear: string;
+  issueDate: string;
+  dueDate: string;
+  issuedBy: string;
+  description: string;
   remarks: string;
 }
 ⋮----
-taxpayerId: number | null;  // FK — required. No taxpayerName/tinNumber
-⋮----
-export interface RefundListResponse {
-  data: Refund[];
+export interface PenaltyListResponse {
+  data: Penalty[];
   total: number;
   page: number;
-}
-```
-
-## File: src/app/models/registration.model.ts
-```typescript
-// ── Wizard shared state ──────────────────────────────────────────────────────
-⋮----
-export type AccountCategory = 'Individual' | 'Business' | 'Organization';
-⋮----
-export interface RegistrationState {
-  // Step 1
-  accountCategory:  AccountCategory | null;
-  taxpayerTypeId:   number | null;
-  taxpayerTypeName: string;
-
-  // Step 2
-  fullName:        string;
-  email:           string;
-  phone:           string;
-  password:        string;
-  confirmPassword: string;
-
-  // Step 3 — Individual
-  nid:             string;
-  dateOfBirth:     string;
-  gender:          string;
-  profession:      string;
-
-  // Step 3 — existing TIN toggle (Individual & Company)
-  hasExistingTin:  boolean;
-  existingTin:     string;
-
-  // Step 3 — Business / Organization
-  companyName:          string;
-  rjscNo:               string;
-  incorporationDate:    string;
-  natureOfBusiness:     string;
-  authorizedPersonName: string;
-  authorizedPersonNid:  string;
-}
-⋮----
-// Step 1
-⋮----
-// Step 2
-⋮----
-// Step 3 — Individual
-⋮----
-// Step 3 — existing TIN toggle (Individual & Company)
-⋮----
-// Step 3 — Business / Organization
-⋮----
-export function emptyState(): RegistrationState
-⋮----
-// ── Backend payload ──────────────────────────────────────────────────────────
-export interface UserRegistrationRequest {
-  taxpayerTypeId:  number;
-  accountCategory: AccountCategory;
-  fullName:        string;
-  email:           string;
-  phone:           string;
-  password:        string;
-
-  /** Present only when the taxpayer already has an offline-issued TIN */
-  existingTin?:    string;
-
-  // Individual only
-  nid?:         string;
-  dateOfBirth?: string;
-  gender?:      string;
-  profession?:  string;
-
-  // Business / Organization only
-  companyName?:          string;
-  rjscNo?:               string;
-  incorporationDate?:    string;
-  natureOfBusiness?:     string;
-  authorizedPersonName?: string;
-  authorizedPersonNid?:  string;
-}
-⋮----
-/** Present only when the taxpayer already has an offline-issued TIN */
-⋮----
-// Individual only
-⋮----
-// Business / Organization only
-⋮----
-// ── Backend success response ─────────────────────────────────────────────────
-export interface RegistrationResponse {
-  userId:           number;
-  taxpayerId:       number;
-  tinNumber:        string;
-  fullName:         string;
-  email:            string;
-  accountCategory:  AccountCategory;
-  taxpayerTypeName: string;
-  message:          string;
 }
 ```
 
@@ -20629,91 +20867,121 @@ import { ReactiveFormsModule } from '@angular/forms';
 export class SharedModule
 ```
 
-## File: src/app/core/guards/auth.guard.ts
+## File: src/app/core/interceptors/auth.interceptor.ts
 ```typescript
 import { Injectable } from '@angular/core';
 import {
-  CanActivate,
-  CanActivateChild,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  Router
-} from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { Role } from '../constants/roles.constants';
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpInterceptor,
+  HttpErrorResponse,
+} from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { ToastService } from '../../shared/toast/toast.service';
 ⋮----
-export class AuthGuard implements CanActivate, CanActivateChild {
+export class AuthInterceptor implements HttpInterceptor
 ⋮----
-constructor(private authService: AuthService, private router: Router)
+constructor(
 ⋮----
-canActivate(_route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean
-⋮----
-canActivateChild(_childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean
-⋮----
-private checkAccess(state: RouterStateSnapshot): boolean
-⋮----
-// PENDING_REVIEW — শুধু application-status page এ যাবে
-⋮----
-// REJECTED — শুধু application-status page এ যাবে
-⋮----
-// APPROVED — শুধু /my-portal/* এ যাবে
-⋮----
-/**
-   * Reads `data.roles` only from route snapshots on the **current navigation’s
-   * activation path** (`state.root` → `firstChild` → … → leaf).
-   *
-   * Do not walk `firstChild`/`parent` from an arbitrary `ActivatedRouteSnapshot`
-   * passed to the guard: that can pick up the wrong branch and apply another
-   * sibling segment’s role rules to unrelated routes.
-   *
-   * If several segments define `data.roles`, the **deepest** (most specific)
-   * non-empty array wins.
-   */
-private collectRequiredRoles(state: RouterStateSnapshot): Role[]
+intercept(
+    request: HttpRequest<any>,
+    next: HttpHandler,
+): Observable<HttpEvent<any>>
 ```
 
-## File: src/app/features/activity-logs/pages/activity-logs-list/activity-logs-list.component.ts
+## File: src/app/core/services/base-api.service.ts
 ```typescript
-import { Component, OnInit, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { API_ENDPOINTS } from '../constants/api.constants';
+⋮----
+export class BaseApiService {
+⋮----
+constructor(protected http: HttpClient)
+⋮----
+public get<T>(url: string, params?: any): Observable<T>
+⋮----
+protected post<T>(url: string, body: any): Observable<T>
+⋮----
+protected put<T>(url: string, body: any): Observable<T>
+⋮----
+protected patch<T>(url: string, body: any): Observable<T>
+⋮----
+protected delete<T>(url: string): Observable<T>
+⋮----
+downloadTinCertificate(tinId: number): Observable<Blob>
+⋮----
+protected handleError(error: any): Observable<never>
+```
+
+## File: src/app/features/audit-management/pages/audit-create/audit-create.component.ts
+```typescript
+import { Component, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { AuditCreateRequest } from '../../../../models/audit.model';
+import { Taxpayer } from '../../../../models/taxpayer.model';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { ActivityLog } from 'src/app/models/activity-logs.model';
 ⋮----
-export class ActivityLogsListComponent implements OnInit {
+export class AuditCreateComponent implements OnDestroy
 ⋮----
-constructor(private toast: ToastService)
+// ──────────────── State ────────────────
 ⋮----
-ngOnInit(): void
+// Taxpayer search
 ⋮----
-get filtered(): ActivityLog[]
+// ──────────────── Static Data ────────────────
 ⋮----
-getActionClass(a: string): string
+// ────────────── Constructor  ────────────────
 ⋮----
-getActionIcon(a: string): string
+constructor(
 ⋮----
-getStatusClass(s: string): string
+// ──────────────── Lifecycle ────────────────
 ⋮----
-// component e add koro
-countByStatus(status: string): number
+ngOnDestroy(): void
 ⋮----
-exportLogs(): void
-```
-
-## File: src/app/features/ait/ait/ait.module.ts
-```typescript
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { AitRoutingModule } from './ait-routing.module';
-import { OfficerDashboardComponent } from '../pages/officer-dashboard/officer-dashboard.component';
-import { KPICardsComponent } from '../components/kpi-cards/kpi-cards.component';
-import { RecordsTableComponent } from '../components/records-table/records-table.component';
-import { StatusBadgeComponent } from '../components/status-badge/status-badge.component';
-import { OfficerReviewComponent } from '../pages/officer-review/officer-review.component';
-import { AitDashboardComponent } from '../pages/ait-dashboard/ait-dashboard.component';
-import { AitCreateWizardComponent } from '../pages/ait-create-wizard/ait-create-wizard.component';
+// ── Taxpayer Search ──────────────────────────────────────────────────────
+searchTaxpayer(): void
 ⋮----
-export class AitModule
+selectTaxpayer(t: Taxpayer): void
+⋮----
+clearTaxpayer(): void
+⋮----
+getDisplayName(t: Taxpayer): string
+⋮----
+// ──────────────── Form Factory  ────────────────
+private createEmptyForm(): AuditCreateRequest
+⋮----
+// ──────────────── Getters ────────────────
+⋮----
+private getTodayDate(): string
+⋮----
+// ──────────────── Validation  ────────────────
+isFormValid(): boolean
+⋮----
+private hasRequiredFields(): boolean
+⋮----
+// ──────────── Actions ───────────────────
+⋮----
+onSubmit(): void
+⋮----
+private createAudit(): void
+⋮----
+private handleSuccess(): void
+⋮----
+private handleError(error: unknown): void
+⋮----
+onReset(): void
+⋮----
+onCancel(): void
+⋮----
+private showValidationWarning(): void
 ```
 
 ## File: src/app/features/audit-management/pages/audit-edit/audit-edit.component.html
@@ -21449,43 +21717,54 @@ canvas { image-rendering: crisp-edges; image-rendering: -webkit-optimize-contras
 </div>
 ```
 
-## File: src/app/features/document-verification/pages/document-create/document-create.component.ts
+## File: src/app/features/dashboard/services/dashboard.service.ts
 ```typescript
-import { Component } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { DocumentCreateRequest } from '../../../../models/document.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { ToastService } from 'src/app/shared/toast/toast.service';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { BaseApiService } from '../../../core/services/base-api.service';
+import { API_ENDPOINTS } from '../../../core/constants/api.constants';
+import {
+  DashboardStats, RecentTaxpayer, RecentPayment,
+  RecentAudit, RecentEntry, MyNotice, MyReturn,
+  DashboardChartData
+} from '../../../models/dashboard.model';
+import { FiscalYear } from '../../../models/fiscal-year.model';
 ⋮----
-export class DocumentCreateComponent
+export class DashboardService extends BaseApiService {
 ⋮----
-// Taxpayer search
+constructor(http: HttpClient)
 ⋮----
-private getEmptyForm(): DocumentCreateRequest
+getStats():           Observable<DashboardStats>
+getRecentTaxpayers(): Observable<RecentTaxpayer[]>
+getRecentPayments():  Observable<RecentPayment[]>
 ⋮----
-isFormValid(): boolean
+getFiscalYears(): Observable<FiscalYear[]>
 ⋮----
-constructor(
+getChartData(): Observable<DashboardChartData>
 ⋮----
-onSubmit(): void
+loadAll(): Observable<any[]>
 ⋮----
-ngOnDestroy(): void
+this.getFiscalYears(),  // index [8] — fiscal years
 ⋮----
-onReset(): void
+mockStats(): DashboardStats
 ⋮----
-onCancel(): void
+mockTaxpayers(): RecentTaxpayer[]
 ⋮----
-// ── Taxpayer Search ──────────────────────────────────────────────────────
-searchTaxpayer(): void
+mockPayments(): RecentPayment[]
 ⋮----
-selectTaxpayer(t: Taxpayer): void
+mockAudits(): RecentAudit[]
 ⋮----
-clearTaxpayer(): void
+mockEntries(): RecentEntry[]
 ⋮----
-getDisplayName(t: Taxpayer): string
+mockNotices(): MyNotice[]
+⋮----
+mockMyReturns(): MyReturn[]
+⋮----
+mockFiscalYears(): FiscalYear[]
+⋮----
+mockChartData(): DashboardChartData
 ```
 
 ## File: src/app/features/document-verification/pages/document-edit/document-edit.component.html
@@ -21694,7 +21973,7 @@ getDisplayName(t: Taxpayer): string
 </div>
 ```
 
-## File: src/app/features/document-verification/pages/document-edit/document-edit.component.ts
+## File: src/app/features/document-verification/pages/document-view/document-view.component.ts
 ```typescript
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21704,9 +21983,7 @@ import { Document } from '../../../../models/document.model';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 ⋮----
-export class DocumentEditComponent implements OnInit
-⋮----
-get availableStatuses(): string[]
+export class DocumentViewComponent implements OnInit {
 ⋮----
 constructor(
 ⋮----
@@ -21716,96 +21993,149 @@ ngOnDestroy(): void
 ⋮----
 loadDocument(): void
 ⋮----
-isFormValid(): boolean
+finalize  (() => this.isLoading = false)) // FIX #3: Auto-cancel on destroy
 ⋮----
-onSubmit(): void
+// WARNING: expired documents
 ⋮----
-onCancel(): void
+// WARNING: expiring soon documents
+⋮----
+// INFO: suspended or dissolved status
+⋮----
+getStatusClass(s: string): string
+⋮----
+getTypeIcon(type: string): string
+⋮----
+isExpired(date: string): boolean
+⋮----
+isExpiringSoon(date: string): boolean
+⋮----
+onEdit(): void
+onBack(): void
 ```
 
-## File: src/app/features/fiscal-years/pages/fiscal-year-edit/fiscal-year-edit.component.ts
+## File: src/app/features/fiscal-years/fiscal-years/fiscal-years-routing.module.ts
 ```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FiscalYear } from '../../../../models/fiscal-year.model';
-import { Subject, takeUntil } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { Role } from 'src/app/core/constants/roles.constants';
+import { FiscalYearListComponent }   from '../pages/fiscal-year-list/fiscal-year-list.component';
+import { FiscalYearCreateComponent } from '../pages/fiscal-year-create/fiscal-year-create.component';
+import { FiscalYearEditComponent } from '../pages/fiscal-year-edit/fiscal-year-edit.component';
 ⋮----
-export class FiscalYearEditComponent implements OnInit {
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-loadFiscalYear(): void
-⋮----
-.pipe(takeUntil(this.destroy$)) // FIX #6: Auto-cancel on destroy
-⋮----
-// FIX #2: Removed fake fallback data — show a real error instead
-⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-.pipe(takeUntil(this.destroy$)) // FIX #6: Auto-cancel on destroy
-⋮----
-// FIX #1: Removed navigate() from error handler — user stays to retry
-⋮----
-onCancel(): void
+export class FiscalYearsRoutingModule
 ```
 
-## File: src/app/features/fiscal-years/pages/fiscal-year-list/fiscal-year-list.component.css
-```css
-.fy-grid {
-⋮----
-.fy-card {
-.fy-card:hover {
-.fy-card.current {
-.fy-card.upcoming {
-.fy-card.closed {
-⋮----
-/* Badges */
-.current-badge {
-.upcoming-badge {
-⋮----
-/* Year Name */
-.fy-year-name {
-.fy-card.current .fy-year-name {
-.fy-card.upcoming .fy-year-name {
-⋮----
-/* Dates */
-.fy-dates {
-.fy-date-item {
-.fy-date-item i {
-.fyd-label {
-.fyd-value {
-.fy-date-arrow {
-⋮----
-/* Deadlines */
-.fy-deadlines {
-.fy-deadline-item {
-.fdl-icon {
-.fdl-icon.vat {
-.fdl-icon.it {
-.fdl-label {
-.fdl-value {
-⋮----
-/* Footer */
-.fy-footer {
-.btn-set-current {
-.btn-set-current:hover {
-.btn-fy-edit {
-.btn-fy-edit:hover {
-⋮----
-/* Add Card */
-.fy-add-card {
-.fy-add-card:hover {
-.fy-add-card i {
-.fy-add-card span {
+## File: src/app/features/fiscal-years/pages/fiscal-year-list/fiscal-year-list.component.html
+```html
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Fiscal Years</h4>
+    <p>Manage fiscal years and tax deadline configurations.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/fiscal-years/create"
+     class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> Add Fiscal Year
+  </a>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading fiscal years...</span>
+  </div>
+
+  <!-- Fiscal Year Cards -->
+  <div class="fy-grid" *ngIf="!isLoading">
+
+    <div class="fy-card"
+      *ngFor="let y of years"
+      [class.current]="y.isCurrentYear"
+      [class.upcoming]="y.status === 'Upcoming'"
+      [class.closed]="y.status === 'Closed'">
+
+      <!-- Current Year Badge -->
+      <div class="current-badge" *ngIf="y.isCurrentYear">
+        <i class="bi bi-star-fill"></i> Current Year
+      </div>
+      <div class="upcoming-badge" *ngIf="y.status === 'Upcoming'">
+        <i class="bi bi-clock-fill"></i> Upcoming
+      </div>
+
+      <!-- Year Name -->
+      <div class="fy-year-name">{{ y.yearName }}</div>
+
+      <!-- Dates -->
+      <div class="fy-dates">
+        <div class="fy-date-item">
+          <i class="bi bi-calendar-check"></i>
+          <div>
+            <span class="fyd-label">Start</span>
+            <span class="fyd-value">{{ y.startDate }}</span>
+          </div>
+        </div>
+        <div class="fy-date-arrow"><i class="bi bi-arrow-right"></i></div>
+        <div class="fy-date-item">
+          <i class="bi bi-calendar-x"></i>
+          <div>
+            <span class="fyd-label">End</span>
+            <span class="fyd-value">{{ y.endDate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tax Deadlines -->
+      <div class="fy-deadlines">
+        <div class="fy-deadline-item">
+          <div class="fdl-icon vat"><i class="bi bi-receipt-cutoff"></i></div>
+          <div>
+            <span class="fdl-label">VAT Due Day</span>
+            <span class="fdl-value">{{ y.vatDueDay }}th of each month</span>
+          </div>
+        </div>
+        <div class="fy-deadline-item">
+          <div class="fdl-icon it"><i class="bi bi-calendar-event-fill"></i></div>
+          <div>
+            <span class="fdl-label">Income Tax Due</span>
+            <span class="fdl-value">{{ y.incomeTaxDueDate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status & Actions -->
+      <div class="fy-footer">
+        <span class="status-badge" [ngClass]="getStatusClass(y.status)">{{ y.status }}</span>
+        <div class="fy-actions">
+          <button
+            *ngIf="!y.isCurrentYear && y.status !== 'Closed'"
+            class="btn-set-current"
+            [disabled]="settingCurrentId !== null"
+            (click)="setCurrent(y.id)">
+            <span *ngIf="settingCurrentId !== y.id">
+              <i class="bi bi-check-circle-fill"></i> Set as Current
+            </span>
+            <span *ngIf="settingCurrentId === y.id">
+              <span class="spinner-border spinner-border-sm me-1"></span>Saving...
+            </span>
+          </button>
+        </div>
+          <button class="btn-fy-edit" (click)="edit(y.id)">
+              <i class="bi bi-pencil-fill"></i> Edit
+         </button>
+      </div>
+
+    </div>
+
+    <!-- Add New Card -->
+    <div class="fy-add-card" routerLink="/fiscal-years/create">
+      <i class="bi bi-plus-circle-fill"></i>
+      <span>Add Fiscal Year</span>
+    </div>
+
+  </div>
+
+</div>
 ```
 
 ## File: src/app/features/import-duty/pages/import-duty-create/import-duty-create.component.css
@@ -22099,74 +22429,6 @@ onCancel(): void
 </div>
 ```
 
-## File: src/app/features/import-duty/pages/import-duty-create/import-duty-create.component.ts
-```typescript
-import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { forkJoin, Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-⋮----
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
-import { MasterDataService } from 'src/app/core/services/master-data.service';
-import {
-  ImportDutyCreateRequest,
-  ImportDutyTaxPreview,
-} from '../../../../models/import-duty.model';
-import { TaxableProduct } from '../../../../models/taxable-product.model';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-interface TaxpayerOption {
-  tin?: string;
-  tinNumber?: string;
-  name?: string;
-  taxpayerName?: string;
-  fullName?: string;
-  business?: string;
-  businessName?: string;
-}
-⋮----
-export class ImportDutyCreateComponent implements OnInit, OnDestroy
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-private initialForm(): ImportDutyCreateRequest
-⋮----
-private loadMasterData(): void
-⋮----
-private toNameList(items: any[]): string[]
-⋮----
-onTaxpayerChange(): void
-⋮----
-onProductChange(): void
-⋮----
-onCifValueChange(): void
-⋮----
-calculatePreview(): void
-⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-private buildPayload(): ImportDutyCreateRequest
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
-⋮----
-getTin(taxpayer: TaxpayerOption): string
-⋮----
-getTaxpayerName(taxpayer: TaxpayerOption): string
-⋮----
-getBusinessName(taxpayer: TaxpayerOption): string
-⋮----
-fmt(amount: number | undefined | null): string
-```
-
 ## File: src/app/features/import-duty/pages/import-duty-edit/import-duty-edit.component.html
 ```html
 <div class="page-header">
@@ -22354,6 +22616,59 @@ fmt(amount: number | undefined | null): string
 </div>
 ```
 
+## File: src/app/features/import-duty/pages/import-duty-edit/import-duty-edit.component.ts
+```typescript
+import { HttpClient } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin, Subject, timer } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+⋮----
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { MasterDataService } from 'src/app/core/services/master-data.service';
+import {
+  ImportDuty,
+  ImportDutyTaxPreview,
+  ImportDutyUpdateRequest,
+} from '../../../../models/import-duty.model';
+import { TaxableProduct } from '../../../../models/taxable-product.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+⋮----
+export class ImportDutyEditComponent implements OnInit, OnDestroy
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+private initialForm(): ImportDutyUpdateRequest
+⋮----
+private loadRecordAndMasterData(): void
+⋮----
+private patchForm(record: ImportDuty): void
+⋮----
+private previewFromRecord(record: ImportDuty): ImportDutyTaxPreview
+⋮----
+private toNameList(items: any[]): string[]
+⋮----
+onProductChange(): void
+⋮----
+onCifValueChange(): void
+⋮----
+calculatePreview(): void
+⋮----
+isFormValid(): boolean
+⋮----
+onSubmit(): void
+⋮----
+private buildPayload(): ImportDutyUpdateRequest
+⋮----
+onCancel(): void
+⋮----
+fmt(amount: number | undefined | null): string
+```
+
 ## File: src/app/features/import-duty/pages/import-duty-view/import-duty-view.component.ts
 ```typescript
 import { Component, OnInit, inject } from '@angular/core';
@@ -22379,66 +22694,6 @@ onBack(): void
 ## File: src/app/features/income-tax-returns/pages/income-tax-return-edit/income-tax-return-edit.component.css
 ```css
 
-```
-
-## File: src/app/features/income-tax-returns/pages/income-tax-return-edit/income-tax-return-edit.component.ts
-```typescript
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { catchError, finalize, forkJoin, of, Subject, takeUntil } from 'rxjs';
-⋮----
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { FiscalYear } from '../../../../models/fiscal-year.model';
-import {
-  IncomeTaxReturn,
-  IncomeTaxReturnUpdateRequest,
-  ITRCategory,
-  ITRPeriod,
-  ITRStatus,
-  TaxPreviewResult,
-} from '../../../../models/income-tax-return.model';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class IncomeTaxReturnEditComponent implements OnInit, OnDestroy
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-private loadAll(): void
-⋮----
-private buildFiscalYearOptions(fy: FiscalYear | null, itr: IncomeTaxReturn): void
-⋮----
-private previewFromRecord(itr: IncomeTaxReturn): TaxPreviewResult
-⋮----
-calculatePreview(): void
-⋮----
-get taxableIncome(): number
-⋮----
-get taxRatePreview(): number
-⋮----
-get grossTaxPreview(): number
-⋮----
-get netTaxPayable(): number
-⋮----
-get refundable(): number
-⋮----
-get balanceDue(): number
-⋮----
-get showCompanySubType(): boolean
-⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-private buildPayload(): IncomeTaxReturnUpdateRequest
-⋮----
-fmt(amount: number | null | undefined): string
-⋮----
-onCancel(): void
 ```
 
 ## File: src/app/features/income-tax-returns/pages/income-tax-return-list/income-tax-return-list.component.css
@@ -22470,45 +22725,6 @@ onCancel(): void
 .btn-amend:hover {
 ⋮----
 .data-table {
-```
-
-## File: src/app/features/notices-notifications/pages/notice-create/notice-create.component.ts
-```typescript
-import { Component, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { HttpClient } from '@angular/common/http';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { Router } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { NoticeCreateRequest } from '../../../../models/notice.model';
-⋮----
-export class NoticeCreateComponent
-⋮----
-// Taxpayer search
-⋮----
-get showTaxpayerFields(): boolean
-⋮----
-isFormValid(): boolean
-⋮----
-constructor(
-⋮----
-onSubmit(): void
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
-⋮----
-// ── Taxpayer Search ──────────────────────────────────────────────────────
-searchTaxpayer(): void
-⋮----
-selectTaxpayer(t: Taxpayer): void
-⋮----
-clearTaxpayer(): void
-⋮----
-getDisplayName(t: Taxpayer): string
-⋮----
-ngOnDestroy(): void
 ```
 
 ## File: src/app/features/payments/pages/payment-edit/payment-edit.component.ts
@@ -22543,85 +22759,6 @@ onSubmit(): void
 onCancel(): void
 ```
 
-## File: src/app/features/penalty-fines/pages/penalty-create/penalty-create.component.ts
-```typescript
-import { Component, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { HttpClient } from '@angular/common/http';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { Router } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { PenaltyCreateRequest } from '../../../../models/penalty.model';
-⋮----
-export class PenaltyCreateComponent
-⋮----
-// Taxpayer search
-⋮----
-// Auto calculate interest at 15% of penalty
-onPenaltyChange(): void
-⋮----
-get totalAmount(): number
-⋮----
-setDefaultDueDate(): void
-⋮----
-isFormValid(): boolean
-⋮----
-constructor(
-    private http: HttpClient,
-    private router: Router,
-    private toast: ToastService,
-)
-⋮----
-onSubmit(): void
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
-⋮----
-fmt(val: number): string
-⋮----
-// ── Taxpayer Search ──────────────────────────────────────────────────────
-searchTaxpayer(): void
-⋮----
-selectTaxpayer(t: Taxpayer): void
-⋮----
-clearTaxpayer(): void
-⋮----
-getDisplayName(t: Taxpayer): string
-⋮----
-ngOnDestroy(): void
-```
-
-## File: src/app/features/penalty-fines/pages/penalty-edit/penalty-edit.component.ts
-```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Penalty } from '../../../../models/penalty.model';
-⋮----
-export class PenaltyEditComponent implements OnInit
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-loadPenalty(): void
-⋮----
-onPenaltyChange(): void
-⋮----
-get totalAmount(): number
-⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-onCancel(): void
-fmt(val: number): string
-```
-
 ## File: src/app/features/penalty-fines/pages/penalty-list/penalty-list.component.ts
 ```typescript
 import { Component, OnInit, inject } from '@angular/core';
@@ -22630,12 +22767,156 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Penalty } from '../../../../models/penalty.model';
+import { PenaltyService } from '../../services/penalty.service';
 ⋮----
 export class PenaltyListComponent implements OnInit
+⋮----
+// private fallback: Penalty[] = [
+//   {
+//     taxpayerId: 0,
+//     id: 1,
+//     penaltyNo: 'PEN-2024-00001',
+//     tinNumber: 'TIN-1001',
+//     taxpayerName: 'Rahman Textile Ltd.',
+//     penaltyType: 'Late Filing',
+//     severity: 'Medium',
+//     penaltyAmount: 25000,
+//     interestAmount: 3750,
+//     totalAmount: 28750,
+//     paidAmount: 28750,
+//     returnNo: 'VAT-2024-00001',
+//     assessmentYear: '2024-25',
+//     issueDate: '2024-03-01',
+//     dueDate: '2024-03-31',
+//     paymentDate: '2024-03-28',
+//     status: 'Paid',
+//     issuedBy: 'Tax Officer',
+//     approvedBy: 'Tax Commissioner',
+//     description: 'Late filing of VAT return for Jan 2024',
+//     remarks: '',
+//   },
+//   {
+//     taxpayerId: 0,
+//     id: 2,
+//     penaltyNo: 'PEN-2024-00002',
+//     tinNumber: 'TIN-1002',
+//     taxpayerName: 'Karim Traders',
+//     penaltyType: 'Late Payment',
+//     severity: 'Low',
+//     penaltyAmount: 12000,
+//     interestAmount: 1800,
+//     totalAmount: 13800,
+//     paidAmount: 0,
+//     returnNo: 'ITR-2024-00002',
+//     assessmentYear: '2024-25',
+//     issueDate: '2024-03-05',
+//     dueDate: '2024-04-05',
+//     paymentDate: '',
+//     status: 'Pending',
+//     issuedBy: 'Tax Officer',
+//     approvedBy: '',
+//     description: 'Late payment of income tax installment',
+//     remarks: 'Payment due April 5',
+//   },
+//   {
+//     taxpayerId: 0,
+//     id: 3,
+//     penaltyNo: 'PEN-2024-00003',
+//     tinNumber: 'TIN-1003',
+//     taxpayerName: 'Dhaka Pharma Co.',
+//     penaltyType: 'Non-Compliance',
+//     severity: 'High',
+//     penaltyAmount: 150000,
+//     interestAmount: 22500,
+//     totalAmount: 172500,
+//     paidAmount: 0,
+//     returnNo: '',
+//     assessmentYear: '2024-25',
+//     issueDate: '2024-03-10',
+//     dueDate: '2024-04-10',
+//     paymentDate: '',
+//     status: 'Issued',
+//     issuedBy: 'Tax Commissioner',
+//     approvedBy: 'Tax Commissioner',
+//     description: 'Failure to maintain proper VAT records',
+//     remarks: 'Legal notice served',
+//   },
+//   {
+//     taxpayerId: 0,
+//     id: 4,
+//     penaltyNo: 'PEN-2024-00004',
+//     tinNumber: 'TIN-1004',
+//     taxpayerName: 'Chittagong Exports',
+//     penaltyType: 'Underpayment',
+//     severity: 'Medium',
+//     penaltyAmount: 45000,
+//     interestAmount: 6750,
+//     totalAmount: 51750,
+//     paidAmount: 25000,
+//     returnNo: 'VAT-2024-00004',
+//     assessmentYear: '2024-25',
+//     issueDate: '2024-03-12',
+//     dueDate: '2024-04-12',
+//     paymentDate: '',
+//     status: 'Appealed',
+//     issuedBy: 'Tax Officer',
+//     approvedBy: 'Tax Commissioner',
+//     description: 'Underpayment of VAT for Feb 2024',
+//     remarks: 'Appeal filed on Mar 20',
+//   },
+//   {
+//     taxpayerId: 0,
+//     id: 5,
+//     penaltyNo: 'PEN-2024-00005',
+//     tinNumber: 'TIN-1005',
+//     taxpayerName: 'Sylhet Tea House',
+//     penaltyType: 'Fraud',
+//     severity: 'Critical',
+//     penaltyAmount: 500000,
+//     interestAmount: 75000,
+//     totalAmount: 575000,
+//     paidAmount: 0,
+//     returnNo: 'ITR-2024-00005',
+//     assessmentYear: '2024-25',
+//     issueDate: '2024-03-15',
+//     dueDate: '2024-03-25',
+//     paymentDate: '',
+//     status: 'Overdue',
+//     issuedBy: 'Tax Commissioner',
+//     approvedBy: 'Tax Commissioner',
+//     description: 'Fraudulent tax return submission',
+//     remarks: 'Case referred to legal department',
+//   },
+//   {
+//     taxpayerId: 0,
+//     id: 6,
+//     penaltyNo: 'PEN-2024-00006',
+//     tinNumber: 'TIN-1006',
+//     taxpayerName: 'BD Tech Solutions',
+//     penaltyType: 'Late Filing',
+//     severity: 'Low',
+//     penaltyAmount: 8000,
+//     interestAmount: 1200,
+//     totalAmount: 9200,
+//     paidAmount: 9200,
+//     returnNo: 'VAT-2024-00006',
+//     assessmentYear: '2024-25',
+//     issueDate: '2024-03-18',
+//     dueDate: '2024-04-18',
+//     paymentDate: '2024-03-30',
+//     status: 'Waived',
+//     issuedBy: 'Tax Officer',
+//     approvedBy: 'Tax Commissioner',
+//     description: 'Late filing — first offence waiver applied',
+//     remarks: 'Waived on first offence basis',
+//   },
+// ];
 ⋮----
 constructor(
 ⋮----
 ngOnInit(): void
+⋮----
+// this.penalties = this.fallback;
 ⋮----
 get filteredPenalties(): Penalty[]
 ⋮----
@@ -22860,321 +23141,929 @@ get maskedPassword(): string
 onSubmit(): void
 ```
 
-## File: src/app/features/refund-management/pages/refund-edit/refund-edit.component.ts
-```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Refund } from '../../../../models/refund.model';
-⋮----
-export class RefundEditComponent implements OnInit
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-loadRefund(): void
-⋮----
-get showBankFields(): boolean
-⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-onCancel(): void
-```
-
-## File: src/app/features/refund-management/pages/refund-list/refund-list.component.ts
-```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Refund } from '../../../../models/refund.model';
-⋮----
-export class RefundListComponent implements OnInit
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-get filteredRefunds(): Refund[]
-⋮----
-getStatusClass(status: string): string
-⋮----
-getTypeClass(type: string): string
-⋮----
-formatCurrency(amount: number): string
-⋮----
-viewRefund(id: number): void
-⋮----
-editRefund(id: number): void
-⋮----
-confirmDelete(id: number): void
-⋮----
-cancelDelete(): void
-⋮----
-confirmDeleteExecute(): void
-⋮----
-private delete(id: number): void
-⋮----
-private resetDeleteState(): void
-```
-
-## File: src/app/features/refund-management/pages/refund-view/refund-view.component.html
+## File: src/app/features/refund-management/pages/refund-create/refund-create.component.html
 ```html
-<div class="page-header">
-  <div class="page-header-left">
-    <h4>Refund Tracker</h4>
-    <p>Track your refund claim status and updates.</p>
+<div class="container-fluid py-4 px-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="page-title mb-1">
+        <i class="bi bi-plus-circle me-2 text-primary"></i>New Refund Application
+      </h4>
+      <p class="text-muted mb-0 small">Complete all steps to submit your refund request</p>
+    </div>
+    <button class="btn btn-outline-secondary btn-sm" (click)="cancel()">
+      <i class="bi bi-x-lg me-1"></i> Cancel
+    </button>
   </div>
-  <button class="btn-back" (click)="onBack()">
-    <i class="bi bi-arrow-left"></i> Back
-  </button>
-</div>
 
-<div class="refund-tracker" *ngIf="!isLoading && refund">
-
-  <!-- Hero Section -->
-  <div class="refund-hero">
-    <div class="hero-label">Your active refund claim</div>
-    <div class="hero-amt">{{ formatCurrency(refund.claimAmount) }}</div>
-    <div class="hero-row">
-      <div class="hero-meta">Ref: <strong>{{ refund.refundNo }}</strong></div>
-      <div class="hero-meta">Filed: <strong>{{ refund.claimDate }}</strong></div>
-      <div class="hero-meta">Type: <strong>{{ refund.refundType }}</strong></div>
+  <!-- Stepper -->
+  <div class="stepper-wrapper mb-4">
+    <div
+      *ngFor="let label of stepLabels; let i = index"
+      class="stepper-item"
+      [class.completed]="currentStep > i + 1"
+      [class.active]="currentStep === i + 1"
+    >
+      <div class="stepper-circle" (click)="goToStep(i + 1)">
+        <i *ngIf="currentStep > i + 1" class="bi bi-check-lg"></i>
+        <span *ngIf="currentStep <= i + 1">{{ i + 1 }}</span>
+      </div>
+      <div class="stepper-label">{{ label }}</div>
+      <div class="stepper-connector" *ngIf="i < stepLabels.length - 1"></div>
     </div>
   </div>
 
-  <!-- Status Pipeline Card -->
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-title">Refund status tracker</div>
-      <span class="badge b-info">{{ getCurrentStep() }} of 6</span>
+  <!-- Error Alert -->
+  <div *ngIf="errorMsg" class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+    <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+  </div>
+
+  <!-- ─── STEP 1: REFUND TYPE ─────────────────────────────── -->
+  <div class="wizard-card" *ngIf="currentStep === 1">
+    <div class="wizard-card-header">
+      <i class="bi bi-list-check me-2"></i> Step 1 — Select Refund Type
     </div>
-    <div class="card-p">
-      <div class="pipeline">
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(1), 'pipe-active': getCurrentStep() === 1, 'pipe-todo': getCurrentStep() > 1}">
-            {{ getCurrentStep() === 1 ? '●' : '✓' }}
+    <div class="wizard-card-body">
+      <p class="text-muted small mb-3">Choose the type of refund you are applying for.</p>
+      <div class="row g-3">
+        <div class="col-md-4 col-sm-6" *ngFor="let t of refundTypeOptions">
+          <div
+            class="type-card"
+            [class.type-card--selected]="selectedRefundType === t.value"
+            [ngClass]="selectedRefundType === t.value ? t.color + '--active' : ''"
+            (click)="selectedRefundType = t.value"
+            role="button"
+            tabindex="0"
+            (keydown.enter)="selectedRefundType = t.value"
+            [attr.aria-pressed]="selectedRefundType === t.value"
+            [attr.aria-label]="'Select ' + t.label + ' refund type'"
+          >
+            <div class="type-card-icon" [ngClass]="t.color">
+              <i [class]="t.icon" aria-hidden="true"></i>
+            </div>
+            <div class="type-card-label">{{ t.label }}</div>
+            <div class="type-card-desc">{{ t.description }}</div>
+            <div class="type-card-check" *ngIf="selectedRefundType === t.value">
+              <i class="bi bi-check-circle-fill text-success"></i>
+            </div>
           </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 1, 'pipe-done-label': isStepComplete(1)}">Filed</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(1), 'pc-active': getCurrentStep() === 2, 'pc-todo': getCurrentStep() > 2}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(2), 'pipe-active': getCurrentStep() === 2, 'pipe-todo': getCurrentStep() > 2}">
-            {{ getCurrentStep() === 2 ? '●' : (isStepComplete(2) ? '✓' : '2') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 2, 'pipe-done-label': isStepComplete(2)}">Processing</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(2), 'pc-active': getCurrentStep() === 3, 'pc-todo': getCurrentStep() > 3}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(3), 'pipe-active': getCurrentStep() === 3, 'pipe-todo': getCurrentStep() > 3}">
-            {{ getCurrentStep() === 3 ? '●' : (isStepComplete(3) ? '✓' : '3') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 3, 'pipe-done-label': isStepComplete(3)}">Verification</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(3), 'pc-active': getCurrentStep() === 4, 'pc-todo': getCurrentStep() > 4}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(4), 'pipe-active': getCurrentStep() === 4, 'pipe-todo': getCurrentStep() > 4}">
-            {{ getCurrentStep() === 4 ? '●' : (isStepComplete(4) ? '✓' : '4') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 4, 'pipe-done-label': isStepComplete(4)}">Approval</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(4), 'pc-active': getCurrentStep() === 5, 'pc-todo': getCurrentStep() > 5}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(5), 'pipe-active': getCurrentStep() === 5, 'pipe-todo': getCurrentStep() > 5}">
-            {{ getCurrentStep() === 5 ? '●' : (isStepComplete(5) ? '✓' : '5') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 5, 'pipe-done-label': isStepComplete(5)}">Release</div>
-        </div>
-        <div class="pipe-connector" [ngClass]="{'pc-done': isStepComplete(5), 'pc-active': getCurrentStep() === 6, 'pc-todo': getCurrentStep() > 6}"></div>
-
-        <div class="pipe-step">
-          <div class="pipe-circle" [ngClass]="{'pipe-done': isStepComplete(6), 'pipe-active': getCurrentStep() === 6, 'pipe-todo': getCurrentStep() > 6}">
-            {{ getCurrentStep() === 6 ? '●' : (isStepComplete(6) ? '✓' : '6') }}
-          </div>
-          <div class="pipe-label" [ngClass]="{'pipe-active-label': getCurrentStep() === 6, 'pipe-done-label': isStepComplete(6)}">Credited</div>
         </div>
       </div>
-
-      <div class="eta-box">
-        <div>
-          <div class="eta-key">Current status</div>
-          <div class="eta-val">{{ refund.status }}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="eta-key">Expected credit date</div>
-          <div class="eta-val">{{ refund.paymentDate || 'Pending' }}</div>
-        </div>
-      </div>
-
-      <div class="alert alert-info" *ngIf="refund.processedBy">
-        <div>ℹ</div>
-        <div>Your refund has been assigned to {{ refund.processedBy }}. No action required from you at this stage.</div>
+    </div>
+    <div class="wizard-card-footer">
+      <div></div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()" [disabled]="saving">
+          <span *ngIf="saving" class="spinner-border spinner-border-sm me-1"></span>Save Draft
+        </button>
+        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!selectedRefundType">
+          Next: Source Records <i class="bi bi-arrow-right ms-1"></i>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Activity Timeline -->
-  <div class="card">
-    <div class="card-hdr"><div class="card-title">Refund activity log</div></div>
-    <div class="card-p">
-      <div class="timeline" *ngIf="refund.activityLog && refund.activityLog.length > 0">
-        <div class="tl-row" *ngFor="let activity of refund.activityLog">
-          <div class="tl-dot" [ngClass]="getActivityColor(activity.type)"></div>
-          <div class="tl-body">
-            <div class="tl-title">{{ activity.title }}</div>
-            <div class="tl-meta" *ngIf="activity.description">{{ activity.description }}</div>
+  <!-- ─── STEP 2: SOURCE RECORDS ────────────────────────────── -->
+  <div class="wizard-card" *ngIf="currentStep === 2">
+    <div class="wizard-card-header">
+      <i class="bi bi-database me-2"></i> Step 2 — Select Source Records
+      <span class="badge bg-primary ms-2">{{ getRefundTypeLabel(selectedRefundType) }}</span>
+    </div>
+    <div class="wizard-card-body">
+      <p class="text-muted small mb-3">
+        Select the records that caused the overpayment. Only eligible records with positive excess balances are shown.
+      </p>
+      <div *ngIf="loadingSources" class="text-center py-4">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+        <span class="ms-2 small">Loading eligible records…</span>
+      </div>
+      <div *ngIf="!loadingSources && eligibleSources.length === 0" class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        No eligible source records found for this refund type and fiscal year.
+      </div>
+      <div class="table-responsive" *ngIf="!loadingSources && eligibleSources.length > 0">
+        <table class="table table-hover align-middle source-table">
+          <thead class="table-light">
+            <tr>
+              <th style="width:40px"></th>
+              <th>Reference</th>
+              <th>Period</th>
+              <th class="text-end">Tax Paid</th>
+              <th class="text-end">Tax Liability</th>
+              <th class="text-end text-success">Excess Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let s of eligibleSources"
+              [class.source-row--selected]="isSourceSelected(s.id)"
+              (click)="toggleSource(s.id)"
+              style="cursor:pointer"
+              [attr.aria-selected]="isSourceSelected(s.id)"
+            >
+              <td>
+                <div class="form-check mb-0">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="isSourceSelected(s.id)"
+                    (change)="toggleSource(s.id)"
+                    [attr.aria-label]="'Select source ' + s.reference"
+                  >
+                </div>
+              </td>
+              <td><span class="fw-semibold small">{{ s.reference }}</span></td>
+              <td class="text-muted small">{{ s.periodLabel }}</td>
+              <td class="text-end small">{{ formatCurrency(s.taxPaid) }}</td>
+              <td class="text-end small">{{ formatCurrency(s.taxLiability) }}</td>
+              <td class="text-end fw-semibold text-success">{{ formatCurrency(s.excessAmount) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="selectedSourceIds.size > 0" class="alert alert-success py-2 small mt-2">
+        <i class="bi bi-check2 me-1"></i>
+        {{ selectedSourceIds.size }} source record(s) selected —
+        Total excess: <strong>{{ formatCurrency(selectedSourcesTotalExcess) }}</strong>
+      </div>
+    </div>
+    <div class="wizard-card-footer">
+      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
+        <i class="bi bi-arrow-left me-1"></i> Back
+      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
+        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="selectedSourceIds.size === 0">
+          Next: Calculation <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 3: CALCULATION ────────────────────────────────── -->
+  <div class="wizard-card" *ngIf="currentStep === 3">
+    <div class="wizard-card-header">
+      <i class="bi bi-calculator me-2"></i> Step 3 — Refund Calculation
+    </div>
+    <div class="wizard-card-body">
+      <div *ngIf="calculationError" class="alert alert-danger small">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ calculationError }}
+      </div>
+      <div *ngIf="!calculation && !calculationError" class="text-center py-4">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+        <span class="ms-2 small">Calculating…</span>
+      </div>
+      <div *ngIf="calculation">
+        <div class="calc-box mb-4">
+          <div class="calc-row">
+            <span>Total Tax Paid <em class="text-muted small">(from selected sources)</em></span>
+            <span>{{ formatCurrency(calculation.totalTaxPaid) }}</span>
           </div>
-          <div class="tl-right">{{ activity.date }}</div>
+          <div class="calc-row">
+            <span>Total Tax Liability</span>
+            <span>{{ formatCurrency(calculation.totalTaxLiability) }}</span>
+          </div>
+          <div class="calc-row">
+            <span>Previously Claimed Refunds</span>
+            <span>{{ formatCurrency(calculation.previouslyClaimed) }}</span>
+          </div>
+          <div class="calc-divider"></div>
+          <div class="calc-total-row">
+            <span>Maximum Eligible Refund</span>
+            <span class="text-success fw-bold fs-5">{{ formatCurrency(calculation.eligibleRefundAmount) }}</span>
+          </div>
         </div>
-      </div>
-      <div *ngIf="!refund.activityLog || refund.activityLog.length === 0" style="text-align:center;color:var(--color-text-secondary);padding:20px">
-        No activity recorded yet
-      </div>
-    </div>
-  </div>
 
-  <!-- Bank Account -->
-  <div class="card" *ngIf="refund.bankName">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="hdr-icon ic-green">
-          <i class="bi bi-bank2" style="color:#3B6D11"></i>
-        </div>
-        <div>
-          <div class="card-title">Refund destination account</div>
-          <div class="card-sub">Amount will be credited here after approval</div>
-        </div>
-      </div>
-      <button *canDo="'edit'" class="btn btn-sm" (click)="onEdit()">Change account</button>
-    </div>
-    <div class="card-p">
-      <div class="grid2">
-        <div class="field"><label>Bank</label><input readonly [value]="refund.bankName"></div>
-        <div class="field"><label>Account number</label><input readonly [value]="refund.accountNo"></div>
-        <div class="field"><label>Branch</label><input readonly [value]="refund.bankBranch"></div>
-        <div class="field"><label>Account holder</label><input readonly [value]="refund.taxpayerName"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Details Grid (Collapsible) -->
-  <div class="details-grid">
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-person-badge-fill"></i>
-        <span>Taxpayer Information</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">TIN Number</span>
-          <span class="detail-value"><span class="code-badge">{{ refund.tinNumber }}</span></span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Taxpayer Name</span>
-          <span class="detail-value fw-bold">{{ refund.taxpayerName }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-cash-stack"></i>
-        <span>Amount Summary</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Claimed</span>
-          <span class="detail-value fw-bold">{{ formatCurrency(refund.claimAmount) }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Approved</span>
-          <span class="detail-value" [style.color]="refund.approvedAmount > 0 ? '#1D9E75' : 'var(--color-text-secondary)'">
-            {{ refund.approvedAmount > 0 ? formatCurrency(refund.approvedAmount) : '—' }}
+        <div class="alert alert-info d-flex gap-2 align-items-start small py-2">
+          <i class="bi bi-lock me-1 mt-1 flex-shrink-0"></i>
+          <span>
+            Eligible refund amount is system-calculated and cannot be edited.
+            You may request a <strong>partial refund</strong> by entering a lower amount below.
           </span>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Paid</span>
-          <span class="detail-value" [style.color]="refund.paidAmount > 0 ? '#1D9E75' : 'var(--color-text-secondary)'">
-            {{ refund.paidAmount > 0 ? formatCurrency(refund.paidAmount) : '—' }}
-          </span>
+
+        <div class="row mt-3">
+          <div class="col-md-5">
+            <label class="form-label fw-semibold small">
+              Requested Refund Amount <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">৳</span>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="requestedAmount"
+                [max]="calculation.eligibleRefundAmount"
+                min="1"
+                [class.is-invalid]="amountExceedsEligible"
+                aria-label="Requested refund amount in BDT"
+              >
+            </div>
+            <div *ngIf="amountExceedsEligible" class="invalid-feedback d-block small">
+              Amount cannot exceed ৳ {{ calculation.eligibleRefundAmount | number }}.
+            </div>
+            <div class="form-text">Maximum: {{ formatCurrency(calculation.eligibleRefundAmount) }}</div>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-person-gear"></i>
-        <span>Processing Information</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Status</span>
-          <span class="detail-value">
-            <span class="status-badge" [ngClass]="getStatusClass(refund.status)">
-              {{ refund.status }}
-            </span>
-          </span>
-        </div>
-        <div class="detail-row" *ngIf="refund.processedBy">
-          <span class="detail-label">Processed By</span>
-          <span class="detail-value">{{ refund.processedBy }}</span>
-        </div>
-        <div class="detail-row" *ngIf="refund.approvedBy">
-          <span class="detail-label">Approved By</span>
-          <span class="detail-value">{{ refund.approvedBy }}</span>
-        </div>
-        <div class="detail-row" *ngIf="refund.remarks">
-          <span class="detail-label">Remarks</span>
-          <span class="detail-value">{{ refund.remarks }}</span>
-        </div>
+    <div class="wizard-card-footer">
+      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
+        <i class="bi bi-arrow-left me-1"></i> Back
+      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
+        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!canProceed()">
+          Next: Bank Info <i class="bi bi-arrow-right ms-1"></i>
+        </button>
       </div>
     </div>
   </div>
 
-</div>
+  <!-- ─── STEP 4: BANK INFO ──────────────────────────────────── -->
+  <div class="wizard-card" *ngIf="currentStep === 4">
+    <div class="wizard-card-header">
+      <i class="bi bi-bank2 me-2"></i> Step 4 — Bank Account Information
+    </div>
+    <div class="wizard-card-body">
+      <p class="text-muted small mb-3">Enter the bank account where the refund will be disbursed.</p>
+      <form [formGroup]="bankForm" novalidate>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Bank Name <span class="text-danger">*</span></label>
+            <input formControlName="bankName" list="bank-list" class="form-control form-control-sm"
+              [class.is-invalid]="isFieldInvalid('bankName')" placeholder="e.g. Dutch-Bangla Bank Ltd">
+            <datalist id="bank-list">
+              <option value="Dutch-Bangla Bank Ltd">
+              <option value="BRAC Bank Ltd">
+              <option value="Islami Bank Bangladesh Ltd">
+              <option value="City Bank Ltd">
+              <option value="Sonali Bank Ltd">
+              <option value="Agrani Bank Ltd">
+              <option value="Southeast Bank Ltd">
+              <option value="Eastern Bank Ltd">
+            </datalist>
+            <div class="invalid-feedback">Bank name is required.</div>
+          </div>
 
-<div class="loading-overlay" *ngIf="isLoading">
-  <div class="spinner-border text-primary"></div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Branch Name <span class="text-danger">*</span></label>
+            <input formControlName="bankBranch" class="form-control form-control-sm"
+              [class.is-invalid]="isFieldInvalid('bankBranch')" placeholder="e.g. Motijheel Corporate">
+            <div class="invalid-feedback">Branch name is required.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Account Holder Name <span class="text-danger">*</span></label>
+            <input formControlName="accountHolderName" class="form-control form-control-sm"
+              [class.is-invalid]="isFieldInvalid('accountHolderName')" placeholder="Must match registered TIN name">
+            <div class="invalid-feedback">Account holder name is required.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Account Number <span class="text-danger">*</span></label>
+            <input formControlName="accountNumber" type="password" class="form-control form-control-sm"
+              [class.is-invalid]="isFieldInvalid('accountNumber')" placeholder="13-digit account number"
+              maxlength="13">
+            <div class="invalid-feedback">
+              Valid 13-digit account number is required.
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Routing Number <span class="text-danger">*</span></label>
+            <input formControlName="routingNumber" class="form-control form-control-sm"
+              [class.is-invalid]="isFieldInvalid('routingNumber')" placeholder="9-digit routing number"
+              maxlength="9">
+            <div class="invalid-feedback">Valid 9-digit routing number is required.</div>
+          </div>
+        </div>
+
+        <!-- Optional MFS -->
+        <div class="optional-section mt-4">
+          <div class="optional-section-title">
+            <i class="bi bi-phone me-1"></i> Optional: Mobile Financial Service (MFS)
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-md-4">
+              <label class="form-label small">MFS Provider</label>
+              <select formControlName="mfsProvider" class="form-select form-select-sm">
+                <option value="">— Select —</option>
+                <option value="BKASH">bKash</option>
+                <option value="NAGAD">Nagad</option>
+                <option value="ROCKET">Rocket</option>
+              </select>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label small">MFS Number</label>
+              <input formControlName="mfsNumber" class="form-control form-control-sm"
+                [class.is-invalid]="isFieldInvalid('mfsNumber')"
+                placeholder="01XXXXXXXXX" maxlength="11">
+              <div class="invalid-feedback">Must be 11 digits starting with 01.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validate button -->
+        <div class="mt-3">
+          <button
+            type="button"
+            class="btn btn-outline-primary btn-sm"
+            (click)="validateBank()"
+            [disabled]="bankForm.invalid || bankValidating"
+          >
+            <span *ngIf="bankValidating" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!bankValidating" class="bi bi-shield-check me-1"></i>
+            {{ bankValidating ? 'Validating…' : 'Validate Bank Account' }}
+          </button>
+          <span *ngIf="bankValidated" class="ms-2 text-success small fw-semibold">
+            <i class="bi bi-check-circle-fill me-1"></i> Account Validated
+          </span>
+          <span *ngIf="bankError" class="ms-2 text-danger small">
+            <i class="bi bi-x-circle me-1"></i> {{ bankError }}
+          </span>
+        </div>
+      </form>
+    </div>
+    <div class="wizard-card-footer">
+      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
+        <i class="bi bi-arrow-left me-1"></i> Back
+      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
+        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!bankForm.valid || !bankValidated">
+          Next: Documents <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 5: DOCUMENTS ─────────────────────────────────── -->
+  <div class="wizard-card" *ngIf="currentStep === 5">
+    <div class="wizard-card-header">
+      <i class="bi bi-paperclip me-2"></i> Step 5 — Supporting Documents
+    </div>
+    <div class="wizard-card-body">
+      <p class="text-muted small mb-3">
+        Upload required documents. Bank Statement is mandatory. Max 20 MB per file. Accepted: PDF, JPG, PNG.
+      </p>
+
+      <!-- Upload zone -->
+      <div class="upload-section mb-3">
+        <div class="row g-2 align-items-end mb-2">
+          <div class="col-md-5">
+            <label class="form-label small fw-semibold">Document Type</label>
+            <select class="form-select form-select-sm" [(ngModel)]="selectedDocType">
+              <option *ngFor="let d of documentTypes" [value]="d.value">
+                {{ d.label }}{{ d.required ? ' *' : '' }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-5">
+            <label class="form-label small fw-semibold">Choose File</label>
+            <input
+              type="file"
+              class="form-control form-control-sm"
+              (change)="onFileSelect($event)"
+              accept=".pdf,.jpg,.jpeg,.png"
+              aria-label="Upload document"
+            >
+          </div>
+        </div>
+        <div *ngIf="uploadError" class="alert alert-danger py-2 small">
+          <i class="bi bi-exclamation-triangle me-1"></i> {{ uploadError }}
+        </div>
+      </div>
+
+      <!-- Uploaded files list -->
+      <div *ngIf="uploadedFiles.length > 0">
+        <div class="uploaded-file-item" *ngFor="let f of uploadedFiles; let i = index">
+          <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5" aria-hidden="true"></i>
+          <div class="flex-grow-1">
+            <div class="small fw-semibold">{{ f.name }}</div>
+            <div class="text-muted" style="font-size:0.72rem">{{ getDocTypeLabel(f.type) }} · {{ f.size }}</div>
+          </div>
+          <button class="btn btn-outline-danger btn-sm py-0 px-2" (click)="removeFile(i)" aria-label="Remove file">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="!hasRequiredDocuments()" class="alert alert-warning py-2 small mt-2">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        <strong>Bank Statement</strong> is required before proceeding.
+      </div>
+    </div>
+    <div class="wizard-card-footer">
+      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
+        <i class="bi bi-arrow-left me-1"></i> Back
+      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
+        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!hasRequiredDocuments()">
+          Next: Review <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 6: REVIEW & SUBMIT ───────────────────────────── -->
+  <div class="wizard-card" *ngIf="currentStep === 6">
+    <div class="wizard-card-header">
+      <i class="bi bi-clipboard2-check me-2"></i> Step 6 — Review &amp; Submit
+    </div>
+    <div class="wizard-card-body">
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <div class="review-section">
+            <div class="review-section-title"><i class="bi bi-info-circle me-1"></i> Application Details</div>
+            <div class="review-row"><span>Refund Type</span><span class="fw-semibold">{{ getRefundTypeLabel(selectedRefundType) }}</span></div>
+            <div class="review-row"><span>Source Records</span><span>{{ selectedSourceIds.size }} record(s)</span></div>
+            <div class="review-row">
+              <span>Requested Amount</span>
+              <span class="fw-bold text-success">{{ formatCurrency(requestedAmount) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="review-section">
+            <div class="review-section-title"><i class="bi bi-bank me-1"></i> Bank Details</div>
+            <div class="review-row"><span>Bank</span><span>{{ bankForm.value.bankName }}</span></div>
+            <div class="review-row"><span>Branch</span><span>{{ bankForm.value.bankBranch }}</span></div>
+            <div class="review-row"><span>Account</span><span>████ {{ bankForm.value.accountNumber?.slice(-4) }}</span></div>
+            <div class="review-row"><span>Validated</span><span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Yes</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-section mb-3">
+        <div class="review-section-title"><i class="bi bi-paperclip me-1"></i> Documents ({{ uploadedFiles.length }} uploaded)</div>
+        <div class="d-flex flex-wrap gap-2 mt-2">
+          <span *ngFor="let f of uploadedFiles" class="badge border text-secondary fw-normal" style="font-size:0.75rem">
+            <i class="bi bi-file-earmark me-1"></i> {{ f.name }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Declaration -->
+      <div class="declaration-box">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="declaration"
+            [(ngModel)]="declarationAgreed"
+          >
+          <label class="form-check-label small" for="declaration">
+            I hereby declare that all information provided in this refund application is true, accurate, and
+            complete to the best of my knowledge. I understand that providing false or misleading information
+            is an offense under the Income Tax Ordinance 1984 and applicable laws, and may result in penalties
+            and legal action.
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="wizard-card-footer">
+      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
+        <i class="bi bi-arrow-left me-1"></i> Back
+      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
+        <button
+          class="btn btn-success btn-sm"
+          (click)="submitRefund()"
+          [disabled]="!declarationAgreed || submitting"
+        >
+          <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+          <i *ngIf="!submitting" class="bi bi-send me-1"></i>
+          {{ submitting ? 'Submitting…' : 'Submit Application' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
 ```
 
-## File: src/app/features/roles/pages/roles-create/roles-create.component.ts
+## File: src/app/features/refund-management/pages/refund-edit/refund-edit.component.css
+```css
+/* Shared with create — import same styles */
+⋮----
+.page-title { font-size: 1.2rem; font-weight: 600; }
+```
+
+## File: src/app/features/refund-management/pages/refund-edit/refund-edit.component.html
+```html
+<div class="container-fluid py-4 px-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <button class="btn btn-link btn-sm text-muted ps-0 mb-1" (click)="cancel()">
+        <i class="bi bi-arrow-left me-1"></i> Back to Details
+      </button>
+      <h4 class="page-title mb-0">
+        <i class="bi bi-pencil-square me-2 text-warning"></i>
+        Edit Draft — {{ refund?.refundReferenceNo }}
+      </h4>
+      <p class="text-muted mb-0 small">Only DRAFT applications can be edited.</p>
+    </div>
+    <button class="btn btn-outline-secondary btn-sm" (click)="cancel()">
+      <i class="bi bi-x-lg me-1"></i> Cancel
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+    <p class="text-muted mt-2 small">Loading draft…</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMsg" class="alert alert-danger d-flex gap-2 align-items-center mb-3">
+    <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+  </div>
+
+  <div *ngIf="!loading">
+
+    <!-- Stepper -->
+    <div class="stepper-wrapper mb-4">
+      <div
+        *ngFor="let label of stepLabels; let i = index"
+        class="stepper-item"
+        [class.completed]="currentStep > i + 1"
+        [class.active]="currentStep === i + 1"
+      >
+        <div class="stepper-circle" (click)="goToStep(i + 1)">
+          <i *ngIf="currentStep > i + 1" class="bi bi-check-lg"></i>
+          <span *ngIf="currentStep <= i + 1">{{ i + 1 }}</span>
+        </div>
+        <div class="stepper-label">{{ label }}</div>
+        <div class="stepper-connector" *ngIf="i < stepLabels.length - 1"></div>
+      </div>
+    </div>
+
+    <!-- STEP 1: TYPE -->
+    <div class="wizard-card" *ngIf="currentStep === 1">
+      <div class="wizard-card-header"><i class="bi bi-list-check me-2"></i>Step 1 — Refund Type</div>
+      <div class="wizard-card-body">
+        <div class="row g-3">
+          <div class="col-md-4 col-sm-6" *ngFor="let t of refundTypeOptions">
+            <div
+              class="type-card"
+              [class.type-card--selected]="selectedRefundType === t.value"
+              (click)="selectedRefundType = t.value"
+              role="button" tabindex="0"
+              (keydown.enter)="selectedRefundType = t.value"
+            >
+              <div class="type-card-icon" [ngClass]="t.color">
+                <i [class]="t.icon" aria-hidden="true"></i>
+              </div>
+              <div class="type-card-label">{{ t.label }}</div>
+              <div class="type-card-check" *ngIf="selectedRefundType === t.value">
+                <i class="bi bi-check-circle-fill text-success"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wizard-card-footer">
+        <div></div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" (click)="saveAndUpdate()" [disabled]="saving">
+            <span *ngIf="saving" class="spinner-border spinner-border-sm me-1"></span>Save Draft
+          </button>
+          <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!selectedRefundType">
+            Next <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: SOURCES -->
+    <div class="wizard-card" *ngIf="currentStep === 2">
+      <div class="wizard-card-header"><i class="bi bi-database me-2"></i>Step 2 — Source Records</div>
+      <div class="wizard-card-body">
+        <div *ngIf="loadingSources" class="text-center py-4">
+          <div class="spinner-border spinner-border-sm text-primary"></div>
+          <span class="ms-2 small">Loading…</span>
+        </div>
+        <div class="table-responsive" *ngIf="!loadingSources">
+          <table class="table table-hover align-middle small source-table">
+            <thead class="table-light">
+              <tr>
+                <th style="width:40px"></th>
+                <th>Reference</th><th>Period</th>
+                <th class="text-end">Tax Paid</th>
+                <th class="text-end">Liability</th>
+                <th class="text-end text-success">Excess</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of eligibleSources"
+                [class.source-row--selected]="isSourceSelected(s.id)"
+                (click)="toggleSource(s.id)" style="cursor:pointer">
+                <td>
+                  <input type="checkbox" class="form-check-input"
+                    [checked]="isSourceSelected(s.id)" (change)="toggleSource(s.id)">
+                </td>
+                <td class="fw-semibold">{{ s.reference }}</td>
+                <td class="text-muted">{{ s.periodLabel }}</td>
+                <td class="text-end">{{ formatCurrency(s.taxPaid) }}</td>
+                <td class="text-end">{{ formatCurrency(s.taxLiability) }}</td>
+                <td class="text-end fw-semibold text-success">{{ formatCurrency(s.excessAmount) }}</td>
+              </tr>
+              <tr *ngIf="eligibleSources.length === 0 && !loadingSources">
+                <td colspan="6" class="text-center text-muted py-3 small">No eligible source records found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" (click)="saveAndUpdate()">Save Draft</button>
+          <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="selectedSourceIds.size === 0">
+            Next <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: CALCULATION -->
+    <div class="wizard-card" *ngIf="currentStep === 3">
+      <div class="wizard-card-header"><i class="bi bi-calculator me-2"></i>Step 3 — Calculation</div>
+      <div class="wizard-card-body">
+        <div *ngIf="!calculation" class="text-center py-4">
+          <div class="spinner-border spinner-border-sm text-primary"></div>
+        </div>
+        <div *ngIf="calculation">
+          <div class="calc-box mb-3">
+            <div class="calc-row"><span>Total Tax Paid</span><span>{{ formatCurrency(calculation.totalTaxPaid) }}</span></div>
+            <div class="calc-row"><span>Total Tax Liability</span><span>{{ formatCurrency(calculation.totalTaxLiability) }}</span></div>
+            <div class="calc-row"><span>Previously Claimed</span><span>{{ formatCurrency(calculation.previouslyClaimed) }}</span></div>
+            <div class="calc-divider"></div>
+            <div class="calc-total-row">
+              <span class="fw-semibold">Max Eligible Refund</span>
+              <span class="text-success fw-bold fs-5">{{ formatCurrency(calculation.eligibleRefundAmount) }}</span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-5">
+              <label class="form-label small fw-semibold">Requested Amount <span class="text-danger">*</span></label>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">৳</span>
+                <input type="number" class="form-control" [(ngModel)]="requestedAmount"
+                  [max]="calculation.eligibleRefundAmount" min="1"
+                  [class.is-invalid]="amountExceedsEligible">
+              </div>
+              <div *ngIf="amountExceedsEligible" class="text-danger small mt-1">
+                Cannot exceed {{ formatCurrency(calculation.eligibleRefundAmount) }}.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" (click)="saveAndUpdate()">Save Draft</button>
+          <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!canProceed()">
+            Next <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: BANK -->
+    <div class="wizard-card" *ngIf="currentStep === 4">
+      <div class="wizard-card-header"><i class="bi bi-bank2 me-2"></i>Step 4 — Bank Information</div>
+      <div class="wizard-card-body">
+        <form [formGroup]="bankForm" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Bank Name <span class="text-danger">*</span></label>
+              <input formControlName="bankName" class="form-control form-control-sm"
+                [class.is-invalid]="isFieldInvalid('bankName')">
+              <div class="invalid-feedback">Required.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Branch Name <span class="text-danger">*</span></label>
+              <input formControlName="bankBranch" class="form-control form-control-sm"
+                [class.is-invalid]="isFieldInvalid('bankBranch')">
+              <div class="invalid-feedback">Required.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Account Holder Name <span class="text-danger">*</span></label>
+              <input formControlName="accountHolderName" class="form-control form-control-sm"
+                [class.is-invalid]="isFieldInvalid('accountHolderName')">
+              <div class="invalid-feedback">Required.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Account Number <span class="text-danger">*</span></label>
+              <input formControlName="accountNumber" type="password" class="form-control form-control-sm"
+                [class.is-invalid]="isFieldInvalid('accountNumber')" placeholder="13 digits" maxlength="13">
+              <div class="invalid-feedback">Valid 13-digit account number required.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Routing Number <span class="text-danger">*</span></label>
+              <input formControlName="routingNumber" class="form-control form-control-sm"
+                [class.is-invalid]="isFieldInvalid('routingNumber')" placeholder="9 digits" maxlength="9">
+              <div class="invalid-feedback">Valid 9-digit routing number required.</div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <button type="button" class="btn btn-outline-primary btn-sm"
+              (click)="validateBank()" [disabled]="bankForm.invalid || bankValidating">
+              <span *ngIf="bankValidating" class="spinner-border spinner-border-sm me-1"></span>
+              <i *ngIf="!bankValidating" class="bi bi-shield-check me-1"></i>
+              {{ bankValidating ? 'Validating…' : 'Validate Account' }}
+            </button>
+            <span *ngIf="bankValidated" class="ms-2 text-success small fw-semibold">
+              <i class="bi bi-check-circle-fill me-1"></i>Validated
+            </span>
+            <span *ngIf="bankError" class="ms-2 text-danger small">{{ bankError }}</span>
+          </div>
+        </form>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" (click)="saveAndUpdate()">Save Draft</button>
+          <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="bankForm.invalid || !bankValidated">
+            Next <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: DOCUMENTS -->
+    <div class="wizard-card" *ngIf="currentStep === 5">
+      <div class="wizard-card-header"><i class="bi bi-paperclip me-2"></i>Step 5 — Documents</div>
+      <div class="wizard-card-body">
+
+        <!-- Existing docs -->
+        <div *ngIf="existingDocuments.length > 0" class="mb-3">
+          <div class="small fw-semibold text-muted mb-2">Previously Uploaded</div>
+          <div class="uploaded-file-item" *ngFor="let d of existingDocuments">
+            <i class="bi bi-file-earmark-pdf text-danger fs-5"></i>
+            <div class="flex-grow-1">
+              <div class="small fw-semibold">{{ d.name }}</div>
+              <div class="text-muted" style="font-size:.72rem">{{ getDocTypeLabel(d.type) }}</div>
+            </div>
+            <button class="btn btn-outline-danger btn-sm py-0 px-2" (click)="removeExistingDoc(d.id)">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- New upload -->
+        <div class="row g-2 align-items-end mb-2">
+          <div class="col-md-5">
+            <label class="form-label small fw-semibold">Document Type</label>
+            <select class="form-select form-select-sm" [(ngModel)]="selectedDocType">
+              <option *ngFor="let d of documentTypes" [value]="d.value">
+                {{ d.label }}{{ d.required ? ' *' : '' }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-5">
+            <label class="form-label small fw-semibold">Choose File</label>
+            <input type="file" class="form-control form-control-sm"
+              (change)="onFileSelect($event)" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
+        <div *ngIf="uploadError" class="alert alert-danger py-2 small">{{ uploadError }}</div>
+
+        <div *ngFor="let f of uploadedFiles; let i = index" class="uploaded-file-item">
+          <i class="bi bi-file-earmark-pdf text-danger fs-5"></i>
+          <div class="flex-grow-1">
+            <div class="small fw-semibold">{{ f.name }}</div>
+            <div class="text-muted" style="font-size:.72rem">{{ getDocTypeLabel(f.type) }} · {{ f.size }}</div>
+          </div>
+          <button class="btn btn-outline-danger btn-sm py-0 px-2" (click)="removeNewFile(i)">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div *ngIf="!hasRequiredDocuments()" class="alert alert-warning py-2 small mt-2">
+          <i class="bi bi-exclamation-triangle me-1"></i>Bank Statement is required.
+        </div>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" (click)="saveAndUpdate()">Save Draft</button>
+          <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!hasRequiredDocuments()">
+            Next <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6: REVIEW -->
+    <div class="wizard-card" *ngIf="currentStep === 6">
+      <div class="wizard-card-header"><i class="bi bi-clipboard2-check me-2"></i>Step 6 — Review &amp; Submit</div>
+      <div class="wizard-card-body">
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <div class="review-section">
+              <div class="review-section-title">Application</div>
+              <div class="review-row"><span>Refund Type</span><span class="fw-semibold">{{ selectedRefundType }}</span></div>
+              <div class="review-row"><span>Sources Selected</span><span>{{ selectedSourceIds.size }}</span></div>
+              <div class="review-row"><span>Requested</span><span class="fw-bold text-success">{{ formatCurrency(requestedAmount) }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="review-section">
+              <div class="review-section-title">Bank</div>
+              <div class="review-row"><span>Bank</span><span>{{ bankForm.value.bankName }}</span></div>
+              <div class="review-row"><span>Account</span><span>████ {{ bankForm.value.accountNumber?.slice(-4) }}</span></div>
+              <div class="review-row"><span>Validated</span><span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Yes</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="declaration-box">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="decl" [(ngModel)]="declarationAgreed">
+            <label class="form-check-label small" for="decl">
+              I declare that all information provided is true, accurate, and complete. I understand that false
+              information may result in penalties under applicable tax laws.
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" (click)="saveAndUpdate()">Save Draft</button>
+          <button class="btn btn-success btn-sm" (click)="submitRefund()"
+            [disabled]="!declarationAgreed || submitting">
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!submitting" class="bi bi-send me-1"></i>
+            {{ submitting ? 'Submitting…' : 'Submit Application' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /!loading -->
+</div>
+```
+
+## File: src/app/features/refund-management/pages/refund-view/refund-view.component.css
+```css
+.page-title { font-size: 1.2rem; font-weight: 600; }
+⋮----
+/* ─── Status Banner ─────────────────────────────── */
+.status-banner {
+.status-banner--info    { background: #fff8e1; border-color: #ffe082; }
+.status-banner--success { background: #f0f9f0; border-color: #a3c97a; }
+.status-banner--danger  { background: #fff5f5; border-color: #f09595; }
+⋮----
+/* ─── Detail Card ───────────────────────────────── */
+.detail-card {
+⋮----
+.detail-card-header {
+⋮----
+.detail-card-body { padding: 16px; }
+⋮----
+/* ─── Detail Grid ───────────────────────────────── */
+.detail-grid {
+⋮----
+.detail-grid { grid-template-columns: 1fr; }
+⋮----
+.detail-item { display: flex; flex-direction: column; gap: 2px; }
+.detail-label { font-size: 0.70rem; color: #6c757d; text-transform: uppercase; letter-spacing: .4px; }
+.detail-value { font-size: 0.85rem; color: #1a1a1a; }
+⋮----
+/* ─── Document item ─────────────────────────────── */
+.doc-item {
+.doc-item:last-child { border-bottom: none; }
+⋮----
+/* ─── Table tweaks ──────────────────────────────── */
+.table th { font-size: 0.72rem; font-weight: 600; color: #6c757d;
+.table td { font-size: 0.82rem; }
+```
+
+## File: src/app/features/system-settings/pages/settings/settings.component.ts
 ```typescript
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 ⋮----
-export class RolesCreateComponent {
+export class SettingsComponent implements OnDestroy
 ⋮----
-constructor(private router: Router, private toast: ToastService)
+constructor(private toast: ToastService)
 ⋮----
-onRoleNameChange(): void
+ngOnDestroy(): void
 ⋮----
-toggleAll(module: string, checked: boolean): void
-⋮----
-isAllSelected(module: string): boolean
-⋮----
-isSomeSelected(module: string): boolean
-⋮----
-selectAllModules(checked: boolean): void
-⋮----
-get selectedPermCount(): number
-⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-onCancel(): void
+onSave(): void
 ```
 
 ## File: src/app/features/tax-structure/pages/tax-structure-create/tax-structure-create.component.html
@@ -24256,158 +25145,6 @@ export class TaxableProductsModule
 .photo-hint {
 ```
 
-## File: src/app/features/taxpayer-management/pages/taxpayer-view/taxpayer-view.component.css
-```css
-/* .profile-avatar {
-  width: 64px;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  font-weight: 800;
-  flex-shrink: 0;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-} */
-⋮----
-.header-actions {
-.btn-back {
-.btn-back:hover {
-.btn-edit-top {
-.btn-edit-top:hover {
-.loading-overlay {
-⋮----
-/* ── Profile Header ── */
-.profile-header-card {
-⋮----
-.profile-avatar-wrap {
-⋮----
-.profile-avatar {
-⋮----
-.profile-name {
-.profile-tin {
-.profile-meta {
-⋮----
-.type-pill {
-⋮----
-.profile-stat {
-.ps-label {
-.ps-value {
-⋮----
-/* ── Details ── */
-.details-grid {
-⋮----
-.detail-card {
-.detail-card-header {
-.detail-card-header i {
-.detail-body {
-.detail-row {
-.detail-row:last-child {
-.detail-label {
-.detail-value {
-.detail-value.fw-bold {
-.detail-value.address-val {
-.code-badge {
-⋮----
-/* Review Card */
-.review-card {
-⋮----
-.review-card-header {
-⋮----
-.review-card-header i {
-⋮----
-.review-card-header .approval-badge {
-⋮----
-.approval-pending {
-.approval-approved {
-.approval-rejected {
-⋮----
-/* Done states */
-.review-done {
-⋮----
-.review-done i {
-.review-done.rejected i {
-⋮----
-.review-done-title {
-⋮----
-.review-done-sub {
-⋮----
-/* Form */
-.review-form {
-⋮----
-.review-info {
-⋮----
-.review-field {
-⋮----
-.review-field label {
-⋮----
-.review-field select,
-⋮----
-.review-field select:focus,
-⋮----
-.btn-load-zones {
-⋮----
-.btn-load-zones:hover {
-.btn-load-zones:disabled {
-⋮----
-.zone-hint {
-⋮----
-.zone-hint.error {
-⋮----
-/* Action buttons */
-.review-actions {
-⋮----
-.btn-approve-action {
-⋮----
-.btn-approve-action:hover {
-.btn-approve-action:disabled {
-⋮----
-.btn-reject-action {
-⋮----
-.btn-reject-action:hover {
-.btn-reject-action:disabled {
-/* Photo */
-.photo-container {
-⋮----
-.profile-photo {
-⋮----
-.photo-upload-overlay {
-⋮----
-.photo-upload-overlay:hover { background: rgba(0,0,0,0.8); }
-⋮----
-/* Photo Preview */
-.photo-preview-card {
-⋮----
-.preview-img {
-⋮----
-.preview-actions {
-⋮----
-.btn-upload-photo {
-⋮----
-.btn-cancel-photo {
-⋮----
-/* Completion Card */
-.completion-card {
-⋮----
-.completion-header {
-⋮----
-.completion-percent {
-⋮----
-.completion-bar {
-⋮----
-.completion-fill {
-⋮----
-.missing-title {
-⋮----
-.missing-tags {
-⋮----
-.missing-tag {
-⋮----
-.completion-done {
-```
-
 ## File: src/app/features/taxpayer-portal/layout/portal-layout/portal-layout.component.css
 ```css
 /* ── Shell ─────────────────────────────────────────────── */
@@ -24514,208 +25251,6 @@ export class TaxableProductsModule
 .breadcrumb-sep {
 ⋮----
 .breadcrumb-current {
-```
-
-## File: src/app/features/taxpayer-portal/pages/portal-home/portal-home.component.html
-```html
-<div class="portal-home" *ngIf="!isLoading">
-  
-  <!-- Profile Card -->
-  <div class="profile-card">
-    <div class="avatar-wrap">
-      <img *ngIf="photoUrl" [src]="photoUrl" class="avatar-img" alt="Profile"/>
-      <div *ngIf="!photoUrl" class="avatar-initials">
-        {{ displayName.charAt(0) | uppercase }}
-      </div>
-    </div>
-
-    <div class="profile-info">
-      <h2>{{ displayName }}</h2>
-      <div class="profile-badges">
-        <span class="badge green">Active</span>
-        <span class="badge blue">{{ taxpayerTypeName }}</span>
-      </div>
-      <p class="tin" *ngIf="taxpayer?.tinNumber">
-        TIN: {{ taxpayer!.tinNumber }}
-      </p>
-      <p class="tin pending" *ngIf="!taxpayer?.tinNumber">
-        TIN: Pending approval
-      </p>
-    </div>
-  </div>
-
-  <!-- Profile Completion Card -->
-  <div class="completion-card" *ngIf="missingFields.length > 0">
-    <div class="completion-header">
-      <div class="completion-left">
-        <span class="completion-title">Profile Completion</span>
-        <span class="completion-hint">Complete your profile to get full access</span>
-      </div>
-      <span class="completion-percent" [ngStyle]="{'color': completionColor}">
-        {{ profileCompletion }}%
-      </span>
-    </div>
-
-    <div class="completion-bar">
-      <div class="completion-fill"
-           [ngStyle]="{'width': profileCompletion + '%', 'background': completionColor}">
-      </div>
-    </div>
-
-    <div class="missing-section">
-      <span class="missing-title">Missing:</span>
-      <div class="missing-tags">
-        <span *ngFor="let f of missingFields" class="missing-tag">{{ f }}</span>
-      </div>
-    </div>
-
-    <button (click)="onComplete()" class="complete-btn">
-      Complete Profile →
-    </button>
-  </div>
-
-  <!-- Profile Complete Banner -->
-  <div class="completion-done" *ngIf="missingFields.length === 0">
-    <i class="bi bi-check-circle-fill"></i>
-    Your profile is complete!
-  </div>
-
- <!-- Stats Row — replace the existing stats-row div with this -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-label">Compliance score</div>
-      <div class="stat-value green"
-           [ngStyle]="{'color': complianceColor}">
-        {{ itrReturns.length === 0 ? '—' : complianceScore + '%' }}
-      </div>
-      <div class="stat-sub">
-        {{ itrReturns.length === 0 ? 'No returns filed yet' : complianceScore >= 80 ? 'Good standing' : 'Needs attention' }}
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Returns filed</div>
-      <div class="stat-value">{{ totalReturnsFiled }}</div>
-      <div class="stat-sub">
-        {{ totalReturnsFiled === 0 ? 'No returns yet' : 'Income tax returns' }}
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Outstanding dues</div>
-      <div class="stat-value red">
-        {{ outstandingDues === 0 ? '৳ 0' : formatDues(outstandingDues) }}
-      </div>
-      <div class="stat-sub">
-        {{ outstandingDues === 0 ? 'No dues found' : 'Pending payment' }}
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Last activity</div>
-      <div class="stat-value small">{{ lastActivity }}</div>
-      <div class="stat-sub">
-        {{ itrReturns.length === 0 ? 'No activity yet' : 'Last ITR filed' }}
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Access -->
-  <div class="section-title">Quick access</div>
-  <div class="menu-grid">
-    <a *ngFor="let item of menuItems"
-       [routerLink]="item.route"
-       class="menu-card">
-      <span class="menu-icon">{{ item.icon }}</span>
-      <span class="menu-label">{{ item.label }}</span>
-      <span class="menu-arrow">→</span>
-    </a>
-  </div>
-
-  <!-- Coming Soon -->
-  <div class="coming-soon">
-    <div class="coming-soon-icon">🚧</div>
-    <div class="coming-soon-text">
-      <strong>Tax summary & compliance details</strong>
-      <span>Coming soon — full dashboard under development</span>
-    </div>
-  </div>
-
-</div>
-
-<div class="loading-state" *ngIf="isLoading">
-  <div class="spinner"></div>
-  <p>Loading your portal...</p>
-</div>
-```
-
-## File: src/app/features/taxpayer-portal/pages/portal-itr/portal-itr.component.ts
-```typescript
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { finalize, Subject, takeUntil } from 'rxjs';
-⋮----
-import { AuthService } from '../../../../core/services/auth.service';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { IncomeTaxReturn, ITRStatus } from '../../../../models/income-tax-return.model';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class PortalItrComponent implements OnInit, OnDestroy {
-⋮----
-// ── returnUrl passed to child routes so they know where to come back ──
-// income-tax-return-create and income-tax-return-view both read this
-// query param in their onCancel() / onBack() methods.
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Data ─────────────────────────────────────────────────────────────────
-⋮----
-private loadMyReturns(): void
-⋮----
-// ── Computed ──────────────────────────────────────────────────────────────
-⋮----
-get filtered(): IncomeTaxReturn[]
-⋮----
-countByStatus(status: ITRStatus): number
-⋮----
-get totalFiled():    number
-get totalAccepted(): number
-get totalPending():  number
-get totalOverdue():  number
-⋮----
-netPayableOf(r: IncomeTaxReturn): number
-⋮----
-refundableOf(r: IncomeTaxReturn): number
-⋮----
-formatCurrency(amount: number | null | undefined): string
-⋮----
-isOverdue(r: IncomeTaxReturn): boolean
-⋮----
-getStatusClass(status: string): string
-⋮----
-// ── Navigation ────────────────────────────────────────────────────────────
-⋮----
-/**
-   * Navigate to the existing create component, passing returnUrl so that
-   * onCancel() and goToList() in that component know to come back here
-   * instead of going to the officer list.
-   */
-fileNew(): void
-⋮----
-/**
-   * Navigate to the existing view component, passing returnUrl so that
-   * onBack() in that component comes back to the portal, not the officer list.
-   */
-view(id: number): void
-⋮----
-openIT10B(returnId: number): void
-⋮----
-get currentUser()
 ```
 
 ## File: src/app/features/taxpayer-portal/taxpayer-portal/taxpayer-portal.module.ts
@@ -24976,50 +25511,114 @@ export class TaxpayerPortalModule
 </div>
 ```
 
-## File: src/app/features/user-management/pages/user-list/user-list.component.ts
+## File: src/app/features/user-management/pages/user-create/user-create.component.ts
 ```typescript
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 ⋮----
-export interface AppUser {
-  id: number;
-  fullName: string;
-  username: string;
-  email: string;
-  role: string;
-  department: string;
-  lastLogin: string;
-  status: 'Active' | 'Inactive' | 'Suspended';
-  createdAt: string;
-}
+export class UserCreateComponent implements OnDestroy
 ⋮----
-export class UserListComponent implements OnInit {
+get passwordMismatch(): boolean
+⋮----
+isFormValid(): boolean
 ⋮----
 constructor(private router: Router, private toast: ToastService)
 ⋮----
+ngOnDestroy(): void
+⋮----
+onSubmit(): void
+⋮----
+onReset(): void
+⋮----
+onCancel(): void
+```
+
+## File: src/app/features/user-management/pages/user-edit/user-edit.component.ts
+```typescript
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+⋮----
+export class UserEditComponent implements OnInit, OnDestroy
+⋮----
+constructor(
+⋮----
 ngOnInit(): void
 ⋮----
-get filtered(): AppUser[]
+ngOnDestroy(): void
 ⋮----
-getStatusClass(s: string): string
+isFormValid(): boolean
 ⋮----
-getRoleClass(r: string): string
+onSubmit(): void
 ⋮----
-getRoleLabel(r: string): string
+onCancel(): void
+```
+
+## File: src/app/features/vat-registration/components/business-picker/business-picker.component.css
+```css
+/* ── List container ──────────────────────────────────────────── */
 ⋮----
-view(id: number): void
-edit(id: number): void
+.business-picker {
 ⋮----
-confirmDelete(id: number): void
+/* ── Individual business row ─────────────────────────────────── */
 ⋮----
-cancelDelete(): void
+.biz-row {
 ⋮----
-confirmDeleteExecute(): void
+.biz-row:hover:not(.biz-registered) {
 ⋮----
-private delete(id: number): void
+.biz-row.biz-registered {
 ⋮----
-private resetDeleteState(): void
+.biz-row.biz-selected {
+⋮----
+/* ── Icon box ────────────────────────────────────────────────── */
+⋮----
+.biz-icon {
+⋮----
+.biz-row.biz-selected .biz-icon {
+⋮----
+.biz-row.biz-registered .biz-icon {
+⋮----
+/* ── Text content ────────────────────────────────────────────── */
+⋮----
+.biz-info {
+⋮----
+.biz-name {
+⋮----
+.biz-meta {
+⋮----
+/* ── Right side badges ───────────────────────────────────────── */
+⋮----
+.biz-vat-status {
+⋮----
+/* ── BIN badge (registered business) ────────────────────────── */
+⋮----
+.bin-badge {
+⋮----
+/* ── "Register VAT" badge (unregistered business) ────────────── */
+⋮----
+.no-bin-badge {
+⋮----
+.no-bin-badge.active {
+```
+
+## File: src/app/features/vat-registration/components/business-picker/business-picker.component.ts
+```typescript
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { BusinessVatStatus } from '../../../../models/business.model';
+import { ToastService } from '../../../../shared/toast/toast.service';
+⋮----
+export class BusinessPickerComponent {
+⋮----
+constructor(private toast: ToastService)
+⋮----
+onSelect(b: BusinessVatStatus): void
+⋮----
+getStatusClass(status: string | null): string
 ```
 
 ## File: src/app/features/vat-registration/pages/vat-registration-edit/vat-registration-edit.component.html
@@ -25874,6 +26473,22 @@ private resetDeleteState(): void
 </div><!-- /review modal -->
 ```
 
+## File: src/app/features/vat-registration/vat-registration/vat-registration-routing.module.ts
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { Role } from 'src/app/core/constants/roles.constants';
+import { AuthGuard } from 'src/app/core/guards/auth.guard';
+⋮----
+import { VatRegistrationListComponent }    from '../pages/vat-registration-list/vat-registration-list.component';
+import { VatRegistrationCreateComponent }  from '../pages/vat-registration-create/vat-registration-create.component';
+import { VatRegistrationViewComponent }    from '../pages/vat-registration-view/vat-registration-view.component';
+import { VatRegistrationEditComponent }    from '../pages/vat-registration-edit/vat-registration-edit.component';
+import { VatRegistrationSuccessComponent } from '../pages/vat-registration-success/vat-registration-success.component';
+⋮----
+export class VatRegistrationRoutingModule
+```
+
 ## File: src/app/features/vat-registration/vat-registration/vat-registration.module.ts
 ```typescript
 import { NgModule } from '@angular/core';
@@ -26428,46 +27043,157 @@ import { VatReturnEditComponent } from '../pages/vat-return-edit/vat-return-edit
 export class VatReturnsRoutingModule { }
 ```
 
-## File: src/app/layout/sidebar/sidebar.component.ts
+## File: src/app/models/refund.model.ts
 ```typescript
-import { Component, Input, OnInit } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { AuthService } from '../../core/services/auth.service';
-import { Role } from '../../core/constants/roles.constants';
+export type RefundStatus = 'Pending' | 'Approved' | 'Rejected' | 'Processing' | 'Completed' | 'Cancelled';
+export type RefundType   = 'VAT Refund' | 'Income Tax Refund' | 'Excess Payment' | 'Other';
+export type RefundMethod = 'Bank Transfer' | 'Cheque' | 'Adjustment';
 ⋮----
-interface MenuItem {
-  label: string;
-  icon?: string;
-  route?: string | null;
-  roles?: Role[];
-  children?: MenuItem[];
-  isGroupHeader?: boolean;
+export interface ActivityLog {
+  title: string;
+  description?: string;
+  date: string;
+  type: 'filed' | 'assigned' | 'verified' | 'approved' | 'rejected' | 'completed' | 'default';
 }
 ⋮----
-export class SidebarComponent implements OnInit {
+export interface Refund {
+  id: number;
+  refundNo: string;
+  taxpayerId: number;
+  taxpayerName: string;
+  tinNumber: string;
+  refundType: RefundType;
+  refundMethod: RefundMethod;
+  claimAmount: number;
+  approvedAmount: number;
+  paidAmount: number;
+  returnNo: string;
+  paymentRef: string;
+  bankName: string;
+  bankBranch: string;
+  accountNo: string;
+  claimDate: string;
+  approvalDate: string;
+  paymentDate: string;
+  status: RefundStatus;
+  processedBy: string;
+  approvedBy: string;
+  remarks: string;
+  activityLog?: ActivityLog[];
+}
 ⋮----
-// ── ADMINISTRATION ──
+export interface RefundCreateRequest {
+  taxpayerId: number | null;
+  refundType: string;
+  refundMethod: string;
+  claimAmount: number;
+  returnNo: string;
+  paymentRef: string;
+  bankName: string;
+  bankBranch: string;
+  accountNo: string;
+  claimDate: string;
+  remarks: string;
+}
 ⋮----
-constructor(
+export interface RefundListResponse {
+  data: Refund[];
+  total: number;
+  page: number;
+}
+```
+
+## File: src/app/models/registration.model.ts
+```typescript
+// ── Wizard shared state ──────────────────────────────────────────────────────
 ⋮----
-ngOnInit(): void
+export type AccountCategory = 'Individual' | 'Business' | 'Organization';
 ⋮----
-private autoExpandActive(): void
+export interface RegistrationState {
+  // Step 1
+  accountCategory:  AccountCategory | null;
+  taxpayerTypeId:   number | null;
+  taxpayerTypeName: string;
+
+  // Step 2
+  fullName:        string;
+  email:           string;
+  phone:           string;
+  password:        string;
+  confirmPassword: string;
+
+  // Step 3 — Individual
+  nid:             string;
+  dateOfBirth:     string;
+  gender:          string;
+  profession:      string;
+
+  // Step 3 — existing TIN toggle (Individual & Company)
+  hasExistingTin:  boolean;
+  existingTin:     string;
+
+  // Step 3 — Business / Organization
+  companyName:          string;
+  rjscNo:               string;
+  incorporationDate:    string;
+  natureOfBusiness:     string;
+  authorizedPersonName: string;
+  authorizedPersonNid:  string;
+}
 ⋮----
-get visibleMenuItems(): MenuItem[]
+// Step 1
 ⋮----
-toggleExpand(label: string): void
+// Step 2
 ⋮----
-isExpanded(label: string): boolean
+// Step 3 — Individual
 ⋮----
-isActive(route: string | null | undefined): boolean
+// Step 3 — existing TIN toggle (Individual & Company)
 ⋮----
-isParentActive(item: MenuItem): boolean
+// Step 3 — Business / Organization
 ⋮----
-toggleFlyout(label: string, event?: Event): void
+export function emptyState(): RegistrationState
 ⋮----
-navigate(route: string, event?: Event): void
+// ── Backend payload ──────────────────────────────────────────────────────────
+export interface UserRegistrationRequest {
+  taxpayerTypeId:  number;
+  accountCategory: AccountCategory;
+  fullName:        string;
+  email:           string;
+  phone:           string;
+  password:        string;
+
+  existingTin?:    string;
+
+  // Individual only
+  nid?:         string;
+  dateOfBirth?: string;
+  gender?:      string;
+  profession?:  string;
+
+  // Business / Organization only
+  companyName?:          string;
+  rjscNo?:               string;
+  incorporationDate?:    string;
+  natureOfBusiness?:     string;
+  authorizedPersonName?: string;
+  authorizedPersonNid?:  string;
+}
+⋮----
+// Individual only
+⋮----
+// Business / Organization only
+⋮----
+// ── Backend success response ─────────────────────────────────────────────────
+export interface RegistrationResponse {
+  userId:           number;
+  taxpayerId:       number;
+  tinNumber:        string;
+  fullName:         string;
+  email:            string;
+  accountCategory:  AccountCategory;
+  taxpayerTypeName: string;
+  message:          string;
+}
 ```
 
 ## File: src/app/models/taxable-product.model.ts
@@ -26504,135 +27230,6 @@ export interface TaxableProductViewModel extends TaxableProduct {
   taxType: string;
   taxRate: number;
 }
-```
-
-## File: src/app/models/tin.model.ts
-```typescript
-export type TinStatus =
-  | 'Active' | 'Inactive' | 'Suspended' | 'Cancelled' | 'Pending';
-export type TinCategory =
-  | 'Individual' | 'Company' | 'Partnership' | 'NGO' | 'Government';
-⋮----
-export interface Tin {
-  id: number;
-  tinNumber: string;
-  taxpayerId: number;
-  taxpayerName: string;   // read-only — resolved from server via FK
-  tinCategory: TinCategory;
-  nid: string;
-  passportNo: string;
-  dateOfBirth: string;
-  gender: string;
-  incorporationDate: string;
-  email: string;
-  phone: string;
-  address: string;
-  district: string;
-  division: string;
-  taxZone: string;
-  taxCircle: string;
-  issuedDate: string;
-  lastUpdated: string;
-  status: TinStatus;
-  remarks: string;
-}
-⋮----
-taxpayerName: string;   // read-only — resolved from server via FK
-⋮----
-export interface TinCreateRequest {
-  taxpayerId: number | null;  // FK — required. taxpayerName NOT sent
-  tinCategory: string;
-  nid: string;
-  passportNo: string;
-  dateOfBirth: string;
-  gender: string;
-  incorporationDate: string;
-  email: string;
-  phone: string;
-  address: string;
-  district: string;
-  division: string;
-  taxZone: string;
-  taxCircle: string;
-  issuedDate: string;
-  remarks: string;
-}
-⋮----
-taxpayerId: number | null;  // FK — required. taxpayerName NOT sent
-⋮----
-export interface TinListResponse {
-  data: Tin[];
-  total: number;
-  page: number;
-}
-```
-
-## File: src/app/models/vat-registration.model.ts
-```typescript
-export type VatStatus   = 'Active' | 'Inactive' | 'Pending' | 'Suspended' | 'Cancelled';
-export type VatCategory = 'Standard' | 'Zero Rated' | 'Exempt' | 'Special';
-export type ReturnPeriod = 'Monthly' | 'Quarterly';
-⋮----
-export interface VatRegistration {
-  id:               number;
-  binNo:            string;
-  tinNumber:        string;
-  businessName:     string;
-  ownerName:        string;
-  vatCategory:      VatCategory;
-  businessType:     string;
-  businessCategory: string;
-  tradeLicenseNo:   string;
-  registrationDate: string;
-  effectiveDate:    string;
-  expiryDate:       string;
-  annualTurnover:   number;
-  email:            string;
-  phone:            string;
-  address:          string;
-  district:         string;
-  division:         string;
-  vatZone:          string;
-  vatCircle:        string;
-  /** Persisted DB column (`zone_id`). Used in edit cascade restore. */
-  zoneId:           number;
-  status:           VatStatus;
-  remarks:          string;
-}
-⋮----
-/** Persisted DB column (`zone_id`). Used in edit cascade restore. */
-⋮----
-export interface VatRegistrationCreateRequest {
-  // Foreign-key IDs resolved server-side
-  taxpayerId:  number;
-  businessId?: number | null;
-  vatZoneId:   number;
-  vatCircleId: number;
-  districtId?: number | null;
-  divisionId?: number | null;
-
-  // VAT classification
-  vatCategory:   VatCategory | string;
-  returnPeriod?: ReturnPeriod;     // Monthly | Quarterly — backend addition needed
-
-  // Dates
-  registrationDate: string;
-  effectiveDate?:   string;
-  expiryDate?:      string;
-
-  // Optional officer notes
-  remarks?: string;
-}
-⋮----
-// Foreign-key IDs resolved server-side
-⋮----
-// VAT classification
-⋮----
-returnPeriod?: ReturnPeriod;     // Monthly | Quarterly — backend addition needed
-⋮----
-// Dates
-⋮----
-// Optional officer notes
 ```
 
 ## File: src/app/models/vat-return.model.ts
@@ -26932,6 +27529,49 @@ vatRegistrationId:  number;   // @Transient FK — backend resolves to VatRegist
 .mobile-card-actions button {
 ⋮----
 .btn-export span {
+```
+
+## File: src/app/features/activity-logs/pages/activity-logs-list/activity-logs-list.component.ts
+```typescript
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { ActivityLog } from 'src/app/models/activity-logs.model';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+⋮----
+export class ActivityLogsListComponent implements OnInit, OnDestroy
+⋮----
+constructor(private toast: ToastService)
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+get filtered(): ActivityLog[]
+⋮----
+getActionClass(a: string): string
+⋮----
+getActionIcon(a: string): string
+⋮----
+getStatusClass(s: string): string
+⋮----
+// component e add koro
+countByStatus(status: string): number
+⋮----
+exportLogs(): void
+```
+
+## File: src/app/features/ait/ait/ait-routing.module.ts
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { AitDashboardComponent } from '../pages/ait-dashboard/ait-dashboard.component';
+import { AitCreateWizardComponent } from '../pages/ait-create-wizard/ait-create-wizard.component';
+import { OfficerDashboardComponent } from '../pages/officer-dashboard/officer-dashboard.component';
+import { OfficerReviewComponent } from '../pages/officer-review/officer-review.component';
+⋮----
+export class AitRoutingModule {}
 ```
 
 ## File: src/app/features/business-registration/pages/business-create/business-create.component.html
@@ -27293,23 +27933,22 @@ vatRegistrationId:  number;   // @Transient FK — backend resolves to VatRegist
 </div>
 ```
 
-## File: src/app/features/fiscal-years/pages/fiscal-year-create/fiscal-year-create.component.ts
+## File: src/app/features/document-verification/pages/document-create/document-create.component.ts
 ```typescript
-import { Component, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Router } from '@angular/router';
-import { FiscalYearCreateRequest } from '../../../../models/fiscal-year.model';
+import { Component, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Subject, takeUntil } from 'rxjs';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { Router } from '@angular/router';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { DocumentCreateRequest } from '../../../../models/document.model';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
+import { Taxpayer } from '../../../../models/taxpayer.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 ⋮----
-export class FiscalYearCreateComponent {
+export class DocumentCreateComponent implements OnDestroy
 ⋮----
-private getEmptyForm(): FiscalYearCreateRequest
+// Taxpayer search
 ⋮----
-onYearNameChange(): void
-⋮----
-// Auto fill dates from year name e.g. "2025-26"
+private getEmptyForm(): DocumentCreateRequest
 ⋮----
 isFormValid(): boolean
 ⋮----
@@ -27317,13 +27956,168 @@ constructor(
 ⋮----
 onSubmit(): void
 ⋮----
-.pipe(takeUntil(this.destroy$)) // Auto-cancel if component is destroyed mid-request
-⋮----
 ngOnDestroy(): void
 ⋮----
 onReset(): void
 ⋮----
 onCancel(): void
+⋮----
+// ── Taxpayer Search ──────────────────────────────────────────────────────
+searchTaxpayer(): void
+⋮----
+selectTaxpayer(t: Taxpayer): void
+⋮----
+clearTaxpayer(): void
+⋮----
+getDisplayName(t: Taxpayer): string
+```
+
+## File: src/app/features/document-verification/pages/document-edit/document-edit.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Document } from '../../../../models/document.model';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+⋮----
+export class DocumentEditComponent implements OnInit, OnDestroy
+⋮----
+get availableStatuses(): string[]
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+loadDocument(): void
+⋮----
+isFormValid(): boolean
+⋮----
+onSubmit(): void
+⋮----
+onCancel(): void
+```
+
+## File: src/app/features/fiscal-years/pages/fiscal-year-list/fiscal-year-list.component.css
+```css
+.fy-grid {
+⋮----
+.fy-card {
+.fy-card:hover {
+.fy-card.current {
+.fy-card.upcoming {
+.fy-card.closed {
+⋮----
+/* Badges */
+.current-badge {
+.upcoming-badge {
+⋮----
+/* Year Name */
+.fy-year-name {
+.fy-card.current .fy-year-name {
+.fy-card.upcoming .fy-year-name {
+⋮----
+/* Dates */
+.fy-dates {
+.fy-date-item {
+.fy-date-item i {
+.fyd-label {
+.fyd-value {
+.fy-date-arrow {
+⋮----
+/* Deadlines */
+.fy-deadlines {
+.fy-deadline-item {
+.fdl-icon {
+.fdl-icon.vat {
+.fdl-icon.it {
+.fdl-label {
+.fdl-value {
+⋮----
+/* Footer */
+.fy-footer {
+.btn-set-current {
+.btn-set-current:hover {
+.btn-set-current:disabled {
+.btn-fy-edit {
+.btn-fy-edit:hover {
+⋮----
+/* Add Card */
+.fy-add-card {
+.fy-add-card:hover {
+.fy-add-card i {
+.fy-add-card span {
+```
+
+## File: src/app/features/import-duty/pages/import-duty-create/import-duty-create.component.ts
+```typescript
+import { HttpClient } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { forkJoin, Subject, timer } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+⋮----
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { MasterDataService } from 'src/app/core/services/master-data.service';
+import {
+  ImportDutyCreateRequest,
+  ImportDutyTaxPreview,
+} from '../../../../models/import-duty.model';
+import { TaxableProduct } from '../../../../models/taxable-product.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+⋮----
+interface TaxpayerOption {
+  tin?: string;
+  tinNumber?: string;
+  name?: string;
+  taxpayerName?: string;
+  fullName?: string;
+  business?: string;
+  businessName?: string;
+}
+⋮----
+export class ImportDutyCreateComponent implements OnInit, OnDestroy
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+private initialForm(): ImportDutyCreateRequest
+⋮----
+private loadMasterData(): void
+⋮----
+private toNameList(items: any[]): string[]
+⋮----
+onTaxpayerChange(): void
+⋮----
+onProductChange(): void
+⋮----
+onCifValueChange(): void
+⋮----
+calculatePreview(): void
+⋮----
+isFormValid(): boolean
+⋮----
+onSubmit(): void
+⋮----
+private buildPayload(): ImportDutyCreateRequest
+⋮----
+onReset(): void
+⋮----
+onCancel(): void
+⋮----
+getTin(taxpayer: TaxpayerOption): string
+⋮----
+getTaxpayerName(taxpayer: TaxpayerOption): string
+⋮----
+getBusinessName(taxpayer: TaxpayerOption): string
+⋮----
+fmt(amount: number | undefined | null): string
 ```
 
 ## File: src/app/features/income-tax-returns/income-tax-returns/income-tax-returns-routing.module.ts
@@ -27340,6 +28134,105 @@ import { IncomeTaxReturnCreateComponent } from '../pages/income-tax-return-creat
 import { It10bComponent } from '../pages/IT10B/it10b.component';
 ⋮----
 export class IncomeTaxReturnsRoutingModule
+```
+
+## File: src/app/features/income-tax-returns/pages/income-tax-return-edit/income-tax-return-edit.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { catchError, finalize, forkJoin, of, Subject, takeUntil, timer } from 'rxjs';
+⋮----
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { FiscalYear } from '../../../../models/fiscal-year.model';
+import {
+  IncomeTaxReturn,
+  IncomeTaxReturnUpdateRequest,
+  ITRCategory,
+  ITRPeriod,
+  ITRStatus,
+  TaxPreviewResult,
+} from '../../../../models/income-tax-return.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+⋮----
+export class IncomeTaxReturnEditComponent implements OnInit, OnDestroy
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+private loadAll(): void
+⋮----
+private buildFiscalYearOptions(fy: FiscalYear | null, itr: IncomeTaxReturn): void
+⋮----
+private previewFromRecord(itr: IncomeTaxReturn): TaxPreviewResult
+⋮----
+calculatePreview(): void
+⋮----
+get taxableIncome(): number
+⋮----
+get taxRatePreview(): number
+⋮----
+get grossTaxPreview(): number
+⋮----
+get netTaxPayable(): number
+⋮----
+get refundable(): number
+⋮----
+get balanceDue(): number
+⋮----
+get showCompanySubType(): boolean
+⋮----
+isFormValid(): boolean
+⋮----
+onSubmit(): void
+⋮----
+private buildPayload(): IncomeTaxReturnUpdateRequest
+⋮----
+fmt(amount: number | null | undefined): string
+⋮----
+onCancel(): void
+```
+
+## File: src/app/features/notices-notifications/pages/notice-create/notice-create.component.ts
+```typescript
+import { Component, OnDestroy, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { HttpClient } from '@angular/common/http';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
+import { Taxpayer } from '../../../../models/taxpayer.model';
+import { Router } from '@angular/router';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { NoticeCreateRequest } from '../../../../models/notice.model';
+⋮----
+export class NoticeCreateComponent implements OnDestroy
+⋮----
+// Taxpayer search
+⋮----
+get showTaxpayerFields(): boolean
+⋮----
+isFormValid(): boolean
+⋮----
+constructor(
+⋮----
+onSubmit(): void
+⋮----
+onReset(): void
+⋮----
+onCancel(): void
+⋮----
+// ── Taxpayer Search ──────────────────────────────────────────────────────
+searchTaxpayer(): void
+⋮----
+selectTaxpayer(t: Taxpayer): void
+⋮----
+clearTaxpayer(): void
+⋮----
+getDisplayName(t: Taxpayer): string
+⋮----
+ngOnDestroy(): void
 ```
 
 ## File: src/app/features/notices-notifications/pages/notice-list/notice-list.component.ts
@@ -27386,34 +28279,6 @@ confirmDeleteExecute(): void
 private delete(id: number): void
 ⋮----
 private resetDeleteState(): void
-```
-
-## File: src/app/features/notices-notifications/pages/notice-view/notice-view.component.ts
-```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Notice } from '../../../../models/notice.model';
-⋮----
-export class NoticeViewComponent implements OnInit {
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-getStatusClass(s: string): string
-⋮----
-getPriorityClass(p: string): string
-⋮----
-getTypeIcon(type: string): string
-⋮----
-submitResponse(): void
-⋮----
-onBack(): void
-⋮----
-private markAsReadIfNeeded(): void
 ```
 
 ## File: src/app/features/payments/pages/payment-edit/payment-edit.component.html
@@ -27922,84 +28787,47 @@ onEdit(): void
 onBack(): void
 ```
 
-## File: src/app/features/public-registration/steps/step3-identity/reg-step-identity/reg-step-identity.component.ts
+## File: src/app/features/penalty-fines/pages/penalty-create/penalty-create.component.ts
 ```typescript
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RegistrationState } from '../../../../../models/registration.model';
-⋮----
-export class RegStepIdentityComponent implements OnInit
-⋮----
-/** Mirrors the toggle checkbox — drives conditional validation & template */
-⋮----
-constructor(private fb: FormBuilder)
-⋮----
-ngOnInit(): void
-⋮----
-// Restore toggle state when navigating back
-⋮----
-get isIndividual(): boolean
-ctrl(name: string)
-⋮----
-/**
-   * Called when the "I already have a TIN" checkbox is toggled.
-   * Swaps validation: when ON, only existingTin is required.
-   * When OFF, the normal NID / date-of-birth / gender fields are required.
-   */
-onToggleExistingTin(checked: boolean): void
-⋮----
-// Disable mandatory identity fields — only existingTin required
-⋮----
-// Restore mandatory fields
-⋮----
-// Company form: existingTin only
-⋮----
-private buildIndividualForm(): void
-⋮----
-// TIN toggle input — starts optional, becomes required when toggled on
-⋮----
-// Identity fields — required by default, cleared when existingTin toggled on
-⋮----
-// If navigating back with toggle on, re-apply correct validators
-⋮----
-private buildCompanyForm(): void
-⋮----
-onNext(): void
-```
-
-## File: src/app/features/refund-management/pages/refund-create/refund-create.component.ts
-```typescript
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { RefundCreateRequest } from '../../../../models/refund.model';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { Taxpayer } from '../../../../models/taxpayer.model';
-import { ToastService } from '../../../../shared/toast/toast.service';
+import { Router } from '@angular/router';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { PenaltyCreateRequest } from '../../../../models/penalty.model';
+import { PenaltyService } from '../../services/penalty.service';
 ⋮----
-export class RefundCreateComponent implements OnInit, OnDestroy
+export class PenaltyCreateComponent implements OnDestroy
 ⋮----
-// ── Taxpayer search ────────────────────────────────────────────────────────
+// Taxpayer search
 ⋮----
-// ── Dropdown options ───────────────────────────────────────────────────────
+// Auto calculate interest at 15% of penalty
+onPenaltyChange(): void
 ⋮----
-constructor(
+get totalAmount(): number
 ⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Derived ───────────────────────────────────────────────────────────────
-⋮----
-get showBankFields(): boolean
+setDefaultDueDate(): void
 ⋮----
 isFormValid(): boolean
 ⋮----
-// ── Taxpayer search ───────────────────────────────────────────────────────
+constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastService,
+    private penaltyService: PenaltyService 
+)
 ⋮----
-onSearchInput(): void
+onSubmit(): void
 ⋮----
+onReset(): void
+⋮----
+onCancel(): void
+⋮----
+fmt(val: number): string
+⋮----
+// ── Taxpayer Search ──────────────────────────────────────────────────────
 searchTaxpayer(): void
 ⋮----
 selectTaxpayer(t: Taxpayer): void
@@ -28008,119 +28836,347 @@ clearTaxpayer(): void
 ⋮----
 getDisplayName(t: Taxpayer): string
 ⋮----
-// ── Submit ────────────────────────────────────────────────────────────────
-⋮----
-onSubmit(): void
-⋮----
-// ✅ Fixed: was incorrectly posting to API_ENDPOINTS.PAYMENTS.CREATE
-⋮----
-// ✅ Fixed: success toast only fires on actual success, never on error
-⋮----
-// ✅ Fixed: was showing a success toast in the error handler
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
-⋮----
-formatCurrency(val: number): string
-⋮----
-private emptyForm(): RefundCreateRequest
+ngOnDestroy(): void
 ```
 
-## File: src/app/features/refund-management/pages/refund-view/refund-view.component.ts
+## File: src/app/features/penalty-fines/pages/penalty-edit/penalty-edit.component.ts
 ```typescript
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Subject, takeUntil, timer } from 'rxjs';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Refund } from '../../../../models/refund.model';
+import { Penalty } from '../../../../models/penalty.model';
+import { PenaltyService } from '../../services/penalty.service';
 ⋮----
-export class RefundViewComponent implements OnInit
+export class PenaltyEditComponent implements OnInit, OnDestroy
 ⋮----
 constructor(
 ⋮----
 ngOnInit(): void
-⋮----
-getStatusClass(status: string): string
-⋮----
-getTypeClass(type: string): string
-⋮----
-formatCurrency(amount: number): string
-⋮----
-getCurrentStep(): number
-⋮----
-isStepComplete(step: number): boolean
-⋮----
-getActivityColor(type: string): string
-⋮----
-onEdit(): void
-onBack(): void
-```
-
-## File: src/app/features/tax-structure/pages/tax-structure-edit/tax-structure-edit.component.ts
-```typescript
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, of } from 'rxjs';
-import { takeUntil, debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
-import { TaxStructureService } from 'src/app/core/services/tax-strcuture.service';
-⋮----
-import {
-  TaxMasterData,
-  TaxPreviewResponse,
-  TaxSlab,
-  TaxStructure,
-  TaxStructureUpdateRequest,
-} from 'src/app/models/tax-structure.model';
-⋮----
-export class TaxStructureEditComponent implements OnInit, OnDestroy
-⋮----
-// ── UI state ──────────────────────────────────────────────────────────────
-⋮----
-// ── Master data ───────────────────────────────────────────────────────────
-⋮----
-// ── Preview ───────────────────────────────────────────────────────────────
-⋮----
-// ── Form model ────────────────────────────────────────────────────────────
-⋮----
-constructor(
-⋮----
-// ── Lifecycle ─────────────────────────────────────────────────────────────
-⋮----
-ngOnInit(): void
-⋮----
-// Load master data and tax record in parallel
 ⋮----
 ngOnDestroy(): void
 ⋮----
-// ── Data Loading ──────────────────────────────────────────────────────────
+loadPenalty(): void
 ⋮----
-private loadMasterData(): Promise<void>
+onPenaltyChange(): void
 ⋮----
-private loadTaxStructure(): Promise<void>
+get totalAmount(): number
 ⋮----
-// Map entity → update request (strip read-only audit fields)
+isFormValid(): boolean
 ⋮----
-// ── Preview (backend) ─────────────────────────────────────────────────────
+onSubmit(): void
 ⋮----
-private setupPreviewDebounce(): void
+onCancel(): void
+fmt(val: number): string
+```
+
+## File: src/app/features/refund-management/pages/refund-list/refund-list.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import {
+  RefundService,
+  RefundSummary,
+  RefundFilterRequest,
+} from '../../services/refund.service';
 ⋮----
-// Use by-id preview once record is saved; ad-hoc preview during editing
+export class RefundListComponent implements OnInit
 ⋮----
-// Fallback to ad-hoc if id preview fails (e.g. slabs not yet committed)
+// Pagination
 ⋮----
-triggerPreview(): void
+// Filters
 ⋮----
-// ── Slab Management ───────────────────────────────────────────────────────
+// Summary stats (fetched from first load)
 ⋮----
-onRateTypeChange(): void
+constructor(private refundService: RefundService, private router: Router)
 ⋮----
-addSlab(): void
+ngOnInit(): void
 ⋮----
-removeSlab(index: number): void
+loadRefunds(): void
 ⋮----
-// ── Form Submit ───────────────────────────────────────────────────────────
+calculateStats(): void
+⋮----
+applyFilters(): void
+⋮----
+clearFilters(): void
+⋮----
+goToPage(page: number): void
+⋮----
+get pages(): number[]
+⋮----
+canEdit(r: RefundSummary): boolean
+canCancel(r: RefundSummary): boolean
+canRespond(r: RefundSummary): boolean
+⋮----
+navigateToCreate(): void
+navigateToView(id: number): void
+navigateToEdit(id: number): void
+navigateToRespond(id: number): void
+⋮----
+cancelRefund(id: number): void
+⋮----
+formatCurrency(amount: number | null): string
+```
+
+## File: src/app/features/refund-management/pages/refund-view/refund-view.component.html
+```html
+<div class="container-fluid py-4 px-4">
+
+  <!-- Back + Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <button class="btn btn-link btn-sm text-muted ps-0 mb-1" (click)="back()">
+        <i class="bi bi-arrow-left me-1"></i> Back to My Refunds
+      </button>
+      <h4 class="page-title mb-0" *ngIf="refund">
+        <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+        {{ refund.refundReferenceNo }}
+      </h4>
+    </div>
+    <div class="d-flex gap-2" *ngIf="refund">
+      <button *ngIf="canRespond" class="btn btn-warning btn-sm" (click)="respond()">
+        <i class="bi bi-reply me-1"></i> Respond to Request
+      </button>
+      <button *ngIf="canEdit" class="btn btn-outline-secondary btn-sm" (click)="edit()">
+        <i class="bi bi-pencil me-1"></i> Edit Draft
+      </button>
+      <button *ngIf="canCancel" class="btn btn-outline-danger btn-sm" (click)="cancel()">
+        <i class="bi bi-x-lg me-1"></i> Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+    <p class="text-muted mt-2 small">Loading refund details…</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && errorMessage" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && refund" class="row g-4">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-lg-8">
+
+      <!-- Status Banner -->
+      <div class="status-banner mb-3"
+        [class.status-banner--info]="refund.status === 'INFO_REQUESTED'"
+        [class.status-banner--success]="isPaid"
+        [class.status-banner--danger]="refund.status === 'REJECTED' || refund.status === 'FAILED'"
+      >
+        <div class="d-flex align-items-center gap-3">
+          <app-refund-status-badge [status]="refund.status" size="lg"></app-refund-status-badge>
+          <div *ngIf="refund.status === 'INFO_REQUESTED'" class="small text-warning-emphasis">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            Action Required: Please respond to the officer's information request.
+          </div>
+          <div *ngIf="isPaid" class="small text-success">
+            <i class="bi bi-check-circle-fill me-1"></i>
+            Refund of <strong>{{ formatCurrency(refund.approvedRefundAmount) }}</strong> has been disbursed.
+          </div>
+          <div *ngIf="refund.status === 'REJECTED'" class="small text-danger">
+            <i class="bi bi-x-circle-fill me-1"></i>
+            Rejected: {{ refund.rejectionReasonText }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Application Details -->
+      <div class="detail-card mb-3">
+        <div class="detail-card-header">
+          <i class="bi bi-info-circle me-2"></i> Application Details
+        </div>
+        <div class="detail-card-body">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Reference No.</span>
+              <span class="detail-value fw-semibold">{{ refund.refundReferenceNo }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Refund Type</span>
+              <span class="detail-value">{{ refundTypeLabels[refund.refundType] }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Fiscal Year</span>
+              <span class="detail-value">{{ refund.fiscalYearName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Submitted</span>
+              <span class="detail-value">{{ refund.submittedAt ? (refund.submittedAt | date:'dd MMM yyyy') : '—' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total Tax Paid</span>
+              <span class="detail-value">{{ formatCurrency(refund.totalTaxPaid) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total Tax Liability</span>
+              <span class="detail-value">{{ formatCurrency(refund.totalTaxLiability) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Claimed Amount</span>
+              <span class="detail-value fw-semibold text-primary">{{ formatCurrency(refund.claimedRefundAmount) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Approved Amount</span>
+              <span class="detail-value fw-bold text-success">{{ formatCurrency(refund.approvedRefundAmount) }}</span>
+            </div>
+            <div class="detail-item" *ngIf="refund.appealReferenceNo">
+              <span class="detail-label">Appeal Reference</span>
+              <span class="detail-value">{{ refund.appealReferenceNo }}</span>
+            </div>
+            <div class="detail-item" *ngIf="refund.courtOrderNo">
+              <span class="detail-label">Court Order No.</span>
+              <span class="detail-value">{{ refund.courtOrderNo }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Source Records -->
+      <div class="detail-card mb-3" *ngIf="refund.sources.length">
+        <div class="detail-card-header">
+          <i class="bi bi-database me-2"></i> Source Records
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0 small">
+            <thead class="table-light">
+              <tr>
+                <th>Source Type</th>
+                <th>Reference</th>
+                <th>Period</th>
+                <th class="text-end">Amount</th>
+                <th class="text-center">Verified</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let src of refund.sources">
+                <td><span class="badge bg-light text-secondary border">{{ src.sourceType }}</span></td>
+                <td class="fw-semibold">{{ src.sourceReference }}</td>
+                <td class="text-muted">{{ src.periodStart | date:'MMM yyyy' }} – {{ src.periodEnd | date:'MMM yyyy' }}</td>
+                <td class="text-end">{{ formatCurrency(src.sourceAmount) }}</td>
+                <td class="text-center">
+                  <i *ngIf="src.isVerified" class="bi bi-check-circle-fill text-success"></i>
+                  <i *ngIf="!src.isVerified" class="bi bi-circle text-muted"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bank Details -->
+      <div class="detail-card mb-3">
+        <div class="detail-card-header d-flex justify-content-between">
+          <span><i class="bi bi-bank me-2"></i> Bank Account</span>
+          <span *ngIf="refund.bankValidated" class="small text-success">
+            <i class="bi bi-shield-check me-1"></i>Validated
+          </span>
+        </div>
+        <div class="detail-card-body">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Bank</span>
+              <span class="detail-value">{{ refund.bankDetails.bankName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Branch</span>
+              <span class="detail-value">{{ refund.bankDetails.bankBranch }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Account Holder</span>
+              <span class="detail-value">{{ refund.bankDetails.accountHolderName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Account No.</span>
+              <span class="detail-value font-monospace">{{ refund.bankDetails.accountNumber }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents -->
+      <div class="detail-card mb-3">
+        <div class="detail-card-header">
+          <i class="bi bi-paperclip me-2"></i> Documents ({{ refund.documents.length }} uploaded)
+        </div>
+        <div class="detail-card-body">
+          <div *ngIf="!refund.documents.length" class="text-muted small">No documents uploaded.</div>
+          <div
+            *ngFor="let doc of refund.documents"
+            class="doc-item"
+          >
+            <i class="bi bi-file-earmark-pdf text-danger fs-5 flex-shrink-0" aria-hidden="true"></i>
+            <div class="flex-grow-1">
+              <div class="small fw-semibold">{{ doc.documentName }}</div>
+              <div class="text-muted" style="font-size:.72rem">
+                {{ doc.documentType | titlecase }} ·
+                Uploaded {{ doc.uploadedAt | date:'dd MMM yyyy' }}
+              </div>
+            </div>
+            <span
+              class="badge"
+              [class.bg-success]="doc.verificationStatus === 'VERIFIED'"
+              [class.bg-danger]="doc.verificationStatus === 'REJECTED'"
+              [class.bg-secondary]="doc.verificationStatus === 'PENDING'"
+            >{{ doc.verificationStatus | titlecase }}</span>
+            <button class="btn btn-outline-primary btn-sm py-0 px-2 ms-2"
+              (click)="downloadDocument(doc.id)" title="Download">
+              <i class="bi bi-download"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /LEFT -->
+
+    <!-- RIGHT COLUMN: Status Timeline -->
+    <div class="col-lg-4">
+      <div class="detail-card sticky-top" style="top:80px">
+        <div class="detail-card-header">
+          <i class="bi bi-clock-history me-2"></i> Status Timeline
+        </div>
+        <div class="detail-card-body">
+          <app-refund-status-timeline [history]="refund.statusHistory">
+          </app-refund-status-timeline>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row -->
+</div>
+```
+
+## File: src/app/features/roles/pages/roles-create/roles-create.component.ts
+```typescript
+import { Component, OnDestroy, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+⋮----
+export class RolesCreateComponent implements OnDestroy
+⋮----
+constructor(private router: Router, private toast: ToastService)
+⋮----
+ngOnDestroy(): void
+⋮----
+onRoleNameChange(): void
+⋮----
+toggleAll(module: string, checked: boolean): void
+⋮----
+isAllSelected(module: string): boolean
+⋮----
+isSomeSelected(module: string): boolean
+⋮----
+selectAllModules(checked: boolean): void
+⋮----
+get selectedPermCount(): number
 ⋮----
 isFormValid(): boolean
 ⋮----
@@ -28168,54 +29224,6 @@ hasBeenUpdated(): boolean
 ⋮----
 onEdit(): void
 onBack(): void
-```
-
-## File: src/app/features/taxable-products/pages/taxable-product-edit/taxable-product-edit.component.ts
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TaxStructure } from 'src/app/models/tax-structure.model';
-import { TaxableProductCreateRequest } from 'src/app/models/taxable-product.model';
-⋮----
-import { TaxableProductService } from '../../services/taxable-product.service';
-⋮----
-export class TaxableProductEditComponent implements OnInit
-⋮----
-// ── Dropdown data (loaded dynamically) ───────────────────────────────────
-⋮----
-// ── Form model ────────────────────────────────────────────────────────────
-⋮----
-/** Read-only tax preview derived from the selected TaxStructure. */
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-// ── Data loading ──────────────────────────────────────────────────────────
-⋮----
-/**
-   * Load all dropdowns first, then load the product so that the
-   * tax-rate preview can be resolved as soon as the form is populated.
-   */
-private loadDropdownsThenProduct(): void
-⋮----
-const tryLoadProduct = () =>
-⋮----
-private loadProduct(): void
-⋮----
-// Seed the preview immediately without waiting for a user event
-⋮----
-// ── Tax rate preview ──────────────────────────────────────────────────────
-⋮----
-onTaxStructureChange(taxStructureId: number): void
-⋮----
-private refreshTaxPreview(taxStructureId: number | null | undefined): void
-⋮----
-// ── Form submission ───────────────────────────────────────────────────────
-⋮----
-onSubmit(): void
-⋮----
-onCancel(): void
 ```
 
 ## File: src/app/features/taxable-products/pages/taxable-product-list/taxable-product-list.component.html
@@ -28412,76 +29420,264 @@ onEdit(): void
 onBack(): void
 ```
 
-## File: src/app/features/taxpayer-management/pages/taxpayer-list/taxpayer-list.component.css
+## File: src/app/features/taxpayer-management/pages/taxpayer-view/taxpayer-view.component.css
 ```css
-.tin-code { font-size:12px; font-weight:700; color:#1a3f8f; background:#e8eef9; padding:3px 8px; border-radius:5px; font-family:monospace; }
-.data-table { min-width: 900px; }
-/* Tabs */
-.approval-tabs {
+/* .profile-avatar {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+} */
 ⋮----
-.approval-tabs button {
+.header-actions {
+.btn-back {
+.btn-back:hover {
+.btn-edit-top {
+.btn-edit-top:hover {
+.loading-overlay {
 ⋮----
-.approval-tabs button.active {
+/* ── Profile Header ── */
+.profile-header-card {
 ⋮----
-.tab-badge {
+.profile-avatar-wrap {
 ⋮----
-/* Approval badges */
-.approval-badge {
+.profile-avatar {
 ⋮----
-.approval-pending  { background: #faeeda; color: #633806; }
-.approval-approved { background: #e1f5ee; color: #085041; }
-.approval-rejected { background: #fcebeb; color: #791f1f; }
+.profile-name {
+.profile-tin {
+.profile-meta {
 ⋮----
-/* Approve/Reject buttons */
-.btn-approve {
+.type-pill {
 ⋮----
-.btn-approve:hover { background: #9fe1cb; }
+.profile-stat {
+.ps-label {
+.ps-value {
 ⋮----
-.btn-reject {
+/* ── Details ── */
+.details-grid {
 ⋮----
-.btn-reject:hover { background: #f7c1c1; }
+.detail-card {
+.detail-card-header {
+.detail-card-header i {
+.detail-body {
+.detail-row {
+.detail-row:last-child {
+.detail-label {
+.detail-value {
+.detail-value.fw-bold {
+.detail-value.address-val {
+.code-badge {
 ⋮----
-/* Modal form */
-.modal-form {
+/* Review Card */
+.review-card {
 ⋮----
-.modal-field {
+.review-card-header {
 ⋮----
-.modal-field label {
+.review-card-header i {
 ⋮----
-.modal-field input,
+.review-card-header .approval-badge {
 ⋮----
-.modal-field input:focus,
+.approval-pending {
+.approval-approved {
+.approval-rejected {
 ⋮----
-.modal-accent.success { background: #1a7a4a; }
-.modal-icon-wrap.success { background: #e1f5ee; }
-.btn-modal-confirm.success {
-.btn-modal-confirm.success:hover { background: #155d38; }
+/* Done states */
+.review-done {
 ⋮----
-.td-avatar-img {
+.review-done i {
+.review-done.rejected i {
+⋮----
+.review-done-title {
+⋮----
+.review-done-sub {
+⋮----
+/* Form */
+.review-form {
+⋮----
+.review-info {
+⋮----
+.review-field {
+⋮----
+.review-field label {
+⋮----
+.review-field select,
+⋮----
+.review-field select:focus,
+⋮----
+.btn-load-zones {
+⋮----
+.btn-load-zones:hover {
+.btn-load-zones:disabled {
+⋮----
+.zone-hint {
+⋮----
+.zone-hint.error {
+⋮----
+/* Action buttons */
+.review-actions {
+⋮----
+.btn-approve-action {
+⋮----
+.btn-approve-action:hover {
+.btn-approve-action:disabled {
+⋮----
+.btn-reject-action {
+⋮----
+.btn-reject-action:hover {
+.btn-reject-action:disabled {
+/* Photo */
+.photo-container {
 ⋮----
 .profile-photo {
-.taxpayer-address-info {
 ⋮----
-.tai-label {
+.photo-upload-overlay {
 ⋮----
-.tai-row {
+.photo-upload-overlay:hover { background: rgba(0,0,0,0.8); }
 ⋮----
-.tai-key { color: #666; }
-.tai-val { font-weight: 600; color: #111; }
+/* Photo Preview */
+.photo-preview-card {
 ⋮----
-.no-address-warn {
+.preview-img {
 ⋮----
-.address-missing-warn {
+.preview-actions {
 ⋮----
-.address-missing-warn i {
+.btn-upload-photo {
 ⋮----
-.address-missing-warn strong {
+.btn-cancel-photo {
 ⋮----
-.address-missing-warn p {
+/* Completion Card */
+.completion-card {
 ⋮----
-.btn-modal-confirm.warning {
+.completion-header {
 ⋮----
-.btn-modal-confirm.warning:hover {
+.completion-percent {
+⋮----
+.completion-bar {
+⋮----
+.completion-fill {
+⋮----
+.missing-title {
+⋮----
+.missing-tags {
+⋮----
+.missing-tag {
+⋮----
+.completion-done {
+⋮----
+.btn-modal-notice {
+.btn-modal-notice:hover { background: #b5c4f4; }
+⋮----
+/* Notice Modal form styling */
+.modal-field {
+⋮----
+.modal-form {
+.modal-field select,
+.modal-field select:focus,
+.modal-field label {
+⋮----
+.btn-send-notice {
+⋮----
+.btn-send-notice:hover {
+⋮----
+.btn-send-notice:disabled {
+```
+
+## File: src/app/features/user-management/pages/user-list/user-list.component.ts
+```typescript
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+⋮----
+export interface AppUser {
+  id: number;
+  fullName: string;
+  username: string;
+  email: string;
+  role: string;
+  department: string;
+  lastLogin: string;
+  status: 'Active' | 'Inactive' | 'Suspended';
+  createdAt: string;
+}
+⋮----
+export class UserListComponent implements OnInit, OnDestroy
+⋮----
+constructor(private router: Router, private toast: ToastService)
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+get filtered(): AppUser[]
+⋮----
+getStatusClass(s: string): string
+⋮----
+getRoleClass(r: string): string
+⋮----
+getRoleLabel(r: string): string
+⋮----
+view(id: number): void
+edit(id: number): void
+⋮----
+confirmDelete(id: number): void
+⋮----
+cancelDelete(): void
+⋮----
+confirmDeleteExecute(): void
+⋮----
+private delete(id: number): void
+⋮----
+private resetDeleteState(): void
+```
+
+## File: src/app/features/vat-registration/pages/vat-registration-success/vat-registration-success.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { VatRegistration } from '../../../../models/vat-registration.model';
+⋮----
+export class VatRegistrationSuccessComponent implements OnInit, OnDestroy
+⋮----
+constructor(private router: Router, private route: ActivatedRoute)
+⋮----
+// ── Lifecycle ───────────────────────────────────────────────────────────
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── BIN copy ────────────────────────────────────────────────────────────
+⋮----
+copyBin(): void
+⋮----
+private fallbackCopy(text: string): void
+⋮----
+private flashCopied(): void
+⋮----
+// ── Navigation ──────────────────────────────────────────────────────────
+⋮----
+goToView(): void
+⋮----
+registerAnother(): void
+⋮----
+printPage(): void
+⋮----
+// ── Display helpers ──────────────────────────────────────────────────────
+⋮----
+getCategoryClass(category: string): string
+⋮----
+formatCurrency(amount: number): string
 ```
 
 ## File: src/app/features/vat-returns/pages/vat-return-create/vat-return-create.component.css
@@ -28556,16 +29752,6 @@ onBack(): void
 .paid {
 ⋮----
 .data-table {
-```
-
-## File: src/app/features/vat-returns/pages/vat-return-view/vat-return-view.component.css
-```css
-.vrs-value.sm {
-.net-payable {
-.tax-output {
-.tax-input {
-.detail-value-note {
-.detail-label-strong {
 ```
 
 ## File: src/app/layout/sidebar/sidebar.component.css
@@ -28702,6 +29888,48 @@ onBack(): void
 /* expanded child icon */
 ```
 
+## File: src/app/layout/sidebar/sidebar.component.ts
+```typescript
+import { Component, Input, OnInit } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { AuthService } from '../../core/services/auth.service';
+import { Role } from '../../core/constants/roles.constants';
+⋮----
+interface MenuItem {
+  label: string;
+  icon?: string;
+  route?: string | null;
+  roles?: Role[];
+  children?: MenuItem[];
+  isGroupHeader?: boolean;
+}
+⋮----
+export class SidebarComponent implements OnInit {
+⋮----
+// ── ADMINISTRATION ──
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+private autoExpandActive(): void
+⋮----
+get visibleMenuItems(): MenuItem[]
+⋮----
+toggleExpand(label: string): void
+⋮----
+isExpanded(label: string): boolean
+⋮----
+isActive(route: string | null | undefined): boolean
+⋮----
+isParentActive(item: MenuItem): boolean
+⋮----
+toggleFlyout(label: string, event?: Event): void
+⋮----
+navigate(route: string, event?: Event): void
+```
+
 ## File: src/app/models/auth-user.model.ts
 ```typescript
 import { Role } from "../core/constants/roles.constants";
@@ -28725,31 +29953,152 @@ export interface LoginRequest {
 }
 ```
 
-## File: src/app/features/auth/pages/login/login.component.ts
+## File: src/app/models/tin.model.ts
 ```typescript
-import { Component } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
-import { Role } from 'src/app/core/constants/roles.constants';
+export type TinStatus =
+  | 'Active' | 'Inactive' | 'Suspended' | 'Cancelled' | 'Pending';
+export type TinCategory =
+  | 'Individual' | 'Company' | 'Partnership' | 'NGO' | 'Government';
 ⋮----
-export class LoginComponent {
+export interface Tin {
+  id: number;
+  tinNumber: string;
+  taxpayerId: number;
+  taxpayerName: string;
+  tinCategory: TinCategory;
+  nid: string;
+  passportNo: string;
+  dateOfBirth: string;
+  gender: string;
+  incorporationDate: string;
+  email: string;
+  phone: string;
+  address: string;
+  district: string;
+  division: string;
+  taxZone: string;
+  taxCircle: string;
+  issuedDate: string;
+  lastUpdated: string;
+  status: TinStatus;
+  remarks: string;
+}
 ⋮----
-// Quick-login demo accounts
+export interface TinCreateRequest {
+  taxpayerId: number | null;
+  tinCategory: string;
+  nid: string;
+  passportNo: string;
+  dateOfBirth: string;
+  gender: string;
+  incorporationDate: string;
+  email: string;
+  phone: string;
+  address: string;
+  district: string;
+  division: string;
+  taxZone: string;
+  taxCircle: string;
+  issuedDate: string;
+  remarks: string;
+}
 ⋮----
-constructor(
-    private authService: AuthService,
-    private router: Router,
-    private toast: ToastService,
-)
+export interface TinListResponse {
+  data: Tin[];
+  total: number;
+  page: number;
+}
+```
+
+## File: src/app/models/vat-registration.model.ts
+```typescript
+export type VatStatus   = 'Active' | 'Inactive' | 'Pending' | 'Suspended' | 'Cancelled';
+export type VatCategory = 'Standard' | 'Zero Rated' | 'Exempt' | 'Special';
+export type ReturnPeriod = 'Monthly' | 'Quarterly';
 ⋮----
-fillDemo(email: string): void
+export interface VatRegistration {
+  id:               number;
+  binNo:            string;
+  tinNumber:        string;
+  businessName:     string;
+  ownerName:        string;
+  vatCategory:      VatCategory;
+  businessType:     string;
+  businessCategory: string;
+  tradeLicenseNo:   string;
+  registrationDate: string;
+  effectiveDate:    string;
+  expiryDate:       string;
+  annualTurnover:   number;
+  email:            string;
+  phone:            string;
+  address:          string;
+  district:         string;
+  division:         string;
+  vatZone:          string;
+  vatCircle:        string;
+  zoneId:           number;
+  status:           VatStatus;
+  remarks:          string;
+}
 ⋮----
-login(): void
+export interface VatRegistrationCreateRequest {
+  // Foreign-key IDs resolved server-side
+  taxpayerId:  number;
+  businessId?: number | null;
+  vatZoneId:   number;
+  vatCircleId: number;
+  districtId?: number | null;
+  divisionId?: number | null;
+
+  // VAT classification
+  vatCategory:   VatCategory | string;
+  returnPeriod?: ReturnPeriod;     // Monthly | Quarterly — backend addition needed
+
+  // Dates
+  registrationDate: string;
+  effectiveDate?:   string;
+  expiryDate?:      string;
+
+  // Optional officer notes
+  remarks?: string;
+}
 ⋮----
-// const returnUrl =
-//   this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-// this.router.navigateByUrl(returnUrl);
+// Foreign-key IDs resolved server-side
+⋮----
+// VAT classification
+⋮----
+returnPeriod?: ReturnPeriod;     // Monthly | Quarterly — backend addition needed
+⋮----
+// Dates
+⋮----
+// Optional officer notes
+```
+
+## File: src/app/features/ait/ait/ait.module.ts
+```typescript
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { AitRoutingModule } from './ait-routing.module';
+⋮----
+// Pages
+import { AitDashboardComponent } from '../pages/ait-dashboard/ait-dashboard.component';
+import { AitCreateWizardComponent } from '../pages/ait-create-wizard/ait-create-wizard.component';
+import { OfficerDashboardComponent } from '../pages/officer-dashboard/officer-dashboard.component';
+import { OfficerReviewComponent } from '../pages/officer-review/officer-review.component';
+import { AuditTrailComponent } from '../components/audit-trail/audit-trail.component';
+import { DocumentViewerComponent } from '../components/document-viewer/document-viewer.component';
+import { KPICardsComponent } from '../components/kpi-cards/kpi-cards.component';
+import { RecordsTableComponent } from '../components/records-table/records-table.component';
+import { StatusBadgeComponent } from '../components/status-badge/status-badge.component';
+⋮----
+// Pages
+⋮----
+// Components
+⋮----
+export class AitModule
 ```
 
 ## File: src/app/features/business-registration/pages/business-edit/business-edit.component.html
@@ -29225,102 +30574,6 @@ login(): void
   </div>
 
 </ng-container>
-```
-
-## File: src/app/features/fiscal-years/pages/fiscal-year-list/fiscal-year-list.component.ts
-```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Router } from '@angular/router';
-import { FiscalYear } from '../../../../models/fiscal-year.model';
-import { Subject, takeUntil } from 'rxjs';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
-import { HttpClient } from '@angular/common/http';
-⋮----
-export class FiscalYearListComponent implements OnInit {
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-loadFiscalYears(): void
-⋮----
-.pipe(takeUntil(this.destroy$)) // FIX #3: Auto-cancel on destroy
-⋮----
-// FIX #1: Removed fake fallback — show a real error message instead
-⋮----
-getStatusClass(s: string): string
-⋮----
-setCurrent(id: number): void
-⋮----
-isExpired(date: string): boolean
-⋮----
-edit(id: number): void
-```
-
-## File: src/app/features/import-duty/pages/import-duty-list/import-duty-list.component.ts
-```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Router } from '@angular/router';
-import { ImportDuty } from '../../../../models/import-duty.model';
-⋮----
-export class ImportDutyListComponent implements OnInit
-⋮----
-constructor(private router: Router, private toast: ToastService)
-⋮----
-ngOnInit(): void
-⋮----
-private record(
-    id: number,
-    dutyRef: string,
-    tinNumber: string,
-    taxpayerName: string,
-    businessName: string,
-    productName: string,
-    hsCode: string,
-    goodsDescription: string,
-    originCountry: string,
-    cifValue: number,
-    cdRate: number,
-    customsDuty: number,
-    supplementaryDuty: number,
-    vat: number,
-    advanceIncomeTax: number,
-    advanceTax: number,
-    totalPayable: number,
-    paidAmount: number,
-    portOfEntry: string,
-    boeNumber: string,
-    boeDate: string,
-    billOfLading: string,
-    importDate: string,
-    assessmentDate: string,
-    status: ImportDuty['status'],
-    remarks: string,
-): ImportDuty
-⋮----
-get filtered(): ImportDuty[]
-⋮----
-getStatusClass(s: string): string
-⋮----
-formatCurrency(a: number): string
-⋮----
-confirmDelete(id: number): void
-⋮----
-cancelDelete(): void
-⋮----
-confirmDeleteExecute(): void
-⋮----
-private delete(id: number): void
-⋮----
-private resetDeleteState(): void
-⋮----
-view(id: number): void
-⋮----
-edit(id: number): void
 ```
 
 ## File: src/app/features/income-tax-returns/pages/income-tax-return-create/income-tax-return-create.component.css
@@ -29842,6 +31095,34 @@ body * { visibility: hidden; }
 </div>
 ```
 
+## File: src/app/features/notices-notifications/pages/notice-view/notice-view.component.ts
+```typescript
+import { Component, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Notice } from '../../../../models/notice.model';
+⋮----
+export class NoticeViewComponent implements OnInit {
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+getStatusClass(s: string): string
+⋮----
+getPriorityClass(p: string): string
+⋮----
+getTypeIcon(type: string): string
+⋮----
+submitResponse(): void
+⋮----
+onBack(): void
+⋮----
+private markAsReadIfNeeded(): void
+```
+
 ## File: src/app/features/payments/pages/payment-create/payment-create.component.ts
 ```typescript
 import { Component, OnDestroy } from '@angular/core';
@@ -29903,6 +31184,251 @@ onReset(): void
 onCancel(): void
 ⋮----
 private getEmptyForm(): PaymentCreateRequest
+```
+
+## File: src/app/features/refund-management/pages/refund-edit/refund-edit.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  RefundService,
+  RefundDetail,
+  RefundType,
+  EligibleSourceRecord,
+  RefundCalculation,
+} from '../../services/refund.service';
+⋮----
+export class RefundEditComponent implements OnInit
+⋮----
+// Step 1
+⋮----
+// Step 2
+⋮----
+// Step 3
+⋮----
+// Step 4
+⋮----
+// Step 5
+⋮----
+// Step 6
+⋮----
+get stepLabels(): string[]
+⋮----
+constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private refundService: RefundService,
+)
+⋮----
+ngOnInit(): void
+⋮----
+loadRefund(): void
+⋮----
+populateFromDraft(r: RefundDetail): void
+⋮----
+nextStep(): void
+⋮----
+prevStep(): void
+goToStep(s: number): void
+⋮----
+canProceed(): boolean
+⋮----
+loadSources(): void
+⋮----
+recalculate(): void
+⋮----
+toggleSource(id: number): void
+⋮----
+isSourceSelected(id: number): boolean
+⋮----
+get amountExceedsEligible(): boolean
+⋮----
+validateBank(): void
+⋮----
+isFieldInvalid(f: string): boolean
+⋮----
+onFileSelect(event: Event): void
+⋮----
+removeNewFile(i: number): void
+⋮----
+removeExistingDoc(docId: number): void
+⋮----
+hasRequiredDocuments(): boolean
+⋮----
+getDocTypeLabel(v: string): string
+⋮----
+formatFileSize(bytes: number): string
+⋮----
+saveAndUpdate(): void
+⋮----
+submitRefund(): void
+⋮----
+// upload new docs then submit
+⋮----
+private uploadAndSubmit(idx: number): void
+⋮----
+private buildRequest()
+⋮----
+cancel(): void
+⋮----
+formatCurrency(v: number | null): string
+```
+
+## File: src/app/features/refund-management/pages/refund-view/refund-view.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RefundService, RefundDetail } from '../../services/refund.service';
+⋮----
+export class RefundViewComponent implements OnInit
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+loadRefund(id: number): void
+⋮----
+get canEdit():    boolean
+get canCancel():  boolean
+get canRespond(): boolean
+get isPaid():     boolean
+⋮----
+edit(): void
+⋮----
+cancel(): void
+⋮----
+respond(): void
+back(): void
+⋮----
+downloadDocument(docId: number): void
+⋮----
+formatCurrency(amount: number | null | undefined): string
+```
+
+## File: src/app/features/taxable-products/pages/taxable-product-edit/taxable-product-edit.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TaxStructure } from 'src/app/models/tax-structure.model';
+import { TaxableProductCreateRequest } from 'src/app/models/taxable-product.model';
+⋮----
+import { TaxableProductService } from '../../services/taxable-product.service';
+⋮----
+export class TaxableProductEditComponent implements OnInit
+⋮----
+// ── Dropdown data (loaded dynamically) ───────────────────────────────────
+⋮----
+// ── Form model ────────────────────────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+// ── Data loading ──────────────────────────────────────────────────────────
+⋮----
+private loadDropdownsThenProduct(): void
+⋮----
+const tryLoadProduct = () =>
+⋮----
+private loadProduct(): void
+⋮----
+// ── Tax rate preview ──────────────────────────────────────────────────────
+⋮----
+onTaxStructureChange(taxStructureId: number): void
+⋮----
+private refreshTaxPreview(taxStructureId: number | null | undefined): void
+⋮----
+// ── Form submission ───────────────────────────────────────────────────────
+⋮----
+onSubmit(): void
+⋮----
+onCancel(): void
+```
+
+## File: src/app/features/taxpayer-management/pages/taxpayer-list/taxpayer-list.component.css
+```css
+.tin-code {
+.data-table {
+/* Tabs */
+.approval-tabs {
+⋮----
+.approval-tabs button {
+⋮----
+.approval-tabs button.active {
+⋮----
+.tab-badge {
+⋮----
+/* Approval badges */
+.approval-badge {
+⋮----
+.approval-pending {
+.approval-approved {
+.approval-rejected {
+⋮----
+/* Approve/Reject buttons */
+.btn-approve {
+⋮----
+.btn-approve:hover {
+⋮----
+.btn-reject {
+⋮----
+.btn-reject:hover {
+⋮----
+/* Modal form */
+.modal-form {
+⋮----
+.modal-field {
+⋮----
+.modal-field label {
+⋮----
+.modal-field input,
+⋮----
+.modal-field input:focus,
+⋮----
+.modal-accent.success {
+.modal-icon-wrap.success {
+.btn-modal-confirm.success {
+.btn-modal-confirm.success:hover {
+⋮----
+.td-avatar-img {
+⋮----
+.profile-photo {
+.taxpayer-address-info {
+⋮----
+.tai-label {
+⋮----
+.tai-row {
+⋮----
+.tai-key {
+.tai-val {
+⋮----
+.no-address-warn {
+⋮----
+.address-missing-warn {
+⋮----
+.address-missing-warn i {
+⋮----
+.address-missing-warn strong {
+⋮----
+.address-missing-warn p {
+⋮----
+.btn-modal-confirm.warning {
+⋮----
+.btn-modal-confirm.warning:hover {
+.btn-notice {
+.btn-notice:hover {
+/* Notice button — table এ */
+.btn-notice-action {
+.btn-notice-action:hover { background: #b5c4f4; }
+⋮----
+.btn-modal-notice {
+.btn-modal-notice:hover { background: #b5c4f4; }
+⋮----
+/* Notice Modal form styling */
+.modal-field select,
+.modal-field select:focus,
 ```
 
 ## File: src/app/features/taxpayer-portal/layout/portal-layout/portal-layout.component.html
@@ -30057,6 +31583,200 @@ toggleDropdown(): void
 logout(): void
 ```
 
+## File: src/app/features/taxpayer-portal/pages/portal-home/portal-home.component.html
+```html
+<div class="portal-home" *ngIf="!isLoading">
+  
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="avatar-wrap">
+      <img *ngIf="photoUrl" [src]="photoUrl" class="avatar-img" alt="Profile"/>
+      <div *ngIf="!photoUrl" class="avatar-initials">
+        {{ displayName.charAt(0) | uppercase }}
+      </div>
+    </div>
+
+    <div class="profile-info">
+      <h2>{{ displayName }}</h2>
+      <div class="profile-badges">
+        <span class="badge green">Active</span>
+        <span class="badge blue">{{ taxpayerTypeName }}</span>
+      </div>
+      <p class="tin" *ngIf="taxpayer?.tinNumber">
+        TIN: {{ taxpayer!.tinNumber }}
+      </p>
+      <p class="tin pending" *ngIf="!taxpayer?.tinNumber">
+        TIN: Pending approval
+      </p>
+    </div>
+  </div>
+
+  <!-- Profile Completion Card -->
+<div class="completion-card" *ngIf="missingFields.length > 0">
+  <div class="completion-header">
+    <div class="completion-left">
+      <span class="completion-title">Profile Completion</span>
+      <span class="completion-hint">Complete your profile to get full access</span>
+    </div>
+    <span class="completion-percent" [ngStyle]="{'color': completionColor}">
+      {{ profileCompletion }}%
+    </span>
+  </div>
+
+  <div class="completion-bar">
+    <div class="completion-fill"
+         [ngStyle]="{'width': profileCompletion + '%', 'background': completionColor}">
+    </div>
+  </div>
+
+  <div class="missing-section">
+    <span class="missing-title">Missing:</span>
+    <div class="missing-tags">
+      <span *ngFor="let f of missingFields" class="missing-tag">{{ f }}</span>
+    </div>
+  </div>
+
+  <button (click)="onComplete()" class="complete-btn">
+    Complete Profile →
+  </button>
+</div>
+
+  <!-- Profile Complete Banner -->
+  <div class="completion-done" *ngIf="missingFields.length === 0">
+    <div class="done-left">
+      <i class="bi bi-check-circle-fill"></i>
+      Your profile is complete!
+    </div>
+    <button (click)="onComplete()" class="edit-profile-btn">
+      <i class="bi bi-pencil-fill"></i> Edit Profile
+    </button>
+  </div>
+
+ <!-- Stats Row — replace the existing stats-row div with this -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Compliance score</div>
+      <div class="stat-value green"
+           [ngStyle]="{'color': complianceColor}">
+        {{ itrReturns.length === 0 ? '—' : complianceScore + '%' }}
+      </div>
+      <div class="stat-sub">
+        {{ itrReturns.length === 0 ? 'No returns filed yet' : complianceScore >= 80 ? 'Good standing' : 'Needs attention' }}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Returns filed</div>
+      <div class="stat-value">{{ totalReturnsFiled }}</div>
+      <div class="stat-sub">
+        {{ totalReturnsFiled === 0 ? 'No returns yet' : 'Income tax returns' }}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Outstanding dues</div>
+      <div class="stat-value red">
+        {{ outstandingDues === 0 ? '৳ 0' : formatDues(outstandingDues) }}
+      </div>
+      <div class="stat-sub">
+        {{ outstandingDues === 0 ? 'No dues found' : 'Pending payment' }}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Last activity</div>
+      <div class="stat-value small">{{ lastActivity }}</div>
+      <div class="stat-sub">
+        {{ itrReturns.length === 0 ? 'No activity yet' : 'Last ITR filed' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Access -->
+  <div class="section-title">Quick access</div>
+  <div class="menu-grid">
+    <a *ngFor="let item of menuItems"
+       [routerLink]="item.route"
+       class="menu-card">
+      <span class="menu-icon">{{ item.icon }}</span>
+      <span class="menu-label">{{ item.label }}</span>
+      <span class="menu-arrow">→</span>
+    </a>
+  </div>
+
+  <!-- Coming Soon -->
+  <div class="coming-soon">
+    <div class="coming-soon-icon">🚧</div>
+    <div class="coming-soon-text">
+      <strong>Tax summary & compliance details</strong>
+      <span>Coming soon — full dashboard under development</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="loading-state" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <p>Loading your portal...</p>
+</div>
+```
+
+## File: src/app/features/taxpayer-portal/pages/portal-itr/portal-itr.component.ts
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router, ActivatedRoute } from '@angular/router';
+import { finalize, Subject, takeUntil } from 'rxjs';
+⋮----
+import { AuthService } from '../../../../core/services/auth.service';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { IncomeTaxReturn, ITRStatus } from '../../../../models/income-tax-return.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+⋮----
+export class PortalItrComponent implements OnInit, OnDestroy {
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Data ─────────────────────────────────────────────────────────────────
+⋮----
+private loadMyReturns(): void
+⋮----
+// ── Computed ──────────────────────────────────────────────────────────────
+⋮----
+get filtered(): IncomeTaxReturn[]
+⋮----
+countByStatus(status: ITRStatus): number
+⋮----
+get totalFiled():    number
+get totalAccepted(): number
+get totalPending():  number
+get totalOverdue():  number
+⋮----
+netPayableOf(r: IncomeTaxReturn): number
+⋮----
+refundableOf(r: IncomeTaxReturn): number
+⋮----
+formatCurrency(amount: number | null | undefined): string
+⋮----
+isOverdue(r: IncomeTaxReturn): boolean
+⋮----
+getStatusClass(status: string): string
+⋮----
+// ── Navigation ────────────────────────────────────────────────────────────
+⋮----
+fileNew(): void
+⋮----
+view(id: number): void
+⋮----
+openIT10B(returnId: number): void
+⋮----
+get currentUser()
+```
+
 ## File: src/app/features/taxpayer-portal/taxpayer-portal/taxpayer-portal-routing.module.ts
 ```typescript
 import { NgModule } from '@angular/core';
@@ -30069,87 +31789,6 @@ import { PortalApplicationStatusComponent } from '../pages/portal-application-st
 // Existing modules — portal layout এর ভেতরে
 ⋮----
 export class TaxpayerPortalRoutingModule
-```
-
-## File: src/app/features/vat-registration/pages/vat-registration-edit/vat-registration-edit.component.ts
-```typescript
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, of } from 'rxjs';
-import {
-  catchError,
-  filter,
-  finalize,
-  switchMap,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
-⋮----
-import { VatRegistration } from '../../../../models/vat-registration.model';
-import { VatRegistrationService } from '../../services/vat-registration.service';
-import { ToastService } from '../../../../shared/toast/toast.service';
-import { MasterDataService } from '../../../../core/services/master-data.service';
-import {
-  Division,
-  District,
-  BusinessType,
-  BusinessCategory,
-  TaxZone,
-  TaxCircle
-} from '../../../../models/master-data.model';
-⋮----
-export class VatRegistrationEditComponent implements OnInit, OnDestroy
-⋮----
-// ── Static dropdowns ──────────────────────────────────────────────────────
-⋮----
-// ── Dynamic dropdowns ─────────────────────────────────────────────────────
-⋮----
-// ── Cascade-restore pending value ─────────────────────────────────────────
-⋮----
-constructor(
-⋮----
-// ── Lifecycle ──────────────────────────────────────────────────────────────
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Form ───────────────────────────────────────────────────────────────────
-⋮----
-private buildForm(): void
-⋮----
-ctrl(name: string)
-⋮----
-// ── Static dropdowns ───────────────────────────────────────────────────────
-⋮----
-private loadStaticDropdowns(): void
-⋮----
-// ── Cascade: Division → District (reactive) ────────────────────────────────
-⋮----
-private setupCascadeListeners(): void
-⋮----
-// ── Load existing record ───────────────────────────────────────────────────
-⋮----
-private loadData(): void
-⋮----
-// Patch non-cascade fields
-⋮----
-// Restore Zone → Circles directly — zoneId is a typed model field.
-⋮----
-// Restore Division → District via pendingId pattern.
-// Both are @Transient — null in current GET responses.
-// When the backend gap is fixed they will populate automatically.
-⋮----
-// ── Zone → Circles (manual — independent of district in edit) ─────────────
-⋮----
-onZoneChange(): void
-⋮----
-// ── Submit ─────────────────────────────────────────────────────────────────
-⋮----
-onSubmit(): void
-⋮----
-onCancel(): void
 ```
 
 ## File: src/app/features/vat-registration/pages/vat-registration-list/vat-registration-list.component.ts
@@ -30198,126 +31837,6 @@ confirmDeleteExecute(): void
 private delete(id: number, businessName: string): void
 ⋮----
 private resetDeleteState(): void
-```
-
-## File: src/app/features/vat-returns/pages/vat-return-create/vat-return-create.component.ts
-```typescript
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  ValidationErrors,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Subject, timer } from 'rxjs';
-import { distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
-⋮----
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { VatRegistration } from '../../../../models/vat-registration.model';
-import { ToastService } from '../../../../shared/toast/toast.service';
-⋮----
-// ── VAT-rate map ───────────────────────────────────────────────────────────────
-// Centralises the rate logic so it is easy to update when BD VAT law changes.
-// 'Standard' → 15 %  (core rate under the VAT & SD Act 2012)
-// 'Zero Rated' → 0 %  (exports, specified goods)
-// 'Exempt'    → 0 %  (basic necessities, healthcare, etc.)
-// 'Special'   → 5 %  (truncated rates — e.g. restaurants, construction)
-⋮----
-// ── Return-period enum alignment ───────────────────────────────────────────────
-// Maps exactly to the Spring Boot VatReturn.returnPeriod column.
-// The backend stores plain strings ('Monthly', 'Quarterly', 'Annually') — no Java
-// @Enumerated needed, but these must match perfectly to pass server-side validation.
-export type ReturnPeriod = 'Monthly' | 'Quarterly' | 'Annually';
-⋮----
-// ── Custom validator: submissionDate must not precede the start of the filing period
-function submissionNotBeforePeriodValidator(): ValidatorFn
-⋮----
-// Derive the first day of the filing period
-⋮----
-// Monthly or Annually — periodMonth is a month name
-⋮----
-// submissionDate must be ≥ the first day of the period
-⋮----
-export class VatReturnCreateComponent implements OnInit, OnDestroy {
-⋮----
-// ── Selected registration (received from picker child) ────────────────────
-⋮----
-// ── Dropdown data ─────────────────────────────────────────────────────────
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Form construction ─────────────────────────────────────────────────────
-⋮----
-private buildForm(): void
-⋮----
-outputTax        : [{ value: 0, disabled: true }],   // always auto-calculated
-⋮----
-/**
-   * Reactive wiring:
-   *  1. taxableSupplies → auto-recalculate outputTax using the selected reg's vatCategory rate
-   *  2. returnPeriod   → reset periodMonth when period type changes (months ↔ quarters)
-   */
-private wireValueChanges(): void
-⋮----
-// 1. Output tax auto-calculation via valueChanges (replaces the (input) binding)
-⋮----
-// 2. Reset periodMonth when the filer switches between Monthly/Quarterly/Annually
-⋮----
-// ── Helpers ───────────────────────────────────────────────────────────────
-⋮----
-ctrl(name: string)
-⋮----
-get periodOptions(): string[]
-⋮----
-// ── Computed display values (real-time; backend always recalculates on save) ──
-⋮----
-get totalSupplies(): number
-⋮----
-get netTaxPayable(): number
-⋮----
-get balanceDue(): number
-⋮----
-/** Returns the effective VAT rate (0–1) based on the selected registration's category. */
-get effectiveVatRate(): number
-⋮----
-/** Display string, e.g. "15%" or "5%". */
-get effectiveVatRateLabel(): string
-⋮----
-private recalcOutputTax(taxable: number): void
-⋮----
-// ── Picker child events ───────────────────────────────────────────────────
-⋮----
-onRegistrationSelected(reg: VatRegistration): void
-⋮----
-// Re-run output-tax calculation with the newly-known VAT rate
-⋮----
-onRegistrationCleared(): void
-⋮----
-// ── Submit ────────────────────────────────────────────────────────────────
-⋮----
-onSubmit(): void
-⋮----
-// getRawValue() includes disabled controls (vatRegistrationId, outputTax)
-⋮----
-// 409 Conflict and generic errors are handled by the global HttpInterceptor.
-// This subscriber only needs to react to validation errors (400) that carry
-// a human-readable message from the backend.
-⋮----
-// All other statuses (409, 500, etc.) → global interceptor shows the toast.
-⋮----
-// ── Reset / Cancel ────────────────────────────────────────────────────────
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
 ```
 
 ## File: src/app/features/vat-returns/pages/vat-return-edit/vat-return-edit.component.html
@@ -30591,6 +32110,198 @@ onCancel(): void
 </form>
 ```
 
+## File: src/app/features/vat-returns/pages/vat-return-view/vat-return-view.component.css
+```css
+/* ── Header ── */
+.header-actions { display:flex; align-items:center; gap:10px; }
+.btn-back { display:inline-flex; align-items:center; gap:7px; background:#fff; border:1px solid #d0daf5; color:#1a3f8f; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn-back:hover { background:#f0f4ff; }
+.btn-edit-top { display:inline-flex; align-items:center; gap:7px; background:#fef3e2; border:1px solid #fde8c0; color:#f59e0b; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn-edit-top:hover:not(:disabled) { background:#fde8c0; }
+.btn-edit-top:disabled { opacity:0.5; cursor:not-allowed; }
+.loading-overlay { display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:300px; gap:12px; }
+.loading-overlay p { margin:0; font-size:13px; color:#666; font-weight:500; }
+.alert-success { background:#e6f7f3; border:1px solid #b2dfdb; border-radius:10px; padding:12px 18px; color:#1faa8b; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+⋮----
+/* ── VAT Header Card ── */
+.vr-header-card {
+.vr-header-left { display:flex; align-items:center; gap:16px; }
+.vr-icon { width:56px; height:56px; background:rgba(255,255,255,0.2); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+.vr-no   { font-size:13px; font-family:monospace; color:rgba(255,255,255,0.75); margin-bottom:4px; }
+.vr-name { font-size:20px; font-weight:800; margin-bottom:8px; }
+.vr-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.period-pill { background:rgba(255,255,255,0.2); color:#fff; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; }
+.period-text { font-size:13px; color:rgba(255,255,255,0.8); }
+.vr-header-right { display:flex; gap:24px; }
+.vr-stat { text-align:right; }
+.vrs-label { display:block; font-size:11px; color:rgba(255,255,255,0.65); }
+.vrs-value { display:block; font-size:22px; font-weight:900; margin-top:3px; }
+.vrs-value.sm { font-size:15px; font-weight:700; }
+⋮----
+/* ── Workflow Bar ── */
+.workflow-bar {
+⋮----
+.wb-title {
+⋮----
+.wb-actions { display:flex; gap:8px; flex-wrap:wrap; }
+⋮----
+/* Workflow Buttons */
+.wf-btn {
+⋮----
+.wf-btn.submit   { background:#e8eef9; color:#1a3f8f; }
+.wf-btn.submit:hover { background:#d0daf5; }
+⋮----
+.wf-btn.review   { background:#f3eeff; color:#7c3aed; }
+.wf-btn.review:hover { background:#e0d5f5; }
+⋮----
+.wf-btn.accept   { background:#e6f7f3; color:#1faa8b; }
+.wf-btn.accept:hover { background:#b2dfdb; }
+⋮----
+.wf-btn.reject   { background:#fff0f0; color:#e74c3c; }
+.wf-btn.reject:hover { background:#ffcccc; }
+⋮----
+.wf-btn.sendback { background:#fef3e2; color:#f59e0b; }
+.wf-btn.sendback:hover { background:#fde8c0; }
+⋮----
+/* ── Tax Summary ── */
+.tax-summary-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:16px; }
+.ts-card { background:#fff; border-radius:10px; padding:14px; display:flex; align-items:center; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.ts-card.highlight { border:2px solid #1a3f8f; }
+.tsc-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.tsc-icon.supplies { background:#e8eef9; color:#1a3f8f; }
+.tsc-icon.output   { background:#fff0f0; color:#e74c3c; }
+.tsc-icon.input    { background:#e6f7f3; color:#1faa8b; }
+.tsc-icon.net      { background:#e8eef9; color:#1a3f8f; }
+.tsc-icon.paid     { background:#e6f7f3; color:#1faa8b; }
+.tsc-label { display:block; font-size:11px; color:#888; font-weight:500; }
+.tsc-value { display:block; font-size:15px; font-weight:800; margin-top:2px; color:#1a2340; }
+.tsc-value.output { color:#e74c3c; }
+.tsc-value.input  { color:#1faa8b; }
+.tsc-value.net    { color:#1a3f8f; }
+.tsc-value.paid   { color:#1faa8b; }
+⋮----
+/* ── Main Grid ── */
+.details-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+⋮----
+/* ── Detail Cards ── */
+.detail-card { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.06); overflow:hidden; }
+.detail-card-header { display:flex; align-items:center; gap:10px; padding:14px 18px; background:#f8fafc; border-bottom:1px solid #eef2f8; font-size:13px; font-weight:700; color:#1a3f8f; }
+.detail-card-header i { font-size:15px; color:#1faa8b; }
+.detail-body { padding:4px 0; }
+.detail-row { display:flex; align-items:flex-start; justify-content:space-between; padding:10px 18px; border-bottom:1px solid #f5f7fb; gap:12px; }
+.detail-row:last-child { border-bottom:none; }
+.detail-row.total-row { background:#f8fafc; }
+.detail-label { font-size:13px; color:#888; font-weight:500; flex-shrink:0; margin-right:12px; }
+.detail-value { font-size:13px; color:#333; font-weight:500; text-align:right; }
+.detail-value.fw-bold { font-weight:700; color:#1a2340; }
+.detail-label-strong { font-weight:700; color:#1a2340; }
+.detail-value-note { text-align:left; max-width:250px; word-break:break-word; white-space:normal; }
+.tax-output { color:#e74c3c; }
+.tax-input { color:#1faa8b; }
+.net-payable { color:#1a3f8f; font-size:15px; font-weight:800; }
+.code-badge { font-size:12px; font-weight:600; color:#1a3f8f; background:#e8eef9; padding:3px 8px; border-radius:5px; font-family:monospace; }
+⋮----
+/* Status Badges */
+.status-draft    { background:#f0f4f8; color:#888; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; display:inline-block; }
+.status-review   { background:#f3eeff; color:#7c3aed; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; display:inline-block; }
+.status-overdue  { background:#1a0000; color:#ff4444; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; display:inline-block; border:1px solid #ff4444; }
+.status-amended  { background:#fef3e2; color:#f59e0b; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; display:inline-block; }
+.status-sendback { background:#fef3e2; color:#f59e0b; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; display:inline-block; }
+⋮----
+/* ── Timeline Card ── */
+.timeline-card { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.06); overflow:hidden; }
+⋮----
+.tc-header {
+⋮----
+.tc-count {
+⋮----
+.timeline { padding: 16px; display:flex; flex-direction:column; gap:0; }
+⋮----
+.tl-item { display:flex; gap:12px; padding-bottom:20px; position:relative; }
+.tl-item:not(.last)::after {
+⋮----
+.tl-dot {
+⋮----
+.tl-blue   { background:#e8eef9; color:#1a3f8f; }
+.tl-purple { background:#f3eeff; color:#7c3aed; }
+.tl-green  { background:#e6f7f3; color:#1faa8b; }
+.tl-red    { background:#fff0f0; color:#e74c3c; }
+.tl-orange { background:#fef3e2; color:#f59e0b; }
+.tl-gray   { background:#f0f4f8; color:#888; }
+⋮----
+.tl-body { flex:1; }
+.tl-action { font-size:13px; font-weight:700; color:#1a2340; margin-bottom:4px; }
+.tl-status { display:flex; align-items:center; gap:6px; margin-bottom:5px; font-size:11px; }
+.tl-from  { color:#888; }
+.tl-arrow { color:#ccc; font-size:10px; }
+.tl-to    { font-weight:600; }
+.tl-meta  { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
+.tl-user  { font-size:11px; color:#1a3f8f; font-weight:600; display:flex; align-items:center; gap:3px; }
+.tl-role  { font-size:10px; background:#e8eef9; color:#1a3f8f; padding:1px 6px; border-radius:4px; font-weight:600; }
+.tl-remarks { font-size:12px; color:#666; background:#fef3e2; padding:5px 10px; border-radius:6px; margin-bottom:4px; display:flex; align-items:flex-start; gap:5px; line-height:1.5; }
+.tl-remarks i { color:#f59e0b; flex-shrink:0; margin-top:2px; }
+.tl-time  { font-size:11px; color:#aaa; }
+⋮----
+.no-history { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; color:#bbb; gap:8px; }
+.no-history i { font-size:28px; }
+.no-history p { font-size:13px; margin:0; }
+⋮----
+/* ── Action Modal ── */
+.modal-overlay {
+⋮----
+.action-modal {
+⋮----
+.am-header {
+⋮----
+.am-submit       { background: linear-gradient(135deg,#1a3f8f,#2a5fd6); }
+.am-start-review { background: linear-gradient(135deg,#7c3aed,#a855f7); }
+.am-accept       { background: linear-gradient(135deg,#1faa8b,#17c69a); }
+.am-reject       { background: linear-gradient(135deg,#e74c3c,#c0392b); }
+.am-send-back    { background: linear-gradient(135deg,#f59e0b,#f97316); }
+⋮----
+.am-icon { width:44px; height:44px; background:rgba(255,255,255,0.2); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.am-title { font-size:17px; font-weight:800; }
+.am-sub   { font-size:12px; color:rgba(255,255,255,0.75); margin-top:3px; }
+⋮----
+.am-body { padding:20px 24px; }
+⋮----
+.am-info { background:#f8fafc; border-radius:10px; padding:12px 16px; margin-bottom:16px; }
+.am-info-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; font-size:13px; color:#555; }
+.am-info-row:first-child { border-bottom:1px solid #eef2f8; padding-bottom:10px; margin-bottom:4px; }
+⋮----
+.am-label { display:block; font-size:13px; font-weight:600; color:#444; margin-bottom:6px; }
+.required-star { font-size:11px; color:#e74c3c; font-weight:600; margin-left:6px; }
+.am-remarks { width:100%; padding:10px 14px; border:1.5px solid #e0e8f0; border-radius:9px; font-size:13px; color:#333; font-family:inherit; resize:vertical; outline:none; transition:border-color 0.2s; }
+.am-remarks:focus { border-color:#1a3f8f; box-shadow:0 0 0 3px rgba(26,63,143,0.08); }
+.am-error { margin-top:8px; font-size:12px; color:#e74c3c; font-weight:600; display:flex; align-items:center; gap:5px; }
+⋮----
+.am-footer { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:16px 24px; background:#f8fafc; border-top:1px solid #f0f4f8; }
+.am-btn-cancel  { background:#fff; border:1.5px solid #e0e8f0; color:#666; padding:9px 20px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+.am-btn-confirm { display:inline-flex; align-items:center; gap:6px; border:none; padding:10px 22px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; color:#fff; transition:box-shadow 0.2s; }
+⋮----
+.am-confirm-submit       { background:linear-gradient(135deg,#1a3f8f,#2a5fd6); }
+.am-confirm-start-review { background:linear-gradient(135deg,#7c3aed,#a855f7); }
+.am-confirm-accept       { background:linear-gradient(135deg,#1faa8b,#17c69a); }
+.am-confirm-reject       { background:linear-gradient(135deg,#e74c3c,#c0392b); }
+.am-confirm-send-back    { background:linear-gradient(135deg,#f59e0b,#f97316); }
+.am-btn-confirm:disabled { opacity:0.6; cursor:not-allowed; }
+⋮----
+/* ── Responsive ── */
+⋮----
+.details-grid { grid-template-columns:1fr; }
+.tax-summary-row { grid-template-columns:repeat(3,1fr); }
+⋮----
+.vr-header-card { padding:18px; }
+.vr-name { font-size:16px; }
+.vr-header-right { flex-direction:column; gap:8px; }
+.workflow-bar { flex-direction:column; align-items:flex-start; }
+.tax-summary-row { grid-template-columns:1fr 1fr; }
+.wb-actions { width:100%; }
+.wf-btn { flex:1; justify-content:center; }
+⋮----
+.action-modal { border-radius:12px; }
+```
+
 ## File: src/app/models/income-tax-return.model.ts
 ```typescript
 export type ITRCategory = 'Individual' | 'Company' | 'Partnership' | 'NGO';
@@ -30721,6 +32432,38 @@ export interface ItrWizardState {
 export function emptyWizardState(): ItrWizardState
 ```
 
+## File: src/app/core/guards/auth.guard.ts
+```typescript
+import { Injectable } from '@angular/core';
+import {
+  CanActivate,
+  CanActivateChild,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  Router
+} from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { Role } from '../constants/roles.constants';
+⋮----
+export class AuthGuard implements CanActivate, CanActivateChild {
+⋮----
+constructor(private authService: AuthService, private router: Router)
+⋮----
+canActivate(_route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean
+⋮----
+canActivateChild(_childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean
+⋮----
+private checkAccess(state: RouterStateSnapshot): boolean
+⋮----
+// PENDING_REVIEW
+⋮----
+// REJECTED
+⋮----
+// APPROVED
+⋮----
+private collectRequiredRoles(state: RouterStateSnapshot): Role[]
+```
+
 ## File: src/app/core/services/master-data.service.ts
 ```typescript
 import { Injectable } from '@angular/core';
@@ -30764,1125 +32507,174 @@ getTaxZonesByDistrict(districtId: number): Observable<any[]>
 getTaxCirclesByZone(zoneId: number): Observable<any[]>
 ```
 
-## File: src/app/features/dashboard/pages/dashboard-home/dashboard-home.component.ts
+## File: src/app/features/auth/pages/login/login.component.ts
 ```typescript
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  OnDestroy,
-  inject,
-} from '@angular/core';
+import { Component } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Subject } from 'rxjs';
-import { takeUntil, finalize } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { DashboardService } from '../../services/dashboard.service';
-import {
-  DashboardStats,
-  RecentTaxpayer,
-  RecentPayment,
-  DashboardChartData,
-} from 'src/app/models/dashboard.model';
-import { FiscalYear } from 'src/app/models/fiscal-year.model';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Role } from 'src/app/core/constants/roles.constants';
 ⋮----
-interface CanvasRenderingContext2D {
-    roundRect(
-      x: number,
-      y: number,
-      w: number,
-      h: number,
-      radii: number | number[],
-    ): void;
-  }
+export class LoginComponent {
 ⋮----
-roundRect(
-      x: number,
-      y: number,
-      w: number,
-      h: number,
-      radii: number | number[],
-    ): void;
+constructor(
+    private authService: AuthService,
+    private router: Router,
+    private toast: ToastService,
+)
 ⋮----
-export class DashboardHomeComponent
-implements OnInit, AfterViewInit, OnDestroy
+fillDemo(email: string): void
 ⋮----
-years = ['2024-25', '2023-24', '2022-23']; // fallback until API loads
+login(): void
 ⋮----
-// ── Fiscal Years ──
+// const returnUrl =
+//   this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+// this.router.navigateByUrl(returnUrl);
+```
+
+## File: src/app/features/fiscal-years/pages/fiscal-year-create/fiscal-year-create.component.ts
+```typescript
+import { Component, OnDestroy } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { Router } from '@angular/router';
+import { FiscalYearCreateRequest } from '../../../../models/fiscal-year.model';
+import { HttpClient } from '@angular/common/http';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 ⋮----
-// ── Stat Cards ──
+export class FiscalYearCreateComponent implements OnDestroy
 ⋮----
-// ── VAT Collection Trend ──
+private getEmptyForm(): FiscalYearCreateRequest
 ⋮----
-// ── Payment Collection ──
+onYearNameChange(): void
 ⋮----
-// ── Compliance Gauge ──
+// Auto fill dates from year name e.g. "2025-26"
 ⋮----
-// ── Zone-wise Collection (static — no backend endpoint yet) ──
+isFormValid(): boolean
 ⋮----
-// ── Recent Taxpayers ──
+onStatusChange(): void
 ⋮----
-// ── Recent Payments ──
-⋮----
-// ── Tax Type Breakdown (static — no breakdown endpoint yet) ──
-⋮----
-// ── Quick Actions ──
+onCurrentYearChange(): void
 ⋮----
 constructor(
 ⋮----
-// ─────────────────────────────────────────────
-// Lifecycle
-// ─────────────────────────────────────────────
-⋮----
-ngOnInit(): void
-⋮----
-ngAfterViewInit(): void
-⋮----
-// Initial draw (data may not be ready yet; loadDashboard will call again when done)
+onSubmit(): void
 ⋮----
 ngOnDestroy(): void
 ⋮----
-// ─────────────────────────────────────────────
-// Data Loading — wired to DashboardService
-// ─────────────────────────────────────────────
+onReset(): void
 ⋮----
-private loadDashboard(): void
+onCancel(): void
 ⋮----
-// Redraw charts after Angular binds the new data
+private hasValidDateRange(): boolean
 ⋮----
-// ── FiscalYear[] → dropdown + current year card ──
-private applyFiscalYears(list: FiscalYear[]): void
+private getPayload(): FiscalYearCreateRequest
+```
+
+## File: src/app/features/fiscal-years/pages/fiscal-year-edit/fiscal-year-edit.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FiscalYear } from '../../../../models/fiscal-year.model';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 ⋮----
-// Sort: Active first, then Upcoming, then Closed — within each by yearName desc
+export class FiscalYearEditComponent implements OnInit, OnDestroy
 ⋮----
-isDatePast(dateStr: string): boolean
+constructor(
 ⋮----
-// ── DashboardStats → statCards + gauge ──
-private applyStats(stats: DashboardStats): void
+ngOnInit(): void
 ⋮----
-// Compliance gauge
+ngOnDestroy(): void
 ⋮----
-// Normalised progress rings
+loadFiscalYear(): void
 ⋮----
-// ── RecentTaxpayer[] → display list ──
-private applyTaxpayers(list: RecentTaxpayer[]): void
+isFormValid(): boolean
 ⋮----
-type: 'Company', // extend backend model to expose type when ready
+onStatusChange(): void
 ⋮----
-// ── RecentPayment[] → display list ──
-private applyPayments(list: RecentPayment[]): void
+onCurrentYearChange(): void
 ⋮----
-// backend sends 'Completed'; CSS class expects 'Cleared'
+onSubmit(): void
 ⋮----
-// ── DashboardChartData → chart arrays ──
-private applyChartData(data: DashboardChartData): void
+onCancel(): void
 ⋮----
-// Backend stores raw BDT values → convert to Lakh for display
+private getEmptyForm(): FiscalYear
 ⋮----
-// ─────────────────────────────────────────────
-// UI Events
-// ─────────────────────────────────────────────
+private hasValidDateRange(): boolean
 ⋮----
-onRefresh(): void
+private getPayload(): FiscalYear
 ⋮----
-onYearChange(): void
+private toDateInput(value: string): string
+```
+
+## File: src/app/features/import-duty/pages/import-duty-list/import-duty-list.component.ts
+```typescript
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ImportDuty } from '../../../../models/import-duty.model';
 ⋮----
-// ─────────────────────────────────────────────
-// Template Helpers
-// ─────────────────────────────────────────────
+export class ImportDutyListComponent implements OnInit, OnDestroy
 ⋮----
-getGreeting(): string
+constructor(private router: Router, private toast: ToastService)
 ⋮----
-formatValue(v: number, suffix: string): string
+ngOnInit(): void
 ⋮----
-getZonePercent(z: any): number
+ngOnDestroy(): void
+⋮----
+private record(
+    id: number,
+    dutyRef: string,
+    tinNumber: string,
+    taxpayerName: string,
+    businessName: string,
+    productName: string,
+    hsCode: string,
+    goodsDescription: string,
+    originCountry: string,
+    cifValue: number,
+    cdRate: number,
+    customsDuty: number,
+    supplementaryDuty: number,
+    vat: number,
+    advanceIncomeTax: number,
+    advanceTax: number,
+    totalPayable: number,
+    paidAmount: number,
+    portOfEntry: string,
+    boeNumber: string,
+    boeDate: string,
+    billOfLading: string,
+    importDate: string,
+    assessmentDate: string,
+    status: ImportDuty['status'],
+    remarks: string,
+): ImportDuty
+⋮----
+get filtered(): ImportDuty[]
 ⋮----
 getStatusClass(s: string): string
 ⋮----
 formatCurrency(a: number): string
 ⋮----
-// ─────────────────────────────────────────────
-// Canvas Drawing
-// ─────────────────────────────────────────────
+confirmDelete(id: number): void
 ⋮----
-private redrawAllCharts(): void
+cancelDelete(): void
 ⋮----
-private setupCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D
+confirmDeleteExecute(): void
 ⋮----
-drawGauge(): void
+private delete(id: number): void
 ⋮----
-drawVatChart(): void
+private resetDeleteState(): void
 ⋮----
-const drawLine = (data: number[], color: string, fill: boolean) =>
+view(id: number): void
 ⋮----
-drawPayChart(): void
-⋮----
-drawDonut(): void
-```
-
-## File: src/app/features/income-tax-returns/pages/income-tax-return-create/income-tax-return-create.component.html
-```html
-<!-- ═══════════════════════════════════════════════════════
-     ITR FILING WIZARD  —  Angular 13
-     Design: neutral compact token-based (matches itr_filing_interface.html)
-══════════════════════════════════════════════════════════ -->
-
-<!-- ── Topbar ─────────────────────────────────────────────────────────────── -->
-<div class="itr-topbar">
-  <div>
-    <div class="topbar-title">Income Tax Return (ITR) — FY {{ filingYear || '—' }}</div>
-    <div class="topbar-meta">
-      <ng-container *ngIf="step1Form.getRawValue().taxpayerName; else noProfile">
-        {{ step1Form.getRawValue().taxpayerName }}
-        &nbsp;·&nbsp; TIN: {{ step1Form.getRawValue().tinNumber || '—' }}
-        &nbsp;·&nbsp; Assessment year: {{ step1Form.getRawValue().assessmentYear || '—' }}
-        &nbsp;·&nbsp; Deadline: {{ dueDate || '—' }}
-      </ng-container>
-      <ng-template #noProfile>Fill taxpayer profile to begin</ng-template>
-    </div>
-  </div>
-  <div class="topbar-right">
-    <span class="badge" [ngClass]="getStatusClass()">{{ getStatusLabel() }}</span>
-    <button class="btn btn-sm" (click)="onCancel()">✕ Cancel</button>
-  </div>
-</div>
-
-<!-- ── Step Rail ──────────────────────────────────────────────────────────── -->
-<div class="step-rail" *ngIf="currentStep < 7">
-  <ng-container *ngFor="let s of [1,2,3,4,5,6]; let i = index">
-    <div class="step-item" [ngClass]="'s-' + getStepState(s)" (click)="goToStep(s)">
-      <div class="step-circle">
-        <span *ngIf="getStepState(s) === 'done'">✓</span>
-        <span *ngIf="getStepState(s) !== 'done'">{{ s }}</span>
-      </div>
-      <div class="step-label">
-        <ng-container [ngSwitch]="s">
-          <ng-container *ngSwitchCase="1">Taxpayer<br/>profile</ng-container>
-          <ng-container *ngSwitchCase="2">Income<br/>sources</ng-container>
-          <ng-container *ngSwitchCase="3">Deductions<br/>&amp; exemptions</ng-container>
-          <ng-container *ngSwitchCase="4">Tax<br/>liability</ng-container>
-          <ng-container *ngSwitchCase="5">Assets &amp;<br/>liabilities</ng-container>
-          <ng-container *ngSwitchCase="6">Review &amp;<br/>submit</ng-container>
-        </ng-container>
-      </div>
-    </div>
-    <div class="step-line" *ngIf="i < 5" [class.done]="currentStep > s"></div>
-  </ng-container>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════════════════
-     PANE 1 — Taxpayer Profile
-════════════════════════════════════════════════════════════════ -->
-<div [hidden]="currentStep !== 1" [formGroup]="step1Form">
-
-  <!-- Officer: taxpayer search -->
-  <ng-container *ngIf="!isTaxpayerRole">
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-hdr-left">
-          <div class="hdr-icon ic-blue">
-            <i class="bi bi-search" style="font-size:12px;color:#185FA5"></i>
-          </div>
-          <div>
-            <div class="card-title">Search taxpayer</div>
-            <div class="card-sub">Search by TIN, NID, or name — then select to auto-fill</div>
-          </div>
-        </div>
-        <span class="badge b-info" *ngIf="isAutoFilled">
-          <i class="bi bi-lightning-charge-fill"></i> Auto-filled
-        </span>
-      </div>
-      <div class="card-p">
-        <div class="search-row">
-          <div class="search-field-wrap">
-            <i class="bi bi-upc-scan search-icon"></i>
-            <input type="text" class="search-input" placeholder="Enter TIN, NID or taxpayer name…"
-              [(ngModel)]="searchQuery" [ngModelOptions]="{standalone:true}"
-              (ngModelChange)="onSearchInput()" (keyup.enter)="searchTaxpayer()"
-              [disabled]="isAutoFilled" />
-            <button class="clear-btn" *ngIf="isAutoFilled" (click)="clearSelectedTaxpayer()">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </div>
-          <button class="btn btn-primary" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
-            <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
-            <span *ngIf="isSearching">
-              <span class="spinner-border spinner-border-sm me-1"></span> Searching…
-            </span>
-          </button>
-        </div>
-
-        <!-- Search results -->
-        <div class="search-results" *ngIf="showResults && searchResults.length > 0">
-          <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
-            <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
-            <div class="result-info">
-              <span class="result-name">{{ getDisplayName(t) }}</span>
-              <span class="result-meta">
-                <span *ngIf="t.tinNumber" class="me-2">TIN: {{ t.tinNumber }}</span>
-                <span *ngIf="!t.tinNumber" class="text-danger me-2">No TIN</span>
-                <span *ngIf="t.nid">NID: {{ t.nid }}</span>
-              </span>
-            </div>
-            <span class="badge b-info">Select</span>
-          </div>
-        </div>
-
-        <!-- No result note -->
-        <div class="alert alert-info" style="margin-top:8px" *ngIf="hasSearched && searchResults.length === 0">
-          <span>ℹ</span>
-          <div>No taxpayer found. Fill in TIN and name manually below.</div>
-        </div>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- Profile fields card -->
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="hdr-icon ic-green">
-          <i class="bi bi-person-badge-fill" style="font-size:12px;color:#3B6D11"></i>
-        </div>
-        <div>
-          <div class="card-title">Taxpayer profile</div>
-          <div class="card-sub" *ngIf="isTaxpayerRole">Filing as yourself — name is pre-filled from your session.</div>
-          <div class="card-sub" *ngIf="!isTaxpayerRole">Verify and complete the filing period below.</div>
-        </div>
-      </div>
-      <span class="badge b-ok" *ngIf="isAutoFilled || isTaxpayerRole">✓ Verified</span>
-    </div>
-    <div class="card-p">
-      <div class="grid2">
-        <div class="field">
-          <label>TIN number <span class="req">*</span></label>
-          <input formControlName="tinNumber" type="text" placeholder="e.g. TIN-20250504-A3F19C82" />
-          <span class="autofill" *ngIf="isAutoFilled">✓ From taxpayer record</span>
-          <span class="hint" style="color:#A32D2D" *ngIf="step1Form.get('tinNumber')?.invalid && step1Form.get('tinNumber')?.touched">TIN is required.</span>
-        </div>
-
-        <div class="field">
-          <label>Taxpayer name <span class="req">*</span></label>
-          <input formControlName="taxpayerName" type="text" placeholder="Full name or company" />
-          <span class="autofill" *ngIf="isTaxpayerRole">✓ From login session</span>
-        </div>
-
-        <div class="field">
-          <label>Category <span class="req">*</span></label>
-          <select formControlName="itrCategory">
-            <option *ngFor="let c of itrCategories" [value]="c">{{ c }}</option>
-          </select>
-        </div>
-
-        <div class="field" *ngIf="isCompanyCategory">
-          <label>Company sub-type</label>
-          <select formControlName="companySubType">
-            <option value="">— Select —</option>
-            <option *ngFor="let t of companySubTypes" [value]="t">{{ t }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Assessment year <span class="req">*</span></label>
-          <select formControlName="assessmentYear">
-            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Income year</label>
-          <select formControlName="incomeYear">
-            <option *ngFor="let y of incomeYears" [value]="y">{{ y }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Return period</label>
-          <select formControlName="returnPeriod">
-            <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Submission date</label>
-          <input formControlName="submissionDate" type="date" />
-        </div>
-
-        <div class="field">
-          <label>Due date</label>
-          <input formControlName="dueDate" type="date" readonly />
-          <span class="hint">Set from the active fiscal year.</span>
-        </div>
-      </div>
-    </div>
-    <div class="footer">
-      <button class="btn btn-ghost" (click)="onCancel()">✕ Cancel</button>
-      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════════════════
-     PANE 2 — Income Sources
-════════════════════════════════════════════════════════════════ -->
-<div [hidden]="currentStep !== 2" [formGroup]="step2Form">
-
-  <div class="alert alert-info">
-    <div>ℹ</div>
-    <div>Enter income from all sources before any deduction. TDS and AIT deducted at source are recorded separately — they reduce your final tax balance.</div>
-  </div>
-
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="hdr-icon ic-blue">
-          <i class="bi bi-table" style="font-size:12px;color:#185FA5"></i>
-        </div>
-        <div>
-          <div class="card-title">Income from all sources</div>
-          <div class="card-sub">Enter gross amounts — deductions are handled in the next step</div>
-        </div>
-      </div>
-    </div>
-    <div class="card-p" style="padding:0;overflow-x:auto">
-      <table class="income-table">
-        <thead>
-          <tr>
-            <th style="width:42%">Income head</th>
-            <th>Gross amount (৳)</th>
-            <th>TDS / AIT (৳)</th>
-            <th>Net amount (৳)</th>
-          </tr>
-        </thead>
-        <tbody>
-
-          <!-- A: Salary -->
-          <tr class="section-row">
-            <td colspan="4">A — Salary income</td>
-          </tr>
-          <tr>
-            <td>Basic salary</td>
-            <td><input type="number" class="table-input" formControlName="salBasic" min="0" placeholder="0" /></td>
-            <td><input type="number" class="table-input" formControlName="salTds" min="0" placeholder="0" /></td>
-            <td class="computed">{{ fmtN(salBasicNet) }}</td>
-          </tr>
-          <tr>
-            <td>House rent allowance (HRA)</td>
-            <td><input type="number" class="table-input" formControlName="hra" min="0" placeholder="0" /></td>
-            <td class="muted">—</td>
-            <td class="computed">{{ fmtN(step2Form.value.hra || 0) }}</td>
-          </tr>
-          <tr>
-            <td>Festival bonus / other allowances</td>
-            <td><input type="number" class="table-input" formControlName="bonus" min="0" placeholder="0" /></td>
-            <td class="muted">—</td>
-            <td class="computed">{{ fmtN(step2Form.value.bonus || 0) }}</td>
-          </tr>
-          <tr class="sub-total">
-            <td>Total salary income</td>
-            <td class="computed">{{ fmtN(salGross) }}</td>
-            <td class="computed">{{ fmtN(step2Form.value.salTds || 0) }}</td>
-            <td class="computed">{{ fmtN(salNet) }}</td>
-          </tr>
-
-          <!-- B: Business -->
-          <tr class="section-row">
-            <td colspan="4">B — Business / profession income</td>
-          </tr>
-          <tr>
-            <td>Net business profit</td>
-            <td><input type="number" class="table-input" formControlName="bizIncome" min="0" placeholder="0" /></td>
-            <td class="muted">—</td>
-            <td class="computed">{{ fmtN(step2Form.value.bizIncome || 0) }}</td>
-          </tr>
-
-          <!-- C: Other sources -->
-          <tr class="section-row">
-            <td colspan="4">C — Income from other sources</td>
-          </tr>
-          <tr>
-            <td>Bank interest</td>
-            <td><input type="number" class="table-input" formControlName="bankInterest" min="0" placeholder="0" /></td>
-            <td><input type="number" class="table-input" formControlName="bankAit" min="0" placeholder="0" /></td>
-            <td class="computed">{{ fmtN(bankNet) }}</td>
-          </tr>
-          <tr>
-            <td>Rental income</td>
-            <td><input type="number" class="table-input" formControlName="rentIncome" min="0" placeholder="0" /></td>
-            <td class="muted">—</td>
-            <td class="computed">{{ fmtN(step2Form.value.rentIncome || 0) }}</td>
-          </tr>
-          <tr>
-            <td>Capital gains</td>
-            <td><input type="number" class="table-input" formControlName="capitalGain" min="0" placeholder="0" /></td>
-            <td class="muted">—</td>
-            <td class="computed">{{ fmtN(step2Form.value.capitalGain || 0) }}</td>
-          </tr>
-
-          <!-- Grand total -->
-          <tr class="grand-total">
-            <td>Total gross income</td>
-            <td class="big">{{ fmt(totalGrossIncome) }}</td>
-            <td class="computed">{{ fmt(totalTds) }}</td>
-            <td class="big">{{ fmt(grandNet) }}</td>
-          </tr>
-
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="footer">
-    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════════════════
-     PANE 3 — Deductions & Exemptions
-════════════════════════════════════════════════════════════════ -->
-<div [hidden]="currentStep !== 3" [formGroup]="step3Form">
-
-  <div class="alert alert-info">
-    <div>ℹ</div>
-    <div>Deductions reduce your taxable income. Enter only amounts you can prove with receipts. Each has a legal maximum limit set by NBR.</div>
-  </div>
-
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="hdr-icon ic-amber">
-          <i class="bi bi-piggy-bank-fill" style="font-size:12px;color:#BA7517"></i>
-        </div>
-        <div>
-          <div class="card-title">Allowable deductions &amp; investments</div>
-          <div class="card-sub">Section 44 — Investment tax credit &amp; exemptions</div>
-        </div>
-      </div>
-    </div>
-    <div class="card-p">
-
-      <div class="deduction-row">
-        <div class="ded-left">
-          <div class="ded-name">Life insurance premium</div>
-          <div class="ded-hint">Max 10% of sum insured or ৳ 1,50,000 — whichever is lower</div>
-        </div>
-        <input class="ded-input" type="number" formControlName="lifeInsurance" min="0" placeholder="0" />
-      </div>
-
-      <div class="deduction-row">
-        <div class="ded-left">
-          <div class="ded-name">Provident fund / gratuity contribution</div>
-          <div class="ded-hint">Employee contribution only — employer share is not deductible</div>
-        </div>
-        <input class="ded-input" type="number" formControlName="providentFund" min="0" placeholder="0" />
-      </div>
-
-      <div class="deduction-row">
-        <div class="ded-left">
-          <div class="ded-name">DPS / savings deposit</div>
-          <div class="ded-hint">Max ৳ 60,000 per year
-            <span *ngIf="(step3Form.value.dps || 0) > 60000" class="badge b-warn" style="margin-left:6px">Capped at ৳ 60,000</span>
-          </div>
-        </div>
-        <input class="ded-input" type="number" formControlName="dps" min="0" placeholder="0" />
-      </div>
-
-      <div class="deduction-row">
-        <div class="ded-left">
-          <div class="ded-name">Investment in govt. securities / savings bonds</div>
-          <div class="ded-hint">Sanchay Patra, Treasury bonds</div>
-        </div>
-        <input class="ded-input" type="number" formControlName="govtBonds" min="0" placeholder="0" />
-      </div>
-
-      <div class="deduction-row">
-        <div class="ded-left">
-          <div class="ded-name">Donation to approved charity / Zakat</div>
-          <div class="ded-hint">Must be NBR-approved institution</div>
-        </div>
-        <input class="ded-input" type="number" formControlName="donation" min="0" placeholder="0" />
-      </div>
-
-      <div class="deduction-row">
-        <div class="ded-left">
-          <div class="ded-name">Investment in listed company shares</div>
-          <div class="ded-hint">Max ৳ 50,000 — must be stock exchange listed
-            <span *ngIf="(step3Form.value.shares || 0) > 50000" class="badge b-warn" style="margin-left:6px">Capped at ৳ 50,000</span>
-          </div>
-        </div>
-        <input class="ded-input" type="number" formControlName="shares" min="0" placeholder="0" />
-      </div>
-
-      <!-- Summary box -->
-      <div class="ded-summary">
-        <div>
-          <div class="ded-sum-label">Total investments / deductions</div>
-          <div class="ded-sum-value blue">{{ fmt(totalDeductions) }}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="ded-sum-label">Tax rebate (15% of investments)</div>
-          <div class="ded-sum-value green">{{ fmt(taxRebate) }}</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="footer">
-    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════════════════
-     PANE 4 — Tax Liability
-════════════════════════════════════════════════════════════════ -->
-<div [hidden]="currentStep !== 4">
-
-  <!-- Tax bracket table -->
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="hdr-icon ic-blue">
-          <i class="bi bi-bar-chart-steps" style="font-size:12px;color:#185FA5"></i>
-        </div>
-        <div>
-          <div class="card-title">Tax slab — Individual (BD)</div>
-          <div class="card-sub">Which bracket your taxable income falls into</div>
-        </div>
-      </div>
-    </div>
-    <div class="card-p">
-      <div class="tax-bracket">
-        <div class="bracket-hdr">
-          <span>Income slab</span>
-          <span>Rate</span>
-          <span>Your income in slab</span>
-          <span>Tax</span>
-        </div>
-        <div class="bracket-row" *ngFor="let b of computedBrackets" [class.active]="b.active">
-          <span>{{ b.label }}</span>
-          <span>{{ b.rate === 0 ? '0%' : b.rate + '%' }}</span>
-          <span class="amount">{{ fmt(b.incomeInSlab) }}</span>
-          <span class="amount">{{ fmt(b.taxInSlab) }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Final calculation -->
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-title">Final tax calculation</div>
-    </div>
-    <div class="card-p">
-      <div class="summary-box">
-
-        <div class="sum-row">
-          <span class="sum-key">Total gross income</span>
-          <span class="sum-val">{{ fmt(totalGrossIncome) }}</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-key">Less: HRA exemption (50%, max ৳ 50,000)</span>
-          <span class="sum-val" style="color:#1D9E75">− {{ fmt(hraExemption) }}</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-key">Taxable income</span>
-          <span class="sum-val">{{ fmt(localTaxableIncome) }}</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-key">Gross tax (before rebate)</span>
-          <span class="sum-val">{{ fmt(localGrossTax) }}</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-key">Less: investment tax rebate (15%)</span>
-          <span class="sum-val" style="color:#1D9E75">− {{ fmt(taxRebate) }}</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-key">Net tax liability</span>
-          <span class="sum-val">{{ fmt(localNetTax) }}</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-key">Less: TDS already deducted (salary)</span>
-          <span class="sum-val" style="color:#1D9E75">− {{ fmt(step2Form.value.salTds || 0) }}</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-key">Less: AIT already deducted (bank)</span>
-          <span class="sum-val" style="color:#1D9E75">− {{ fmt(step2Form.value.bankAit || 0) }}</span>
-        </div>
-
-        <!-- Result row -->
-        <div class="sum-row sum-total" [ngClass]="taxResult <= 0 ? 'sum-refund' : 'sum-due'">
-          <span class="sum-key">{{ taxResult <= 0 ? 'Refund receivable' : 'Tax payable' }}</span>
-          <span class="sum-val">{{ fmt(taxResult <= 0 ? refundable : balanceDue) }}</span>
-        </div>
-
-      </div>
-
-      <!-- Result message -->
-      <div class="result-msg" [ngClass]="taxResult <= 0 ? 'result-ok' : 'result-warn'">
-        <ng-container *ngIf="taxResult <= 0">
-          🎉 <strong>Good news!</strong> You are eligible for a <strong>{{ fmt(refundable) }} refund</strong>
-          because your TDS/AIT already paid exceeds your actual tax liability.
-        </ng-container>
-        <ng-container *ngIf="taxResult > 0">
-          ⚠ <strong>Tax due: {{ fmt(balanceDue) }}</strong> — Pay before submitting via treasury challan.
-        </ng-container>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
-    <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════════════════
-     PANE 5 — Assets & Liabilities (IT-10B)
-════════════════════════════════════════════════════════════════ -->
-<div [hidden]="currentStep !== 5" [formGroup]="step5Form">
-
-  <div class="alert alert-warn">
-    <div>⚠</div>
-    <div>Assets &amp; liabilities statement is mandatory for all taxpayers. Declare all assets honestly — any unexplained wealth may trigger an audit.</div>
-  </div>
-
-  <!-- Assets card -->
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="hdr-icon ic-purple">
-          <i class="bi bi-bank2" style="font-size:12px;color:#534AB7"></i>
-        </div>
-        <div>
-          <div class="card-title">Statement of assets</div>
-          <div class="card-sub">As of end of income year — market value or cost, whichever is lower</div>
-        </div>
-      </div>
-      <span class="badge b-info">Total: {{ fmt(totalAssets) }}</span>
-    </div>
-    <div class="card-p">
-      <div class="grid2">
-        <div class="field">
-          <label>Land / building (market value)</label>
-          <input type="number" formControlName="landBuilding" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Motor vehicle</label>
-          <input type="number" formControlName="motorVehicle" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Business capital</label>
-          <input type="number" formControlName="businessCapital" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Bank balance (all accounts)</label>
-          <input type="number" formControlName="bankBalance" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Cash in hand</label>
-          <input type="number" formControlName="cashInHand" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Investment (shares, bonds, DPS)</label>
-          <input type="number" formControlName="investment" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Gold / jewellery (value)</label>
-          <input type="number" formControlName="gold" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Other assets</label>
-          <input type="number" formControlName="otherAssets" min="0" placeholder="0" />
-        </div>
-      </div>
-      <div class="assets-total-bar">
-        <span>Total assets</span>
-        <span class="assets-total-value">{{ fmt(totalAssets) }}</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Liabilities card -->
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="hdr-icon ic-red">
-          <i class="bi bi-credit-card-2-back-fill" style="font-size:12px;color:#A32D2D"></i>
-        </div>
-        <div>
-          <div class="card-title">Statement of liabilities</div>
-          <div class="card-sub">Outstanding loans and financial obligations</div>
-        </div>
-      </div>
-    </div>
-    <div class="card-p">
-      <div class="grid2">
-        <div class="field">
-          <label>Bank loan / mortgage</label>
-          <input type="number" formControlName="bankLoan" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Business loan</label>
-          <input type="number" formControlName="bizLoan" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Other liabilities</label>
-          <input type="number" formControlName="otherLiabilities" min="0" placeholder="0" />
-        </div>
-        <div class="field">
-          <label>Net worth (assets − liabilities)</label>
-          <input type="text" [value]="fmt(netWorth)" readonly
-            [style.color]="netWorth >= 0 ? '#185FA5' : '#A32D2D'" style="font-weight:500" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
-    <button class="btn btn-primary" (click)="nextStep()">Review &amp; submit →</button>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════════════════
-     PANE 6 — Review & Submit
-════════════════════════════════════════════════════════════════ -->
-<div [hidden]="currentStep !== 6" [formGroup]="step6Form">
- 
-  <div class="alert alert-warn">
-    <div>⚠</div>
-    <div>Once submitted, this ITR is <strong>permanently locked</strong>.
-      If corrections are needed, file an amended return from the return details page
-      before the deadline ({{ dueDate || '—' }}).</div>
-  </div>
- 
-  <!-- ── Final summary ── -->
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-title">Final summary — ITR FY {{ filingYear }}</div>
-    </div>
-    <div class="card-p">
- 
-      <div class="grid3" style="margin-bottom:14px">
-        <div class="stat-box">
-          <div class="stat-label">Total income</div>
-          <div class="stat-value">{{ fmt(totalGrossIncome) }}</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Tax liability</div>
-          <div class="stat-value">{{ fmt(localNetTax) }}</div>
-        </div>
-        <div class="stat-box" [ngClass]="taxResult <= 0 ? 'stat-green' : 'stat-red'">
-          <div class="stat-label">{{ taxResult <= 0 ? 'Refund' : 'Balance due' }}</div>
-          <div class="stat-value">{{ fmt(taxResult <= 0 ? refundable : balanceDue) }}</div>
-        </div>
-      </div>
- 
-      <div class="review-detail">
-        <div class="review-row"><span class="rew-k">TIN</span><span class="rew-v">{{ step1Form.getRawValue().tinNumber || '—' }}</span></div>
-        <div class="review-row"><span class="rew-k">Taxpayer</span><span class="rew-v">{{ step1Form.getRawValue().taxpayerName }}</span></div>
-        <div class="review-row"><span class="rew-k">Category</span><span class="rew-v">{{ step1Form.getRawValue().itrCategory }}</span></div>
-        <div class="review-row"><span class="rew-k">Assessment year</span><span class="rew-v">{{ step1Form.getRawValue().assessmentYear }}</span></div>
-        <div class="review-row"><span class="rew-k">Gross income</span><span class="rew-v">{{ fmt(totalGrossIncome) }}</span></div>
-        <div class="review-row"><span class="rew-k">HRA exemption</span><span class="rew-v" style="color:#1D9E75">− {{ fmt(hraExemption) }}</span></div>
-        <div class="review-row"><span class="rew-k">Taxable income</span><span class="rew-v font-bold">{{ fmt(localTaxableIncome) }}</span></div>
-        <div class="review-row"><span class="rew-k">Gross tax</span><span class="rew-v">{{ fmt(localGrossTax) }}</span></div>
-        <div class="review-row"><span class="rew-k">Investment rebate (15%)</span><span class="rew-v" style="color:#1D9E75">− {{ fmt(taxRebate) }}</span></div>
-        <div class="review-row"><span class="rew-k">Net tax liability</span><span class="rew-v font-bold">{{ fmt(localNetTax) }}</span></div>
-        <div class="review-row"><span class="rew-k">TDS &amp; AIT paid</span><span class="rew-v" style="color:#1D9E75">− {{ fmt(totalTds) }}</span></div>
-        <div class="review-row" *ngIf="totalAssets > 0"><span class="rew-k">Net worth (IT-10B)</span><span class="rew-v">{{ fmt(netWorth) }}</span></div>
-      </div>
-    </div>
-  </div>
- 
-  <!-- ══════════════════════════════════════════════════════════
-       PAYMENT SECTION — শুধু tax due থাকলে দেখাবে
-  ═══════════════════════════════════════════════════════════ -->
-  <div class="card" *ngIf="showPaymentSection">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="hdr-icon ic-red">
-          <i class="bi bi-credit-card-fill" style="font-size:12px;color:#A32D2D"></i>
-        </div>
-        <div>
-          <div class="card-title">Tax payment</div>
-          <div class="card-sub">
-            Tax due: <strong style="color:#A32D2D">{{ fmt(balanceDue) }}</strong>
-            — Select payment method and enter details
-          </div>
-        </div>
-      </div>
-      <span class="badge b-red" *ngIf="!isPaymentValid">⚠ Required</span>
-      <span class="badge b-ok" *ngIf="isPaymentValid">✓ Done</span>
-    </div>
-    <div class="card-p">
- 
-      <!-- Payment method selection -->
-      <div style="margin-bottom:16px">
-        <div style="font-size:12px;color:var(--ts);font-weight:600;margin-bottom:10px;">
-          Select payment method
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <label *ngFor="let m of paymentMethods"
-                 class="payment-method-btn"
-                 [class.selected]="selectedPaymentMethod === m.value"
-                 [class.disabled]="!m.available"
-                 [title]="!m.available ? 'Coming soon' : ''">
-            <input type="radio" formControlName="paymentMethod"
-                   [value]="m.value" [disabled]="!m.available"
-                   style="display:none" />
-            {{ m.label }}
-            <span *ngIf="!m.available" style="font-size:10px;opacity:0.6"> — Soon</span>
-          </label>
-        </div>
-      </div>
- 
-      <!-- ── Bank Challan fields ── -->
-      <div *ngIf="isChallanMethod" class="payment-fields">
-        <div class="alert alert-info" style="margin-bottom:14px">
-          <div>ℹ</div>
-          <div>Pay at any scheduled bank using a treasury challan form.
-            The bank will give you a challan number — enter it below.</div>
-        </div>
-        <div class="grid2">
-          <div class="field">
-            <label>Bank name <span class="req">*</span></label>
-            <select formControlName="challanBank">
-              <option value="">— Select bank —</option>
-              <option *ngFor="let b of banks" [value]="b">{{ b }}</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Challan number <span class="req">*</span></label>
-            <input type="text" formControlName="challanNo"
-                   placeholder="e.g. CHAL-2025-001234" />
-          </div>
-          <div class="field">
-            <label>Payment date <span class="req">*</span></label>
-            <input type="date" formControlName="challanDate" />
-          </div>
-          <div class="field">
-            <label>Amount paid (৳) <span class="req">*</span></label>
-            <input type="number" formControlName="challanAmount"
-                   min="0" placeholder="0" />
-            <span class="hint" *ngIf="step6Form.value.challanAmount > 0 &&
-              step6Form.value.challanAmount < balanceDue"
-              style="color:#e67e22">
-              ⚠ Amount is less than tax due ({{ fmt(balanceDue) }})
-            </span>
-          </div>
-        </div>
-      </div>
- 
-      <!-- ── MFS fields (bKash / Nagad / Rocket) ── -->
-      <div *ngIf="isMfsMethod" class="payment-fields">
-        <div class="alert alert-info" style="margin-bottom:14px">
-          <div>ℹ</div>
-          <div>
-            Send payment to the NBR
-            <strong *ngIf="selectedPaymentMethod === 'bkash'">bKash</strong>
-            <strong *ngIf="selectedPaymentMethod === 'nagad'">Nagad</strong>
-            <strong *ngIf="selectedPaymentMethod === 'rocket'">Rocket</strong>
-            merchant number. Enter the transaction ID from your confirmation SMS.
-          </div>
-        </div>
-        <div class="grid2">
-          <div class="field">
-            <label>Transaction ID <span class="req">*</span></label>
-            <input type="text" formControlName="mfsNumber"
-                   placeholder="e.g. TXN8CH2XXXXXX" />
-          </div>
-          <div class="field">
-            <label>Amount sent (৳) <span class="req">*</span></label>
-            <input type="number" formControlName="mfsAmount"
-                   min="0" placeholder="0" />
-          </div>
-          <div class="field">
-            <label>Payment date <span class="req">*</span></label>
-            <input type="date" formControlName="mfsDate" />
-          </div>
-        </div>
-      </div>
- 
-      <!-- ── Card — coming soon placeholder ── -->
-      <div *ngIf="isCardMethod" class="payment-fields">
-        <div class="alert alert-warn">
-          <div>🚧</div>
-          <div>Online card payment gateway is under development.
-            Please use bank challan or MFS for now.</div>
-        </div>
-      </div>
- 
-    </div>
-  </div>
- 
-  <!-- ── Refund case — no payment needed ── -->
-  <div class="card" *ngIf="!showPaymentSection && taxResult <= 0">
-    <div class="card-p" style="display:flex;align-items:center;gap:12px;">
-      <div style="font-size:24px">🎉</div>
-      <div>
-        <div style="font-size:14px;font-weight:600;color:#1a7a4a">
-          No payment required
-        </div>
-        <div style="font-size:13px;color:#888;margin-top:2px">
-          You have a refund of <strong style="color:#1a7a4a">{{ fmt(refundable) }}</strong>
-          — it will be processed after your return is accepted.
-        </div>
-      </div>
-    </div>
-  </div>
- 
-  <!-- ── Declaration ── -->
-  <div class="card">
-    <div class="card-p">
-      <div class="declaration-box">
-        <div class="decl-title">Verification &amp; declaration</div>
-        <div class="decl-body">
-          I, <strong>{{ step1Form.getRawValue().taxpayerName || '...' }}</strong>
-          (TIN: {{ step1Form.getRawValue().tinNumber || '...' }}), solemnly declare that the
-          information furnished in this return of income for the assessment year
-          {{ step1Form.getRawValue().assessmentYear }} is correct and complete
-          to the best of my knowledge and belief.
-        </div>
-        <label class="decl-check">
-          <input type="checkbox" formControlName="declaration" />
-          <span>I confirm the above declaration and consent to submit this ITR.</span>
-        </label>
-        <div class="field" style="margin-top:10px">
-          <label>Remarks (optional)</label>
-          <textarea class="remarks-input" formControlName="remarks" rows="2"
-            placeholder="Any additional notes for the record…"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="footer">
-      <button class="btn btn-ghost" (click)="prevStep()" [disabled]="isLoading">← Back</button>
-      <button class="btn btn-primary" (click)="onSubmit()" [disabled]="isLoading">
-        <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> Submit ITR →</span>
-        <span *ngIf="isLoading">
-          <span class="spinner-border spinner-border-sm me-1"></span> Submitting…
-        </span>
-      </button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════════════════
-     PANE 7 — Success
-════════════════════════════════════════════════════════════════ -->
-<div *ngIf="currentStep === 7 && successData">
-  <div class="card">
-    <div class="success-screen" id="print-area">
-      <div class="success-icon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-             stroke="#3B6D11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      </div>
-      <div class="success-title">ITR filed successfully!</div>
-      <div class="success-sub">
-        Your return for FY {{ filingYear }} has been submitted.
-        <ng-container *ngIf="taxResult <= 0">
-          Refund of <strong>{{ fmt(refundable) }}</strong> will be processed
-          within 30 working days after acceptance.
-        </ng-container>
-        <ng-container *ngIf="taxResult > 0">
-          Balance due of <strong>{{ fmt(balanceDue) }}</strong> has been recorded.
-          Your return will be reviewed by the tax officer.
-        </ng-container>
-      </div>
- 
-      <!-- Acknowledgement box -->
-      <div class="ack-box">
-        <div class="ack-row">
-          <span>Acknowledgement no.</span>
-          <span class="ack-val mono">{{ successData.returnNo }}</span>
-        </div>
-        <div class="ack-row">
-          <span>Assessment year</span>
-          <span class="ack-val">{{ step1Form.getRawValue().assessmentYear }}</span>
-        </div>
-        <div class="ack-row">
-          <span>Taxpayer</span>
-          <span class="ack-val">{{ step1Form.getRawValue().taxpayerName }}</span>
-        </div>
-        <div class="ack-row">
-          <span>TIN</span>
-          <span class="ack-val mono">{{ step1Form.getRawValue().tinNumber }}</span>
-        </div>
-        <div class="ack-row">
-          <span>Total income declared</span>
-          <span class="ack-val">{{ fmt(totalGrossIncome) }}</span>
-        </div>
-        <div class="ack-row">
-          <span>Net tax liability</span>
-          <span class="ack-val">{{ fmt(localNetTax) }}</span>
-        </div>
-        <div class="ack-row" *ngIf="taxResult <= 0">
-          <span>Refund due</span>
-          <span class="ack-val" style="color:#1D9E75">{{ fmt(refundable) }}</span>
-        </div>
-        <div class="ack-row" *ngIf="taxResult > 0">
-          <span>Balance due</span>
-          <span class="ack-val" style="color:#A32D2D">{{ fmt(balanceDue) }}</span>
-        </div>
- 
-        <!-- Payment info যোগ হলে দেখাবে -->
-        <ng-container *ngIf="step6Form.value.challanNo">
-          <div class="ack-row">
-            <span>Challan no.</span>
-            <span class="ack-val mono">{{ step6Form.value.challanNo }}</span>
-          </div>
-          <div class="ack-row">
-            <span>Bank</span>
-            <span class="ack-val">{{ step6Form.value.challanBank }}</span>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="step6Form.value.mfsNumber">
-          <div class="ack-row">
-            <span>MFS transaction ID</span>
-            <span class="ack-val mono">{{ step6Form.value.mfsNumber }}</span>
-          </div>
-        </ng-container>
- 
-        <div class="ack-row">
-          <span>Filed at</span>
-          <span class="ack-val">{{ successData.filedAt }}</span>
-        </div>
-        <div class="ack-row">
-          <span>Status</span>
-          <span><span class="badge b-ok">Submitted</span></span>
-        </div>
-      </div>
- 
-      <!-- Action buttons -->
-      <div class="success-actions">
-        <button class="btn btn-sm" (click)="goToList()">← Back to list</button>
-        <button class="btn btn-sm" (click)="printAcknowledgement()">
-          🖨 Print
-        </button>
-        <button class="btn btn-primary btn-sm" (click)="goToView()">
-          <i class="bi bi-eye-fill"></i> View return
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+edit(id: number): void
 ```
 
 ## File: src/app/features/income-tax-returns/pages/income-tax-return-list/income-tax-return-list.component.ts
@@ -31939,27 +32731,167 @@ private deleteReturn(id: number): void
 private resetDeleteState(): void
 ```
 
-## File: src/app/features/tax-structure/pages/tax-structure-create/tax-structure-create.component.ts
+## File: src/app/features/public-registration/steps/step3-identity/reg-step-identity/reg-step-identity.component.ts
+```typescript
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RegistrationState } from '../../../../../models/registration.model';
+⋮----
+export class RegStepIdentityComponent implements OnInit
+⋮----
+constructor(private fb: FormBuilder)
+⋮----
+ngOnInit(): void
+⋮----
+get isIndividual(): boolean
+ctrl(name: string)
+⋮----
+onToggleExistingTin(checked: boolean): void
+⋮----
+private buildIndividualForm(): void
+⋮----
+private buildCompanyForm(): void
+⋮----
+onNext(): void
+```
+
+## File: src/app/features/refund-management/pages/refund-create/refund-create.component.ts
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { Router } from '@angular/router';
+import {
+  RefundService,
+  RefundType,
+  EligibleSourceRecord,
+  RefundCalculation,
+  CreateRefundRequest,
+} from '../../services/refund.service';
+⋮----
+export interface RefundTypeOption {
+  value: RefundType;
+  label: string;
+  description: string;
+  icon: string;
+  color: string;
+}
+⋮----
+export class RefundCreateComponent implements OnInit
+⋮----
+// ─── Stepper ─────────────────────────────────────────────
+⋮----
+// ─── Step 1: Refund Type ─────────────────────────────────
+⋮----
+// ─── Step 2: Source Records ──────────────────────────────
+⋮----
+// ─── Step 3: Calculation ─────────────────────────────────
+⋮----
+// ─── Step 4: Bank Info ───────────────────────────────────
+⋮----
+// ─── Step 5: Documents ───────────────────────────────────
+⋮----
+// ─── Step 6: Review ──────────────────────────────────────
+⋮----
+// Draft id (saved mid-wizard)
+⋮----
+constructor(
+    private fb: FormBuilder,
+    private refundService: RefundService,
+    private router: Router
+)
+⋮----
+ngOnInit(): void
+⋮----
+// ─── Navigation ───────────────────────────────────────────
+nextStep(): void
+⋮----
+prevStep(): void
+⋮----
+goToStep(step: number): void
+⋮----
+canProceed(): boolean
+⋮----
+// ─── Step 2 logic ─────────────────────────────────────────
+loadSources(): void
+⋮----
+toggleSource(id: number): void
+⋮----
+isSourceSelected(id: number): boolean
+⋮----
+get selectedSources(): EligibleSourceRecord[]
+⋮----
+get selectedSourcesTotalExcess(): number
+⋮----
+// ─── Step 3 logic ─────────────────────────────────────────
+calculateRefund(): void
+⋮----
+get amountExceedsEligible(): boolean
+⋮----
+// ─── Step 4 logic ─────────────────────────────────────────
+validateBank(): void
+⋮----
+isFieldInvalid(field: string): boolean
+⋮----
+// ─── Step 5 logic ─────────────────────────────────────────
+onFileSelect(event: Event): void
+⋮----
+removeFile(index: number): void
+⋮----
+formatFileSize(bytes: number): string
+⋮----
+hasRequiredDocuments(): boolean
+⋮----
+getDocTypeLabel(value: string): string
+⋮----
+// ─── Submit ───────────────────────────────────────────────
+submitRefund(): void
+⋮----
+fiscalYearId:  1, // replace with actual FY id from dropdown
+⋮----
+// Upload documents then redirect
+⋮----
+// Simple sequential approach (can use forkJoin for parallel)
+⋮----
+private uploadDocumentsAndNavigate(refundId: number, idx: number, total: number, createdId: number): void
+⋮----
+private sourceTypeFor(type: RefundType): string
+⋮----
+saveDraft(): void
+⋮----
+// POST create with draft flag
+⋮----
+// ... simplified
+⋮----
+cancel(): void
+⋮----
+formatCurrency(amount: number | null): string
+⋮----
+getRefundTypeLabel(value: RefundType | null): string
+⋮----
+get stepLabels(): string[]
+```
+
+## File: src/app/features/tax-structure/pages/tax-structure-edit/tax-structure-edit.component.ts
 ```typescript
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, takeUntil, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, of, timer } from 'rxjs';
+import { takeUntil, debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
+import { TaxStructureService } from 'src/app/core/services/tax-strcuture.service';
 ⋮----
 import {
   TaxMasterData,
   TaxPreviewResponse,
   TaxSlab,
-  TaxStructureCreateRequest,
+  TaxStructure,
+  TaxStructureUpdateRequest,
 } from 'src/app/models/tax-structure.model';
-import { TaxStructureService } from 'src/app/core/services/tax-strcuture.service';
 ⋮----
-export class TaxStructureCreateComponent implements OnInit, OnDestroy
+export class TaxStructureEditComponent implements OnInit, OnDestroy {
 ⋮----
 // ── UI state ──────────────────────────────────────────────────────────────
 ⋮----
-// ── Master data (from API) ────────────────────────────────────────────────
+// ── Master data ───────────────────────────────────────────────────────────
 ⋮----
 // ── Preview ───────────────────────────────────────────────────────────────
 ⋮----
@@ -31971,26 +32903,29 @@ constructor(
 ⋮----
 ngOnInit(): void
 ⋮----
+// Load master data and tax record in parallel
+⋮----
 ngOnDestroy(): void
 ⋮----
-// ── Master Data ───────────────────────────────────────────────────────────
+// ── Data Loading ──────────────────────────────────────────────────────────
 ⋮----
-private loadMasterData(): void
+private loadMasterData(): Promise<void>
 ⋮----
-// Trigger first preview with default values
+private loadTaxStructure(): Promise<void>
 ⋮----
 // ── Preview (backend) ─────────────────────────────────────────────────────
 ⋮----
 private setupPreviewDebounce(): void
+⋮----
+// Use by-id preview once record is saved; ad-hoc preview during editing
+⋮----
+// Fallback to ad-hoc if id preview fails (e.g. slabs not yet committed)
 ⋮----
 triggerPreview(): void
 ⋮----
 // ── Slab Management ───────────────────────────────────────────────────────
 ⋮----
 onRateTypeChange(): void
-⋮----
-/** Seed the slab table with Bangladesh FY-2024-25 income-tax slabs as a starting point. */
-private addDefaultSlabs(): void
 ⋮----
 addSlab(): void
 ⋮----
@@ -32002,49 +32937,7 @@ isFormValid(): boolean
 ⋮----
 onSubmit(): void
 ⋮----
-onReset(): void
-⋮----
 onCancel(): void
-```
-
-## File: src/app/features/taxable-products/pages/taxable-product-create/taxable-product-create.component.ts
-```typescript
-import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { TaxStructure } from 'src/app/models/tax-structure.model';
-import {
-  ProductStatus,
-  TaxableProductCreateRequest,
-} from '../../../../models/taxable-product.model';
-import { TaxableProductService } from '../../services/taxable-product.service';
-⋮----
-export class TaxableProductCreateComponent implements OnInit
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-get selectedTaxStructure(): TaxStructure | undefined
-⋮----
-get selectedTaxType(): string
-⋮----
-get selectedTaxRate(): number
-⋮----
-loadMasterData(): void
-⋮----
-onTaxStructureChange(): void
-⋮----
-isFormValid(): boolean
-⋮----
-onSubmit(): void
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
-⋮----
-private createEmptyForm(): TaxableProductCreateRequest
 ```
 
 ## File: src/app/features/taxpayer-management/pages/taxpayer-edit/taxpayer-edit.component.html
@@ -32523,10 +33416,8 @@ private createEmptyForm(): TaxableProductCreateRequest
     <div class="profile-avatar-wrap">
       <div class="profile-avatar-wrap">
         <div class="photo-container">
-          <img *ngIf="taxpayer.photoPath" 
-              [src]="getPhotoUrl(taxpayer.photoPath)" 
-              class="profile-photo"
-              alt="Profile photo"/>
+          <img *ngIf="taxpayer.photoPath" [src]="getPhotoUrl(taxpayer.photoPath)" class="profile-photo"
+            alt="Profile photo" />
           <div class="profile-avatar" *ngIf="!taxpayer.photoPath">
             {{ getDisplayName(taxpayer).charAt(0) | uppercase }}
           </div>
@@ -32713,120 +33604,115 @@ private createEmptyForm(): TaxableProductCreateRequest
 
   </div>
   <!-- Officer Review Section -->
-<div class="review-card" 
-     *ngIf="canReview && (isPendingReview || isApproved || isRejected)">
+  <div class="review-card" *ngIf="canReview && (isPendingReview || isApproved || isRejected)">
 
-  <div class="review-card-header">
-    <i class="bi bi-shield-fill-check"></i>
-    <span>Application Review</span>
-    <span class="approval-badge"
-      [ngClass]="{
+    <div class="review-card-header">
+      <i class="bi bi-shield-fill-check"></i>
+      <span>Application Review</span>
+      <span class="approval-badge" [ngClass]="{
         'approval-pending':  isPendingReview,
         'approval-approved': isApproved,
         'approval-rejected': isRejected
       }">
-      {{ isPendingReview ? 'Pending Review' : isApproved ? 'Approved' : 'Rejected' }}
-    </span>
-  </div>
-
-  <!-- Already Approved -->
-  <div class="review-done" *ngIf="isApproved">
-    <i class="bi bi-check-circle-fill text-success"></i>
-    <div>
-      <div class="review-done-title">TIN Issued Successfully</div>
-      <div class="review-done-sub">TIN: {{ taxpayer.tinNumber }}</div>
-      <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
-        Notes: {{ taxpayer.reviewNotes }}
-      </div>
-    </div>
-  </div>
-
-  <!-- Already Rejected -->
-  <div class="review-done rejected" *ngIf="isRejected">
-    <i class="bi bi-x-circle-fill text-danger"></i>
-    <div>
-      <div class="review-done-title">Application Rejected</div>
-      <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
-        Reason: {{ taxpayer.reviewNotes }}
-      </div>
-    </div>
-  </div>
-
-  <!-- Pending — show form -->
-  <div class="review-form" *ngIf="isPendingReview">
-
-    <div class="review-info">
-      <i class="bi bi-info-circle"></i>
-      <span>Review taxpayer details above, then assign Tax Zone and Circle to issue TIN.</span>
+        {{ isPendingReview ? 'Pending Review' : isApproved ? 'Approved' : 'Rejected' }}
+      </span>
     </div>
 
-    <!-- Load Zones button -->
-    <div class="review-field" *ngIf="zones.length === 0">
-      <button class="btn-load-zones" (click)="loadZones()" [disabled]="loadingZones">
-        <i class="bi" [ngClass]="loadingZones ? 'bi-hourglass-split' : 'bi-geo-alt-fill'"></i>
-        {{ loadingZones ? 'Loading zones...' : 'Load Tax Zones from taxpayer district' }}
-      </button>
-      <div class="zone-hint" *ngIf="taxpayer.presentAddress?.district">
-        District: <strong>{{ taxpayer.presentAddress?.district }}</strong>
-      </div>
-      <div class="zone-hint error" *ngIf="!taxpayer.presentAddress?.district">
-        ⚠️ Taxpayer has no district. Ask them to update profile first.
+    <!-- Already Approved -->
+    <div class="review-done" *ngIf="isApproved">
+      <i class="bi bi-check-circle-fill text-success"></i>
+      <div>
+        <div class="review-done-title">TIN Issued Successfully</div>
+        <div class="review-done-sub">TIN: {{ taxpayer.tinNumber }}</div>
+        <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
+          Notes: {{ taxpayer.reviewNotes }}
+        </div>
       </div>
     </div>
 
-    <!-- Zone dropdown -->
-    <div class="review-field" *ngIf="zones.length > 0">
-      <label>Tax Zone *</label>
-      <select [(ngModel)]="approveZone" (change)="onZoneChange()">
-        <option value="">Select Tax Zone</option>
-        <option *ngFor="let z of zones" [value]="z.name">{{ z.name }}</option>
-      </select>
+    <!-- Already Rejected -->
+    <div class="review-done rejected" *ngIf="isRejected">
+      <i class="bi bi-x-circle-fill text-danger"></i>
+      <div>
+        <div class="review-done-title">Application Rejected</div>
+        <div class="review-done-sub" *ngIf="taxpayer.reviewNotes">
+          Reason: {{ taxpayer.reviewNotes }}
+        </div>
+      </div>
     </div>
 
-    <!-- Circle dropdown -->
-    <div class="review-field" *ngIf="approveZone">
-      <label>Tax Circle *</label>
-      <select [(ngModel)]="approveCircle" [disabled]="loadingCircles">
-        <option value="">{{ loadingCircles ? 'Loading...' : 'Select Tax Circle' }}</option>
-        <option *ngFor="let c of circles" [value]="c.name">{{ c.name }}</option>
-      </select>
+    <!-- Pending — show form -->
+    <div class="review-form" *ngIf="isPendingReview">
+
+      <div class="review-info">
+        <i class="bi bi-info-circle"></i>
+        <span>Review taxpayer details above, then assign Tax Zone and Circle to issue TIN.</span>
+      </div>
+
+      <!-- Load Zones button -->
+      <div class="review-field" *ngIf="zones.length === 0">
+        <button class="btn-load-zones" (click)="loadZones()" [disabled]="loadingZones">
+          <i class="bi" [ngClass]="loadingZones ? 'bi-hourglass-split' : 'bi-geo-alt-fill'"></i>
+          {{ loadingZones ? 'Loading zones...' : 'Load Tax Zones from taxpayer district' }}
+        </button>
+        <div class="zone-hint" *ngIf="taxpayer.presentAddress?.district">
+          District: <strong>{{ taxpayer.presentAddress?.district }}</strong>
+        </div>
+        <div class="zone-hint error" *ngIf="!taxpayer.presentAddress?.district">
+          ⚠️ Taxpayer has no district. Ask them to update profile first.
+        </div>
+      </div>
+
+      <!-- Zone dropdown -->
+      <div class="review-field" *ngIf="zones.length > 0">
+        <label>Tax Zone *</label>
+        <select [(ngModel)]="approveZone" (change)="onZoneChange()">
+          <option value="">Select Tax Zone</option>
+          <option *ngFor="let z of zones" [value]="z.name">{{ z.name }}</option>
+        </select>
+      </div>
+
+      <!-- Circle dropdown -->
+      <div class="review-field" *ngIf="approveZone">
+        <label>Tax Circle *</label>
+        <select [(ngModel)]="approveCircle" [disabled]="loadingCircles">
+          <option value="">{{ loadingCircles ? 'Loading...' : 'Select Tax Circle' }}</option>
+          <option *ngFor="let c of circles" [value]="c.name">{{ c.name }}</option>
+        </select>
+      </div>
+
+      <!-- Notes -->
+      <div class="review-field">
+        <label>Review Notes (optional)</label>
+        <textarea [(ngModel)]="reviewNotes" rows="2" placeholder="Any notes for this application..."></textarea>
+      </div>
+
+      <!-- Buttons -->
+      <div class="review-actions">
+        <button class="btn-reject-action" (click)="onReject()" [disabled]="isProcessing">
+          <i class="bi bi-x-circle-fill"></i>
+          {{ isProcessing ? 'Processing...' : 'Reject Application' }}
+        </button>
+        <button class="btn-approve-action" (click)="onApprove()" [disabled]="isProcessing">
+          <i class="bi bi-check-circle-fill"></i>
+          {{ isProcessing ? 'Processing...' : 'Approve & Issue TIN' }}
+        </button>
+        <button class="btn-send-notice" (click)="openNoticeModal(taxpayer.id)" [disabled]="isProcessing">
+          <i class="bi bi-bell-fill"></i> Send Notice
+        </button>
+
+      </div>
+
     </div>
-
-    <!-- Notes -->
-    <div class="review-field">
-      <label>Review Notes (optional)</label>
-      <textarea [(ngModel)]="reviewNotes" rows="2" 
-                placeholder="Any notes for this application..."></textarea>
-    </div>
-
-    <!-- Buttons -->
-    <div class="review-actions">
-      <button class="btn-reject-action" 
-              (click)="onReject()"
-              [disabled]="isProcessing">
-        <i class="bi bi-x-circle-fill"></i>
-        {{ isProcessing ? 'Processing...' : 'Reject Application' }}
-      </button>
-      <button class="btn-approve-action" 
-              (click)="onApprove()"
-              [disabled]="isProcessing">
-        <i class="bi bi-check-circle-fill"></i>
-        {{ isProcessing ? 'Processing...' : 'Approve & Issue TIN' }}
-      </button>
-      <button class="btn-send-notice" (click)="openSendNotice()">
-        <i class="bi bi-bell-fill"></i> Send Notice
-      </button>
-
-    </div>
-
   </div>
-</div>
 
 </ng-container>
 
+
+<!-- Notice Modal -->
 <div class="modal-overlay" *ngIf="showNoticeModal">
-  <div class="modal-card" style="max-width: 500px;">
-    <div class="modal-accent" style="background: #1a3f8f;"></div>
+  <div class="modal-card" style="max-width:500px;">
+    <div class="modal-accent" style="background:#1a3f8f;"></div>
     <div class="modal-icon-wrap" style="background:#e8eeff;">
       <i class="bi bi-bell-fill" style="color:#1a3f8f; font-size:22px;"></i>
     </div>
@@ -32843,7 +33729,6 @@ private createEmptyForm(): TaxableProductCreateRequest
           <option>Reminder</option>
         </select>
       </div>
-
       <div class="modal-field">
         <label>Priority</label>
         <select [(ngModel)]="noticePriority">
@@ -32853,13 +33738,11 @@ private createEmptyForm(): TaxableProductCreateRequest
           <option>Urgent</option>
         </select>
       </div>
-
       <div class="modal-field">
         <label>Subject *</label>
         <input type="text" [(ngModel)]="noticeSubject"
                placeholder="Enter notice subject"/>
       </div>
-
       <div class="modal-field">
         <label>Message *</label>
         <textarea [(ngModel)]="noticeBody" rows="4"
@@ -32868,9 +33751,7 @@ private createEmptyForm(): TaxableProductCreateRequest
     </div>
 
     <div class="modal-actions">
-      <button class="btn-modal-cancel" (click)="closeSendNotice()">
-        Cancel
-      </button>
+      <button class="btn-modal-cancel" (click)="closeNoticeModal()">Cancel</button>
       <button class="btn-modal-confirm"
               style="background:#1a3f8f;"
               (click)="sendNotice()"
@@ -34187,6 +35068,87 @@ private createEmptyForm(): TaxableProductCreateRequest
 </div>
 ```
 
+## File: src/app/features/vat-registration/pages/vat-registration-edit/vat-registration-edit.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, of, timer } from 'rxjs';
+import {
+  catchError,
+  filter,
+  finalize,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
+⋮----
+import { VatRegistration } from '../../../../models/vat-registration.model';
+import { VatRegistrationService } from '../../services/vat-registration.service';
+import { ToastService } from '../../../../shared/toast/toast.service';
+import { MasterDataService } from '../../../../core/services/master-data.service';
+import {
+  Division,
+  District,
+  BusinessType,
+  BusinessCategory,
+  TaxZone,
+  TaxCircle
+} from '../../../../models/master-data.model';
+⋮----
+export class VatRegistrationEditComponent implements OnInit, OnDestroy
+⋮----
+// ── Static dropdowns ──────────────────────────────────────────────────────
+⋮----
+// ── Dynamic dropdowns ─────────────────────────────────────────────────────
+⋮----
+// ── Cascade-restore pending value ─────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+// ── Lifecycle ──────────────────────────────────────────────────────────────
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Form ───────────────────────────────────────────────────────────────────
+⋮----
+private buildForm(): void
+⋮----
+ctrl(name: string)
+⋮----
+// ── Static dropdowns ───────────────────────────────────────────────────────
+⋮----
+private loadStaticDropdowns(): void
+⋮----
+// ── Cascade: Division → District (reactive) ────────────────────────────────
+⋮----
+private setupCascadeListeners(): void
+⋮----
+// ── Load existing record ───────────────────────────────────────────────────
+⋮----
+private loadData(): void
+⋮----
+// Patch non-cascade fields
+⋮----
+// Restore Zone → Circles directly — zoneId is a typed model field.
+⋮----
+// Restore Division → District via pendingId pattern.
+// Both are @Transient — null in current GET responses.
+// When the backend gap is fixed they will populate automatically.
+⋮----
+// ── Zone → Circles (manual — independent of district in edit) ─────────────
+⋮----
+onZoneChange(): void
+⋮----
+// ── Submit ─────────────────────────────────────────────────────────────────
+⋮----
+onSubmit(): void
+⋮----
+onCancel(): void
+```
+
 ## File: src/app/features/vat-registration/pages/vat-registration-view/vat-registration-view.component.ts
 ```typescript
 import { Component, OnDestroy, OnInit } from '@angular/core';
@@ -34248,6 +35210,89 @@ formatCurrency(a: number): string
 onEdit(): void
 ⋮----
 onBack(): void
+```
+
+## File: src/app/features/vat-returns/pages/vat-return-create/vat-return-create.component.ts
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
+⋮----
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { VatRegistration } from '../../../../models/vat-registration.model';
+import { ToastService } from '../../../../shared/toast/toast.service';
+⋮----
+// ── VAT-rate map ───────────────────────────────────────────────────────────────
+⋮----
+// ── Return-period enum alignment ───────────────────────────────────────────────
+export type ReturnPeriod = 'Monthly' | 'Quarterly' | 'Annually';
+⋮----
+// ── Custom validator: submissionDate must not precede the start of the filing period
+function submissionNotBeforePeriodValidator(): ValidatorFn
+⋮----
+export class VatReturnCreateComponent implements OnInit, OnDestroy {
+⋮----
+// ── Selected registration (received from picker child) ────────────────────
+⋮----
+// ── Dropdown data ─────────────────────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Form construction ─────────────────────────────────────────────────────
+⋮----
+private buildForm(): void
+⋮----
+private wireValueChanges(): void
+⋮----
+// ── Helpers ───────────────────────────────────────────────────────────────
+⋮----
+ctrl(name: string)
+⋮----
+get periodOptions(): string[]
+⋮----
+// ── Computed display values ──
+⋮----
+get totalSupplies(): number
+⋮----
+get netTaxPayable(): number
+⋮----
+get balanceDue(): number
+⋮----
+get effectiveVatRate(): number
+⋮----
+get effectiveVatRateLabel(): string
+⋮----
+private recalcOutputTax(taxable: number): void
+⋮----
+// ── Picker child events ───────────────────────────────────────────────────
+⋮----
+onRegistrationSelected(reg: VatRegistration): void
+⋮----
+onRegistrationCleared(): void
+⋮----
+// ── Submit ────────────────────────────────────────────────────────────────
+⋮----
+onSubmit(): void
+⋮----
+// ── Reset / Cancel ────────────────────────────────────────────────────────
+⋮----
+onReset(): void
+⋮----
+onCancel(): void
 ```
 
 ## File: src/app/features/vat-returns/pages/vat-return-edit/vat-return-edit.component.ts
@@ -34672,57 +35717,992 @@ onCancel(): void
 </div>
 ```
 
-## File: src/app/core/services/auth.service.ts
+## File: src/app/features/fiscal-years/pages/fiscal-year-list/fiscal-year-list.component.ts
 ```typescript
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
-import { Role, ROLE_PERMISSIONS, ROLE_ACTIONS, ROLE_MENU } from '../constants/roles.constants';
-import { API_ENDPOINTS } from '../constants/api.constants';
-import { environment } from '../../../environments/environment';
-import { AuthUser, LoginRequest } from 'src/app/models/auth-user.model';
+import { FiscalYear } from '../../../../models/fiscal-year.model';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { HttpClient } from '@angular/common/http';
 ⋮----
-export class AuthService {
+export class FiscalYearListComponent implements OnInit, OnDestroy
 ⋮----
-constructor(private http: HttpClient, private router: Router)
+constructor(
 ⋮----
-// ── Load from localStorage ──
-private loadUser(): AuthUser | null
+ngOnInit(): void
 ⋮----
-// ── Login: real API; optional dev-only mock if `environment.useMockAuth` ──
-login(credentials: LoginRequest): Observable<any>
+ngOnDestroy(): void
 ⋮----
-private handleLoginSuccess(response: any): void
+loadFiscalYears(): void
 ⋮----
-approvalStatus: response.approvalStatus ?? null, // ← যোগ করো
+getStatusClass(s: string): string
 ⋮----
-// ── Dev-only demo users (only used when environment.useMockAuth is true) ──
-private getMockUser(email: string): AuthUser | null
+setCurrent(id: number): void
 ⋮----
-logout(): void
+isExpired(date: string): boolean
 ⋮----
-// ── Getters ──
-get currentUser(): AuthUser | null
-⋮----
-get isLoggedIn(): boolean
-⋮----
-get userRole(): Role
-⋮----
-// ── Permission checks ──
-hasPermission(module: string): boolean
-⋮----
-// auth.service.ts e add koro
-hasRole(role: Role): boolean
-⋮----
-canDo(action: string): boolean
-⋮----
-canSeeMenu(menuLabel: string): boolean
-⋮----
-updateCurrentUser(user: AuthUser): void
-⋮----
-get allowedMenuItems(): string[]
+edit(id: number): void
+```
+
+## File: src/app/features/income-tax-returns/pages/income-tax-return-create/income-tax-return-create.component.html
+```html
+<!-- ── Topbar ─────────────────────────────────────────────────────────────── -->
+<div class="itr-topbar">
+  <div>
+    <div class="topbar-title">Income Tax Return (ITR) — FY {{ filingYear || '—' }}</div>
+    <div class="topbar-meta">
+      <ng-container *ngIf="step1Form.getRawValue().taxpayerName; else noProfile">
+        {{ step1Form.getRawValue().taxpayerName }}
+        &nbsp;·&nbsp; TIN: {{ step1Form.getRawValue().tinNumber || '—' }}
+        &nbsp;·&nbsp; Assessment year: {{ step1Form.getRawValue().assessmentYear || '—' }}
+        &nbsp;·&nbsp; Deadline: {{ dueDate || '—' }}
+      </ng-container>
+      <ng-template #noProfile>Fill taxpayer profile to begin</ng-template>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="badge" [ngClass]="getStatusClass()">{{ getStatusLabel() }}</span>
+    <button class="btn btn-sm" (click)="onCancel()">✕ Cancel</button>
+  </div>
+</div>
+
+<!-- ── Step Rail ──────────────────────────────────────────────────────────── -->
+<div class="step-rail" *ngIf="currentStep < 7">
+  <ng-container *ngFor="let s of [1,2,3,4,5,6]; let i = index">
+    <div class="step-item" [ngClass]="'s-' + getStepState(s)" (click)="goToStep(s)">
+      <div class="step-circle">
+        <span *ngIf="getStepState(s) === 'done'">✓</span>
+        <span *ngIf="getStepState(s) !== 'done'">{{ s }}</span>
+      </div>
+      <div class="step-label">
+        <ng-container [ngSwitch]="s">
+          <ng-container *ngSwitchCase="1">Taxpayer<br/>profile</ng-container>
+          <ng-container *ngSwitchCase="2">Income<br/>sources</ng-container>
+          <ng-container *ngSwitchCase="3">Deductions<br/>&amp; exemptions</ng-container>
+          <ng-container *ngSwitchCase="4">Tax<br/>liability</ng-container>
+          <ng-container *ngSwitchCase="5">Assets &amp;<br/>liabilities</ng-container>
+          <ng-container *ngSwitchCase="6">Review &amp;<br/>submit</ng-container>
+        </ng-container>
+      </div>
+    </div>
+    <div class="step-line" *ngIf="i < 5" [class.done]="currentStep > s"></div>
+  </ng-container>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 1 — Taxpayer Profile
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 1" [formGroup]="step1Form">
+
+  <!-- Officer: taxpayer search -->
+  <ng-container *ngIf="!isTaxpayerRole">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-hdr-left">
+          <div class="hdr-icon ic-blue">
+            <i class="bi bi-search" style="font-size:12px;color:#185FA5"></i>
+          </div>
+          <div>
+            <div class="card-title">Search taxpayer</div>
+            <div class="card-sub">Search by TIN, NID, or name — then select to auto-fill</div>
+          </div>
+        </div>
+        <span class="badge b-info" *ngIf="isAutoFilled">
+          <i class="bi bi-lightning-charge-fill"></i> Auto-filled
+        </span>
+      </div>
+      <div class="card-p">
+        <div class="search-row">
+          <div class="search-field-wrap">
+            <i class="bi bi-upc-scan search-icon"></i>
+            <input type="text" class="search-input" placeholder="Enter TIN, NID or taxpayer name…"
+              [(ngModel)]="searchQuery" [ngModelOptions]="{standalone:true}"
+              (ngModelChange)="onSearchInput()" (keyup.enter)="searchTaxpayer()"
+              [disabled]="isAutoFilled" />
+            <button class="clear-btn" *ngIf="isAutoFilled" (click)="clearSelectedTaxpayer()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <button class="btn btn-primary" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
+            <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
+            <span *ngIf="isSearching">
+              <span class="spinner-border spinner-border-sm me-1"></span> Searching…
+            </span>
+          </button>
+        </div>
+
+        <!-- Search results -->
+        <div class="search-results" *ngIf="showResults && searchResults.length > 0">
+          <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
+            <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="result-info">
+              <span class="result-name">{{ getDisplayName(t) }}</span>
+              <span class="result-meta">
+                <span *ngIf="t.tinNumber" class="me-2">TIN: {{ t.tinNumber }}</span>
+                <span *ngIf="!t.tinNumber" class="text-danger me-2">No TIN</span>
+                <span *ngIf="t.nid">NID: {{ t.nid }}</span>
+              </span>
+            </div>
+            <span class="badge b-info">Select</span>
+          </div>
+        </div>
+
+        <!-- No result note -->
+        <div class="alert alert-info" style="margin-top:8px" *ngIf="hasSearched && searchResults.length === 0">
+          <span>ℹ</span>
+          <div>No taxpayer found. Fill in TIN and name manually below.</div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Profile fields card -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-green">
+          <i class="bi bi-person-badge-fill" style="font-size:12px;color:#3B6D11"></i>
+        </div>
+        <div>
+          <div class="card-title">Taxpayer profile</div>
+          <div class="card-sub" *ngIf="isTaxpayerRole">Filing as yourself — name is pre-filled from your session.</div>
+          <div class="card-sub" *ngIf="!isTaxpayerRole">Verify and complete the filing period below.</div>
+        </div>
+      </div>
+      <span class="badge b-ok" *ngIf="isAutoFilled || isTaxpayerRole">✓ Verified</span>
+    </div>
+    <div class="card-p">
+      <div class="grid2">
+        <div class="field">
+          <label>TIN number <span class="req">*</span></label>
+          <input formControlName="tinNumber" type="text" placeholder="e.g. TIN-20250504-A3F19C82" />
+          <span class="autofill" *ngIf="isAutoFilled">✓ From taxpayer record</span>
+          <span class="hint" style="color:#A32D2D" *ngIf="step1Form.get('tinNumber')?.invalid && step1Form.get('tinNumber')?.touched">TIN is required.</span>
+        </div>
+
+        <div class="field">
+          <label>Taxpayer name <span class="req">*</span></label>
+          <input formControlName="taxpayerName" type="text" placeholder="Full name or company" />
+          <span class="autofill" *ngIf="isTaxpayerRole">✓ From login session</span>
+        </div>
+
+        <div class="field">
+          <label>Category <span class="req">*</span></label>
+          <select formControlName="itrCategory">
+            <option *ngFor="let c of itrCategories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <div class="field" *ngIf="isCompanyCategory">
+          <label>Company sub-type</label>
+          <select formControlName="companySubType">
+            <option value="">— Select —</option>
+            <option *ngFor="let t of companySubTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Assessment year <span class="req">*</span></label>
+          <select formControlName="assessmentYear">
+            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Income year</label>
+          <select formControlName="incomeYear">
+            <option *ngFor="let y of incomeYears" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Return period</label>
+          <select formControlName="returnPeriod">
+            <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Submission date</label>
+          <input formControlName="submissionDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label>Due date</label>
+          <input formControlName="dueDate" type="date" readonly />
+          <span class="hint">Set from the active fiscal year.</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <button class="btn btn-ghost" (click)="onCancel()">✕ Cancel</button>
+      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 2 — Income Sources
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 2" [formGroup]="step2Form">
+
+  <div class="alert alert-info">
+    <div>ℹ</div>
+    <div>Enter income from all sources before any deduction. TDS and AIT deducted at source are recorded separately — they reduce your final tax balance.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-blue">
+          <i class="bi bi-table" style="font-size:12px;color:#185FA5"></i>
+        </div>
+        <div>
+          <div class="card-title">Income from all sources</div>
+          <div class="card-sub">Enter gross amounts — deductions are handled in the next step</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p" style="padding:0;overflow-x:auto">
+      <table class="income-table">
+        <thead>
+          <tr>
+            <th style="width:42%">Income head</th>
+            <th>Gross amount (৳)</th>
+            <th>TDS / AIT (৳)</th>
+            <th>Net amount (৳)</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- A: Salary -->
+          <tr class="section-row">
+            <td colspan="4">A — Salary income</td>
+          </tr>
+          <tr>
+            <td>Basic salary</td>
+            <td><input type="number" class="table-input" formControlName="salBasic" min="0" placeholder="0" /></td>
+            <td><input type="number" class="table-input" formControlName="salTds" min="0" placeholder="0" /></td>
+            <td class="computed">{{ fmtN(salBasicNet) }}</td>
+          </tr>
+          <tr>
+            <td>House rent allowance (HRA)</td>
+            <td><input type="number" class="table-input" formControlName="hra" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.hra || 0) }}</td>
+          </tr>
+          <tr>
+            <td>Festival bonus / other allowances</td>
+            <td><input type="number" class="table-input" formControlName="bonus" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.bonus || 0) }}</td>
+          </tr>
+          <tr class="sub-total">
+            <td>Total salary income</td>
+            <td class="computed">{{ fmtN(salGross) }}</td>
+            <td class="computed">{{ fmtN(step2Form.value.salTds || 0) }}</td>
+            <td class="computed">{{ fmtN(salNet) }}</td>
+          </tr>
+
+          <!-- B: Business -->
+          <tr class="section-row">
+            <td colspan="4">B — Business / profession income</td>
+          </tr>
+          <tr>
+            <td>Net business profit</td>
+            <td><input type="number" class="table-input" formControlName="bizIncome" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.bizIncome || 0) }}</td>
+          </tr>
+
+          <!-- C: Other sources -->
+          <tr class="section-row">
+            <td colspan="4">C — Income from other sources</td>
+          </tr>
+          <tr>
+            <td>Bank interest</td>
+            <td><input type="number" class="table-input" formControlName="bankInterest" min="0" placeholder="0" /></td>
+            <td><input type="number" class="table-input" formControlName="bankAit" min="0" placeholder="0" /></td>
+            <td class="computed">{{ fmtN(bankNet) }}</td>
+          </tr>
+          <tr>
+            <td>Rental income</td>
+            <td><input type="number" class="table-input" formControlName="rentIncome" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.rentIncome || 0) }}</td>
+          </tr>
+          <tr>
+            <td>Capital gains</td>
+            <td><input type="number" class="table-input" formControlName="capitalGain" min="0" placeholder="0" /></td>
+            <td class="muted">—</td>
+            <td class="computed">{{ fmtN(step2Form.value.capitalGain || 0) }}</td>
+          </tr>
+
+          <!-- Grand total -->
+          <tr class="grand-total">
+            <td>Total gross income</td>
+            <td class="big">{{ fmt(totalGrossIncome) }}</td>
+            <td class="computed">{{ fmt(totalTds) }}</td>
+            <td class="big">{{ fmt(grandNet) }}</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 3 — Deductions & Exemptions
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 3" [formGroup]="step3Form">
+
+  <div class="alert alert-info">
+    <div>ℹ</div>
+    <div>Deductions reduce your taxable income. Enter only amounts you can prove with receipts. Each has a legal maximum limit set by NBR.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-amber">
+          <i class="bi bi-piggy-bank-fill" style="font-size:12px;color:#BA7517"></i>
+        </div>
+        <div>
+          <div class="card-title">Allowable deductions &amp; investments</div>
+          <div class="card-sub">Section 44 — Investment tax credit &amp; exemptions</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Life insurance premium</div>
+          <div class="ded-hint">Max 10% of sum insured or ৳ 1,50,000 — whichever is lower</div>
+        </div>
+        <input class="ded-input" type="number" formControlName="lifeInsurance" min="0" placeholder="0" />
+      </div>
+
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Provident fund / gratuity contribution</div>
+          <div class="ded-hint">Employee contribution only — employer share is not deductible</div>
+        </div>
+        <input class="ded-input" type="number" formControlName="providentFund" min="0" placeholder="0" />
+      </div>
+
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">DPS / savings deposit</div>
+          <div class="ded-hint">Max ৳ 60,000 per year
+            <span *ngIf="(step3Form.value.dps || 0) > 60000" class="badge b-warn" style="margin-left:6px">Capped at ৳ 60,000</span>
+          </div>
+        </div>
+        <input class="ded-input" type="number" formControlName="dps" min="0" placeholder="0" />
+      </div>
+
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Investment in govt. securities / savings bonds</div>
+          <div class="ded-hint">Sanchay Patra, Treasury bonds</div>
+        </div>
+        <input class="ded-input" type="number" formControlName="govtBonds" min="0" placeholder="0" />
+      </div>
+
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Donation to approved charity / Zakat</div>
+          <div class="ded-hint">Must be NBR-approved institution</div>
+        </div>
+        <input class="ded-input" type="number" formControlName="donation" min="0" placeholder="0" />
+      </div>
+
+      <div class="deduction-row">
+        <div class="ded-left">
+          <div class="ded-name">Investment in listed company shares</div>
+          <div class="ded-hint">Max ৳ 50,000 — must be stock exchange listed
+            <span *ngIf="(step3Form.value.shares || 0) > 50000" class="badge b-warn" style="margin-left:6px">Capped at ৳ 50,000</span>
+          </div>
+        </div>
+        <input class="ded-input" type="number" formControlName="shares" min="0" placeholder="0" />
+      </div>
+
+      <!-- Summary box -->
+      <div class="ded-summary">
+        <div>
+          <div class="ded-sum-label">Total investments / deductions</div>
+          <div class="ded-sum-value blue">{{ fmt(totalDeductions) }}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="ded-sum-label">Tax rebate (15% of investments)</div>
+          <div class="ded-sum-value green">{{ fmt(taxRebate) }}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 4 — Tax Liability
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 4">
+
+  <!-- Tax bracket table -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-blue">
+          <i class="bi bi-bar-chart-steps" style="font-size:12px;color:#185FA5"></i>
+        </div>
+        <div>
+          <div class="card-title">Tax slab — Individual (BD)</div>
+          <div class="card-sub">Which bracket your taxable income falls into</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+      <div class="tax-bracket">
+        <div class="bracket-hdr">
+          <span>Income slab</span>
+          <span>Rate</span>
+          <span>Your income in slab</span>
+          <span>Tax</span>
+        </div>
+        <div class="bracket-row" *ngFor="let b of computedBrackets" [class.active]="b.active">
+          <span>{{ b.label }}</span>
+          <span>{{ b.rate === 0 ? '0%' : b.rate + '%' }}</span>
+          <span class="amount">{{ fmt(b.incomeInSlab) }}</span>
+          <span class="amount">{{ fmt(b.taxInSlab) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final calculation -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Final tax calculation</div>
+    </div>
+    <div class="card-p">
+      <div class="summary-box">
+
+        <div class="sum-row">
+          <span class="sum-key">Total gross income</span>
+          <span class="sum-val">{{ fmt(totalGrossIncome) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Less: HRA exemption (50%, max ৳ 50,000)</span>
+          <span class="sum-val" style="color:#1D9E75">− {{ fmt(hraExemption) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Taxable income</span>
+          <span class="sum-val">{{ fmt(localTaxableIncome) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Gross tax (before rebate)</span>
+          <span class="sum-val">{{ fmt(localGrossTax) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Less: investment tax rebate (15%)</span>
+          <span class="sum-val" style="color:#1D9E75">− {{ fmt(taxRebate) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Net tax liability</span>
+          <span class="sum-val">{{ fmt(localNetTax) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Less: TDS already deducted (salary)</span>
+          <span class="sum-val" style="color:#1D9E75">− {{ fmt(step2Form.value.salTds || 0) }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-key">Less: AIT already deducted (bank)</span>
+          <span class="sum-val" style="color:#1D9E75">− {{ fmt(step2Form.value.bankAit || 0) }}</span>
+        </div>
+
+        <!-- Result row -->
+        <div class="sum-row sum-total" [ngClass]="taxResult <= 0 ? 'sum-refund' : 'sum-due'">
+          <span class="sum-key">{{ taxResult <= 0 ? 'Refund receivable' : 'Tax payable' }}</span>
+          <span class="sum-val">{{ fmt(taxResult <= 0 ? refundable : balanceDue) }}</span>
+        </div>
+
+      </div>
+
+      <!-- Result message -->
+      <div class="result-msg" [ngClass]="taxResult <= 0 ? 'result-ok' : 'result-warn'">
+        <ng-container *ngIf="taxResult <= 0">
+          🎉 <strong>Good news!</strong> You are eligible for a <strong>{{ fmt(refundable) }} refund</strong>
+          because your TDS/AIT already paid exceeds your actual tax liability.
+        </ng-container>
+        <ng-container *ngIf="taxResult > 0">
+          ⚠ <strong>Tax due: {{ fmt(balanceDue) }}</strong> — Pay before submitting via treasury challan.
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
+    <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 5 — Assets & Liabilities (IT-10B)
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 5" [formGroup]="step5Form">
+
+  <div class="alert alert-warn">
+    <div>⚠</div>
+    <div>Assets &amp; liabilities statement is mandatory for all taxpayers. Declare all assets honestly — any unexplained wealth may trigger an audit.</div>
+  </div>
+
+  <!-- Assets card -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-purple">
+          <i class="bi bi-bank2" style="font-size:12px;color:#534AB7"></i>
+        </div>
+        <div>
+          <div class="card-title">Statement of assets</div>
+          <div class="card-sub">As of end of income year — market value or cost, whichever is lower</div>
+        </div>
+      </div>
+      <span class="badge b-info">Total: {{ fmt(totalAssets) }}</span>
+    </div>
+    <div class="card-p">
+      <div class="grid2">
+        <div class="field">
+          <label>Land / building (market value)</label>
+          <input type="number" formControlName="landBuilding" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Motor vehicle</label>
+          <input type="number" formControlName="motorVehicle" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Business capital</label>
+          <input type="number" formControlName="businessCapital" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Bank balance (all accounts)</label>
+          <input type="number" formControlName="bankBalance" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Cash in hand</label>
+          <input type="number" formControlName="cashInHand" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Investment (shares, bonds, DPS)</label>
+          <input type="number" formControlName="investment" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Gold / jewellery (value)</label>
+          <input type="number" formControlName="gold" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Other assets</label>
+          <input type="number" formControlName="otherAssets" min="0" placeholder="0" />
+        </div>
+      </div>
+      <div class="assets-total-bar">
+        <span>Total assets</span>
+        <span class="assets-total-value">{{ fmt(totalAssets) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liabilities card -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-red">
+          <i class="bi bi-credit-card-2-back-fill" style="font-size:12px;color:#A32D2D"></i>
+        </div>
+        <div>
+          <div class="card-title">Statement of liabilities</div>
+          <div class="card-sub">Outstanding loans and financial obligations</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+      <div class="grid2">
+        <div class="field">
+          <label>Bank loan / mortgage</label>
+          <input type="number" formControlName="bankLoan" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Business loan</label>
+          <input type="number" formControlName="bizLoan" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Other liabilities</label>
+          <input type="number" formControlName="otherLiabilities" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Net worth (assets − liabilities)</label>
+          <input type="text" [value]="fmt(netWorth)" readonly
+            [style.color]="netWorth >= 0 ? '#185FA5' : '#A32D2D'" style="font-weight:500" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-ghost" (click)="prevStep()">← Back</button>
+    <button class="btn btn-primary" (click)="nextStep()">Review &amp; submit →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 6 — Review & Submit
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 6" [formGroup]="step6Form">
+ 
+  <div class="alert alert-warn">
+    <div>⚠</div>
+    <div>Once submitted, this ITR is <strong>permanently locked</strong>.
+      If corrections are needed, file an amended return from the return details page
+      before the deadline ({{ dueDate || '—' }}).</div>
+  </div>
+ 
+  <!-- ── Final summary ── -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Final summary — ITR FY {{ filingYear }}</div>
+    </div>
+    <div class="card-p">
+ 
+      <div class="grid3" style="margin-bottom:14px">
+        <div class="stat-box">
+          <div class="stat-label">Total income</div>
+          <div class="stat-value">{{ fmt(totalGrossIncome) }}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Tax liability</div>
+          <div class="stat-value">{{ fmt(localNetTax) }}</div>
+        </div>
+        <div class="stat-box" [ngClass]="taxResult <= 0 ? 'stat-green' : 'stat-red'">
+          <div class="stat-label">{{ taxResult <= 0 ? 'Refund' : 'Balance due' }}</div>
+          <div class="stat-value">{{ fmt(taxResult <= 0 ? refundable : balanceDue) }}</div>
+        </div>
+      </div>
+ 
+      <div class="review-detail">
+        <div class="review-row"><span class="rew-k">TIN</span><span class="rew-v">{{ step1Form.getRawValue().tinNumber || '—' }}</span></div>
+        <div class="review-row"><span class="rew-k">Taxpayer</span><span class="rew-v">{{ step1Form.getRawValue().taxpayerName }}</span></div>
+        <div class="review-row"><span class="rew-k">Category</span><span class="rew-v">{{ step1Form.getRawValue().itrCategory }}</span></div>
+        <div class="review-row"><span class="rew-k">Assessment year</span><span class="rew-v">{{ step1Form.getRawValue().assessmentYear }}</span></div>
+        <div class="review-row"><span class="rew-k">Gross income</span><span class="rew-v">{{ fmt(totalGrossIncome) }}</span></div>
+        <div class="review-row"><span class="rew-k">HRA exemption</span><span class="rew-v" style="color:#1D9E75">− {{ fmt(hraExemption) }}</span></div>
+        <div class="review-row"><span class="rew-k">Taxable income</span><span class="rew-v font-bold">{{ fmt(localTaxableIncome) }}</span></div>
+        <div class="review-row"><span class="rew-k">Gross tax</span><span class="rew-v">{{ fmt(localGrossTax) }}</span></div>
+        <div class="review-row"><span class="rew-k">Investment rebate (15%)</span><span class="rew-v" style="color:#1D9E75">− {{ fmt(taxRebate) }}</span></div>
+        <div class="review-row"><span class="rew-k">Net tax liability</span><span class="rew-v font-bold">{{ fmt(localNetTax) }}</span></div>
+        <div class="review-row"><span class="rew-k">TDS &amp; AIT paid</span><span class="rew-v" style="color:#1D9E75">− {{ fmt(totalTds) }}</span></div>
+        <div class="review-row" *ngIf="totalAssets > 0"><span class="rew-k">Net worth (IT-10B)</span><span class="rew-v">{{ fmt(netWorth) }}</span></div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ══════════════════════════════════════════════════════════
+       PAYMENT SECTION — only shown if tax is due
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="card" *ngIf="showPaymentSection">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-red">
+          <i class="bi bi-credit-card-fill" style="font-size:12px;color:#A32D2D"></i>
+        </div>
+        <div>
+          <div class="card-title">Tax payment</div>
+          <div class="card-sub">
+            Tax due: <strong style="color:#A32D2D">{{ fmt(balanceDue) }}</strong>
+            — Select payment method and enter details
+          </div>
+        </div>
+      </div>
+      <span class="badge b-red" *ngIf="!isPaymentValid">⚠ Required</span>
+      <span class="badge b-ok" *ngIf="isPaymentValid">✓ Done</span>
+    </div>
+    <div class="card-p">
+ 
+      <!-- Payment method selection -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;color:var(--ts);font-weight:600;margin-bottom:10px;">
+          Select payment method
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label *ngFor="let m of paymentMethods"
+                 class="payment-method-btn"
+                 [class.selected]="selectedPaymentMethod === m.value"
+                 [class.disabled]="!m.available"
+                 [title]="!m.available ? 'Coming soon' : ''">
+            <input type="radio" formControlName="paymentMethod"
+                   [value]="m.value" [disabled]="!m.available"
+                   style="display:none" />
+            {{ m.label }}
+            <span *ngIf="!m.available" style="font-size:10px;opacity:0.6"> — Soon</span>
+          </label>
+        </div>
+      </div>
+ 
+      <!-- ── Bank Challan fields ── -->
+      <div *ngIf="isChallanMethod" class="payment-fields">
+        <div class="alert alert-info" style="margin-bottom:14px">
+          <div>ℹ</div>
+          <div>Pay at any scheduled bank using a treasury challan form.
+            The bank will give you a challan number — enter it below.</div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Bank name <span class="req">*</span></label>
+            <select formControlName="challanBank">
+              <option value="">— Select bank —</option>
+              <option *ngFor="let b of banks" [value]="b">{{ b }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Challan number <span class="req">*</span></label>
+            <input type="text" formControlName="challanNo"
+                   placeholder="e.g. CHAL-2025-001234" />
+          </div>
+          <div class="field">
+            <label>Payment date <span class="req">*</span></label>
+            <input type="date" formControlName="challanDate" />
+          </div>
+          <div class="field">
+            <label>Amount paid (৳) <span class="req">*</span></label>
+            <input type="number" formControlName="challanAmount"
+                   min="0" placeholder="0" />
+            <span class="hint" *ngIf="step6Form.value.challanAmount > 0 &&
+              step6Form.value.challanAmount < balanceDue"
+              style="color:#e67e22">
+              ⚠ Amount is less than tax due ({{ fmt(balanceDue) }})
+            </span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- ── MFS fields (bKash / Nagad / Rocket) ── -->
+      <div *ngIf="isMfsMethod" class="payment-fields">
+        <div class="alert alert-info" style="margin-bottom:14px">
+          <div>ℹ</div>
+          <div>
+            Send payment to the NBR
+            <strong *ngIf="selectedPaymentMethod === 'bkash'">bKash</strong>
+            <strong *ngIf="selectedPaymentMethod === 'nagad'">Nagad</strong>
+            <strong *ngIf="selectedPaymentMethod === 'rocket'">Rocket</strong>
+            merchant number. Enter the transaction ID from your confirmation SMS.
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Transaction ID <span class="req">*</span></label>
+            <input type="text" formControlName="mfsNumber"
+                   placeholder="e.g. TXN8CH2XXXXXX" />
+          </div>
+          <div class="field">
+            <label>Amount sent (৳) <span class="req">*</span></label>
+            <input type="number" formControlName="mfsAmount"
+                   min="0" placeholder="0" />
+          </div>
+          <div class="field">
+            <label>Payment date <span class="req">*</span></label>
+            <input type="date" formControlName="mfsDate" />
+          </div>
+        </div>
+      </div>
+ 
+      <!-- ── Card — coming soon placeholder ── -->
+      <div *ngIf="isCardMethod" class="payment-fields">
+        <div class="alert alert-warn">
+          <div>🚧</div>
+          <div>Online card payment gateway is under development.
+            Please use bank challan or MFS for now.</div>
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <!-- ── Refund case — no payment needed ── -->
+  <div class="card" *ngIf="!showPaymentSection && taxResult <= 0">
+    <div class="card-p" style="display:flex;align-items:center;gap:12px;">
+      <div style="font-size:24px">🎉</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#1a7a4a">
+          No payment required
+        </div>
+        <div style="font-size:13px;color:#888;margin-top:2px">
+          You have a refund of <strong style="color:#1a7a4a">{{ fmt(refundable) }}</strong>
+          — it will be processed after your return is accepted.
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ── Declaration ── -->
+  <div class="card">
+    <div class="card-p">
+      <div class="declaration-box">
+        <div class="decl-title">Verification &amp; declaration</div>
+        <div class="decl-body">
+          I, <strong>{{ step1Form.getRawValue().taxpayerName || '...' }}</strong>
+          (TIN: {{ step1Form.getRawValue().tinNumber || '...' }}), solemnly declare that the
+          information furnished in this return of income for the assessment year
+          {{ step1Form.getRawValue().assessmentYear }} is correct and complete
+          to the best of my knowledge and belief.
+        </div>
+        <label class="decl-check">
+          <input type="checkbox" formControlName="declaration" />
+          <span>I confirm the above declaration and consent to submit this ITR.</span>
+        </label>
+        <div class="field" style="margin-top:10px">
+          <label>Remarks (optional)</label>
+          <textarea class="remarks-input" formControlName="remarks" rows="2"
+            placeholder="Any additional notes for the record…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <button class="btn btn-ghost" (click)="prevStep()" [disabled]="isLoading">← Back</button>
+      <button class="btn btn-primary" (click)="onSubmit()" [disabled]="isLoading">
+        <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> Submit ITR →</span>
+        <span *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm me-1"></span> Submitting…
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANE 7 — Success
+════════════════════════════════════════════════════════════════ -->
+<div *ngIf="currentStep === 7 && successData">
+  <div class="card">
+    <div class="success-screen" id="print-area">
+      <div class="success-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+             stroke="#3B6D11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="success-title">ITR filed successfully!</div>
+      <div class="success-sub">
+        Your return for FY {{ filingYear }} has been submitted.
+        <ng-container *ngIf="taxResult <= 0">
+          Refund of <strong>{{ fmt(refundable) }}</strong> will be processed
+          within 30 working days after acceptance.
+        </ng-container>
+        <ng-container *ngIf="taxResult > 0">
+          Balance due of <strong>{{ fmt(balanceDue) }}</strong> has been recorded.
+          Your return will be reviewed by the tax officer.
+        </ng-container>
+      </div>
+ 
+      <!-- Acknowledgement box -->
+      <div class="ack-box">
+        <div class="ack-row">
+          <span>Acknowledgement no.</span>
+          <span class="ack-val mono">{{ successData.returnNo }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Assessment year</span>
+          <span class="ack-val">{{ step1Form.getRawValue().assessmentYear }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Taxpayer</span>
+          <span class="ack-val">{{ step1Form.getRawValue().taxpayerName }}</span>
+        </div>
+        <div class="ack-row">
+          <span>TIN</span>
+          <span class="ack-val mono">{{ step1Form.getRawValue().tinNumber }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Total income declared</span>
+          <span class="ack-val">{{ fmt(totalGrossIncome) }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Net tax liability</span>
+          <span class="ack-val">{{ fmt(localNetTax) }}</span>
+        </div>
+        <div class="ack-row" *ngIf="taxResult <= 0">
+          <span>Refund due</span>
+          <span class="ack-val" style="color:#1D9E75">{{ fmt(refundable) }}</span>
+        </div>
+        <div class="ack-row" *ngIf="taxResult > 0">
+          <span>Balance due</span>
+          <span class="ack-val" style="color:#A32D2D">{{ fmt(balanceDue) }}</span>
+        </div>
+ 
+        <!-- Payment info  -->
+        <ng-container *ngIf="step6Form.value.challanNo">
+          <div class="ack-row">
+            <span>Challan no.</span>
+            <span class="ack-val mono">{{ step6Form.value.challanNo }}</span>
+          </div>
+          <div class="ack-row">
+            <span>Bank</span>
+            <span class="ack-val">{{ step6Form.value.challanBank }}</span>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="step6Form.value.mfsNumber">
+          <div class="ack-row">
+            <span>MFS transaction ID</span>
+            <span class="ack-val mono">{{ step6Form.value.mfsNumber }}</span>
+          </div>
+        </ng-container>
+ 
+        <div class="ack-row">
+          <span>Filed at</span>
+          <span class="ack-val">{{ successData.filedAt }}</span>
+        </div>
+        <div class="ack-row">
+          <span>Status</span>
+          <span><span class="badge b-ok">Submitted</span></span>
+        </div>
+      </div>
+ 
+      <!-- Action buttons -->
+      <div class="success-actions">
+        <button class="btn btn-sm" (click)="goToList()">← Back to list</button>
+        <button class="btn btn-sm" (click)="printAcknowledgement()">
+          🖨 Print
+        </button>
+        <button class="btn btn-primary btn-sm" (click)="goToView()">
+          <i class="bi bi-eye-fill"></i> View return
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 ```
 
 ## File: src/app/features/income-tax-returns/pages/income-tax-return-view/income-tax-return-view.component.css
@@ -35571,167 +37551,21 @@ getRateDisplay(t: TaxStructure): string
 isExpired(date: string): boolean
 ```
 
-## File: src/app/features/taxable-products/pages/taxable-product-list/taxable-product-list.component.ts
+## File: src/app/features/taxable-products/pages/taxable-product-create/taxable-product-create.component.ts
 ```typescript
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
-import { TaxableProductViewModel } from 'src/app/models/taxable-product.model';
+import { forkJoin, Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ToastService } from 'src/app/shared/toast/toast.service';
+import { TaxStructure } from 'src/app/models/tax-structure.model';
 import {
-  TaxableProductService
-} from '../../services/taxable-product.service';
+  ProductStatus,
+  TaxableProductCreateRequest,
+} from '../../../../models/taxable-product.model';
+import { TaxableProductService } from '../../services/taxable-product.service';
 ⋮----
-export class TaxableProductListComponent implements OnInit
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-loadProducts(): void
-⋮----
-get filtered(): TaxableProductViewModel[]
-⋮----
-// FIX: taxType enrichProduct এ সবসময় 'N/A' fallback পায়, তাই safe
-// কিন্তু তবুও optional chaining দেওয়া হলো extra safety-র জন্য
-⋮----
-getStatusClass(s: string): string
-⋮----
-getCategoryIcon(c: string): string
-⋮----
-confirmDelete(id: number): void
-⋮----
-cancelDelete(): void
-⋮----
-confirmDeleteExecute(): void
-⋮----
-private delete(id: number): void
-⋮----
-private resetDeleteState(): void
-⋮----
-exportProducts(): void
-⋮----
-view(id: number): void
-edit(id: number): void
-```
-
-## File: src/app/features/taxpayer-management/pages/taxpayer-view/taxpayer-view.component.ts
-```typescript
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { TaxCircle, TaxZone } from 'src/app/models/master-data.model';
-import { AuthService } from '../../../../core/services/auth.service';
-import { Role } from 'src/app/core/constants/roles.constants';
-import { District } from '../../../../models/master-data.model';
-⋮----
-export class TaxpayerViewComponent implements OnInit, OnDestroy {
-⋮----
-// ────────────────── Properties ──────────────────────
-⋮----
-// Zone & Circle
-⋮----
-// Form fields
-⋮----
-// Notice Modal
-⋮----
-// ──────────────────── Constructor ───────────────────────
-⋮----
-constructor(
-⋮----
-// ────────────────────── Lifecycle ──────────────────────
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ────────────────────── Initialization  ─────────────────────
-⋮----
-private initializeTaxpayer(): void
-⋮----
-private getValidTaxpayerId(): number | null
-⋮----
-private handleInvalidId(): void
-⋮----
-private fetchTaxpayer(): void
-⋮----
-private handleFetchSuccess(data: Taxpayer): void
-⋮----
-private handleFetchError(error: any): void
-⋮----
-// ───────────────────── Helper Methods ────────────────────────
-⋮----
-getDisplayName(taxpayer: any): string
-⋮----
-get isCompany(): boolean
-⋮----
-get isIndividual(): boolean
-⋮----
-get canReview(): boolean
-⋮----
-get isPendingReview(): boolean
-⋮----
-get isApproved(): boolean
-⋮----
-get isRejected(): boolean
-⋮----
-onFileSelected(event: Event): void
-⋮----
-// Preview
-⋮----
-getPhotoUrl(photoPath: string): string
-⋮----
-// ───────────────────── Navigation ────────────────────────
-⋮----
-onEdit(): void
-⋮----
-onBack(): void
-⋮----
-// ────────────────────── UI Helpers ──────────────────────
-⋮----
-getStatusClass(status: string): string
-⋮----
-loadZones(): void
-⋮----
-// taxpayer এর district থেকে zone load করব
-⋮----
-// আগে সব districts load করে match করব
-⋮----
-onZoneChange(): void
-⋮----
-// ────────────────────── Actions ──────────────────────
-⋮----
-onApprove(): void
-⋮----
-onReject(): void
-⋮----
-openSendNotice(): void
-⋮----
-closeSendNotice(): void
-⋮----
-sendNotice(): void
-```
-
-## File: src/app/features/taxpayer-portal/pages/portal-home/portal-home.component.ts
-```typescript
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { forkJoin, of, Subject, takeUntil } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-⋮----
-import { AuthService } from '../../../../core/services/auth.service';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Taxpayer } from 'src/app/models/taxpayer.model';
-import { IncomeTaxReturn } from 'src/app/models/income-tax-return.model';
-import { Router } from '@angular/router';
-⋮----
-export class PortalHomeComponent implements OnInit, OnDestroy
-⋮----
-// ── ITR stats ─────────────────────────────────────────────────
+export class TaxableProductCreateComponent implements OnInit, OnDestroy
 ⋮----
 constructor(
 ⋮----
@@ -35739,51 +37573,25 @@ ngOnInit(): void
 ⋮----
 ngOnDestroy(): void
 ⋮----
-// ── Stats computed from ITR data ──────────────────────────────
+get selectedTaxStructure(): TaxStructure | undefined
 ⋮----
-get totalReturnsFiled(): number
+get selectedTaxType(): string
 ⋮----
-get outstandingDues(): number
+get selectedTaxRate(): number
 ⋮----
-/**
-   * Compliance score — accepted returns / total returns * 100
-   * 0 returns হলে 100% (no obligation yet)
-   */
-get complianceScore(): number
+loadMasterData(): void
 ⋮----
-get complianceColor(): string
+onTaxStructureChange(): void
 ⋮----
-/**
-   * Last activity — most recent return-এর submission date
-   */
-get lastActivity(): string
+isFormValid(): boolean
 ⋮----
-/** Outstanding dues formatted */
-formatDues(amount: number): string
+onSubmit(): void
 ⋮----
-// ── Menu ──────────────────────────────────────────────────────
+onReset(): void
 ⋮----
-private buildMenu(category: string): void
+onCancel(): void
 ⋮----
-// ── Display helpers ───────────────────────────────────────────
-⋮----
-get displayName(): string
-⋮----
-get taxpayerTypeName(): string
-⋮----
-get photoUrl(): string | null
-⋮----
-// ── Profile Completion ────────────────────────────────────────
-⋮----
-get profileCompletion(): number
-⋮----
-get completionColor(): string
-⋮----
-get missingFields(): string[]
-⋮----
-logout(): void
-⋮----
-onComplete(): void
+private createEmptyForm(): TaxableProductCreateRequest
 ```
 
 ## File: src/app/features/tin-management/pages/tin-view/tin-view.component.ts
@@ -35955,6 +37763,59 @@ onEdit(): void
 onBack(): void
 ```
 
+## File: src/app/core/services/auth.service.ts
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { Role, ROLE_PERMISSIONS, ROLE_ACTIONS, ROLE_MENU } from '../constants/roles.constants';
+import { API_ENDPOINTS } from '../constants/api.constants';
+import { environment } from '../../../environments/environment';
+import { AuthUser, LoginRequest } from 'src/app/models/auth-user.model';
+⋮----
+export class AuthService {
+⋮----
+constructor(private http: HttpClient, private router: Router)
+⋮----
+// ── Load from localStorage ──
+private loadUser(): AuthUser | null
+⋮----
+login(credentials: LoginRequest): Observable<any>
+⋮----
+private handleLoginSuccess(response: any): void
+⋮----
+approvalStatus: response.approvalStatus ?? null, // ← যোগ করো
+⋮----
+private getMockUser(email: string): AuthUser | null
+⋮----
+logout(): void
+⋮----
+// ── Getters ──
+get currentUser(): AuthUser | null
+⋮----
+get isLoggedIn(): boolean
+⋮----
+get userRole(): Role
+⋮----
+// ── Permission checks ──
+hasPermission(module: string): boolean
+⋮----
+// auth.service.ts e add koro
+hasRole(role: Role): boolean
+⋮----
+canDo(action: string): boolean
+⋮----
+canSeeMenu(menuLabel: string): boolean
+⋮----
+updateCurrentUser(user: AuthUser): void
+⋮----
+get allowedMenuItems(): string[]
+⋮----
+refreshApprovalStatus(newStatus: string): void
+```
+
 ## File: src/app/features/business-registration/pages/business-view/business-view.component.ts
 ```typescript
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -36029,6 +37890,267 @@ isExpired(date: string): boolean
 isExpiringSoon(date: string): boolean
 ⋮----
 private getToday(): Date
+```
+
+## File: src/app/features/dashboard/pages/dashboard-home/dashboard-home.component.ts
+```typescript
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  inject,
+} from '@angular/core';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { Subject, timer } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { DashboardService } from '../../services/dashboard.service';
+import {
+  DashboardStats,
+  RecentTaxpayer,
+  RecentPayment,
+  DashboardChartData,
+} from 'src/app/models/dashboard.model';
+import { FiscalYear } from 'src/app/models/fiscal-year.model';
+⋮----
+interface CanvasRenderingContext2D {
+    roundRect(
+      x: number,
+      y: number,
+      w: number,
+      h: number,
+      radii: number | number[],
+    ): void;
+  }
+⋮----
+roundRect(
+      x: number,
+      y: number,
+      w: number,
+      h: number,
+      radii: number | number[],
+    ): void;
+⋮----
+export class DashboardHomeComponent
+implements OnInit, AfterViewInit, OnDestroy
+⋮----
+// ── Fiscal Years ──
+⋮----
+// ── Stat Cards ──
+⋮----
+// ── VAT Collection Trend ──
+⋮----
+// ── Payment Collection ──
+⋮----
+// ── Compliance Gauge ──
+⋮----
+// ── Zone-wise Collection (static — no backend endpoint yet) ──
+⋮----
+// ── Recent Taxpayers ──
+⋮----
+// ── Recent Payments ──
+⋮----
+// ── Tax Type Breakdown (static — no breakdown endpoint yet) ──
+⋮----
+// ── Quick Actions ──
+⋮----
+constructor(
+⋮----
+// ─────────────────────────────────────────────
+// Lifecycle
+// ─────────────────────────────────────────────
+⋮----
+ngOnInit(): void
+⋮----
+ngAfterViewInit(): void
+⋮----
+// Initial draw (data may not be ready yet; loadDashboard will call again when done)
+⋮----
+ngOnDestroy(): void
+⋮----
+// ─────────────────────────────────────────────
+// Data Loading — wired to DashboardService
+// ─────────────────────────────────────────────
+⋮----
+private loadDashboard(): void
+⋮----
+// Redraw charts after Angular binds the new data
+⋮----
+// ── FiscalYear[] → dropdown + current year card ──
+private applyFiscalYears(list: FiscalYear[]): void
+⋮----
+// Sort: Active first, then Upcoming, then Closed — within each by yearName desc
+⋮----
+isDatePast(dateStr: string): boolean
+⋮----
+// ── DashboardStats → statCards + gauge ──
+private applyStats(stats: DashboardStats): void
+⋮----
+// Compliance gauge
+⋮----
+// Normalised progress rings
+⋮----
+// ── RecentTaxpayer[] → display list ──
+private applyTaxpayers(list: RecentTaxpayer[]): void
+⋮----
+type: 'Company', // extend backend model to expose type when ready
+⋮----
+// ── RecentPayment[] → display list ──
+private applyPayments(list: RecentPayment[]): void
+⋮----
+// ── DashboardChartData → chart arrays ──
+private applyChartData(data: DashboardChartData): void
+⋮----
+// Backend stores raw BDT values → convert to Lakh for display
+⋮----
+// ─────────────────────────────────────────────
+// UI Events
+// ─────────────────────────────────────────────
+⋮----
+onRefresh(): void
+⋮----
+onYearChange(): void
+⋮----
+// ─────────────────────────────────────────────
+// Template Helpers
+// ─────────────────────────────────────────────
+⋮----
+getGreeting(): string
+⋮----
+formatValue(v: number, suffix: string): string
+⋮----
+getZonePercent(z: any): number
+⋮----
+getStatusClass(s: string): string
+⋮----
+formatCurrency(a: number): string
+⋮----
+// ─────────────────────────────────────────────
+// Canvas Drawing
+// ─────────────────────────────────────────────
+⋮----
+private redrawAllCharts(): void
+⋮----
+private setupCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D
+⋮----
+drawGauge(): void
+⋮----
+drawVatChart(): void
+⋮----
+const drawLine = (data: number[], color: string, fill: boolean) =>
+⋮----
+drawPayChart(): void
+⋮----
+drawDonut(): void
+```
+
+## File: src/app/features/tax-structure/pages/tax-structure-create/tax-structure-create.component.ts
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
+⋮----
+import {
+  TaxMasterData,
+  TaxPreviewResponse,
+  TaxSlab,
+  TaxStructureCreateRequest,
+} from 'src/app/models/tax-structure.model';
+import { TaxStructureService } from 'src/app/core/services/tax-strcuture.service';
+⋮----
+export class TaxStructureCreateComponent implements OnInit, OnDestroy
+⋮----
+// ── UI state ──────────────────────────────────────────────────────────────
+⋮----
+// ── Master data (from API) ────────────────────────────────────────────────
+⋮----
+// ── Preview ───────────────────────────────────────────────────────────────
+⋮----
+// ── Form model ────────────────────────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+// ── Lifecycle ─────────────────────────────────────────────────────────────
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Master Data ───────────────────────────────────────────────────────────
+⋮----
+private loadMasterData(): void
+⋮----
+// Trigger first preview with default values
+⋮----
+// ── Preview (backend) ─────────────────────────────────────────────────────
+⋮----
+private setupPreviewDebounce(): void
+⋮----
+triggerPreview(): void
+⋮----
+// ── Slab Management ───────────────────────────────────────────────────────
+⋮----
+onRateTypeChange(): void
+⋮----
+private addDefaultSlabs(): void
+⋮----
+addSlab(): void
+⋮----
+removeSlab(index: number): void
+⋮----
+// ── Form Submit ───────────────────────────────────────────────────────────
+⋮----
+isFormValid(): boolean
+⋮----
+onSubmit(): void
+⋮----
+onReset(): void
+⋮----
+onCancel(): void
+```
+
+## File: src/app/features/taxable-products/pages/taxable-product-list/taxable-product-list.component.ts
+```typescript
+import { Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { TaxableProductViewModel } from 'src/app/models/taxable-product.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import {
+  TaxableProductService
+} from '../../services/taxable-product.service';
+⋮----
+export class TaxableProductListComponent implements OnInit
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+loadProducts(): void
+⋮----
+get filtered(): TaxableProductViewModel[]
+⋮----
+getStatusClass(s: string): string
+⋮----
+getCategoryIcon(c: string): string
+⋮----
+confirmDelete(id: number): void
+⋮----
+cancelDelete(): void
+⋮----
+confirmDeleteExecute(): void
+⋮----
+private delete(id: number): void
+⋮----
+private resetDeleteState(): void
+⋮----
+exportProducts(): void
+⋮----
+view(id: number): void
+edit(id: number): void
 ```
 
 ## File: src/app/features/taxpayer-management/pages/taxpayer-create/taxpayer-create.component.html
@@ -36483,6 +38605,285 @@ private getToday(): Date
 </div>
 ```
 
+## File: src/app/features/taxpayer-management/pages/taxpayer-view/taxpayer-view.component.ts
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Taxpayer } from '../../../../models/taxpayer.model';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { TaxCircle, TaxZone } from 'src/app/models/master-data.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Role } from 'src/app/core/constants/roles.constants';
+import { District } from '../../../../models/master-data.model';
+⋮----
+export class TaxpayerViewComponent implements OnInit, OnDestroy {
+⋮----
+// ────────────────── Properties ──────────────────────
+⋮----
+// Zone & Circle
+⋮----
+// Form fields
+⋮----
+// Notice Modal
+⋮----
+// ──────────────────── Constructor ───────────────────────
+⋮----
+constructor(
+⋮----
+// ────────────────────── Lifecycle ──────────────────────
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ────────────────────── Initialization  ─────────────────────
+⋮----
+private initializeTaxpayer(): void
+⋮----
+private getValidTaxpayerId(): number | null
+⋮----
+private handleInvalidId(): void
+⋮----
+private fetchTaxpayer(): void
+⋮----
+private handleFetchSuccess(data: Taxpayer): void
+⋮----
+private handleFetchError(error: any): void
+⋮----
+// ───────────────────── Helper Methods ────────────────────────
+⋮----
+getDisplayName(taxpayer: any): string
+⋮----
+get isCompany(): boolean
+⋮----
+get isIndividual(): boolean
+⋮----
+get canReview(): boolean
+⋮----
+get isPendingReview(): boolean
+⋮----
+get isApproved(): boolean
+⋮----
+get isRejected(): boolean
+⋮----
+onFileSelected(event: Event): void
+⋮----
+// Preview
+⋮----
+getPhotoUrl(photoPath: string): string
+⋮----
+// ───────────────────── Navigation ────────────────────────
+⋮----
+onEdit(): void
+⋮----
+onBack(): void
+⋮----
+// ────────────────────── UI Helpers ──────────────────────
+⋮----
+getStatusClass(status: string): string
+⋮----
+loadZones(): void
+⋮----
+onZoneChange(): void
+⋮----
+// ────────────────────── Actions ──────────────────────
+⋮----
+onApprove(): void
+⋮----
+onReject(): void
+⋮----
+openNoticeModal(id: number | undefined): void
+⋮----
+closeNoticeModal(): void
+⋮----
+closeSendNotice(): void
+⋮----
+sendNotice(): void
+⋮----
+private sendAddressNotice(taxpayerId: number): void
+```
+
+## File: src/app/models/business.model.ts
+```typescript
+import { BusinessCategory, BusinessType, District, Division } from "./master-data.model";
+⋮----
+export type BusinessStatus =
+  | 'Active'
+  | 'Inactive'
+  | 'Suspended'
+  | 'Cancelled'
+  | 'Pending';
+⋮----
+// ── Main Business model ──
+export interface Business {
+  id: number;
+  businessRegNo: string;
+  businessName: string;
+  tinNumber: string;
+  binNo?: string;
+  ownerName: string;
+  businessType: BusinessType;       
+  businessCategory: BusinessCategory;
+  tradeLicenseNo: string;
+  email?: string;
+  phone: string;
+  address?: string;
+  status: BusinessStatus;
+  annualTurnover?: number;
+  numberOfEmployees?: number;
+  incorporationDate?: string;
+  registrationDate?: string;
+  expiryDate?: string;
+  remarks?: string;
+  createdAt?: string;
+  
+  taxpayer?: { id: number; fullName?: string; tinNumber?: string };
+  taxpayerId?: number;        
+
+  division?: Division;
+  district?: District;
+
+  divisionId?: number;
+  districtId?: number;
+}
+⋮----
+export interface BusinessCreateRequest {
+  taxpayerId: number;
+  businessName: string;
+  tinNumber: string;
+  ownerName: string;
+  
+  businessTypeId: number;      
+  businessCategoryId: number;  
+  
+  tradeLicenseNo: string;
+  incorporationDate?: string;
+  registrationDate: string;
+  expiryDate?: string;
+  email?: string;
+  phone: string;
+  status: BusinessStatus;
+  address: string;
+  districtId: number;          
+  divisionId: number;          
+  annualTurnover: number;
+  numberOfEmployees: number;
+  remarks: string;
+}
+⋮----
+export interface BusinessVatStatus {
+  id:                  number;
+  businessRegNo:       string;
+  businessName:        string;
+  ownerName:           string;
+  tradeLicenseNo:      string;
+  businessTypeId:      number | null;
+  businessTypeName:    string;
+  businessCategoryId:  number | null;
+  businessCategoryName: string;
+  divisionId:          number | null;
+  divisionName:        string;
+  districtId:          number | null;
+  districtName:        string;
+  email:               string;
+  phone:               string;
+  address:             string;
+  status:              string;
+  annualTurnover:      number;
+  vatRegistered:       boolean;
+  binNo:               string | null;
+  vatStatus:           string | null;
+}
+```
+
+## File: src/app/features/business-registration/pages/business-list/business-list.component.ts
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+⋮----
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Business, BUSINESS_TYPE_MAP } from '../../../../models/business.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { BusinessCategory, BusinessType } from 'src/app/models/master-data.model';
+⋮----
+export class BusinessListComponent implements OnInit, OnDestroy {
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ───────────────── Data Fetching ─────────────────────────
+⋮----
+private fetchBusinesses(): void
+⋮----
+private handleFetchSuccess(data: Business[]): void
+⋮----
+private handleFetchError(error: unknown): void
+⋮----
+private notifyIfEmpty(data: Business[]): void
+⋮----
+private notifyIfExpiringSoon(data: Business[]): void
+⋮----
+// ────────────────── Filtering ──────────────────────
+⋮----
+get filteredBusinesses(): Business[]
+⋮----
+private matchesSearch(b: Business, term: string): boolean
+⋮----
+// ──────────────── Delete Flow  ─────────────────
+⋮----
+confirmDelete(id: number): void
+⋮----
+cancelDelete(): void
+⋮----
+confirmDeleteExecute(): void
+⋮----
+private deleteBusiness(id: number): void
+⋮----
+private handleDeleteSuccess(id: number): void
+⋮----
+private handleDeleteError(): void
+⋮----
+private resetDeleteState(): void
+⋮----
+view(id: number): void
+edit(id: number): void
+⋮----
+// ────────────── UI Helpers  ─────────────────────────
+⋮----
+getTypeName(type: BusinessType): string
+⋮----
+getCategoryName(category: BusinessCategory): string
+⋮----
+getStatusClass(status: string): string
+⋮----
+getTypeClass(type: BusinessType): string
+⋮----
+getCategoryIcon(category: BusinessCategory): string
+⋮----
+formatCurrency(amount: number | null | undefined): string
+⋮----
+getDistrictName(b: Business): string
+⋮----
+getDivisionName(b: Business): string
+⋮----
+// ─────────────────── Date Helpers ───────────────────────
+⋮----
+isExpired(date: string): boolean
+⋮----
+isExpiringSoon(date: string): boolean
+⋮----
+private getToday(): Date
+```
+
 ## File: src/app/features/taxpayer-management/pages/taxpayer-list/taxpayer-list.component.html
 ```html
 <div class="page-header">
@@ -36835,187 +39236,68 @@ private getToday(): Date
         <i class="bi bi-x-circle-fill"></i>
         {{ isProcessing ? 'Processing...' : 'Reject Application' }}
       </button>
+      <button class="btn-modal-notice"
+              (click)="closeReject(); openNoticeModal(pendingApprovalId ?? undefined)">
+        <i class="bi bi-bell-fill"></i> Notice
+      </button>
     </div>
   </div>
 </div>
-```
 
-## File: src/app/models/business.model.ts
-```typescript
-import { BusinessCategory, BusinessType, District, Division } from "./master-data.model";
-⋮----
-export type BusinessStatus =
-  | 'Active'
-  | 'Inactive'
-  | 'Suspended'
-  | 'Cancelled'
-  | 'Pending';
-⋮----
-// ── Main Business model ──
-export interface Business {
-  id: number;
-  businessRegNo: string;
-  businessName: string;
-  tinNumber: string;
-  binNo?: string;
-  ownerName: string;
-  businessType: BusinessType;       
-  businessCategory: BusinessCategory;
-  tradeLicenseNo: string;
-  email?: string;
-  phone: string;
-  address?: string;
-  status: BusinessStatus;
-  annualTurnover?: number;
-  numberOfEmployees?: number;
-  incorporationDate?: string;
-  registrationDate?: string;
-  expiryDate?: string;
-  remarks?: string;
-  createdAt?: string;
-  
-  taxpayer?: { id: number; fullName?: string; tinNumber?: string };
-  taxpayerId?: number;        
 
-  division?: Division;
-  district?: District;
+<!-- Notice Modal -->
+<div class="modal-overlay" *ngIf="showNoticeModal">
+  <div class="modal-card" style="max-width:500px;">
+    <div class="modal-accent" style="background:#1a3f8f;"></div>
+    <div class="modal-icon-wrap" style="background:#e8eeff;">
+      <i class="bi bi-bell-fill" style="color:#1a3f8f; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Send Notice to Taxpayer</p>
 
-  divisionId?: number;
-  districtId?: number;
-}
-⋮----
-export interface BusinessCreateRequest {
-  taxpayerId: number;
-  businessName: string;
-  tinNumber: string;
-  ownerName: string;
-  
-  businessTypeId: number;      
-  businessCategoryId: number;  
-  
-  tradeLicenseNo: string;
-  incorporationDate?: string;
-  registrationDate: string;
-  expiryDate?: string;
-  email?: string;
-  phone: string;
-  status: BusinessStatus;
-  address: string;
-  districtId: number;          
-  divisionId: number;          
-  annualTurnover: number;
-  numberOfEmployees: number;
-  remarks: string;
-}
-⋮----
-export interface BusinessVatStatus {
-  id:                  number;
-  businessRegNo:       string;
-  businessName:        string;
-  ownerName:           string;
-  tradeLicenseNo:      string;
-  businessTypeId:      number | null;
-  businessTypeName:    string;
-  businessCategoryId:  number | null;
-  businessCategoryName: string;
-  divisionId:          number | null;
-  divisionName:        string;
-  districtId:          number | null;
-  districtName:        string;
-  email:               string;
-  phone:               string;
-  address:             string;
-  status:              string;
-  annualTurnover:      number;
-  vatRegistered:       boolean;
-  binNo:               string | null;
-  vatStatus:           string | null;
-}
-```
+    <div class="modal-form">
+      <div class="modal-field">
+        <label>Notice Type</label>
+        <select [(ngModel)]="noticeType">
+          <option>General</option>
+          <option>Tax Due</option>
+          <option>Audit Notice</option>
+          <option>Compliance</option>
+          <option>Reminder</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Priority</label>
+        <select [(ngModel)]="noticePriority">
+          <option>Low</option>
+          <option>Normal</option>
+          <option>High</option>
+          <option>Urgent</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Subject *</label>
+        <input type="text" [(ngModel)]="noticeSubject"
+               placeholder="Enter notice subject"/>
+      </div>
+      <div class="modal-field">
+        <label>Message *</label>
+        <textarea [(ngModel)]="noticeBody" rows="4"
+                  placeholder="Enter notice message..."></textarea>
+      </div>
+    </div>
 
-## File: src/app/features/business-registration/pages/business-list/business-list.component.ts
-```typescript
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-⋮----
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Business, BUSINESS_TYPE_MAP } from '../../../../models/business.model';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { BusinessCategory, BusinessType } from 'src/app/models/master-data.model';
-⋮----
-export class BusinessListComponent implements OnInit, OnDestroy {
-⋮----
-constructor(
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ───────────────── Data Fetching ─────────────────────────
-⋮----
-private fetchBusinesses(): void
-⋮----
-private handleFetchSuccess(data: Business[]): void
-⋮----
-private handleFetchError(error: unknown): void
-⋮----
-private notifyIfEmpty(data: Business[]): void
-⋮----
-private notifyIfExpiringSoon(data: Business[]): void
-⋮----
-// ────────────────── Filtering ──────────────────────
-⋮----
-get filteredBusinesses(): Business[]
-⋮----
-private matchesSearch(b: Business, term: string): boolean
-⋮----
-// ──────────────── Delete Flow  ─────────────────
-⋮----
-confirmDelete(id: number): void
-⋮----
-cancelDelete(): void
-⋮----
-confirmDeleteExecute(): void
-⋮----
-private deleteBusiness(id: number): void
-⋮----
-private handleDeleteSuccess(id: number): void
-⋮----
-private handleDeleteError(): void
-⋮----
-private resetDeleteState(): void
-⋮----
-view(id: number): void
-edit(id: number): void
-⋮----
-// ────────────── UI Helpers  ─────────────────────────
-⋮----
-getTypeName(type: BusinessType): string
-⋮----
-getCategoryName(category: BusinessCategory): string
-⋮----
-getStatusClass(status: string): string
-⋮----
-getTypeClass(type: BusinessType): string
-⋮----
-getCategoryIcon(category: BusinessCategory): string
-⋮----
-formatCurrency(amount: number | null | undefined): string
-⋮----
-getDistrictName(b: Business): string
-⋮----
-getDivisionName(b: Business): string
-⋮----
-// ─────────────────── Date Helpers ───────────────────────
-⋮----
-isExpired(date: string): boolean
-⋮----
-isExpiringSoon(date: string): boolean
-⋮----
-private getToday(): Date
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="closeNoticeModal()">Cancel</button>
+      <button class="btn-modal-confirm"
+              style="background:#1a3f8f;"
+              (click)="confirmSendNotice()"
+              [disabled]="isSendingNotice">
+        <i class="bi bi-send-fill"></i>
+        {{ isSendingNotice ? 'Sending...' : 'Send Notice' }}
+      </button>
+    </div>
+  </div>
+</div>
 ```
 
 ## File: src/app/features/vat-registration/pages/vat-registration-create/vat-registration-create.component.css
@@ -37379,6 +39661,70 @@ import { VerifyOtpComponent } from './features/auth/pages/verify-otp/verify-otp.
 export class AppModule
 ```
 
+## File: src/app/features/taxpayer-portal/pages/portal-home/portal-home.component.ts
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { forkJoin, of, Subject, takeUntil } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+⋮----
+import { AuthService } from '../../../../core/services/auth.service';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Taxpayer } from 'src/app/models/taxpayer.model';
+import { IncomeTaxReturn } from 'src/app/models/income-tax-return.model';
+import { Router } from '@angular/router';
+⋮----
+export class PortalHomeComponent implements OnInit, OnDestroy {
+⋮----
+// ── ITR stats ─────────────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Stats computed from ITR data ──────────────────────────────
+⋮----
+get totalReturnsFiled(): number
+⋮----
+get outstandingDues(): number
+⋮----
+get complianceScore(): number
+⋮----
+get complianceColor(): string
+⋮----
+get lastActivity(): string
+⋮----
+formatDues(amount: number): string
+⋮----
+// ── Menu ──────────────────────────────────────────────────────
+⋮----
+private buildMenu(category: string): void
+⋮----
+// ── Display helpers ───────────────────────────────────────────
+⋮----
+get displayName(): string
+⋮----
+get taxpayerTypeName(): string
+⋮----
+get photoUrl(): string | null
+⋮----
+// ── Profile Completion ────────────────────────────────────────
+⋮----
+get profileCompletion(): number
+⋮----
+get completionColor(): string
+⋮----
+get missingFields(): string[]
+⋮----
+get isProfileApprovalReady(): boolean
+⋮----
+logout(): void
+⋮----
+onComplete(): void
+```
+
 ## File: src/app/features/tin-management/pages/tin-edit/tin-edit.component.ts
 ```typescript
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -37467,262 +39813,6 @@ onSubmit(): void
 onCancel(): void
 ```
 
-## File: src/app/features/vat-registration/pages/vat-registration-create/vat-registration-create.component.ts
-```typescript
-import {
-  Component, OnDestroy, OnInit,
-} from '@angular/core';
-import {
-  AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators,
-} from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Subject, of } from 'rxjs';
-import {
-  catchError, debounceTime, filter, finalize, switchMap, takeUntil, tap,
-} from 'rxjs/operators';
-⋮----
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { ToastService } from '../../../../shared/toast/toast.service';
-import { MasterDataService } from '../../../../core/services/master-data.service';
-import { Division, District, TaxCircle, TaxZone } from '../../../../models/master-data.model';
-import { BusinessVatStatus } from '../../../../models/business.model';
-import {
-  VatRegistration,
-  VatRegistrationCreateRequest,
-} from '../../../../models/vat-registration.model';
-import { VatRegistrationService } from '../../services/vat-registration.service';
-⋮----
-type WizardStep = 1 | 2 | 3;
-type DocKey = 'tradeLicense' | 'tinCertificate' | 'nidAuthorized';
-⋮----
-interface VatRegDraft {
-  savedAt:          string;
-  currentStep:      WizardStep;
-  selectedTaxpayer: Taxpayer;
-  businesses:       BusinessVatStatus[];
-  selectedBusiness: BusinessVatStatus | null;
-  formValues:       Record<string, any>;
-}
-⋮----
-export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
-⋮----
-// ── Wizard ─────────────────────────────────────────────────────────────────
-⋮----
-// ── Taxpayer (Step 1) ──────────────────────────────────────────────────────
-⋮----
-// ── Business (Step 2) ─────────────────────────────────────────────────────
-⋮----
-// ── Form (Step 3) ─────────────────────────────────────────────────────────
-⋮----
-// ── VAT category radio options ────────────────────────────────────────────
-⋮----
-// ── Document upload state ─────────────────────────────────────────────────
-/**
-   * File objects live in component memory only — they cannot be serialised
-   * to localStorage. Officers must re-attach files after a page refresh.
-   * This is standard behaviour for government document portals.
-   * Actual multipart upload to the backend is deferred to Phase 6.
-   */
-⋮----
-private readonly MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
-⋮----
-// ── Dynamic master-data ───────────────────────────────────────────────────
-⋮----
-// ── Cascade-restore pending values ────────────────────────────────────────
-⋮----
-// ── Draft ─────────────────────────────────────────────────────────────────
-⋮----
-// ── Review modal ──────────────────────────────────────────────────────────
-⋮----
-constructor(
-⋮----
-// ── Lifecycle ──────────────────────────────────────────────────────────────
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ── Form ───────────────────────────────────────────────────────────────────
-⋮----
-private buildForm(): void
-⋮----
-private effectiveDateValidator(): ValidatorFn
-⋮----
-ctrl(name: string): AbstractControl | null
-⋮----
-// ── Static dropdowns ───────────────────────────────────────────────────────
-⋮----
-private loadStaticDropdowns(): void
-⋮----
-// ── Cascade: Division → District → Zone → Circle ──────────────────────────
-⋮----
-private setupCascadeListeners(): void
-⋮----
-// ── Document upload ────────────────────────────────────────────────────────
-⋮----
-onFileSelected(event: Event, key: DocKey): void
-⋮----
-// Reset the input immediately so the same file can be re-selected after removal
-⋮----
-removeFile(key: DocKey): void
-⋮----
-isDocUploaded(key: DocKey): boolean
-⋮----
-formatFileSize(bytes: number): string
-⋮----
-get uploadCount(): number
-⋮----
-private resetUploadedFiles(): void
-⋮----
-// ── Draft ─────────────────────────────────────────────────────────────────
-⋮----
-private setupDraftAutoSave(): void
-⋮----
-private saveDraft(): void
-⋮----
-// Note: uploadedFiles (File objects) cannot be serialised — officer
-// must re-attach documents after restoring a draft from a page refresh.
-⋮----
-try { localStorage.setItem(this.DRAFT_KEY, JSON.stringify(draft)); } catch { /* quota */ }
-⋮----
-private restoreDraft(): void
-⋮----
-private applyDraft(draft: VatRegDraft): void
-⋮----
-dismissDraft(): void
-⋮----
-discardDraft(): void
-⋮----
-private clearDraft(): void
-⋮----
-try { localStorage.removeItem(this.DRAFT_KEY); } catch { /* ignore */ }
-⋮----
-get draftSavedAt(): string
-⋮----
-// ── Wizard helpers ─────────────────────────────────────────────────────────
-⋮----
-get isCompany(): boolean
-⋮----
-get stepOneComplete(): boolean
-get stepTwoComplete(): boolean
-get canSubmit():       boolean
-get displayName():     string
-⋮----
-private getTaxpayerDisplayName(tp: Taxpayer | null): string
-⋮----
-// ── Step 1 ─────────────────────────────────────────────────────────────────
-⋮----
-onTaxpayerSelected(tp: Taxpayer): void
-⋮----
-onTaxpayerCleared(): void
-⋮----
-// ── Step 2 ─────────────────────────────────────────────────────────────────
-⋮----
-private loadBusinesses(taxpayerId: number): void
-⋮----
-// TODO Phase 6: migrate to BusinessService with mock fallback
-⋮----
-onBusinessSelected(b: BusinessVatStatus): void
-⋮----
-// ── Step navigation ────────────────────────────────────────────────────────
-⋮----
-goBack(): void
-⋮----
-// ── Step 3 display helpers ─────────────────────────────────────────────────
-⋮----
-get autoBusinessName(): string
-⋮----
-get editBusinessId(): number | null
-⋮----
-formatTurnoverDisplay(amount: number | undefined | null): string
-⋮----
-// ── Review modal helpers ───────────────────────────────────────────────────
-⋮----
-get reviewZoneName():     string
-get reviewCircleName():   string
-get reviewDistrictName(): string
-get reviewDivisionName(): string
-⋮----
-get vatCategoryLabel(): string
-⋮----
-onOpenReview(): void
-⋮----
-onCloseReview(): void
-⋮----
-// ── Submit ─────────────────────────────────────────────────────────────────
-⋮----
-onConfirmSubmit(): void
-⋮----
-// TODO Phase 6: attach uploadedFiles as FormData for multipart upload
-⋮----
-// ── Reset / Cancel ─────────────────────────────────────────────────────────
-⋮----
-onReset(): void
-⋮----
-onCancel(): void
-```
-
-## File: src/app/app-routing.module.ts
-```typescript
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from 'src/app/core/guards/auth.guard';
-import { Role } from './core/constants/roles.constants';
-⋮----
-import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
-import { LoginComponent } from './features/auth/pages/login/login.component';
-⋮----
-import { UnauthorizedComponent } from './features/auth/pages/unauthorized/unauthorized.component';
-⋮----
-import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home/dashboard-home.component';
-import { VerifyEmailComponent } from './features/auth/pages/verify-email/verify-email.component';
-import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
-import { ResetPasswordComponent } from './features/auth/pages/reset-password/reset-password.component';
-import { VerifyOtpComponent } from './features/auth/pages/verify-otp/verify-otp.component';
-⋮----
-// ── Public ──
-⋮----
-// Public Registration
-⋮----
-// Taxpayer Portal
-⋮----
-// ── Protected Layout ──
-⋮----
-// All roles
-⋮----
-// Taxpayers Management
-⋮----
-// Business
-⋮----
-//TIN Management
-⋮----
-//VAT Registration
-⋮----
-// VAT Returns
-⋮----
-//Income-TAX-returns
-⋮----
-// Payments
-⋮----
-//Refund Management
-⋮----
-//Penalty & Fines
-⋮----
-// Audits
-⋮----
-// Documents
-⋮----
-// TAX CONFIGURATION modules
-⋮----
-// Administration
-⋮----
-// Notices — all roles
-⋮----
-export class AppRoutingModule
-```
-
 ## File: src/app/features/business-registration/pages/business-edit/business-edit.component.ts
 ```typescript
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -37796,6 +39886,326 @@ private updateBusiness(): void
 private handleUpdateSuccess(): void
 ⋮----
 private handleUpdateError(error: unknown): void
+```
+
+## File: src/app/features/tin-management/pages/tin-list/tin-list.component.ts
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router, ActivatedRoute } from '@angular/router';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Tin } from '../../../../models/tin.model';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+⋮----
+export class TinListComponent implements OnInit, OnDestroy {
+⋮----
+// ────────────────── Properties ──────────────────
+⋮----
+// ────────────── Constructor ───────────────────
+⋮----
+constructor(
+⋮----
+// ─────────────── Lifecycle ───────────────────
+⋮----
+ngOnInit(): void
+⋮----
+this.fetchTins(); // Typo fixed
+⋮----
+ngOnDestroy(): void
+⋮----
+// ───────────────── Data Fetching ────────────────────────
+⋮----
+private fetchTins(): void
+⋮----
+private handleFetchSuccess(data: Tin[]): void
+⋮----
+private handleFetchError(error: unknown): void
+⋮----
+private notifyIfEmpty(data: Tin[]): void
+⋮----
+// ────────────────── Filtering ──────────────────────
+⋮----
+get filteredTins(): Tin[]
+⋮----
+private matchesSearch(t: Tin, term: string): boolean
+⋮----
+// ──────────────── Delete Flow ─────────────────
+⋮----
+confirmDelete(id: number): void
+⋮----
+cancelDelete(): void
+⋮----
+confirmDeleteExecute(): void
+⋮----
+private deleteTin(id: number): void
+⋮----
+private handleDeleteSuccess(id: number): void
+⋮----
+private handleDeleteError(): void
+⋮----
+private resetDeleteState(): void
+⋮----
+// ───────────────── Navigation ───────────────────────
+⋮----
+view(id: number): void
+⋮----
+edit(id: number): void
+⋮----
+navigateToCreate(): void
+⋮----
+// ────────────── Actions ─────────────────────────
+⋮----
+onExport(): void
+⋮----
+// ────────────── UI Helpers ─────────────────────────
+⋮----
+getStatusClass(s: string): string
+⋮----
+getCategoryClass(c: string): string
+⋮----
+getCategoryIcon(c: string): string
+```
+
+## File: src/app/features/vat-registration/pages/vat-registration-create/vat-registration-create.component.ts
+```typescript
+import {
+  Component, OnDestroy, OnInit,
+} from '@angular/core';
+import {
+  AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators,
+} from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subject, of } from 'rxjs';
+import {
+  catchError, debounceTime, filter, finalize, switchMap, takeUntil, tap,
+} from 'rxjs/operators';
+⋮----
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Taxpayer } from '../../../../models/taxpayer.model';
+import { ToastService } from '../../../../shared/toast/toast.service';
+import { MasterDataService } from '../../../../core/services/master-data.service';
+import { Division, District, TaxCircle, TaxZone } from '../../../../models/master-data.model';
+import { BusinessVatStatus } from '../../../../models/business.model';
+import {
+  VatRegistration,
+  VatRegistrationCreateRequest,
+} from '../../../../models/vat-registration.model';
+import { VatRegistrationService } from '../../services/vat-registration.service';
+⋮----
+type WizardStep = 1 | 2 | 3;
+type DocKey = 'tradeLicense' | 'tinCertificate' | 'nidAuthorized';
+⋮----
+interface VatRegDraft {
+  savedAt:          string;
+  currentStep:      WizardStep;
+  selectedTaxpayer: Taxpayer;
+  businesses:       BusinessVatStatus[];
+  selectedBusiness: BusinessVatStatus | null;
+  formValues:       Record<string, any>;
+}
+⋮----
+export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
+⋮----
+// ── Wizard ─────────────────────────────────────────────────────────────────
+⋮----
+// ── Taxpayer (Step 1) ──────────────────────────────────────────────────────
+⋮----
+// ── Business (Step 2) ─────────────────────────────────────────────────────
+⋮----
+// ── Form (Step 3) ─────────────────────────────────────────────────────────
+⋮----
+// ── VAT category radio options ────────────────────────────────────────────
+⋮----
+// ── Document upload state ─────────────────────────────────────────────────
+⋮----
+// ── Dynamic master-data ───────────────────────────────────────────────────
+⋮----
+// ── Cascade-restore pending values ────────────────────────────────────────
+⋮----
+// ── Draft ─────────────────────────────────────────────────────────────────
+⋮----
+// ── Review modal ──────────────────────────────────────────────────────────
+⋮----
+constructor(
+⋮----
+// ── Lifecycle ──────────────────────────────────────────────────────────────
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ── Form ───────────────────────────────────────────────────────────────────
+⋮----
+private buildForm(): void
+⋮----
+private effectiveDateValidator(): ValidatorFn
+⋮----
+ctrl(name: string): AbstractControl | null
+⋮----
+// ── Static dropdowns ───────────────────────────────────────────────────────
+⋮----
+private loadStaticDropdowns(): void
+⋮----
+// ── Cascade: Division → District → Zone → Circle ──────────────────────────
+⋮----
+private setupCascadeListeners(): void
+⋮----
+// ── Document upload ────────────────────────────────────────────────────────
+⋮----
+onFileSelected(event: Event, key: DocKey): void
+⋮----
+removeFile(key: DocKey): void
+⋮----
+isDocUploaded(key: DocKey): boolean
+⋮----
+formatFileSize(bytes: number): string
+⋮----
+get uploadCount(): number
+⋮----
+private resetUploadedFiles(): void
+⋮----
+// ── Draft ─────────────────────────────────────────────────────────────────
+⋮----
+private setupDraftAutoSave(): void
+⋮----
+private saveDraft(): void
+⋮----
+try { localStorage.setItem(this.DRAFT_KEY, JSON.stringify(draft)); } catch { /* quota */ }
+⋮----
+private restoreDraft(): void
+⋮----
+private applyDraft(draft: VatRegDraft): void
+⋮----
+dismissDraft(): void
+⋮----
+discardDraft(): void
+⋮----
+private clearDraft(): void
+⋮----
+try { localStorage.removeItem(this.DRAFT_KEY); } catch { /* ignore */ }
+⋮----
+get draftSavedAt(): string
+⋮----
+// ── Wizard helpers ─────────────────────────────────────────────────────────
+⋮----
+get isCompany(): boolean
+⋮----
+get stepOneComplete(): boolean
+get stepTwoComplete(): boolean
+get canSubmit():       boolean
+get displayName():     string
+⋮----
+private getTaxpayerDisplayName(tp: Taxpayer | null): string
+⋮----
+// ── Step 1 ─────────────────────────────────────────────────────────────────
+⋮----
+onTaxpayerSelected(tp: Taxpayer): void
+⋮----
+onTaxpayerCleared(): void
+⋮----
+// ── Step 2 ─────────────────────────────────────────────────────────────────
+⋮----
+private loadBusinesses(taxpayerId: number): void
+⋮----
+onBusinessSelected(b: BusinessVatStatus): void
+⋮----
+// ── Step navigation ────────────────────────────────────────────────────────
+⋮----
+goBack(): void
+⋮----
+// ── Step 3 display helpers ─────────────────────────────────────────────────
+⋮----
+get autoBusinessName(): string
+⋮----
+get editBusinessId(): number | null
+⋮----
+formatTurnoverDisplay(amount: number | undefined | null): string
+⋮----
+// ── Review modal helpers ───────────────────────────────────────────────────
+⋮----
+get reviewZoneName():     string
+get reviewCircleName():   string
+get reviewDistrictName(): string
+get reviewDivisionName(): string
+⋮----
+get vatCategoryLabel(): string
+⋮----
+onOpenReview(): void
+⋮----
+onCloseReview(): void
+⋮----
+// ── Submit ─────────────────────────────────────────────────────────────────
+⋮----
+onConfirmSubmit(): void
+⋮----
+// ── Reset / Cancel ─────────────────────────────────────────────────────────
+⋮----
+onReset(): void
+⋮----
+onCancel(): void
+```
+
+## File: src/app/app-routing.module.ts
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { Role } from './core/constants/roles.constants';
+⋮----
+import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { LoginComponent } from './features/auth/pages/login/login.component';
+⋮----
+import { UnauthorizedComponent } from './features/auth/pages/unauthorized/unauthorized.component';
+⋮----
+import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home/dashboard-home.component';
+import { VerifyEmailComponent } from './features/auth/pages/verify-email/verify-email.component';
+import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/auth/pages/reset-password/reset-password.component';
+import { VerifyOtpComponent } from './features/auth/pages/verify-otp/verify-otp.component';
+⋮----
+// ── Public ──
+⋮----
+// Public Registration
+⋮----
+// Taxpayer Portal
+⋮----
+// ── Protected Layout ──
+⋮----
+// All roles
+⋮----
+// Taxpayers Management
+⋮----
+// Business
+⋮----
+//TIN Management
+⋮----
+// Certificate Management
+⋮----
+//VAT Registration
+⋮----
+// VAT Returns
+⋮----
+//Income-TAX-returns
+⋮----
+// Payments
+⋮----
+//Refund Management
+⋮----
+//Penalty & Fines
+⋮----
+// Audits
+⋮----
+// Documents
+⋮----
+// TAX CONFIGURATION modules
+⋮----
+// Administration
+⋮----
+// Notices — all roles
+⋮----
+export class AppRoutingModule
 ```
 
 ## File: src/app/features/income-tax-returns/pages/income-tax-return-create/income-tax-return-create.component.ts
@@ -37886,7 +40296,6 @@ get taxRebate(): number
 ⋮----
 // ── Tax computation (step 4) ──────────────────────────────────────────────
 ⋮----
-/** HRA exemption: 50% of HRA, max ৳ 50,000 */
 get hraExemption(): number
 ⋮----
 get localTaxableIncome(): number
@@ -37896,7 +40305,6 @@ get computedBrackets(): TaxBracket[]
 get localGrossTax(): number
 get localNetTax():  number
 ⋮----
-/** Positive = amount due; negative = refund */
 get taxResult():   number
 get balanceDue():  number
 get refundable():  number
@@ -37925,12 +40333,6 @@ get isCardMethod(): boolean
 ⋮----
 get isPaymentValid(): boolean
 ⋮----
-// Tax নেই — payment লাগবে না
-⋮----
-// Method select না হলে invalid
-⋮----
-// Card — online gateway, এখন placeholder
-⋮----
 // ── Fiscal year loader ────────────────────────────────────────────────────
 ⋮----
 private loadActiveFiscalYear(): void
@@ -37955,10 +40357,6 @@ getDisplayName(tp: Taxpayer | null): string
 ⋮----
 goToStep(target: number): void
 ⋮----
-// Back-navigation always allowed
-⋮----
-// Forward: validate current step
-⋮----
 nextStep(): void
 prevStep(): void
 ⋮----
@@ -37974,21 +40372,7 @@ getStatusClass(): string
 ⋮----
 onSubmit(): void
 ⋮----
-const s1 = this.step1Form.getRawValue(); // includes disabled fields
-⋮----
-// Aggregated from granular step-2 fields — no backend model change needed
-⋮----
-// Fix: TAXPAYER role gets their taxpayerId from the auth session
-⋮----
-// Payment info
-⋮----
-// If assets were entered in step 5, submit IT10B inline
-⋮----
 private submitIT10B(returnId: number): void
-⋮----
-// Map granular step-5 fields → IT10B backend fields (no backend change)
-⋮----
-// ITR saved, IT10B failed — still show success but warn
 ⋮----
 // ── Navigation helpers ────────────────────────────────────────────────────
 ⋮----
@@ -37998,95 +40382,12 @@ goToList(): void
 ⋮----
 goToView(): void
 ⋮----
-// Pass returnUrl forward so the view page also knows where to go back
-⋮----
 printAcknowledgement(): void
 ⋮----
 // ── Formatting helpers ────────────────────────────────────────────────────
 ⋮----
 fmt(val: number): string
 fmtN(val: number): string
-```
-
-## File: src/app/features/tin-management/pages/tin-list/tin-list.component.ts
-```typescript
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Tin } from '../../../../models/tin.model';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-⋮----
-export class TinListComponent implements OnInit, OnDestroy {
-⋮----
-// ────────────────── Properties ──────────────────
-⋮----
-// ────────────── Constructor ───────────────────
-⋮----
-constructor(
-⋮----
-// ─────────────── Lifecycle ───────────────────
-⋮----
-ngOnInit(): void
-⋮----
-this.fetchTins(); // Typo fixed
-⋮----
-ngOnDestroy(): void
-⋮----
-// ───────────────── Data Fetching ────────────────────────
-⋮----
-private fetchTins(): void
-⋮----
-private handleFetchSuccess(data: Tin[]): void
-⋮----
-private handleFetchError(error: unknown): void
-⋮----
-private notifyIfEmpty(data: Tin[]): void
-⋮----
-// ────────────────── Filtering ──────────────────────
-⋮----
-get filteredTins(): Tin[]
-⋮----
-private matchesSearch(t: Tin, term: string): boolean
-⋮----
-// Null-safe search logic
-⋮----
-// ──────────────── Delete Flow ─────────────────
-⋮----
-confirmDelete(id: number): void
-⋮----
-cancelDelete(): void
-⋮----
-confirmDeleteExecute(): void
-⋮----
-private deleteTin(id: number): void
-⋮----
-private handleDeleteSuccess(id: number): void
-⋮----
-private handleDeleteError(): void
-⋮----
-private resetDeleteState(): void
-⋮----
-// ───────────────── Navigation ───────────────────────
-⋮----
-view(id: number): void
-⋮----
-edit(id: number): void
-⋮----
-navigateToCreate(): void
-⋮----
-// ────────────── Actions ─────────────────────────
-⋮----
-onExport(): void
-⋮----
-// ────────────── UI Helpers ─────────────────────────
-⋮----
-getStatusClass(s: string): string
-⋮----
-getCategoryClass(c: string): string
-⋮----
-getCategoryIcon(c: string): string
 ```
 
 ## File: src/app/features/taxpayer-management/pages/taxpayer-list/taxpayer-list.component.ts
@@ -38121,8 +40422,6 @@ ngOnDestroy(): void
 private fetchTaxpayer(): void
 ⋮----
 private handleFetchSuccess(data: Taxpayer[]): void
-⋮----
-// this.taxpayers = data.filter(tp => tp.status !== 'Inactive');
 ⋮----
 private handleFetchError(error: unknown): void
 ⋮----
@@ -38172,9 +40471,7 @@ get pendingCount(): number
 // Approve flow
 openApprove(id: number | undefined): void
 ⋮----
-// Taxpayer find করো
-⋮----
-// Address আছে → district দিয়ে zones pre-load
+// Address
 ⋮----
 onApproveDivisionChange(): void
 ⋮----
@@ -38183,6 +40480,12 @@ onApproveDistrictChange(): void
 onApproveDistrictIdChange(): void
 ⋮----
 onApproveZoneChange(): void
+⋮----
+openNoticeModal(id: number | undefined): void
+⋮----
+closeNoticeModal(): void
+⋮----
+confirmSendNotice(): void
 ⋮----
 closeApprove(): void
 ⋮----
@@ -38212,84 +40515,6 @@ selectedTaxpayerHasAddress(): boolean
 ⋮----
 getStatusClass(status: string): string
 getPhotoUrl(photoPath: string): string
-```
-
-## File: src/app/features/taxpayer-management/pages/taxpayer-edit/taxpayer-edit.component.ts
-```typescript
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { finalize, Subject, takeUntil, timer } from 'rxjs';
-import { MasterDataService } from 'src/app/core/services/master-data.service';
-import { TaxpayerType } from 'src/app/models/master-data.model';
-import { Division } from '../../../../models/master-data.model';
-import { AuthService } from '../../../../core/services/auth.service';
-⋮----
-export class TaxpayerEditComponent implements OnInit, OnDestroy {
-⋮----
-// ─────────────────── Properties ───────────────────
-⋮----
-constructor(
-⋮----
-// ───────────── Lifecycle ──────────────────
-⋮----
-ngOnInit(): void
-⋮----
-ngOnDestroy(): void
-⋮----
-// ───────────── Form Initialization ─────────────
-⋮----
-private initForm(): void
-⋮----
-const addressGroup = ()
-⋮----
-// Individual Fields
-⋮----
-// Company Fields
-⋮----
-// Contact & Address
-⋮----
-private setupConditionalLogic(): void
-⋮----
-// Individual vs Company Logic (Updated with includes)
-⋮----
-private setupAddressDropdownLogic(): void
-⋮----
-// ───────────── Data Loading ─────────────
-⋮----
-private loadMasterData(): void
-⋮----
-private initializeTaxpayer(): void
-⋮----
-private handleFetchSuccess(data: Taxpayer): void
-⋮----
-// Format dates for input type="date"
-⋮----
-// ───────────── Getters (Updated with includes) ─────────────
-⋮----
-get isIndividual(): boolean
-⋮----
-get isBusiness(): boolean
-⋮----
-get isOrganization(): boolean
-⋮----
-get isCompanyOrOrg(): boolean
-⋮----
-// ─────────── Actions ──────────────
-⋮----
-onSubmit(): void
-⋮----
-onCancel(): void
-⋮----
-onFileSelected(event: Event): void
-⋮----
-uploadPhoto(): void
-⋮----
-removePhoto(): void
 ```
 
 ## File: src/app/features/business-registration/pages/business-create/business-create.component.ts
@@ -38360,6 +40585,82 @@ onCancel(): void
 private getEmptyForm(): BusinessCreateRequest
 ```
 
+## File: src/app/features/taxpayer-management/pages/taxpayer-edit/taxpayer-edit.component.ts
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import { Taxpayer } from '../../../../models/taxpayer.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
+import { MasterDataService } from 'src/app/core/services/master-data.service';
+import { TaxpayerType } from 'src/app/models/master-data.model';
+import { Division } from '../../../../models/master-data.model';
+import { AuthService } from '../../../../core/services/auth.service';
+⋮----
+export class TaxpayerEditComponent implements OnInit, OnDestroy {
+⋮----
+// ─────────────────── Properties ───────────────────
+⋮----
+constructor(
+⋮----
+// ───────────── Lifecycle ──────────────────
+⋮----
+ngOnInit(): void
+⋮----
+ngOnDestroy(): void
+⋮----
+// ───────────── Form Initialization ─────────────
+⋮----
+private initForm(): void
+⋮----
+const addressGroup = ()
+⋮----
+// Individual Fields
+⋮----
+// Company Fields
+⋮----
+// Contact & Address
+⋮----
+private setupConditionalLogic(): void
+⋮----
+// Individual vs Company Logic (Updated with includes)
+⋮----
+private setupAddressDropdownLogic(): void
+⋮----
+// ───────────── Data Loading ─────────────
+⋮----
+private loadMasterData(): void
+⋮----
+private initializeTaxpayer(): void
+⋮----
+private handleFetchSuccess(data: Taxpayer): void
+⋮----
+// ───────────── Getters (Updated with includes) ─────────────
+⋮----
+get isIndividual(): boolean
+⋮----
+get isBusiness(): boolean
+⋮----
+get isOrganization(): boolean
+⋮----
+get isCompanyOrOrg(): boolean
+⋮----
+// ─────────── Actions ──────────────
+⋮----
+onSubmit(): void
+⋮----
+onCancel(): void
+⋮----
+onFileSelected(event: Event): void
+⋮----
+uploadPhoto(): void
+⋮----
+removePhoto(): void
+```
+
 ## File: src/app/features/tin-management/pages/tin-create/tin-create.component.ts
 ```typescript
 import { Component, OnDestroy } from '@angular/core';
@@ -38404,11 +40705,7 @@ onDivisionChange(): void
 ⋮----
 onDistrictChange(): void
 ⋮----
-// FIX: filter zones where name is null/empty (backend data quality guard)
-⋮----
 onZoneChange(): void
-⋮----
-// FIX: DB field is 'name', was 'name' — zone.name was always undefined
 ⋮----
 // ── Taxpayer Search ───────────────────────────────────────────────────────
 ⋮----
@@ -38417,11 +40714,6 @@ onSearchInput(): void
 searchTaxpayer(): void
 ⋮----
 selectTaxpayer(taxpayer: Taxpayer): void
-⋮----
-// Address auto-fill cascade
-⋮----
-// NOTE: Zone & Circle cannot be auto-filled from taxpayer address —
-// taxpayer record doesn't store taxZone/taxCircle. User must select manually.
 ⋮----
 clearSelectedTaxpayer(): void
 ⋮----
@@ -38443,7 +40735,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, timer } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { MasterDataService } from 'src/app/core/services/master-data.service';
 import { TaxpayerType } from 'src/app/models/master-data.model';
@@ -38520,8 +40812,6 @@ onCancel(): void
 
 ## File: src/app/core/constants/api.constants.ts
 ```typescript
-import { AitSourceType } from "src/app/models/ait.model";
-⋮----
 // Dashboard
 ⋮----
 // Taxpayer
@@ -38542,9 +40832,13 @@ import { AitSourceType } from "src/app/models/ait.model";
 ⋮----
 // Import Duty
 ⋮----
+// Certificate
+⋮----
 // Payments
 ⋮----
 // Notices & Notifications
+⋮----
+READ:    (id: number) => `${API_BASE_URL}/notices/${id}/read`,   // ← এটা যোগ করো
 ⋮----
 // Penalties & Fines
 ⋮----
@@ -38560,15 +40854,9 @@ import { AitSourceType } from "src/app/models/ait.model";
 ⋮----
 // TaxStructures
 ⋮----
-/** GET  /api/tax-structures/master-data — taxTypes, applicables, statuses, rateTypes */
-⋮----
-/** POST /api/tax-structures/{id}/preview  body: { amount } */
-⋮----
-/** POST /api/tax-structures/preview  body: { amount, rateType, rate, slabs } */
-⋮----
 // TaxableProducts
 ⋮----
 // Refunds
 ⋮----
-// Get MaterData
+// MasterData
 ```

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -165,110 +166,138 @@ export interface RespondRequest {
 
 // ─── Service ──────────────────────────────────────────────────────────────────
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class RefundService {
-  private readonly base = `${environment.apiUrl}/refunds`;
 
   constructor(private http: HttpClient) {}
 
-  // Taxpayer APIs
+  // ── Taxpayer APIs ──────────────────────────────────────────────────────────
+
   getMyRefunds(filter: RefundFilterRequest): Observable<PagedResponse<RefundSummary>> {
     let params = new HttpParams()
-      .set('page', filter.page ?? 0)
-      .set('size', filter.size ?? 10)
-      .set('sortBy', filter.sortBy ?? 'submittedAt')
+      .set('page',    filter.page    ?? 0)
+      .set('size',    filter.size    ?? 10)
+      .set('sortBy',  filter.sortBy  ?? 'submittedAt')
       .set('sortDir', filter.sortDir ?? 'DESC');
 
-    if (filter.status) params = params.set('status', filter.status);
-    if (filter.refundType) params = params.set('refundType', filter.refundType);
+    if (filter.status)       params = params.set('status',       filter.status);
+    if (filter.refundType)   params = params.set('refundType',   filter.refundType);
     if (filter.fiscalYearId) params = params.set('fiscalYearId', filter.fiscalYearId);
 
-    return this.http.get<PagedResponse<RefundSummary>>(`${this.base}/my`, { params });
+    return this.http.get<PagedResponse<RefundSummary>>(
+      API_ENDPOINTS.REFUNDS.MY, { params });
   }
 
   getById(id: number): Observable<RefundDetail> {
-    return this.http.get<RefundDetail>(`${this.base}/${id}`);
+    return this.http.get<RefundDetail>(API_ENDPOINTS.REFUNDS.GET(id));
   }
 
   create(request: CreateRefundRequest): Observable<RefundDetail> {
-    return this.http.post<RefundDetail>(this.base, request);
+    return this.http.post<RefundDetail>(API_ENDPOINTS.REFUNDS.CREATE, request);
   }
 
   update(id: number, request: CreateRefundRequest): Observable<RefundDetail> {
-    return this.http.put<RefundDetail>(`${this.base}/${id}`, request);
+    return this.http.put<RefundDetail>(API_ENDPOINTS.REFUNDS.UPDATE(id), request);
   }
 
   submit(id: number): Observable<RefundDetail> {
-    return this.http.post<RefundDetail>(`${this.base}/${id}/submit`, {});
+    return this.http.post<RefundDetail>(API_ENDPOINTS.REFUNDS.SUBMIT(id), {});
   }
 
   cancel(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/${id}`);
+    return this.http.delete<void>(API_ENDPOINTS.REFUNDS.DELETE(id));
   }
 
   respond(id: number, request: RespondRequest): Observable<RefundDetail> {
-    return this.http.post<RefundDetail>(`${this.base}/${id}/respond`, request);
+    return this.http.post<RefundDetail>(API_ENDPOINTS.REFUNDS.RESPOND(id), request);
   }
+
+  updateStatus(id: number, request: any): Observable<RefundDetail> {
+    return this.http.patch<RefundDetail>(
+      API_ENDPOINTS.REFUNDS.UPDATE_STATUS(id), request);
+  }
+
+  // ── Documents ──────────────────────────────────────────────────────────────
 
   uploadDocument(id: number, file: File, documentType: string): Observable<RefundDocument> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('documentType', documentType);
-    return this.http.post<RefundDocument>(`${this.base}/${id}/documents`, formData);
+    return this.http.post<RefundDocument>(
+      API_ENDPOINTS.REFUNDS.DOCUMENTS.UPLOAD(id), formData);
   }
 
   deleteDocument(refundId: number, docId: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/${refundId}/documents/${docId}`);
+    return this.http.delete<void>(
+      API_ENDPOINTS.REFUNDS.DOCUMENTS.DELETE(refundId, docId));
   }
 
   getDocumentDownloadUrl(refundId: number, docId: number): Observable<{ url: string }> {
-    return this.http.get<{ url: string }>(`${this.base}/${refundId}/documents/${docId}`);
+    return this.http.get<{ url: string }>(
+      API_ENDPOINTS.REFUNDS.DOCUMENTS.GET(refundId, docId));
   }
 
   getStatusHistory(id: number): Observable<RefundStatusHistory[]> {
-    return this.http.get<RefundStatusHistory[]>(`${this.base}/${id}/status-history`);
+    return this.http.get<RefundStatusHistory[]>(
+      API_ENDPOINTS.REFUNDS.STATUS_HISTORY(id));
   }
 
-  // Source eligibility
+  // ── Source eligibility ─────────────────────────────────────────────────────
+
   getEligibleItrSources(): Observable<EligibleSourceRecord[]> {
-    return this.http.get<EligibleSourceRecord[]>(`${this.base}/sources/itr`);
+    return this.http.get<EligibleSourceRecord[]>(
+      API_ENDPOINTS.REFUNDS.SOURCES.ITR);
   }
 
   getEligibleAitSources(): Observable<EligibleSourceRecord[]> {
-    return this.http.get<EligibleSourceRecord[]>(`${this.base}/sources/ait`);
+    return this.http.get<EligibleSourceRecord[]>(
+      API_ENDPOINTS.REFUNDS.SOURCES.AIT);
   }
 
   getEligibleVatSources(): Observable<EligibleSourceRecord[]> {
-    return this.http.get<EligibleSourceRecord[]>(`${this.base}/sources/vat`);
+    return this.http.get<EligibleSourceRecord[]>(
+      API_ENDPOINTS.REFUNDS.SOURCES.VAT);
   }
 
   getEligiblePaymentSources(): Observable<EligibleSourceRecord[]> {
-    return this.http.get<EligibleSourceRecord[]>(`${this.base}/sources/payments`);
+    return this.http.get<EligibleSourceRecord[]>(
+      API_ENDPOINTS.REFUNDS.SOURCES.PAYMENTS);
   }
 
   calculateRefund(
     sourceType: string,
     sourceRecordIds: number[]
   ): Observable<RefundCalculation> {
-    return this.http.post<RefundCalculation>(`${this.base}/calculate`, {
-      sourceType,
-      sourceRecordIds,
-    });
+    return this.http.post<RefundCalculation>(
+      API_ENDPOINTS.REFUNDS.CALCULATE,
+      { sourceType, sourceRecordIds });
   }
 
-  validateBankAccount(bankDetails: BankDetails): Observable<{ valid: boolean; message: string }> {
+  validateBankAccount(
+    bankDetails: BankDetails
+  ): Observable<{ valid: boolean; message: string }> {
     return this.http.post<{ valid: boolean; message: string }>(
-      `${this.base}/validate-bank`,
-      bankDetails
-    );
+      API_ENDPOINTS.REFUNDS.VALIDATE_BANK, bankDetails);
   }
 
-  // Fiscal years (for dropdown)
+  // ── Queue APIs ─────────────────────────────────────────────────────────────
+
+  getOfficerQueue(): Observable<RefundSummary[]> {
+    return this.http.get<RefundSummary[]>(API_ENDPOINTS.REFUNDS.QUEUE.OFFICER);
+  }
+
+  getSupervisorQueue(): Observable<RefundSummary[]> {
+    return this.http.get<RefundSummary[]>(API_ENDPOINTS.REFUNDS.QUEUE.SUPERVISOR);
+  }
+
+  getFinanceQueue(): Observable<RefundSummary[]> {
+    return this.http.get<RefundSummary[]>(API_ENDPOINTS.REFUNDS.QUEUE.FINANCE);
+  }
+
+  // ── Fiscal years ───────────────────────────────────────────────────────────
+
   getFiscalYears(): Observable<{ id: number; name: string; isCurrent: boolean }[]> {
     return this.http.get<{ id: number; name: string; isCurrent: boolean }[]>(
-      `${environment.apiUrl}/fiscal-years/active`
-    );
+      API_ENDPOINTS.FISCAL_YEARS.ACTIVE);
   }
 }

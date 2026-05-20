@@ -16,16 +16,15 @@ export interface Penalty {
   paidAmount: number;
   returnNo: string;
   assessmentYear: string;
-  issueDate: string;
+  issueDate: string; 
   dueDate: string;
-  paymentDate: string;
+  paymentDate: string | null;
   status: PenaltyStatus;
   issuedBy: string;
   approvedBy: string;
   description: string;
   remarks: string;
 }
-
 export interface PenaltyCreateRequest {
   taxpayerId: number | null;
   penaltyType: string;

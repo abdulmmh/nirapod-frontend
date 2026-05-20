@@ -93,27 +93,27 @@ export const API_ENDPOINTS = {
 
   // AIT (Advance Income Tax)
   AITS: {
-    LIST:   `${API_BASE_URL}/v2/aits`,
-    CREATE: `${API_BASE_URL}/v2/aits`,
-    UPDATE: (id: number) => `${API_BASE_URL}/v2/aits/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/v2/aits/${id}`,
-    GET:    (id: number) => `${API_BASE_URL}/v2/aits/${id}`,
-    SUBMIT: (id: number) => `${API_BASE_URL}/v2/aits/${id}/submit`,
-    APPROVE: (id: number) => `${API_BASE_URL}/v2/aits/${id}/approve`,
-    REJECT: (id: number) => `${API_BASE_URL}/v2/aits/${id}/reject`,
-    CREDIT: (id: number) => `${API_BASE_URL}/v2/aits/${id}/credit`,
+    LIST:   `${API_BASE_URL}/aits`,
+    CREATE: `${API_BASE_URL}/aits`,
+    UPDATE: (id: number) => `${API_BASE_URL}/aits/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/aits/${id}`,
+    GET:    (id: number) => `${API_BASE_URL}/aits/${id}`,
+    SUBMIT: (id: number) => `${API_BASE_URL}/aits/${id}/submit`,
+    APPROVE: (id: number) => `${API_BASE_URL}/aits/${id}/approve`,
+    REJECT: (id: number) => `${API_BASE_URL}/aits/${id}/reject`,
+    CREDIT: (id: number) => `${API_BASE_URL}/aits/${id}/credit`,
     DOCUMENTS: {
-      LIST: (aitId: number) => `${API_BASE_URL}/v2/aits/${aitId}/documents`,
-      UPLOAD: (aitId: number) => `${API_BASE_URL}/v2/aits/${aitId}/documents`,
-      DELETE: (aitId: number, docId: number) => `${API_BASE_URL}/v2/aits/${aitId}/documents/${docId}`,
+      LIST: (aitId: number) => `${API_BASE_URL}/aits/${aitId}/documents`,
+      UPLOAD: (aitId: number) => `${API_BASE_URL}/aits/${aitId}/documents`,
+      DELETE: (aitId: number, docId: number) => `${API_BASE_URL}/aits/${aitId}/documents/${docId}`,
     },
     DOCUMENT_REQUESTS: {
-      CREATE: (aitId: number) => `${API_BASE_URL}/v2/aits/${aitId}/document-requests`,
-      LIST: (aitId: number) => `${API_BASE_URL}/v2/aits/${aitId}/document-requests`,
+      CREATE: (aitId: number) => `${API_BASE_URL}/aits/${aitId}/document-requests`,
+      LIST: (aitId: number) => `${API_BASE_URL}/aits/${aitId}/document-requests`,
     },
     QUEUE: {
-      PENDING: `${API_BASE_URL}/v2/aits/queue/pending`,
-      MY_ASSIGNED: `${API_BASE_URL}/v2/aits/queue/my-assigned`,
+      PENDING: `${API_BASE_URL}/aits/queue/pending`,
+      MY_ASSIGNED: `${API_BASE_URL}/aits/queue/my-assigned`,
     },
   },
 
@@ -137,16 +137,13 @@ export const API_ENDPOINTS = {
     PREVIEW: `${API_BASE_URL}/import-duty/preview-tax`,
   },
 
-  // Certificate endpoints
+  // Certificate 
   CERTIFICATES: {
     DOWNLOAD_TIN:  (id: number) => `${API_BASE_URL}/tins/${id}/certificate`,
     DOWNLOAD_BIN:  (id: number) => `${API_BASE_URL}/vat-registrations/${id}/certificate`,
-    // Tax Clearance
     TAX_CLEARANCE_LIST:    `${API_BASE_URL}/tax-clearances`,
     DOWNLOAD_TAX_CLEARANCE:(id: number) => `${API_BASE_URL}/tax-clearances/${id}/certificate`,
     PUBLIC_VERIFY:         `${API_BASE_URL}/tax-clearances/public/verify`,
-
-    // Return Acknowledgment
     DOWNLOAD_RETURN_ACK:   (id: number) => `${API_BASE_URL}/income-tax-returns/${id}/acknowledgment`,
     
   },
@@ -162,10 +159,12 @@ export const API_ENDPOINTS = {
 
   // Notices & Notifications
   NOTICES: {
-    LIST:   `${API_BASE_URL}/notices`,
-    CREATE: `${API_BASE_URL}/notices`,
-    GET:    (id: number) => `${API_BASE_URL}/notices/${id}`,
-    UPDATE: (id: number) => `${API_BASE_URL}/notices/${id}`,
+    LIST:    `${API_BASE_URL}/notices`,
+    CREATE:  `${API_BASE_URL}/notices`,
+    GET:     (id: number) => `${API_BASE_URL}/notices/${id}`,
+    UPDATE:  (id: number) => `${API_BASE_URL}/notices/${id}`,
+    DELETE:  (id: number) => `${API_BASE_URL}/notices/${id}`,
+    READ:    (id: number) => `${API_BASE_URL}/notices/${id}/read`,   // ← এটা যোগ করো
   },
 
   // Penalties & Fines
@@ -230,13 +229,9 @@ export const API_ENDPOINTS = {
     UPDATE:        (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
     DELETE:        (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
     GET:           (id: number) => `${API_BASE_URL}/tax-structures/${id}`,
- 
     MASTER_DATA:   `${API_BASE_URL}/tax-structures/master-data`,
- 
     PREVIEW:       (id: number) => `${API_BASE_URL}/tax-structures/${id}/preview`,
- 
     PREVIEW_ADHOC: `${API_BASE_URL}/tax-structures/preview`,
- 
     BY_SOURCE:     (source: string) => `${API_BASE_URL}/tax-structures?source=${source}`,
   },
 
@@ -252,32 +247,57 @@ export const API_ENDPOINTS = {
   },
 
   // Refunds
-  REFUNDS: {
-    LIST:   `${API_BASE_URL}/refunds`,
-    CREATE: `${API_BASE_URL}/refunds`,
-    GET:    (id: number) => `${API_BASE_URL}/refunds/${id}`,
-    UPDATE: (id: number) => `${API_BASE_URL}/refunds/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/refunds/${id}`,
-    UPDATE_STATUS: (id: number) => `${API_BASE_URL}/refunds/${id}/status`,
+   REFUNDS: {
+    LIST:           `${API_BASE_URL}/refunds`,
+    MY:             `${API_BASE_URL}/refunds/my`,
+    CREATE:         `${API_BASE_URL}/refunds`,
+    GET:            (id: number) => `${API_BASE_URL}/refunds/${id}`,
+    UPDATE:         (id: number) => `${API_BASE_URL}/refunds/${id}`,
+    DELETE:         (id: number) => `${API_BASE_URL}/refunds/${id}`,
+    SUBMIT:         (id: number) => `${API_BASE_URL}/refunds/${id}/submit`,
+    RESPOND:        (id: number) => `${API_BASE_URL}/refunds/${id}/respond`,
+    UPDATE_STATUS:  (id: number) => `${API_BASE_URL}/refunds/${id}/status`,
+    STATUS_HISTORY: (id: number) => `${API_BASE_URL}/refunds/${id}/status-history`,
+    VALIDATE_BANK:  `${API_BASE_URL}/refunds/validate-bank`,
+    CALCULATE:      `${API_BASE_URL}/refunds/calculate`,
+    QUEUE: {
+      OFFICER:    `${API_BASE_URL}/refunds/queue/officer`,
+      SUPERVISOR: `${API_BASE_URL}/refunds/queue/supervisor`,
+      FINANCE:    `${API_BASE_URL}/refunds/queue/finance`,
+    },
+    SOURCES: {
+      ITR:      `${API_BASE_URL}/refunds/sources/itr`,
+      AIT:      `${API_BASE_URL}/refunds/sources/ait`,
+      VAT:      `${API_BASE_URL}/refunds/sources/vat`,
+      PAYMENTS: `${API_BASE_URL}/refunds/sources/payments`,
+    },
+    DOCUMENTS: {
+      LIST:   (id: number) => `${API_BASE_URL}/refunds/${id}/documents`,
+      UPLOAD: (id: number) => `${API_BASE_URL}/refunds/${id}/documents`,
+      DELETE: (id: number, docId: number) =>
+                `${API_BASE_URL}/refunds/${id}/documents/${docId}`,
+      GET:    (id: number, docId: number) =>
+                `${API_BASE_URL}/refunds/${id}/documents/${docId}`,
+    },
   },
 
-  // Get MaterData
+  // MasterData
   MASTER_DATA: {
-  DIVISIONS: `${API_BASE_URL}/master/divisions`,
-  DISTRICTS: `${API_BASE_URL}/master/districts`,
-  TAXPAYER_TYPES: `${API_BASE_URL}/master/taxpayer-types`,
-  BUSINESS_TYPES:      `${API_BASE_URL}/master/business-types`,
-  BUSINESS_CATEGORIES: `${API_BASE_URL}/master/business-categories`,
-  AIT_SOURCE_TYPES: `${API_BASE_URL}/master/ait/source-types`,
-  AIT_STATUSES: `${API_BASE_URL}/master/ait/statuses`,
-  IMPORT_PORTS: `${API_BASE_URL}/master/import-duty/ports`,
-  IMPORT_COUNTRIES: `${API_BASE_URL}/master/import-duty/countries`,
-  IMPORT_DUTY_STATUSES: `${API_BASE_URL}/master/import-duty/statuses`,
-  DISTRICTS_BY_DIVISION: (divisionId: number) =>
-    `${API_BASE_URL}/master/divisions/${divisionId}/districts`,
-  TAX_ZONES_BY_DISTRICT: (districtId: number) =>
-    `${API_BASE_URL}/master/districts/${districtId}/tax-zones`,
-  TAX_CIRCLES_BY_ZONE: (zoneId: number) =>
-    `${API_BASE_URL}/master/tax-zones/${zoneId}/tax-circles`,
+    DIVISIONS: `${API_BASE_URL}/master/divisions`,
+    DISTRICTS: `${API_BASE_URL}/master/districts`,
+    TAXPAYER_TYPES: `${API_BASE_URL}/master/taxpayer-types`,
+    BUSINESS_TYPES:      `${API_BASE_URL}/master/business-types`,
+    BUSINESS_CATEGORIES: `${API_BASE_URL}/master/business-categories`,
+    AIT_SOURCE_TYPES: `${API_BASE_URL}/master/ait/source-types`,
+    AIT_STATUSES: `${API_BASE_URL}/master/ait/statuses`,
+    IMPORT_PORTS: `${API_BASE_URL}/master/import-duty/ports`,
+    IMPORT_COUNTRIES: `${API_BASE_URL}/master/import-duty/countries`,
+    IMPORT_DUTY_STATUSES: `${API_BASE_URL}/master/import-duty/statuses`,
+    DISTRICTS_BY_DIVISION: (divisionId: number) =>
+      `${API_BASE_URL}/master/divisions/${divisionId}/districts`,
+    TAX_ZONES_BY_DISTRICT: (districtId: number) =>
+      `${API_BASE_URL}/master/districts/${districtId}/tax-zones`,
+    TAX_CIRCLES_BY_ZONE: (zoneId: number) =>
+      `${API_BASE_URL}/master/tax-zones/${zoneId}/tax-circles`,
   }
 };

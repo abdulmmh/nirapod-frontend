@@ -6,6 +6,7 @@ import { Taxpayer } from '../../../../models/taxpayer.model';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { PenaltyCreateRequest } from '../../../../models/penalty.model';
+import { PenaltyService } from '../../services/penalty.service';
 
 @Component({
   selector: 'app-penalty-create',
@@ -91,6 +92,7 @@ export class PenaltyCreateComponent implements OnDestroy {
     private http: HttpClient,
     private router: Router,
     private toast: ToastService,
+    private penaltyService: PenaltyService 
   ) {
     this.setDefaultDueDate();
   }
@@ -106,7 +108,7 @@ export class PenaltyCreateComponent implements OnDestroy {
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.http.post(API_ENDPOINTS.PENALTIES.CREATE, this.form)
+    this.penaltyService.create(this.form)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
       next: () => {

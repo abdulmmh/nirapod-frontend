@@ -125,4 +125,12 @@ export class AuthService {
   get allowedMenuItems(): string[] {
     return ROLE_MENU[this.userRole] ?? [];
   }
+
+  refreshApprovalStatus(newStatus: string): void {
+    const user = this.currentUser;
+    if (user) {
+      user.approvalStatus = newStatus as any;
+      this.updateCurrentUser(user); 
+    }
+  }
 }

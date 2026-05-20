@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil, timer } from 'rxjs';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Penalty } from '../../../../models/penalty.model';
+import { PenaltyService } from '../../services/penalty.service';
 
 @Component({
   selector: 'app-penalty-edit',
@@ -45,6 +46,7 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
     private router: Router,
     private http: HttpClient,
     private toast: ToastService,
+    private penaltyService: PenaltyService
   ) {}
 
   ngOnInit(): void {
@@ -59,8 +61,7 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
 
   loadPenalty(): void {
     this.isLoading = true;
-    this.http
-      .get<Penalty>(API_ENDPOINTS.PENALTIES.GET(this.penaltyId))
+    this.penaltyService.getById(this.penaltyId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
@@ -122,8 +123,7 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
     this.isSaving = true;
     this.errorMsg = '';
     this.successMsg = '';
-    this.http
-      .put(API_ENDPOINTS.PENALTIES.GET(this.penaltyId), this.form)
+    this.penaltyService.update(this.penaltyId, this.form)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {

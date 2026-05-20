@@ -52,6 +52,7 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   noticeType        = 'General';
   noticePriority    = 'Normal';
   isSendingNotice   = false;
+  isFromAddressWarn = false;
 
   // Tab filter
   activeTab: 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED' = 'ALL';
@@ -324,10 +325,13 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
 
   openNoticeModal(id: number | undefined): void {
     if (!id) return;
-    this.noticeTargetId = id;
-    this.noticeSubject  = '';
-    this.noticeBody     = '';
-    this.showNoticeModal = true;
+    this.isFromAddressWarn = false;
+    this.noticeTargetId   = id;
+    this.noticeSubject    = '';
+    this.noticeBody       = '';
+    this.noticeType       = 'General';
+    this.noticePriority   = 'Normal';
+    this.showNoticeModal  = true;
   }
 
   closeNoticeModal(): void {
@@ -345,24 +349,26 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
 
     this.isSendingNotice = true;
     this.http.post(API_ENDPOINTS.NOTICES.CREATE, {
-      taxpayerId:  this.noticeTargetId,
-      subject:     this.noticeSubject,
-      body:        this.noticeBody,
-      noticeType:  this.noticeType,
-      priority:    this.noticePriority,
-      targetType:  'Specific Taxpayer',
-      issuedBy:    'Officer',
-      issuedDate:  new Date().toISOString().split('T')[0],
-      dueDate:     null,
+      taxpayerId:     this.noticeTargetId,
+      subject:        this.noticeSubject,
+      body:           this.noticeBody,
+      noticeType:     this.noticeType,
+      priority:       this.noticePriority,
+      targetType:     'Specific Taxpayer',
+      issuedBy:       'Officer',
+      issuedDate:     new Date().toISOString().split('T')[0],
+      dueDate:        null,
       attachmentName: null
-    }).pipe(finalize(() => this.isSendingNotice = false))
-      .subscribe({
-        next: () => {
-          this.toast.success('Notice sent successfully!');
-          this.closeNoticeModal();
-        },
-        error: () => this.toast.error('Failed to send notice.')
-      });
+    }).pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isSendingNotice = false)
+    ).subscribe({
+      next: () => {
+        this.toast.success('Notice sent successfully!');
+        this.closeNoticeModal();
+      },
+      error: () => this.toast.error('Failed to send notice.')
+    });
   }
 
   closeApprove(): void {
@@ -417,31 +423,17 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   }
 
   private sendAddressNotice(taxpayerId: number): void {
-    this.isProcessing = true;
-
-    this.http.post(API_ENDPOINTS.NOTICES.CREATE, {
-      taxpayerId:  taxpayerId,
-      subject:     'Action Required: Complete Your Profile',   
-      body:        'Your registration application is pending approval. ' +
-                  'Please complete your profile by adding your present address ' +
-                  '(Division and District) to proceed with TIN issuance.',    
-      noticeType:  'General',                                  
-      priority:    'High',
-      targetType:  'Specific Taxpayer',                        
-      issuedBy:    'System',
-      issuedDate:  new Date().toISOString().split('T')[0],     
-      dueDate:     null,
-      attachmentName: null
-    }).pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isProcessing = false)
-    ).subscribe({
-      next: () => {
-        this.toast.success('Notice sent to taxpayer to complete their profile.');
-        this.closeApprove();
-      },
-      error: () => this.toast.error('Failed to send notice.')
-    });
+    this.isProcessing     = false;
+    this.isFromAddressWarn = true;
+    this.noticeTargetId   = taxpayerId;
+    this.noticeSubject    = 'Action Required: Complete Your Profile';
+    this.noticeBody       = 'Your registration application is pending approval. ' +
+                            'Please complete your profile by adding your present address ' +
+                            '(Division and District) to proceed with TIN issuance.';
+    this.noticeType       = 'General';
+    this.noticePriority   = 'High';
+    this.showApproveModal = false;   
+    this.showNoticeModal  = true;    
   }
 
   // Reject flow

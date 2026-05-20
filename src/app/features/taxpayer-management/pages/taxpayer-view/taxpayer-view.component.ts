@@ -40,12 +40,15 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
   reviewNotes = '';
 
   // Notice Modal
-  showNoticeModal = false;
-  noticeSubject = '';
-  noticeBody = '';
-  noticeType = 'General';
-  noticePriority = 'Normal';
-  isSendingNotice = false;
+  showNoticeModal   = false;
+  showApproveModal = false;
+  noticeTargetId:   number | null = null;
+  noticeSubject     = '';
+  noticeBody        = '';
+  noticeType        = 'General';
+  noticePriority    = 'Normal';
+  isSendingNotice   = false;
+  isFromAddressWarn = false;
 
   // ──────────────────── Constructor ───────────────────────
 
@@ -266,29 +269,30 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
   // ────────────────────── Actions ──────────────────────
 
   onApprove(): void {
-  if (!this.approveZone || !this.approveCircle) {
-    this.toast.warning('Please select Tax Zone and Tax Circle.');
-    return;
-  }
-
-  this.isProcessing = true;
-      const url = `${API_ENDPOINTS.TAXPAYERS.LIST}/${this.taxpayerId}/approve`;
-
-      this.http.put(url, {
-        taxZone: this.approveZone,
-        taxCircle: this.approveCircle,
-        reviewNotes: this.reviewNotes || 'Approved'
-      }).pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isProcessing = false)
-      ).subscribe({
-        next: (data: any) => {
-          this.taxpayer = data;
-          this.toast.success('Taxpayer approved! TIN has been issued.');
-        },
-        error: () => this.toast.error('Approval failed. Please try again.')
-      });
+    if (!this.approveZone || !this.approveCircle) {
+      this.toast.warning('Please select Tax Zone and Tax Circle.');
+      return;
     }
+
+    this.isProcessing = true;
+    const url = `${API_ENDPOINTS.TAXPAYERS.LIST}/${this.taxpayerId}/approve`;
+
+    this.http.put(url, {
+      taxZone:     this.approveZone,
+      taxCircle:   this.approveCircle,
+      reviewNotes: this.reviewNotes || 'Approved'
+    }).pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isProcessing = false)
+    ).subscribe({
+      next: (data: any) => {
+        this.taxpayer = data;
+        this.toast.success('Taxpayer approved! TIN has been issued.');
+       
+      },
+      error: () => this.toast.error('Approval failed. Please try again.')
+    });
+  }
 
   onReject(): void {
     if (!this.reviewNotes.trim()) {
@@ -313,8 +317,22 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  openSendNotice(): void {
-    this.showNoticeModal = true;
+  openNoticeModal(id: number | undefined): void {
+    if (!id) return;
+    this.isFromAddressWarn = false;
+    this.noticeTargetId   = id;
+    this.noticeSubject    = '';
+    this.noticeBody       = '';
+    this.noticeType       = 'General';
+    this.noticePriority   = 'Normal';
+    this.showNoticeModal  = true;
+  }
+
+  closeNoticeModal(): void {
+    this.showNoticeModal  = false;
+    this.noticeTargetId   = null;
+    this.noticeSubject    = '';
+    this.noticeBody       = '';
   }
 
   closeSendNotice(): void {
@@ -349,5 +367,19 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
         },
         error: () => this.toast.error('Failed to send notice.')
       });
+  }
+
+  private sendAddressNotice(taxpayerId: number): void {
+    this.isProcessing     = false;
+    this.isFromAddressWarn = true;
+    this.noticeTargetId   = taxpayerId;
+    this.noticeSubject    = 'Action Required: Complete Your Profile';
+    this.noticeBody       = 'Your registration application is pending approval. ' +
+                            'Please complete your profile by adding your present address ' +
+                            '(Division and District) to proceed with TIN issuance.';
+    this.noticeType       = 'General';
+    this.noticePriority   = 'High';
+    this.showApproveModal = false;   
+    this.showNoticeModal  = true;    
   }
 }

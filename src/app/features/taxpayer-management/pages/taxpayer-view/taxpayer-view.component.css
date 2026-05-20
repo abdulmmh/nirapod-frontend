@@ -574,14 +574,86 @@
   gap: 6px;
 }
 
-.btn-notice {
+
+.btn-modal-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
   background: #e8eeff;
   color: #1a3f8f;
   border: 1px solid #b5c4f4;
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: background .2s;
 }
-.btn-notice:hover { background: #b5c4f4; }
+.btn-modal-notice:hover { background: #b5c4f4; }
+
+/* Notice Modal form styling */
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.modal-form {
+  width: 100%;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.modal-field select,
+.modal-field input,
+.modal-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dde3f0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border .15s;
+  background: #fff;
+  resize: vertical;
+}
+.modal-field select:focus,
+.modal-field input:focus,
+.modal-field textarea:focus {
+  border-color: #1a3f8f;
+}
+.modal-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.btn-send-notice {
+  background: #e8eeff;
+  color: #1a3f8f;
+  border: 1px solid #b5c4f4;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.btn-send-notice:hover {
+  background: #b5c4f4;
+}
+
+.btn-send-notice:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

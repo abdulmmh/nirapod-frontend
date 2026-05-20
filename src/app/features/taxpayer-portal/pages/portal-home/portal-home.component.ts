@@ -52,11 +52,15 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: ({ taxpayer, returns }) => {
-        this.taxpayer   = taxpayer;
-        this.itrReturns = returns;
-        this.buildMenu(taxpayer.taxpayerType?.category ?? '');
-        this.isLoading  = false;
-      },
+          this.taxpayer   = taxpayer;
+          this.itrReturns = returns;
+          this.buildMenu(taxpayer.taxpayerType?.category ?? '');
+          this.isLoading  = false;
+
+          if (taxpayer.approvalStatus) {
+            this.authService.refreshApprovalStatus(taxpayer.approvalStatus);
+          }
+        },
       error: () => { this.isLoading = false; }
     });
   }
