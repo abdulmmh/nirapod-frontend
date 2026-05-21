@@ -10,7 +10,7 @@ import {
   templateUrl: './portal-audit-detail.component.html',
   styleUrls: ['./portal-audit-detail.component.scss']
 })
-export class portalAuditDetailComponent implements OnInit {
+export class PortalAuditDetailComponent implements OnInit {
 
   auditCase:    AuditCase | null    = null;
   queries:      AuditQuery[]        = [];

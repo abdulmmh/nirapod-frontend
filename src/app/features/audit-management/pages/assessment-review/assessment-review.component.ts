@@ -8,7 +8,7 @@ import { AuditCase } from '../../../../models/audit.model';
 @Component({
   selector: 'app-assessment-review',
   templateUrl: './assessment-review.component.html',
-  styleUrls: ['./assessment-review.component.scss']
+  styleUrls: ['./assessment-review.component.css']
 })
 export class AssessmentReviewComponent implements OnInit {
 

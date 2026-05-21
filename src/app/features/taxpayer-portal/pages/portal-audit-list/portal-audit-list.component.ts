@@ -8,7 +8,7 @@ import { AuditCase } from '../../../../models/audit.model';
   templateUrl: './portal-audit-list.component.html',
   styleUrls: ['./portal-audit-list.component.scss']
 })
-export class portalAuditListComponent implements OnInit {
+export class PortalAuditListComponent implements OnInit {
 
   cases:     AuditCase[] = [];
   isLoading  = false;

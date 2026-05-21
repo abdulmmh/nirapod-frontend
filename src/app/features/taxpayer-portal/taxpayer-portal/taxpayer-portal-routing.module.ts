@@ -4,9 +4,8 @@ import { PortalLayoutComponent } from '../layout/portal-layout/portal-layout.com
 import { PortalHomeComponent } from '../pages/portal-home/portal-home.component';
 import { PortalItrComponent } from '../pages/portal-itr/portal-itr.component';
 import { PortalApplicationStatusComponent } from '../pages/portal-application-status/portal-application-status.component';
-import { TaxpayerAuditListComponent } from '../pages/portal-audit-list/portal-audit-list.component';
-import { TaxpayerAuditDetailComponent } from '../pages/portal-audit-detail/portal-audit-detail.component';
-
+import { PortalAuditDetailComponent } from '../pages/portal-audit-detail/portal-audit-detail.component';
+import { PortalAuditListComponent } from '../pages/portal-audit-list/portal-audit-list.component';
 const routes: Routes = [
   {
     path: '',
@@ -15,8 +14,8 @@ const routes: Routes = [
       { path: '', component: PortalHomeComponent },
       { path: 'itr', component: PortalItrComponent },
       { path: 'application-status', component: PortalApplicationStatusComponent },
-      { path: 'audits', component: TaxpayerAuditListComponent },
-      { path: 'audits/:id', component: TaxpayerAuditDetailComponent },
+      { path: 'audits', component: PortalAuditListComponent },
+      { path: 'audits/:id', component: PortalAuditDetailComponent },
     
       { path: 'taxpayers', 
         loadChildren: () =>

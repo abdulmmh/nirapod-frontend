@@ -383,23 +383,43 @@
         </button>
       </div>
       <ng-container *ngIf="assessment; else noAssessment">
-        <app-assessment-summary [assessment]="assessment"></app-assessment-summary>
+        <div class="info-card">
+          <div class="ic-header"><i class="bi bi-calculator-fill"></i> Assessment Summary</div>
+          <div class="ic-body">
+            <div class="ic-row"><label>Assessment No</label><span class="code-val">{{ assessment.assessmentNo }}</span></div>
+            <div class="ic-row"><label>Additional Tax</label><span>{{ assessment.additionalTax | number:'1.2-2' }} BDT</span></div>
+            <div class="ic-row"><label>Penalty</label><span>{{ assessment.penaltyAmount | number:'1.2-2' }} BDT</span></div>
+            <div class="ic-row"><label>Interest</label><span>{{ assessment.interestAmount | number:'1.2-2' }} BDT</span></div>
+            <div class="ic-row"><label>Total Demand</label><span class="text-danger fw-bold">{{ assessment.totalDemand | number:'1.2-2' }} BDT</span></div>
+            <div class="ic-row"><label>Status</label>
+              <span class="status-badge" [ngClass]="getStatusClass(assessment.status)">{{ assessment.status }}</span>
+            </div>
+          </div>
+        </div>
       </ng-container>
       <ng-template #noAssessment>
-        <div class="empty-state">
-          <i class="bi bi-calculator"></i><p>No assessment proposed yet.</p>
-        </div>
+        <div class="empty-state"><i class="bi bi-calculator"></i><p>No assessment proposed yet.</p></div>
       </ng-template>
     </div>
 
     <!-- ═══ TAB: Demand Notice ══════════════════════════════════════════════ -->
-    <div class="dtab-content" *ngIf="activeTab === 'demand'">
-      <ng-container *ngIf="demandNotice; else noDemand">
-        <app-demand-notice-view [demandNotice]="demandNotice"></app-demand-notice-view>
-      </ng-container>
-      <ng-template #noDemand>
-        <div class="empty-state"><i class="bi bi-receipt"></i><p>Demand notice not issued yet.</p></div>
-      </ng-template>
+  <div class="dtab-content" *ngIf="activeTab === 'demand'"> 
+    <ng-container *ngIf="demandNotice; else noDemand">
+      <div class="info-card">
+        <div class="ic-header"><i class="bi bi-receipt-cutoff"></i> Demand Notice</div>
+        <div class="ic-body">
+          <div class="ic-row"><label>Demand No</label><span class="code-val">{{ demandNotice.demandNo }}</span></div>
+          <div class="ic-row"><label>Amount Due</label><span class="text-danger fw-bold">{{ demandNotice.amountDue | number:'1.2-2' }} BDT</span></div>
+          <div class="ic-row"><label>Due Date</label><span>{{ demandNotice.dueDate | date:'dd MMM yyyy' }}</span></div>
+          <div class="ic-row"><label>Status</label>
+            <span class="status-badge" [ngClass]="getStatusClass(demandNotice.status)">{{ demandNotice.status }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #noDemand>
+      <div class="empty-state"><i class="bi bi-receipt"></i><p>Demand notice not issued yet.</p></div>
+    </ng-template>
     </div>
 
     <!-- ═══ TAB: Timeline ═══════════════════════════════════════════════════ -->
@@ -437,7 +457,6 @@
     </div>
 
   </div>
-</div>
 
 <!-- ══ MODAL: Raise Query ════════════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showQueryModal">

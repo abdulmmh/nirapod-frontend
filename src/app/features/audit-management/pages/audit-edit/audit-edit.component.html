@@ -17,7 +17,7 @@
 
   <div class="edit-banner">
     <i class="bi bi-pencil-square"></i>
-    Editing: <strong>{{ form.auditNo }}</strong>
+    Editing: <strong>{{ form.caseNo }}</strong>
   </div>
 
   <!-- Section 1: Taxpayer -->
@@ -50,14 +50,14 @@
         <label class="form-label">Return No.</label>
         <div class="input-wrap">
           <i class="bi bi-file-earmark-text input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.returnNo" />
+          <input type="text" class="form-input" [(ngModel)]="form.returnReference" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Assessment Year</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
+          <select class="form-input form-select" [(ngModel)]="form.fiscalYear">
             <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
           </select>
         </div>
@@ -117,14 +117,14 @@
         <label class="form-label">Start Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.startDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.taxPeriodStart" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Completion Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar2-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.completionDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.taxPeriodEnd" />
         </div>
       </div>
     </div>
@@ -148,7 +148,7 @@
         <label class="form-label required">Assigned To</label>
         <div class="input-wrap">
           <i class="bi bi-person-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.assignedTo">
+          <select class="form-input form-select" [(ngModel)]="form.assignedOfficerName">
             <option *ngFor="let a of auditors" [value]="a">{{ a }}</option>
           </select>
         </div>
@@ -157,7 +157,7 @@
         <label class="form-label">Supervised By</label>
         <div class="input-wrap">
           <i class="bi bi-person-check input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.supervisedBy">
+          <select class="form-input form-select" [(ngModel)]="form.supervisorName">
             <option *ngFor="let s of supervisors" [value]="s">{{ s }}</option>
           </select>
         </div>
@@ -178,8 +178,8 @@
         <span class="section-sub">Audit findings and tax demand</span>
       </div>
     </div>
-    <div class="form-grid">
-      <div class="form-group">
+   <div class="form-grid">
+      <!--  <div class="form-group">
         <label class="form-label">Tax Demand (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-cash-stack input-icon"></i>
@@ -199,7 +199,7 @@
           <i class="bi bi-file-text input-icon textarea-icon"></i>
           <textarea class="form-input form-textarea" [(ngModel)]="form.auditFindings" rows="3"></textarea>
         </div>
-      </div>
+      </div> -->
       <div class="form-group full-width">
         <label class="form-label">Remarks</label>
         <div class="input-wrap">

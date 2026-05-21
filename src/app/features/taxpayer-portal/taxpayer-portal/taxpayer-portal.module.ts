@@ -8,13 +8,17 @@ import { PortalLayoutComponent } from '../layout/portal-layout/portal-layout.com
 import { PortalItrComponent } from '../pages/portal-itr/portal-itr.component';
 import { FormsModule } from '@angular/forms';
 import { PortalApplicationStatusComponent } from '../pages/portal-application-status/portal-application-status.component';
+import { PortalAuditDetailComponent } from '../pages/portal-audit-detail/portal-audit-detail.component';
+import { PortalAuditListComponent } from '../pages/portal-audit-list/portal-audit-list.component';
 
 @NgModule({
   declarations: [
     PortalHomeComponent,
     PortalLayoutComponent,
     PortalItrComponent,
-    PortalApplicationStatusComponent
+    PortalApplicationStatusComponent,
+    PortalAuditDetailComponent,
+    PortalAuditListComponent
   ],
   imports: [
     CommonModule,
