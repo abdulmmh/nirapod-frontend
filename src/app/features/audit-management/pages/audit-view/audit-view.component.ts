@@ -1,129 +1,354 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Audit } from '../../../../models/audit.model';
-import { Subject, takeUntil, finalize } from 'rxjs';
-import { ToastService } from 'src/app/shared/toast/toast.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuditService } from '../../service/audit.service';
+import {
+  AuditCase, AuditQuery, AuditDocumentRequest, AuditFinding,
+  Assessment, DemandNotice
+} from '../../../../models/audit.model';
 
 @Component({
   selector: 'app-audit-view',
   templateUrl: './audit-view.component.html',
-  styleUrls: ['./audit-view.component.css']
+  styleUrls: ['./audit-view.component.scss']
 })
-export class AuditViewComponent implements OnInit {
+export class AuditDetailComponent implements OnInit {
 
-  // ────────────────── State ──────────────────────
+  auditCase:    AuditCase | null    = null;
+  queries:      AuditQuery[]        = [];
+  docRequests:  AuditDocumentRequest[] = [];
+  findings:     AuditFinding[]      = [];
+  assessment:   Assessment | null   = null;
+  demandNotice: DemandNotice | null = null;
 
-  audit: Audit | null = null;
-  auditId: number | null = null;
-  isLoading = true;
+  isLoading      = false;
+  queriesLoading = false;
+  docsLoading    = false;
+  findingsLoading = false;
 
-  private destroy$ = new Subject<void>();
-  
-  // ──────────────────── Constructor ───────────────────────
+  activeTab = 'overview';
+
+  // Modal states
+  showQueryModal    = false;
+  showDocModal      = false;
+  showFindingModal  = false;
+  showApprovalModal = false;
+
+  querySubmitting   = false;
+  docSubmitting     = false;
+  findingSubmitting = false;
+  approvalSubmitting = false;
+
+  approvalNotes = '';
+
+  queryForm!:   FormGroup;
+  docForm!:     FormGroup;
+  findingForm!: FormGroup;
+
+  get findingsTotalTax(): number {
+    return this.findings.reduce((s, f) => s + (f.additionalTax || 0), 0);
+  }
 
   constructor(
-    private route: ActivatedRoute,
+    private route:  ActivatedRoute,
     private router: Router,
-    private http: HttpClient,
-    private toast: ToastService,
+    private fb:     FormBuilder,
+    private auditService: AuditService
   ) {}
 
-
-
-  // ────────────────────── Lifecycle ──────────────────────
-
   ngOnInit(): void {
-    this.initializeAudit();
+    this.buildForms();
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadCase(id);
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  buildForms(): void {
+    this.queryForm = this.fb.group({
+      queryType: ['GENERAL'],
+      subject:   ['', Validators.required],
+      queryText: ['', Validators.required],
+      deadline:  [''],
+    });
+
+    this.docForm = this.fb.group({
+      requestedDocuments: ['', Validators.required],
+      requestReason:      [''],
+      requestType:        ['INITIAL'],
+      deadline:           [''],
+    });
+
+    this.findingForm = this.fb.group({
+      findingType:    ['INCOME_OMISSION', Validators.required],
+      description:    ['', Validators.required],
+      legalBasis:     [''],
+      declaredAmount: [0],
+      assessedAmount: [0],
+      additionalTax:  [0],
+      status:         ['DRAFT'],
+    });
   }
 
- // ────────────────────── Initialization  ─────────────────────
-
-
- private initializeAudit(): void {
-    const id = this.getValidAuditId();
-
-    if (!id) {
-      this.handleInvalidId();
-      return;
-    }
-
-    this.auditId = id;
-    this.fetchAudit();
-  }
-
-  private getValidAuditId(): number | null {
-    const rawId = this.route.snapshot.paramMap.get('id');
-    const parsedId = Number(rawId);
-
-    return rawId && !isNaN(parsedId) && parsedId > 0 ? parsedId : null;
-  }
-
-  private handleInvalidId(): void {
-    this.toast.error('Invalid audit ID. Please go back and try again.');
-    
-  }
-
-
-  // ───────────────────────  Data Fetching ────────────────
-
-  private fetchAudit(): void {
+  loadCase(id: number): void {
     this.isLoading = true;
-
-    this.http.get<Audit>(`${API_ENDPOINTS.AUDITS}/${this.auditId}`)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.isLoading = false)),
-      )
-      .subscribe({
-        next: (data) => this.handleFetchSuccess(data),
-        error: (error) => this.handleFetchError(error),
-      });
+    this.auditService.getCaseById(id).subscribe({
+      next: c => { this.auditCase = c; this.isLoading = false; },
+      error: () => { this.isLoading = false; this.router.navigate(['/audits']); }
+    });
   }
 
-  private handleFetchSuccess(data: Audit): void {
-    this.audit = data;
+  setTab(tab: string): void { this.activeTab = tab; }
+
+  loadQueries(): void {
+    if (!this.auditCase) return;
+    this.queriesLoading = true;
+    this.auditService.getQueries(this.auditCase.id).subscribe({
+      next: q => { this.queries = q; this.queriesLoading = false; },
+      error: () => { this.queriesLoading = false; }
+    });
   }
 
-  private handleFetchError(error: unknown): void {
-    console.error('Failed to load audit details', error);
-    this.toast.error('Failed to load audit details. Please go back and try again.');
+  loadDocRequests(): void {
+    if (!this.auditCase) return;
+    this.docsLoading = true;
+    this.auditService.getDocumentRequests(this.auditCase.id).subscribe({
+      next: d => { this.docRequests = d; this.docsLoading = false; },
+      error: () => { this.docsLoading = false; }
+    });
   }
 
- // ───────────────────── Navigation ────────────────────────
+  loadFindings(): void {
+    if (!this.auditCase) return;
+    this.findingsLoading = true;
+    this.auditService.getFindings(this.auditCase.id).subscribe({
+      next: f => { this.findings = f; this.findingsLoading = false; },
+      error: () => { this.findingsLoading = false; }
+    });
+  }
 
-  onEdit(): void { this.router.navigate(['/audits', this.audit?.id, 'edit']); }
-  onBack(): void { this.router.navigate(['/audits']); }
+  loadAssessment(): void {
+    if (!this.auditCase || !this.auditCase.hasAssessment) return;
+    this.auditService.getAssessment(this.auditCase.id).subscribe({
+      next: a => this.assessment = a,
+      error: () => {}
+    });
+  }
 
+  loadDemand(): void {
+    if (!this.auditCase || !this.auditCase.hasDemandNotice) return;
+    this.auditService.getDemandNotice(this.auditCase.id).subscribe({
+      next: d => this.demandNotice = d,
+      error: () => {}
+    });
+  }
 
-  // ─────────────────────  UI Helpers  ───────────────────────
+  // ── Actions ────────────────────────────────────────────────────────────────
+
+  issueNotice(): void {
+    if (!this.auditCase) return;
+    this.auditService.issueNotice(this.auditCase.id).subscribe({
+      next: c => { this.auditCase = c; }
+    });
+  }
+
+  issueDemand(): void {
+    if (!this.auditCase) return;
+    this.auditService.issueDemandNotice(this.auditCase.id).subscribe({
+      next: d => {
+        this.demandNotice = d;
+        this.loadCase(this.auditCase!.id);
+        this.setTab('demand');
+      }
+    });
+  }
+
+  goToAssessment(): void {
+    this.router.navigate(['/audits', this.auditCase!.id, 'propose-assessment']);
+  }
+
+  // ── Modal openers ──────────────────────────────────────────────────────────
+  openQueryModal():    void { this.queryForm.reset({ queryType: 'GENERAL' }); this.showQueryModal = true; }
+  openDocRequestModal(): void { this.docForm.reset({ requestType: 'INITIAL' }); this.showDocModal = true; }
+  openFindingModal():  void { this.findingForm.reset({ findingType: 'INCOME_OMISSION', status: 'DRAFT' }); this.showFindingModal = true; }
+  openApprovalModal(): void { this.approvalNotes = ''; this.showApprovalModal = true; }
+
+  // ── Modal submits ──────────────────────────────────────────────────────────
+
+  submitQuery(): void {
+    if (this.queryForm.invalid || !this.auditCase) return;
+    this.querySubmitting = true;
+    this.auditService.raiseQuery(this.auditCase.id, this.queryForm.value).subscribe({
+      next: q => {
+        this.queries.push(q);
+        this.querySubmitting = false;
+        this.showQueryModal  = false;
+        this.auditCase!.queryCount++;
+        this.auditCase!.openQueryCount++;
+      },
+      error: () => { this.querySubmitting = false; }
+    });
+  }
+
+  submitDocRequest(): void {
+    if (this.docForm.invalid || !this.auditCase) return;
+    this.docSubmitting = true;
+    this.auditService.requestDocuments(this.auditCase.id, this.docForm.value).subscribe({
+      next: d => {
+        this.docRequests.push(d);
+        this.docSubmitting = false;
+        this.showDocModal  = false;
+        this.auditCase!.documentRequestCount++;
+      },
+      error: () => { this.docSubmitting = false; }
+    });
+  }
+
+  submitFinding(): void {
+    if (this.findingForm.invalid || !this.auditCase) return;
+    this.findingSubmitting = true;
+    this.auditService.addFinding(this.auditCase.id, this.findingForm.value).subscribe({
+      next: f => {
+        this.findings.push(f);
+        this.findingSubmitting = false;
+        this.showFindingModal  = false;
+        this.auditCase!.findingCount++;
+        this.loadCase(this.auditCase!.id); // refresh status
+      },
+      error: () => { this.findingSubmitting = false; }
+    });
+  }
+
+  submitApproval(): void {
+    if (!this.auditCase) return;
+    this.approvalSubmitting = true;
+    this.auditService.approveAssessment(this.auditCase.id, this.approvalNotes).subscribe({
+      next: a => {
+        this.assessment        = a;
+        this.approvalSubmitting = false;
+        this.showApprovalModal  = false;
+        this.loadCase(this.auditCase!.id);
+      },
+      error: () => { this.approvalSubmitting = false; }
+    });
+  }
+
+  calculateTaxFromFinding(): void {
+    // Auto-calculate variance hint (not binding)
+    const declared  = this.findingForm.get('declaredAmount')?.value || 0;
+    const assessed  = this.findingForm.get('assessedAmount')?.value || 0;
+    const variance  = assessed - declared;
+    // Tax at 25% (default) — officer can override
+    if (variance > 0) {
+      this.findingForm.patchValue({ additionalTax: +(variance * 0.25).toFixed(2) });
+    }
+  }
+
+  // ── Permission guards ──────────────────────────────────────────────────────
+
+  canRequestDocuments(): boolean {
+    if (!this.auditCase) return false;
+    return !['CLOSED', 'CANCELLED', 'PAID'].includes(this.auditCase.status);
+  }
+
+  canRaiseQuery(): boolean {
+    if (!this.auditCase) return false;
+    return !['CLOSED', 'CANCELLED', 'PAID'].includes(this.auditCase.status);
+  }
+
+  canAddFinding(): boolean {
+    if (!this.auditCase) return false;
+    return ['UNDER_REVIEW', 'RESPONSE_RECEIVED', 'FINDINGS_RECORDED',
+            'DOCUMENT_REQUESTED'].includes(this.auditCase.status);
+  }
+
+  canProposeAssessment(): boolean {
+    if (!this.auditCase) return false;
+    return ['FINDINGS_RECORDED', 'RESPONSE_RECEIVED', 'UNDER_REVIEW']
+      .includes(this.auditCase.status) && !this.auditCase.hasAssessment;
+  }
+
+  canApproveAssessment(): boolean {
+    if (!this.auditCase) return false;
+    return ['ASSESSMENT_PROPOSED', 'SUPERVISOR_REVIEW'].includes(this.auditCase.status)
+      && this.auditCase.hasAssessment;
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  isDue(date: string): boolean { return !!date && new Date(date) < new Date(); }
 
   getStatusClass(s: string): string {
-    const map: Record<string, string> = {
-      'Scheduled': 'status-scheduled', 'In Progress': 'status-progress',
-      'Completed': 'status-active', 'Flagged': 'status-flagged',
-      'Cancelled': 'status-inactive', 'Pending': 'status-pending'
+    const m: Record<string, string> = {
+      SELECTED: 'badge-secondary', CASE_CREATED: 'badge-info',
+      NOTICE_ISSUED: 'badge-warning', UNDER_REVIEW: 'badge-primary',
+      DOCUMENT_REQUESTED: 'badge-orange', RESPONSE_RECEIVED: 'badge-teal',
+      FINDINGS_RECORDED: 'badge-purple', ASSESSMENT_PROPOSED: 'badge-indigo',
+      SUPERVISOR_REVIEW: 'badge-yellow', ASSESSMENT_APPROVED: 'badge-success',
+      DEMAND_ISSUED: 'badge-danger', PAID: 'badge-green',
+      PARTIALLY_PAID: 'badge-lime', APPEALED: 'badge-pink',
+      CLOSED: 'badge-dark', CANCELLED: 'badge-muted',
     };
-    return map[s] ?? '';
+    return m[s] ?? 'badge-secondary';
+  }
+
+  getStatusLabel(s: string): string {
+    return s?.replace(/_/g, ' ') ?? s;
+  }
+
+  getTypeLabel(t: string): string {
+    const m: Record<string, string> = {
+      DESK: 'Desk', FIELD: 'Field', COMPREHENSIVE: 'Comprehensive',
+      VAT: 'VAT', REFUND: 'Refund', SPECIAL: 'Special'
+    };
+    return m[t] ?? t;
+  }
+
+  getTaxTypeLabel(t: string): string {
+    const m: Record<string, string> = { INCOME_TAX: 'Income Tax', VAT: 'VAT', AIT: 'AIT' };
+    return m[t] ?? t;
+  }
+
+  getTriggerLabel(t: string): string {
+    const m: Record<string, string> = {
+      RISK_BASED: 'Risk-Based', RANDOM: 'Random', REFUND_CLAIM: 'Large Refund',
+      MISMATCH: 'Mismatch', LATE_FILING: 'Late Filing', COMPLAINT: 'Complaint',
+      DIRECTIVE: 'Directive', CAMPAIGN: 'Campaign',
+    };
+    return m[t] ?? t;
   }
 
   getPriorityClass(p: string): string {
-    const map: Record<string, string> = {
-      'Low': 'pri-low', 'Medium': 'pri-medium',
-      'High': 'pri-high', 'Critical': 'pri-critical'
+    const m: Record<string, string> = {
+      LOW: 'pri-low', NORMAL: 'pri-normal', HIGH: 'pri-high', CRITICAL: 'pri-critical'
     };
-    return map[p] ?? '';
+    return m[p] ?? '';
   }
 
-  fmt(amount: number): string {
-    if (amount === 0) return '—';
-    return `৳${amount.toLocaleString()}`;
+  getRiskNumClass(score: number): string {
+    if (score >= 75) return 'risk-num-critical';
+    if (score >= 50) return 'risk-num-high';
+    if (score >= 25) return 'risk-num-med';
+    return 'risk-num-low';
   }
 
+  getRiskFillClass(score: number): string {
+    if (score >= 75) return 'rf-critical';
+    if (score >= 50) return 'rf-high';
+    if (score >= 25) return 'rf-med';
+    return 'rf-low';
+  }
+
+  getDocStatusClass(s: string): string {
+    const m: Record<string, string> = {
+      PENDING: 'badge-warning', FULFILLED: 'badge-success',
+      PARTIALLY_FULFILLED: 'badge-lime', OVERDUE: 'badge-danger',
+    };
+    return m[s] ?? 'badge-secondary';
+  }
+
+  getFindingStatusClass(s: string): string {
+    const m: Record<string, string> = {
+      DRAFT: 'badge-secondary', CONFIRMED: 'badge-success',
+      DISPUTED: 'badge-warning', WITHDRAWN: 'badge-muted',
+    };
+    return m[s] ?? 'badge-secondary';
+  }
 }

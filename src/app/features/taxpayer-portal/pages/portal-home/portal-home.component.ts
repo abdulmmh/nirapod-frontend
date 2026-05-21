@@ -139,6 +139,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
         { label: 'AIT',               route: '/my-portal/ait',      icon: '📊' },
         { label: 'Payments',          route: '/my-portal/payments', icon: '💳' },
         { label: 'Notices',           route: '/my-portal/notices',  icon: '🔔' },
+        { label: 'My Audits',           route: '/my-portal/audits',   icon: '🔍' },
       ];
     } else if (category === 'Business') {
       this.menuItems = [
@@ -147,6 +148,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
         { label: 'VAT Returns',      route: '/my-portal/vat-returns',      icon: '📋' },
         { label: 'Payments',         route: '/my-portal/payments',         icon: '💳' },
         { label: 'Notices',          route: '/my-portal/notices',          icon: '🔔' },
+        { label: 'My Audits',           route: '/my-portal/audits',   icon: '🔍' },
       ];
     } else if (category === 'Organization') {
       this.menuItems = [
@@ -155,6 +157,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
         { label: 'Documents',         route: '/my-portal/documents', icon: '📁' },
         { label: 'Payments',          route: '/my-portal/payments',  icon: '💳' },
         { label: 'Notices',           route: '/my-portal/notices',   icon: '🔔' },
+        { label: 'My Audits',           route: '/my-portal/audits',   icon: '🔍' },
       ];
     }
   }

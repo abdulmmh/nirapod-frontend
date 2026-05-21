@@ -126,16 +126,27 @@ export class SidebarComponent implements OnInit {
         { label: 'Issue Penalty', route: '/penalties/create', icon: 'bi bi-plus-circle' }
       ]
     },
+ 
     {
-      label: 'Audit Management',
-      icon: 'bi bi-shield-fill-check',
-      route: null,
-      roles: [Role.AUDITOR, Role.TAX_COMMISSIONER, Role.SUPER_ADMIN],
-      children: [
-        { label: 'All Audits', route: '/audits', icon: 'bi bi-list-ul' },
-        { label: 'Create Audit', route: '/audits/create', icon: 'bi bi-plus-circle' }
-      ]
-    },
+    label: 'Audit & Assessment',
+    icon:  'bi bi-search',
+    roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.AUDITOR],
+    children: [
+      {
+        label: 'Audit Cases',
+        route: '/audits',
+        icon:  'bi bi-folder2-open',
+        permission: 'AUDIT_VIEW_ALL'
+      },
+      {
+        label: 'New Audit Case',
+        route: '/audits/create',
+        icon:  'bi bi-folder-plus',
+        permission: 'AUDIT_CREATE'
+      }
+    ]
+  },
+
 
     
     {

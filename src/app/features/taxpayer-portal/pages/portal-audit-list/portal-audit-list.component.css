@@ -1,0 +1,42 @@
+// ─── taxpayer-audit-list.component.scss ─────────────────────────────────────
+
+.mobile-card-alert {
+  border-left: 3px solid #E65100 !important;
+}
+
+.action-required-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #FFF3E0; color: #C84500; border: 1px solid #FDDCB5;
+  border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600;
+  i { font-size: 11px; }
+}
+
+.no-action { color: #D1D5DB; font-size: 13px; }
+
+.type-badge {
+  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+  text-transform: uppercase;
+  &.type-desk   { background: #E8F0FE; color: #1967D2; }
+  &.type-field  { background: #FEF7E0; color: #B45309; }
+  &.type-comp   { background: #F3E8FF; color: #6D28D9; }
+  &.type-vat    { background: #ECFDF5; color: #059669; }
+  &.type-refund { background: #FFF1F2; color: #BE123C; }
+  &.type-special{ background: #FFF7ED; color: #C2410C; }
+}
+
+.case-code {
+  font-family: 'Courier New', monospace; font-size: 12px; font-weight: 600;
+  color: #1A6FBF; background: #EBF3FF; padding: 2px 6px; border-radius: 4px;
+}
+
+.due-overdue { color: #C62828; font-weight: 600; font-size: 12px; }
+
+// Status badge extensions
+.badge-orange { background: #FFF3E0; color: #E65100; border: 1px solid #FDDCB5; }
+.badge-teal   { background: #E0F7FA; color: #00695C; border: 1px solid #B2EBF2; }
+.badge-purple { background: #F3E8FF; color: #6D28D9; border: 1px solid #DDD6FE; }
+.badge-indigo { background: #E0E7FF; color: #3730A3; border: 1px solid #C7D2FE; }
+.badge-yellow { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+.badge-pink   { background: #FCE7F3; color: #9D174D; border: 1px solid #FBCFE8; }
+.badge-lime   { background: #F7FEE7; color: #3F6212; border: 1px solid #D9F99D; }
+.badge-muted  { background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; }

@@ -1,0 +1,241 @@
+<!-- ══════════════════════════════════════════════════════════════════════════
+     assessment-review.component.html
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Propose Assessment</h4>
+    <p>Calculate and record the assessment order for this audit case.</p>
+  </div>
+  <div class="breadcrumb-nav">
+    <span routerLink="/audits" class="bc-link">Audits</span>
+    <i class="bi bi-chevron-right bc-sep"></i>
+    <span class="bc-link" [routerLink]="['/audits', caseId]">Case #{{ caseNo }}</span>
+    <i class="bi bi-chevron-right bc-sep"></i>
+    <span class="bc-current">Assessment</span>
+  </div>
+</div>
+
+<div class="page-wrapper" *ngIf="auditCase">
+
+  <!-- Case info header strip -->
+  <div class="case-info-strip">
+    <div class="cis-item">
+      <i class="bi bi-person-fill"></i>
+      <div><label>Taxpayer</label><span>{{ auditCase.taxpayerName }}</span></div>
+    </div>
+    <div class="cis-item">
+      <i class="bi bi-card-text"></i>
+      <div><label>TIN</label><span class="code-val">{{ auditCase.tinNumber }}</span></div>
+    </div>
+    <div class="cis-item">
+      <i class="bi bi-calendar3"></i>
+      <div><label>Fiscal Year</label><span>{{ auditCase.fiscalYear || '—' }}</span></div>
+    </div>
+    <div class="cis-item">
+      <i class="bi bi-receipt"></i>
+      <div><label>Tax Type</label><span>{{ auditCase.taxType }}</span></div>
+    </div>
+    <div class="cis-item">
+      <i class="bi bi-search"></i>
+      <div><label>Findings</label><span>{{ auditCase.findingCount }}</span></div>
+    </div>
+  </div>
+
+  <form [formGroup]="assessForm" (ngSubmit)="onSubmit()" novalidate>
+    <div class="row g-3">
+
+      <!-- LEFT: Income & Tax Comparison -->
+      <div class="col-lg-7">
+
+        <div class="form-section-card">
+          <div class="form-section-header">
+            <div class="fsh-icon"><i class="bi bi-bar-chart-fill"></i></div>
+            <div><h6>Income &amp; Tax Comparison</h6><p>Declared vs assessed amounts.</p></div>
+          </div>
+          <div class="form-section-body">
+            <div class="comparison-grid">
+              <div class="cg-header">
+                <span>Category</span><span>Declared (BDT)</span><span>Assessed (BDT)</span>
+              </div>
+              <div class="cg-row">
+                <label>Total Income</label>
+                <input type="number" class="form-control form-control-sm"
+                  formControlName="declaredIncome" min="0" (input)="recalculate()" />
+                <input type="number" class="form-control form-control-sm assessed-input"
+                  formControlName="assessedIncome" min="0" (input)="recalculate()" />
+              </div>
+              <div class="cg-row">
+                <label>Total Tax</label>
+                <input type="number" class="form-control form-control-sm"
+                  formControlName="declaredTax" min="0" (input)="recalculate()" />
+                <input type="number" class="form-control form-control-sm assessed-input"
+                  formControlName="assessedTax" min="0" (input)="recalculate()" />
+              </div>
+              <div class="cg-row cg-variance">
+                <label>Additional Tax</label>
+                <span></span>
+                <div class="variance-display">
+                  <input type="number" class="form-control form-control-sm text-danger fw-bold"
+                    formControlName="additionalTax" min="0" (input)="recalculate()" />
+                  <span class="auto-hint">auto-calc</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section-card">
+          <div class="form-section-header">
+            <div class="fsh-icon warning"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div><h6>Penalty</h6><p>Applicable penalty on additional tax.</p></div>
+          </div>
+          <div class="form-section-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Penalty Rate (%)</label>
+                  <input type="number" class="form-control" formControlName="penaltyRate"
+                    min="0" max="100" step="0.01" (input)="calcPenalty()" />
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="form-group">
+                  <label class="form-label">Penalty Amount (BDT)</label>
+                  <input type="number" class="form-control text-warning fw-bold"
+                    formControlName="penaltyAmount" min="0" (input)="recalculate()" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section-card">
+          <div class="form-section-header">
+            <div class="fsh-icon danger"><i class="bi bi-percent"></i></div>
+            <div><h6>Interest</h6><p>Interest on unpaid tax (monthly).</p></div>
+          </div>
+          <div class="form-section-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Monthly Rate (%)</label>
+                  <input type="number" class="form-control" formControlName="interestRate"
+                    min="0" max="5" step="0.01" (input)="calcInterest()" />
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Months</label>
+                  <input type="number" class="form-control" formControlName="interestMonths"
+                    min="0" (input)="calcInterest()" />
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Interest Amount (BDT)</label>
+                  <input type="number" class="form-control text-danger"
+                    formControlName="interestAmount" min="0" (input)="recalculate()" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section-card">
+          <div class="form-section-header">
+            <div class="fsh-icon"><i class="bi bi-file-text-fill"></i></div>
+            <div><h6>Order Details</h6><p>Findings summary, legal basis and appeal rights.</p></div>
+          </div>
+          <div class="form-section-body">
+            <div class="form-group mb-3">
+              <label class="form-label">Findings Summary</label>
+              <textarea class="form-control" rows="4" formControlName="findingsSummary"
+                placeholder="Summarize the key findings that led to this assessment..."></textarea>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">Legal Basis</label>
+              <textarea class="form-control" rows="3" formControlName="legalBasis"
+                placeholder="Applicable sections, rules, and statutory provisions..."></textarea>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">Appeal Rights</label>
+              <textarea class="form-control" rows="2" formControlName="appealRights"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Payment Deadline</label>
+              <input type="date" class="form-control" formControlName="paymentDeadline" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Live Demand Summary -->
+      <div class="col-lg-5">
+        <div class="demand-summary-card sticky-top" style="top: 80px;">
+          <div class="dsc-header">
+            <i class="bi bi-calculator-fill"></i>
+            <h6>Total Demand Calculation</h6>
+          </div>
+          <div class="dsc-body">
+            <div class="dsc-row">
+              <label>Additional Tax</label>
+              <span>{{ live.additionalTax | number:'1.2-2' }}</span>
+            </div>
+            <div class="dsc-row">
+              <label>Penalty</label>
+              <span class="text-warning">{{ live.penaltyAmount | number:'1.2-2' }}</span>
+            </div>
+            <div class="dsc-row">
+              <label>Interest</label>
+              <span class="text-danger">{{ live.interestAmount | number:'1.2-2' }}</span>
+            </div>
+            <div class="dsc-divider"></div>
+            <div class="dsc-row total">
+              <label>Total Demand (BDT)</label>
+              <span>{{ live.totalDemand | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <!-- Threshold warning -->
+          <div class="dsc-threshold-warn" *ngIf="live.totalDemand >= 500000">
+            <i class="bi bi-shield-exclamation"></i>
+            High-value assessment (&gt; 5 lakh). Supervisor approval will be required.
+          </div>
+
+          <!-- Income comparison mini chart -->
+          <div class="dsc-income-compare" *ngIf="live.assessedIncome > 0">
+            <div class="dic-bar">
+              <div class="dic-label">Declared Income</div>
+              <div class="dic-track">
+                <div class="dic-fill declared"
+                  [style.width.%]="getBarWidth(live.declaredIncome, live.assessedIncome)">
+                </div>
+              </div>
+              <div class="dic-amount">{{ live.declaredIncome | number:'1.0-0' }}</div>
+            </div>
+            <div class="dic-bar">
+              <div class="dic-label">Assessed Income</div>
+              <div class="dic-track">
+                <div class="dic-fill assessed" style="width:100%"></div>
+              </div>
+              <div class="dic-amount">{{ live.assessedIncome | number:'1.0-0' }}</div>
+            </div>
+          </div>
+
+          <div class="dsc-actions">
+            <button type="button" class="btn-cancel w-100 mb-2"
+              [routerLink]="['/audits', caseId]">Cancel</button>
+            <button type="submit" class="btn-submit w-100"
+              [disabled]="assessForm.invalid || isSubmitting">
+              <span class="spinner-border spinner-border-sm me-1" *ngIf="isSubmitting"></span>
+              <i class="bi bi-calculator-fill me-1" *ngIf="!isSubmitting"></i>
+              Propose Assessment
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>

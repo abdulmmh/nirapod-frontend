@@ -1,53 +1,112 @@
-.audit-code {
-  font-size: 12px;
-  font-weight: 700;
-  color: #1a3f8f;
-  background: #e8eef9;
-  padding: 3px 8px;
-  border-radius: 5px;
-  font-family: monospace;
-  white-space: nowrap;
+// audit-list.component.scss
+// Matches existing project design tokens — do not change class names
+
+// ── KPI Stats ─────────────────────────────────────────────────────────────────
+.audit-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 20px 16px;
+
+  .as-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #E8ECF0;
+    border-radius: 10px;
+    padding: 14px 18px;
+    min-width: 150px;
+    flex: 1;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    transition: box-shadow .2s;
+
+    &:hover { box-shadow: 0 3px 10px rgba(0,0,0,.08); }
+  }
+
+  .asc-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+
+    &.open     { background: #EBF3FF; color: #1A6FBF; }
+    &.approved { background: #E6F7EE; color: #1A7A45; }
+    &.demand   { background: #FFF3E0; color: #E65100; }
+    &.paid     { background: #E8F5E9; color: #2E7D32; }
+    &.appealed { background: #FCE4EC; color: #C62828; }
+  }
+
+  .asc-label {
+    display: block; font-size: 11px; color: #8A94A6; font-weight: 500;
+    text-transform: uppercase; letter-spacing: .4px;
+  }
+  .asc-value {
+    display: block; font-size: 22px; font-weight: 700; color: #1C2B3A;
+    line-height: 1.2;
+  }
 }
 
-/* Audit Type */
+// ── Type Badges ───────────────────────────────────────────────────────────────
 .type-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 9px;
-  border-radius: 5px;
-  white-space: nowrap;
-}
-.type-vat {
-  background: #e6f7f3;
-  color: #1faa8b;
-}
-.type-it {
-  background: #e8eef9;
-  color: #1a3f8f;
-}
-.type-full {
-  background: #fff0f0;
-  color: #e74c3c;
-}
-.type-desk {
-  background: #e8eef9;
-  color: #1a3f8f;
-}
-.type-field {
-  background: #fef3e2;
-  color: #f59e0b;
-}
-.type-special {
-  background: #e8eef9;
-  color: #1a3f8f;
+  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: .3px;
+
+  &.type-desk   { background: #E8F0FE; color: #1967D2; }
+  &.type-field  { background: #FEF7E0; color: #B45309; }
+  &.type-comp   { background: #F3E8FF; color: #6D28D9; }
+  &.type-vat    { background: #ECFDF5; color: #059669; }
+  &.type-refund { background: #FFF1F2; color: #BE123C; }
+  &.type-special{ background: #FFF7ED; color: #C2410C; }
 }
 
-.amount-cell {
-  font-weight: 700;
-  color: #1a2340;
-  white-space: nowrap;
+// ── Tax type pill ─────────────────────────────────────────────────────────────
+.tax-type-pill {
+  font-size: 11px; padding: 2px 7px; border-radius: 20px;
+  background: #F1F3F9; color: #3A4C6B; font-weight: 500;
 }
 
-.data-table {
-  min-width: 1300px;
+// ── Priority Badges ───────────────────────────────────────────────────────────
+.priority-badge {
+  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+  display: inline-flex; align-items: center;
+
+  &.pri-low      { background: #F1F3F9; color: #546E7A; }
+  &.pri-normal   { background: #E8F0FE; color: #1565C0; }
+  &.pri-high     { background: #FFF3E0; color: #E65100; }
+  &.pri-critical { background: #FEEBEE; color: #C62828; }
+}
+
+// ── Due date ──────────────────────────────────────────────────────────────────
+.due-overdue { color: #C62828; font-weight: 600; font-size: 12px; }
+.due-normal  { color: #374151; font-size: 12px; }
+
+// ── Case code ─────────────────────────────────────────────────────────────────
+.case-code {
+  font-family: 'Courier New', monospace;
+  font-size: 12px; font-weight: 600;
+  color: #1A6FBF; background: #EBF3FF;
+  padding: 2px 6px; border-radius: 4px;
+}
+
+// ── Status Badge extensions ───────────────────────────────────────────────────
+// (base .status-badge comes from global styles)
+.badge-orange  { background: #FFF3E0; color: #E65100; border: 1px solid #FDDCB5; }
+.badge-teal    { background: #E0F7FA; color: #00695C; border: 1px solid #B2EBF2; }
+.badge-purple  { background: #F3E8FF; color: #6D28D9; border: 1px solid #DDD6FE; }
+.badge-indigo  { background: #E0E7FF; color: #3730A3; border: 1px solid #C7D2FE; }
+.badge-yellow  { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+.badge-pink    { background: #FCE7F3; color: #9D174D; border: 1px solid #FBCFE8; }
+.badge-lime    { background: #F7FEE7; color: #3F6212; border: 1px solid #D9F99D; }
+.badge-muted   { background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; }
+
+// ── Audit-stats responsive ────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .audit-stats {
+    padding: 0 12px 12px;
+    .as-card { min-width: calc(50% - 6px); flex: 0 0 calc(50% - 6px); }
+  }
+}
+
+@media (max-width: 480px) {
+  .audit-stats .as-card { min-width: 100%; flex: 0 0 100%; }
 }

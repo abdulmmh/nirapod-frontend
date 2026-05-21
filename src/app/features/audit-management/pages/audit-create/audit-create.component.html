@@ -1,206 +1,287 @@
 <div class="page-header">
   <div class="page-header-left">
-    <h4>Create Audit</h4>
-    <p>Initiate a new tax audit investigation.</p>
+    <h4>{{ isEditMode ? 'Edit Audit Case' : 'New Audit Case' }}</h4>
+    <p>{{ isEditMode ? 'Update the details of this audit case.' : 'Create a new audit case for a taxpayer.' }}</p>
   </div>
-  <button class="btn-back" (click)="onCancel()">
-    <i class="bi bi-arrow-left"></i> Back to List
-  </button>
-</div>
-<div class="loading-overlay" *ngIf="isLoading">
-  <div class="spinner-border text-success"></div>
-  <p>Loading document data...</p>
+  <div class="breadcrumb-nav">
+    <span routerLink="/audits" class="bc-link">Audit Cases</span>
+    <i class="bi bi-chevron-right bc-sep"></i>
+    <span class="bc-current">{{ isEditMode ? 'Edit' : 'Create' }}</span>
+  </div>
 </div>
 
-<div class="form-card">
+<div class="page-wrapper">
+  <form [formGroup]="auditForm" (ngSubmit)="onSubmit()" novalidate>
 
-  <!-- Taxpayer Search (replaces raw tinNumber/taxpayerName inputs) -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon"><i class="bi bi-person-badge-fill"></i></div>
-      <div>
-        <h6 class="section-title">Taxpayer</h6>
-        <span class="section-sub">Search and select the taxpayer</span>
+    <!-- ── Section: Case Information ────────────────────────────────────── -->
+    <div class="form-section-card">
+      <div class="form-section-header">
+        <div class="fsh-icon"><i class="bi bi-folder-plus"></i></div>
+        <div>
+          <h6>Case Information</h6>
+          <p>Core details about the audit case being created.</p>
+        </div>
       </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group full-width">
-        <label class="form-label required">Find Taxpayer</label>
-        <div class="search-row">
-          <div class="input-wrap search-input-wrap">
-            <i class="bi bi-search input-icon"></i>
-            <input type="text" class="form-input"
-              placeholder="Enter NID, name or TIN..."
-              [(ngModel)]="searchQuery"
-              [disabled]="selectedTaxpayer !== null"
-              (keyup.enter)="searchTaxpayer()" />
-            <button *ngIf="selectedTaxpayer" class="clear-btn" (click)="clearTaxpayer()">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </div>
-          <button class="btn-search" (click)="searchTaxpayer()"
-            [disabled]="isSearching || selectedTaxpayer !== null">
-            <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
-            <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span></span>
-          </button>
-        </div>
-        <!-- Results -->
-        <div class="search-results" *ngIf="showResults && searchResults.length > 0">
-          <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
-            <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
-            <div class="result-info">
-              <span class="result-name">{{ getDisplayName(t) }}</span>
-              <span class="result-meta">
-                <span *ngIf="t.nid">NID: {{ t.nid }}</span>
-                <span *ngIf="t.phone"> · {{ t.phone }}</span>
-              </span>
-            </div>
-            <span class="result-badge">Select</span>
-          </div>
-        </div>
-        <!-- Selected -->
-        <div class="selected-card" *ngIf="selectedTaxpayer">
-          <div class="selected-card-left">
-            <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
-            <div>
-              <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
-              <p class="selected-meta">
-                <span *ngIf="selectedTaxpayer.nid">NID: {{ selectedTaxpayer.nid }}</span>
-                <span *ngIf="selectedTaxpayer.tinNumber"> · TIN: {{ selectedTaxpayer.tinNumber }}</span>
-              </p>
+      <div class="form-section-body">
+        <div class="row g-3">
+
+          <!-- Taxpayer -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label required">Taxpayer</label>
+              <div class="input-with-btn">
+                <input type="text" class="form-control" formControlName="taxpayerName"
+                  placeholder="Search and select taxpayer..."
+                  (input)="searchTaxpayer($event)" autocomplete="off" />
+                <button type="button" class="btn-input-action"
+                  (click)="openTaxpayerSearch()">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+              <!-- Taxpayer dropdown -->
+              <div class="dropdown-list" *ngIf="taxpayerResults.length > 0">
+                <div class="dropdown-item-row" *ngFor="let tp of taxpayerResults"
+                  (click)="selectTaxpayer(tp)">
+                  <div class="dli-avatar">{{ tp.name.charAt(0) }}</div>
+                  <div>
+                    <div class="dli-title">{{ tp.name }}</div>
+                    <div class="dli-sub">TIN: {{ tp.tinNumber }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-error" *ngIf="f['taxpayerId'].invalid && f['taxpayerId'].touched">
+                Taxpayer is required.
+              </div>
             </div>
           </div>
-          <div class="autofill-tag"><i class="bi bi-check-circle-fill"></i> Selected</div>
+
+          <!-- TIN (read-only after selection) -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">TIN Number</label>
+              <input type="text" class="form-control" formControlName="tinDisplay"
+                placeholder="Auto-filled from taxpayer" readonly />
+            </div>
+          </div>
+
+          <!-- Audit Type -->
+          <div class="col-md-4">
+            <div class="form-group">
+              <label class="form-label required">Audit Type</label>
+              <select class="form-select" formControlName="auditType">
+                <option value="">— Select Type —</option>
+                <option value="DESK">Desk Audit</option>
+                <option value="FIELD">Field Audit</option>
+                <option value="COMPREHENSIVE">Comprehensive Audit</option>
+                <option value="VAT">VAT Audit</option>
+                <option value="REFUND">Refund Audit</option>
+                <option value="SPECIAL">Special Investigation</option>
+              </select>
+              <div class="form-error" *ngIf="f['auditType'].invalid && f['auditType'].touched">
+                Audit type is required.
+              </div>
+            </div>
+          </div>
+
+          <!-- Tax Type -->
+          <div class="col-md-4">
+            <div class="form-group">
+              <label class="form-label required">Tax Type</label>
+              <select class="form-select" formControlName="taxType">
+                <option value="">— Select —</option>
+                <option value="INCOME_TAX">Income Tax</option>
+                <option value="VAT">VAT</option>
+                <option value="AIT">AIT</option>
+              </select>
+              <div class="form-error" *ngIf="f['taxType'].invalid && f['taxType'].touched">
+                Tax type is required.
+              </div>
+            </div>
+          </div>
+
+          <!-- Fiscal Year -->
+          <div class="col-md-4">
+            <div class="form-group">
+              <label class="form-label">Fiscal Year</label>
+              <select class="form-select" formControlName="fiscalYear">
+                <option value="">— Select Year —</option>
+                <option *ngFor="let y of fiscalYears" [value]="y">{{ y }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Tax Period Start -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Tax Period From</label>
+              <input type="date" class="form-control" formControlName="taxPeriodStart" />
+            </div>
+          </div>
+
+          <!-- Tax Period End -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Tax Period To</label>
+              <input type="date" class="form-control" formControlName="taxPeriodEnd" />
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="section-divider"></div>
-
-  <!-- Section 2: Audit Details -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon teal">
-        <i class="bi bi-shield-fill-check"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Audit Details</h6>
-        <span class="section-sub">Type, priority and schedule</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">Audit Type</label>
-        <div class="input-wrap">
-          <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.auditType">
-            <option value="">Select Type</option>
-            <option *ngFor="let t of auditTypes" [value]="t">{{ t }}</option>
-          </select>
+    <!-- ── Section: Trigger & Risk ───────────────────────────────────────── -->
+    <div class="form-section-card">
+      <div class="form-section-header">
+        <div class="fsh-icon warning"><i class="bi bi-lightning-charge-fill"></i></div>
+        <div>
+          <h6>Trigger & Risk</h6>
+          <p>Reason for initiating the audit and risk classification.</p>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label required">Priority</label>
-        <div class="input-wrap">
-          <i class="bi bi-speedometer2 input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.priority">
-            <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label required">Scheduled Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input"
-            [(ngModel)]="form.scheduledDate" />
-        </div>
-      </div>
-    </div>
-  </div>
+      <div class="form-section-body">
+        <div class="row g-3">
 
-  <div class="section-divider"></div>
+          <!-- Trigger Reason -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label required">Trigger Reason</label>
+              <select class="form-select" formControlName="triggerReason">
+                <option value="">— Select Reason —</option>
+                <option value="RISK_BASED">Risk-Based Selection</option>
+                <option value="RANDOM">Random Selection</option>
+                <option value="REFUND_CLAIM">Large Refund Claim</option>
+                <option value="MISMATCH">Significant Mismatch</option>
+                <option value="LATE_FILING">Late Filing</option>
+                <option value="COMPLAINT">Anonymous Complaint</option>
+                <option value="DIRECTIVE">Supervisor Directive</option>
+                <option value="CAMPAIGN">Industry Campaign</option>
+              </select>
+              <div class="form-error" *ngIf="f['triggerReason'].invalid && f['triggerReason'].touched">
+                Trigger reason is required.
+              </div>
+            </div>
+          </div>
 
-  <!-- Section 3: Assignment -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon orange">
-        <i class="bi bi-person-gear"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Assignment</h6>
-        <span class="section-sub">Assign auditor and supervisor</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label required">Assigned To</label>
-        <div class="input-wrap">
-          <i class="bi bi-person-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.assignedTo">
-            <option value="">Select Auditor</option>
-            <option *ngFor="let a of auditors" [value]="a">{{ a }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Supervised By</label>
-        <div class="input-wrap">
-          <i class="bi bi-person-check input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.supervisedBy">
-            <option value="">Select Supervisor</option>
-            <option *ngFor="let s of supervisors" [value]="s">{{ s }}</option>
-          </select>
+          <!-- Priority -->
+          <div class="col-md-3">
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select class="form-select" formControlName="priority">
+                <option value="LOW">Low</option>
+                <option value="NORMAL">Normal</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Risk Score -->
+          <div class="col-md-3">
+            <div class="form-group">
+              <label class="form-label">Risk Score <span class="label-hint">(0–100)</span></label>
+              <input type="number" class="form-control" formControlName="riskScore"
+                min="0" max="100" placeholder="0" />
+              <div class="risk-bar" *ngIf="auditForm.get('riskScore')?.value">
+                <div class="risk-fill"
+                  [style.width.%]="auditForm.get('riskScore')?.value"
+                  [ngClass]="getRiskClass(auditForm.get('riskScore')?.value)">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Return Reference -->
+          <div class="col-md-12">
+            <div class="form-group">
+              <label class="form-label">Return Reference</label>
+              <input type="text" class="form-control" formControlName="returnReference"
+                placeholder="e.g. ITR-2024-001234 or VAT-202406-..." />
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="section-divider"></div>
+    <!-- ── Section: Assignment & Schedule ───────────────────────────────── -->
+    <div class="form-section-card">
+      <div class="form-section-header">
+        <div class="fsh-icon success"><i class="bi bi-person-check-fill"></i></div>
+        <div>
+          <h6>Assignment &amp; Schedule</h6>
+          <p>Assign an audit officer and set key dates.</p>
+        </div>
+      </div>
+      <div class="form-section-body">
+        <div class="row g-3">
 
-  <!-- Section 4: Remarks -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon purple">
-        <i class="bi bi-chat-text-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Remarks</h6>
-        <span class="section-sub">Optional notes or observations</span>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group full-width">
-        <label class="form-label">Remarks / Notes</label>
-        <div class="input-wrap">
-          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Enter any additional remarks..."
-            [(ngModel)]="form.remarks" rows="3"></textarea>
+          <!-- Assigned Officer -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Assigned Officer</label>
+              <div class="input-with-btn">
+                <input type="text" class="form-control"
+                  formControlName="assignedOfficerName"
+                  placeholder="Search officer by name..." />
+              </div>
+            </div>
+          </div>
+
+          <!-- Supervisor -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Supervisor</label>
+              <input type="text" class="form-control"
+                formControlName="supervisorName"
+                placeholder="Supervisor name" />
+            </div>
+          </div>
+
+          <!-- Scheduled Date -->
+          <div class="col-md-4">
+            <div class="form-group">
+              <label class="form-label">Scheduled Date</label>
+              <input type="date" class="form-control" formControlName="scheduledDate" />
+            </div>
+          </div>
+
+          <!-- Due Date -->
+          <div class="col-md-4">
+            <div class="form-group">
+              <label class="form-label">Case Due Date</label>
+              <input type="date" class="form-control" formControlName="dueDate" />
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Form Actions -->
-  <div class="form-actions">
-    <button class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
-      <i class="bi bi-x-lg"></i> Cancel
-    </button>
-    <button class="btn-reset" (click)="onReset()" [disabled]="isLoading">
-      <i class="bi bi-arrow-counterclockwise"></i> Reset
-    </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="isLoading || !isFormValid()">
-      <span *ngIf="!isLoading">
-        <i class="bi bi-shield-fill-check"></i> Create Audit
-      </span>
-      <span *ngIf="isLoading">
-        <span class="spinner-border spinner-border-sm me-2"></span>
-        Creating...
-      </span>
-    </button>
-  </div>
+    <!-- ── Section: Remarks ──────────────────────────────────────────────── -->
+    <div class="form-section-card">
+      <div class="form-section-header">
+        <div class="fsh-icon"><i class="bi bi-chat-text"></i></div>
+        <div><h6>Remarks</h6><p>Additional notes or internal comments.</p></div>
+      </div>
+      <div class="form-section-body">
+        <div class="form-group">
+          <label class="form-label">Remarks</label>
+          <textarea class="form-control" rows="3" formControlName="remarks"
+            placeholder="Internal notes, context, or special instructions..."></textarea>
+        </div>
+      </div>
+    </div>
 
+    <!-- ── Submit Bar ────────────────────────────────────────────────────── -->
+    <div class="form-submit-bar">
+      <button type="button" class="btn-cancel" routerLink="/audits">Cancel</button>
+      <button type="submit" class="btn-submit" [disabled]="auditForm.invalid || isSubmitting">
+        <span class="spinner-border spinner-border-sm me-1" *ngIf="isSubmitting"></span>
+        <i class="bi bi-check-lg me-1" *ngIf="!isSubmitting"></i>
+        {{ isEditMode ? 'Update Case' : 'Create Case' }}
+      </button>
+    </div>
+
+  </form>
 </div>

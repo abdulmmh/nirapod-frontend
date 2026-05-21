@@ -33,6 +33,8 @@ import { ResetPasswordComponent } from './features/auth/pages/reset-password/res
 import { VerifyEmailComponent } from './features/auth/pages/verify-email/verify-email.component';
 import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
 import { VerifyOtpComponent } from './features/auth/pages/verify-otp/verify-otp.component';
+import { PortalAuditDetailComponent } from './features/taxpayer-portal/pages/portal-audit-detail/portal-audit-detail.component';
+import { PortalAuditListComponent } from './features/taxpayer-portal/pages/portal-audit-list/portal-audit-list.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +61,8 @@ import { VerifyOtpComponent } from './features/auth/pages/verify-otp/verify-otp.
     VerifyEmailComponent,
     ForgotPasswordComponent,
     VerifyOtpComponent,
+    PortalAuditDetailComponent,
+    PortalAuditListComponent,
 
 
   ],

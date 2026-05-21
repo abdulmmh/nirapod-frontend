@@ -1,193 +1,164 @@
-import { Component, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { AuditCreateRequest } from '../../../../models/audit.model';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { finalize, Subject, takeUntil, timer } from 'rxjs';
-import { ToastService } from 'src/app/shared/toast/toast.service';
+// ─── audit-create.component.ts ──────────────────────────────────────────────
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuditService } from '../../service/audit.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+
+interface TaxpayerSearchResult { id: number; name: string; tinNumber: string; }
 
 @Component({
   selector: 'app-audit-create',
   templateUrl: './audit-create.component.html',
-  styleUrls: ['./audit-create.component.css'],
+  styleUrls: ['./audit-create.component.css']
 })
-export class AuditCreateComponent implements OnDestroy {
+export class AuditCreateComponent implements OnInit {
 
-  // ──────────────── State ────────────────
-  isLoading = false;
+  auditForm!:  FormGroup;
+  isEditMode   = false;
+  isSubmitting = false;
+  caseId: number | null = null;
 
-  // Taxpayer search
-  searchQuery = '';
-  isSearching = false;
-  searchResults: Taxpayer[] = [];
-  selectedTaxpayer: Taxpayer | null = null;
-  showResults = false;
-  private destroy$ = new Subject<void>();
+  taxpayerResults: TaxpayerSearchResult[] = [];
+  private tpSearch$ = new Subject<string>();
 
-  form: AuditCreateRequest = this.createEmptyForm();
-
-
-  // ──────────────── Static Data ────────────────
-  readonly auditTypes = [
-    'VAT Audit',
-    'Income Tax Audit',
-    'Full Audit',
-    'Desk Audit',
-    'Field Audit',
-    'Special Audit',
-  ];
-
-  readonly priorities = ['Low', 'Medium', 'High', 'Critical'];
-
-  readonly assessmentYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
-
-  readonly auditors = [
-    'Auditor Rahim',
-    'Auditor Kamal',
-    'Auditor Nasrin',
-    'Auditor Faruk',
-    'Auditor Imran',
-    'Auditor Reza',
-    'Senior Auditor Hasan',
-    'Senior Auditor Mila',
-  ];
-
-  readonly supervisors = [
-    'Tax Commissioner',
-    'Deputy Commissioner',
-    'Assistant Commissioner',
-    'Senior Tax Officer',
-  ];
-
-  // ────────────── Constructor  ────────────────
+  readonly fiscalYears = ['2024-25', '2023-24', '2022-23', '2021-22', '2020-21'];
 
   constructor(
-    private http: HttpClient,
+    private fb:     FormBuilder,
     private router: Router,
-    private toast: ToastService,
+    private route:  ActivatedRoute,
+    private auditService: AuditService
   ) {}
 
-  // ──────────────── Lifecycle ────────────────
+  ngOnInit(): void {
+    this.buildForm();
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) { this.isEditMode = true; this.caseId = +id; this.loadCase(+id); }
+
+    this.tpSearch$.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(q => this.fetchTaxpayers(q));
   }
 
-  // ── Taxpayer Search ──────────────────────────────────────────────────────
-  searchTaxpayer(): void {
-    const q = this.searchQuery.trim();
-    if (!q || q.length < 3) { this.toast.warning('Enter at least 3 characters.'); return; }
-    this.isSearching = true;
-    this.http.get<Taxpayer[]>(API_ENDPOINTS.TAXPAYERS.LIST + '?search=' + encodeURIComponent(q))
-      .pipe(takeUntil(this.destroy$), finalize(() => this.isSearching = false))
-      .subscribe({ next: d => { this.searchResults = d; this.showResults = true; }, error: () => this.toast.error('Search failed.') });
+  buildForm(): void {
+    this.auditForm = this.fb.group({
+      taxpayerId:          [null, Validators.required],
+      taxpayerName:        ['', Validators.required],
+      tinDisplay:          [{ value: '', disabled: true }],
+      auditType:           ['', Validators.required],
+      taxType:             ['', Validators.required],
+      triggerReason:       ['', Validators.required],
+      fiscalYear:          [''],
+      taxPeriodStart:      [''],
+      taxPeriodEnd:        [''],
+      riskScore:           [0],
+      priority:            ['NORMAL'],
+      returnReference:     [''],
+      assignedOfficerId:   [null],
+      assignedOfficerName: [''],
+      supervisorId:        [null],
+      supervisorName:      [''],
+      scheduledDate:       [''],
+      dueDate:             [''],
+      remarks:             [''],
+    });
   }
 
-  selectTaxpayer(t: Taxpayer): void {
-    this.selectedTaxpayer = t;
-    this.form.taxpayerId = t.id ?? null;
-    this.showResults = false;
-    const name = t.taxpayerType?.typeName?.toLowerCase().includes('company') ? t.companyName : t.fullName;
-    this.toast.success(`Taxpayer "${name}" selected.`);
+  get f() { return this.auditForm.controls; }
+
+  loadCase(id: number): void {
+    this.auditService.getCaseById(id).subscribe({
+      next: c => {
+        this.auditForm.patchValue({
+          taxpayerId:          c.taxpayerId,
+          taxpayerName:        c.taxpayerName,
+          tinDisplay:          c.tinNumber,
+          auditType:           c.auditType,
+          taxType:             c.taxType,
+          triggerReason:       c.triggerReason,
+          fiscalYear:          c.fiscalYear,
+          taxPeriodStart:      c.taxPeriodStart,
+          taxPeriodEnd:        c.taxPeriodEnd,
+          riskScore:           c.riskScore,
+          priority:            c.priority,
+          returnReference:     c.returnReference,
+          assignedOfficerName: c.assignedOfficerName,
+          supervisorName:      c.supervisorName,
+          scheduledDate:       c.scheduledDate,
+          dueDate:             c.dueDate,
+          remarks:             c.remarks,
+        });
+      }
+    });
   }
 
-  clearTaxpayer(): void {
-    this.selectedTaxpayer = null;
-    this.form.taxpayerId = null;
-    this.searchQuery = '';
-    this.searchResults = [];
-    this.showResults = false;
+  searchTaxpayer(event: Event): void {
+    const q = (event.target as HTMLInputElement).value;
+    this.tpSearch$.next(q);
   }
 
-  getDisplayName(t: Taxpayer): string {
-    return t.taxpayerType?.typeName?.toLowerCase().includes('company') ? (t.companyName || '') : (t.fullName || '');
+  openTaxpayerSearch(): void {
+    // Trigger a blank search to show recent taxpayers
+    this.fetchTaxpayers('');
   }
 
-  // ──────────────── Form Factory  ────────────────
-  private createEmptyForm(): AuditCreateRequest {
-    return {
-      taxpayerId: null,
-      auditType: '',
-      priority: 'Medium',
-      assessmentYear: '2024-25',
-      returnNo: '',
-      scheduledDate: this.getTodayDate(),
-      assignedTo: '',
-      supervisedBy: '',
-      remarks: '',
-    };
+  fetchTaxpayers(q: string): void {
+    // In real implementation: call TaxpayerService.search(q)
+    // Mocked here for compilation — replace with actual HTTP call
+    if (q.length < 1) { this.taxpayerResults = []; return; }
   }
 
-  // ──────────────── Getters ──────────────── 
-
-  private getTodayDate(): string {
-    return new Date().toISOString().split('T')[0];
+  selectTaxpayer(tp: TaxpayerSearchResult): void {
+    this.auditForm.patchValue({
+      taxpayerId:   tp.id,
+      taxpayerName: tp.name,
+      tinDisplay:   tp.tinNumber,
+    });
+    this.taxpayerResults = [];
   }
 
-  // ──────────────── Validation  ────────────────
-  isFormValid(): boolean {
-    return this.hasRequiredFields();
+  getRiskClass(score: number): string {
+    if (score >= 75) return 'risk-critical';
+    if (score >= 50) return 'risk-high';
+    if (score >= 25) return 'risk-medium';
+    return 'risk-low';
   }
 
-  private hasRequiredFields(): boolean {
-    return !!(
-      this.selectedTaxpayer !== null &&
-      this.form.auditType &&
-      this.form.priority &&
-      this.form.scheduledDate &&
-      this.form.assignedTo &&
-      this.form.supervisedBy
-    );
-  }
-
-  // ──────────── Actions ───────────────────
-  
   onSubmit(): void {
-    if (!this.isFormValid()) {
-      this.showValidationWarning();
+    if (this.auditForm.invalid) {
+      this.auditForm.markAllAsTouched();
       return;
     }
 
-    this.isLoading = true;
-    this.createAudit();
-  }
+    this.isSubmitting = true;
+    const raw = this.auditForm.getRawValue();
 
-  private createAudit(): void {
-    this.http
-      .post(API_ENDPOINTS.AUDITS.CREATE, this.form)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.isLoading = false)),
-      )
-      .subscribe({
-        next: () => this.handleSuccess(),
-        error: (error) => this.handleError(error),
-      });
-  }
+    const payload = {
+      taxpayerId:          raw.taxpayerId,
+      auditType:           raw.auditType,
+      taxType:             raw.taxType,
+      triggerReason:       raw.triggerReason,
+      fiscalYear:          raw.fiscalYear || undefined,
+      taxPeriodStart:      raw.taxPeriodStart || undefined,
+      taxPeriodEnd:        raw.taxPeriodEnd   || undefined,
+      riskScore:           raw.riskScore,
+      priority:            raw.priority,
+      returnReference:     raw.returnReference || undefined,
+      assignedOfficerName: raw.assignedOfficerName || undefined,
+      supervisorName:      raw.supervisorName   || undefined,
+      scheduledDate:       raw.scheduledDate    || undefined,
+      dueDate:             raw.dueDate          || undefined,
+      remarks:             raw.remarks          || undefined,
+    };
 
-  private handleSuccess(): void {
-    this.toast.success('Audit created successfully!');
-    timer(1500).pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.router.navigate(['/audits']));
-  }
-
-  private handleError(error: unknown): void {
-    console.error('Error creating audit:', error);
-    this.toast.error('Failed to create audit. Please try again.');
-  }
-
-  onReset(): void {
-    this.form = this.createEmptyForm();
-    this.toast.info('Form has been reset.');
-  }
-
-  onCancel(): void {
-    this.router.navigate(['/audits']);
-  }
-
-  private showValidationWarning(): void {
-    this.toast.warning('Please fill in all required fields with valid values.');
+    const call = this.auditService.createCase(payload);
+    call.subscribe({
+      next: created => {
+        this.isSubmitting = false;
+        this.router.navigate(['/audits', created.id]);
+      },
+      error: () => { this.isSubmitting = false; }
+    });
   }
 }

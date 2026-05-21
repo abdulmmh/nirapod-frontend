@@ -1,172 +1,644 @@
-<div class="page-header">
+<div class="page-header" *ngIf="auditCase">
   <div class="page-header-left">
-    <h4>Audit Details</h4>
-    <p>Full audit investigation information.</p>
+    <div class="detail-case-badge">{{ auditCase.caseNo }}</div>
+    <h4>{{ auditCase.taxpayerName }}</h4>
+    <div class="detail-header-meta">
+      <span class="meta-chip"><i class="bi bi-card-text"></i> TIN: {{ auditCase.tinNumber }}</span>
+      <span class="meta-chip"><i class="bi bi-journal-bookmark"></i> {{ getTypeLabel(auditCase.auditType) }}</span>
+      <span class="meta-chip"><i class="bi bi-calendar3"></i> {{ auditCase.fiscalYear || '—' }}</span>
+      <span class="status-badge" [ngClass]="getStatusClass(auditCase.status)">
+        {{ getStatusLabel(auditCase.status) }}
+      </span>
+    </div>
   </div>
-  <div class="header-actions">
-    <button class="btn-back" (click)="onBack()">
+  <div class="detail-header-actions">
+    <button class="btn-secondary-outline" routerLink="/audits">
       <i class="bi bi-arrow-left"></i> Back
     </button>
-    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
-      <i class="bi bi-pencil-fill"></i> Edit
-    </button>
+    <!-- Officer context actions -->
+    <div class="dropdown">
+      <button class="btn-action-menu" data-bs-toggle="dropdown">
+        Actions <i class="bi bi-chevron-down ms-1"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li *ngIf="auditCase.status === 'CASE_CREATED'">
+          <a class="dropdown-item" (click)="issueNotice()">
+            <i class="bi bi-bell-fill text-warning"></i> Issue Notice
+          </a>
+        </li>
+        <li *ngIf="canRequestDocuments()">
+          <a class="dropdown-item" (click)="openDocRequestModal()">
+            <i class="bi bi-folder2-open text-primary"></i> Request Documents
+          </a>
+        </li>
+        <li *ngIf="canRaiseQuery()">
+          <a class="dropdown-item" (click)="openQueryModal()">
+            <i class="bi bi-chat-dots-fill text-info"></i> Raise Query
+          </a>
+        </li>
+        <li *ngIf="canAddFinding()">
+          <a class="dropdown-item" (click)="openFindingModal()">
+            <i class="bi bi-search text-purple"></i> Add Finding
+          </a>
+        </li>
+        <li *ngIf="canProposeAssessment()">
+          <a class="dropdown-item" (click)="goToAssessment()">
+            <i class="bi bi-calculator-fill text-success"></i> Propose Assessment
+          </a>
+        </li>
+        <li *ngIf="canApproveAssessment()">
+          <a class="dropdown-item" (click)="openApprovalModal()">
+            <i class="bi bi-shield-check text-success"></i> Approve Assessment
+          </a>
+        </li>
+        <li *ngIf="auditCase.status === 'ASSESSMENT_APPROVED'">
+          <a class="dropdown-item" (click)="issueDemand()">
+            <i class="bi bi-receipt-cutoff text-danger"></i> Issue Demand Notice
+          </a>
+        </li>
+        <li><hr class="dropdown-divider" /></li>
+        <li>
+          <a class="dropdown-item" [routerLink]="['/audits', auditCase.id, 'edit']">
+            <i class="bi bi-pencil-fill"></i> Edit Case
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
 
-<div class="loading-overlay" *ngIf="isLoading">
-  <div class="spinner-border text-primary"></div>
+<!-- Loading -->
+<div class="loading-row" *ngIf="isLoading">
+  <div class="spinner-border spinner-border-sm text-primary"></div>
+  <span>Loading audit case...</span>
 </div>
 
-<ng-container *ngIf="!isLoading && audit">
+<div class="page-wrapper" *ngIf="!isLoading && auditCase">
 
-  <!-- Audit Header Card -->
-  <div class="view-header-card">
-    <div class="audit-header-left">
-      <div class="audit-icon">
-        <i class="bi bi-shield-fill-check"></i>
-      </div>
+  <!-- ── Summary KPI Row ──────────────────────────────────────────────────── -->
+  <div class="detail-kpi-row">
+    <div class="dkpi-card">
+      <i class="bi bi-chat-dots-fill dkpi-icon info"></i>
       <div>
-        <div class="audit-no">{{ audit.auditNo }}</div>
-        <div class="audit-meta">
-          <span class="type-label">{{ audit.auditType }}</span>
-          <span class="pri-badge" [ngClass]="getPriorityClass(audit.priority)">
-            {{ audit.priority }}
-          </span>
-          <span class="audit-date">
-            <i class="bi bi-calendar3"></i> {{ audit.scheduledDate }}
-          </span>
-        </div>
+        <div class="dkpi-val">{{ auditCase.openQueryCount }}/{{ auditCase.queryCount }}</div>
+        <div class="dkpi-label">Open Queries</div>
       </div>
     </div>
-    <div class="audit-header-right">
-      <span class="status-badge" [ngClass]="getStatusClass(audit.status)">
-        {{ audit.status }}
-      </span>
-      <div class="audit-year">{{ audit.assessmentYear }}</div>
-    </div>
-  </div>
-
-  <!-- Financial Summary -->
-  <div class="fin-summary-row" *ngIf="audit.taxDemand > 0 || audit.penaltyRecommended > 0">
-    <div class="fin-card">
-      <div class="fin-icon demand"><i class="bi bi-cash-stack"></i></div>
-      <div class="fin-body">
-        <span class="fin-label">Tax Demand</span>
-        <span class="fin-value demand">{{ fmt(audit.taxDemand) }}</span>
+    <div class="dkpi-card">
+      <i class="bi bi-folder2-open dkpi-icon warning"></i>
+      <div>
+        <div class="dkpi-val">{{ auditCase.documentRequestCount }}</div>
+        <div class="dkpi-label">Doc Requests</div>
       </div>
     </div>
-    <div class="fin-card">
-      <div class="fin-icon penalty"><i class="bi bi-exclamation-triangle-fill"></i></div>
-      <div class="fin-body">
-        <span class="fin-label">Penalty Recommended</span>
-        <span class="fin-value penalty">{{ fmt(audit.penaltyRecommended) }}</span>
+    <div class="dkpi-card">
+      <i class="bi bi-search dkpi-icon purple"></i>
+      <div>
+        <div class="dkpi-val">{{ auditCase.findingCount }}</div>
+        <div class="dkpi-label">Findings</div>
+      </div>
+    </div>
+    <div class="dkpi-card">
+      <i class="bi bi-calculator-fill dkpi-icon success"></i>
+      <div>
+        <div class="dkpi-val">{{ auditCase.hasAssessment ? 'Yes' : 'No' }}</div>
+        <div class="dkpi-label">Assessment</div>
+      </div>
+    </div>
+    <div class="dkpi-card">
+      <i class="bi bi-receipt-cutoff dkpi-icon danger"></i>
+      <div>
+        <div class="dkpi-val">{{ auditCase.hasDemandNotice ? 'Issued' : 'Pending' }}</div>
+        <div class="dkpi-label">Demand Notice</div>
       </div>
     </div>
   </div>
 
-  <!-- Details Grid -->
-  <div class="details-grid">
+  <!-- ── Tabs ─────────────────────────────────────────────────────────────── -->
+  <div class="detail-tabs-wrapper">
+    <div class="detail-tabs">
+      <button class="dtab" [class.active]="activeTab === 'overview'"
+        (click)="setTab('overview')"><i class="bi bi-grid-1x2-fill"></i> Overview</button>
+      <button class="dtab" [class.active]="activeTab === 'queries'"
+        (click)="setTab('queries'); loadQueries()">
+        <i class="bi bi-chat-dots-fill"></i> Queries
+        <span class="tab-count" *ngIf="auditCase.openQueryCount > 0">{{ auditCase.openQueryCount }}</span>
+      </button>
+      <button class="dtab" [class.active]="activeTab === 'documents'"
+        (click)="setTab('documents'); loadDocRequests()">
+        <i class="bi bi-folder2-open"></i> Documents
+      </button>
+      <button class="dtab" [class.active]="activeTab === 'findings'"
+        (click)="setTab('findings'); loadFindings()">
+        <i class="bi bi-search"></i> Findings
+        <span class="tab-count warn" *ngIf="auditCase.findingCount > 0">{{ auditCase.findingCount }}</span>
+      </button>
+      <button class="dtab" [class.active]="activeTab === 'assessment'"
+        (click)="setTab('assessment'); loadAssessment()">
+        <i class="bi bi-calculator-fill"></i> Assessment
+      </button>
+      <button class="dtab" [class.active]="activeTab === 'demand'"
+        (click)="setTab('demand'); loadDemand()" *ngIf="auditCase.hasDemandNotice">
+        <i class="bi bi-receipt-cutoff"></i> Demand Notice
+      </button>
+      <button class="dtab" [class.active]="activeTab === 'timeline'"
+        (click)="setTab('timeline')"><i class="bi bi-clock-history"></i> Timeline</button>
+    </div>
 
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-person-badge-fill"></i>
-        <span>Taxpayer Information</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">TIN Number</span>
-          <span class="detail-value"><span class="code-badge">{{ audit.tinNumber }}</span></span>
+    <!-- ═══ TAB: Overview ═══════════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'overview'">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="info-card">
+            <div class="ic-header"><i class="bi bi-person-fill"></i> Taxpayer</div>
+            <div class="ic-body">
+              <div class="ic-row"><label>Name</label><span>{{ auditCase.taxpayerName }}</span></div>
+              <div class="ic-row"><label>TIN</label><span class="code-val">{{ auditCase.tinNumber }}</span></div>
+              <div class="ic-row"><label>Tax Type</label>
+                <span>{{ getTaxTypeLabel(auditCase.taxType) }}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Taxpayer Name</span>
-          <span class="detail-value fw-bold">{{ audit.taxpayerName }}</span>
+        <div class="col-md-6">
+          <div class="info-card">
+            <div class="ic-header"><i class="bi bi-folder-fill"></i> Case Details</div>
+            <div class="ic-body">
+              <div class="ic-row"><label>Case No</label><span class="code-val">{{ auditCase.caseNo }}</span></div>
+              <div class="ic-row"><label>Audit Type</label><span>{{ getTypeLabel(auditCase.auditType) }}</span></div>
+              <div class="ic-row"><label>Fiscal Year</label><span>{{ auditCase.fiscalYear || '—' }}</span></div>
+              <div class="ic-row"><label>Period</label>
+                <span>{{ auditCase.taxPeriodStart || '—' }} → {{ auditCase.taxPeriodEnd || '—' }}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Assessment Year</span>
-          <span class="detail-value">{{ audit.assessmentYear }}</span>
+        <div class="col-md-6">
+          <div class="info-card">
+            <div class="ic-header"><i class="bi bi-lightning-charge-fill"></i> Trigger &amp; Risk</div>
+            <div class="ic-body">
+              <div class="ic-row"><label>Trigger</label><span>{{ getTriggerLabel(auditCase.triggerReason) }}</span></div>
+              <div class="ic-row"><label>Priority</label>
+                <span class="priority-badge" [ngClass]="getPriorityClass(auditCase.priority)">
+                  {{ auditCase.priority }}
+                </span>
+              </div>
+              <div class="ic-row"><label>Risk Score</label>
+                <div class="risk-display">
+                  <span class="risk-num" [ngClass]="getRiskNumClass(auditCase.riskScore)">
+                    {{ auditCase.riskScore }}
+                  </span>
+                  <div class="risk-bar-sm">
+                    <div class="risk-fill-sm" [style.width.%]="auditCase.riskScore"
+                      [ngClass]="getRiskFillClass(auditCase.riskScore)"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="ic-row" *ngIf="auditCase.returnReference">
+                <label>Return Ref</label><span class="code-val">{{ auditCase.returnReference }}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="detail-row" *ngIf="audit.returnNo">
-          <span class="detail-label">Return No.</span>
-          <span class="detail-value"><span class="code-badge">{{ audit.returnNo }}</span></span>
+        <div class="col-md-6">
+          <div class="info-card">
+            <div class="ic-header"><i class="bi bi-person-check-fill"></i> Assignment</div>
+            <div class="ic-body">
+              <div class="ic-row"><label>Officer</label>
+                <span>{{ auditCase.assignedOfficerName || '—' }}</span>
+              </div>
+              <div class="ic-row"><label>Supervisor</label>
+                <span>{{ auditCase.supervisorName || '—' }}</span>
+              </div>
+              <div class="ic-row"><label>Scheduled</label><span>{{ auditCase.scheduledDate || '—' }}</span></div>
+              <div class="ic-row"><label>Due Date</label>
+                <span [class]="isDue(auditCase.dueDate) ? 'due-overdue' : ''">
+                  {{ auditCase.dueDate || '—' }}
+                </span>
+              </div>
+              <div class="ic-row"><label>Created By</label><span>{{ auditCase.createdBy }}</span></div>
+              <div class="ic-row"><label>Created At</label><span>{{ auditCase.createdAt | date:'dd MMM yyyy, HH:mm' }}</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12" *ngIf="auditCase.remarks">
+          <div class="info-card">
+            <div class="ic-header"><i class="bi bi-chat-text"></i> Remarks</div>
+            <div class="ic-body">
+              <p class="remarks-text">{{ auditCase.remarks }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-shield-fill-check"></i>
-        <span>Audit Information</span>
+    <!-- ═══ TAB: Queries ════════════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'queries'">
+      <div class="tab-action-bar">
+        <h6>Audit Queries</h6>
+        <button class="btn-add-sm" *ngIf="canRaiseQuery()" (click)="openQueryModal()">
+          <i class="bi bi-plus-lg"></i> Raise Query
+        </button>
       </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Audit Type</span>
-          <span class="detail-value fw-bold">{{ audit.auditType }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Priority</span>
-          <span class="detail-value">
-            <span class="pri-badge" [ngClass]="getPriorityClass(audit.priority)">
-              {{ audit.priority }}
+      <div class="loading-row" *ngIf="queriesLoading">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+      </div>
+      <div class="query-list" *ngIf="!queriesLoading">
+        <div class="query-card" *ngFor="let q of queries">
+          <div class="qc-header">
+            <span class="code-val">{{ q.queryNo }}</span>
+            <span class="qc-type">{{ q.queryType }}</span>
+            <span class="status-badge" [ngClass]="q.status === 'OPEN' ? 'badge-warning' : 'badge-success'">
+              {{ q.status }}
             </span>
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Scheduled Date</span>
-          <span class="detail-value">{{ audit.scheduledDate }}</span>
-        </div>
-        <div class="detail-row" *ngIf="audit.startDate">
-          <span class="detail-label">Start Date</span>
-          <span class="detail-value">{{ audit.startDate }}</span>
-        </div>
-        <div class="detail-row" *ngIf="audit.completionDate">
-          <span class="detail-label">Completion Date</span>
-          <span class="detail-value">{{ audit.completionDate }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="detail-card-header">
-        <i class="bi bi-person-gear"></i>
-        <span>Assignment</span>
-      </div>
-      <div class="detail-body">
-        <div class="detail-row">
-          <span class="detail-label">Assigned To</span>
-          <span class="detail-value fw-bold">{{ audit.assignedTo }}</span>
-        </div>
-        <div class="detail-row" *ngIf="audit.supervisedBy">
-          <span class="detail-label">Supervised By</span>
-          <span class="detail-value">{{ audit.supervisedBy }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Status</span>
-          <span class="detail-value">
-            <span class="status-badge" [ngClass]="getStatusClass(audit.status)">
-              {{ audit.status }}
+          </div>
+          <div class="qc-subject">{{ q.subject }}</div>
+          <div class="qc-text">{{ q.queryText }}</div>
+          <div class="qc-meta">
+            <span><i class="bi bi-person-fill"></i> {{ q.raisedBy }}</span>
+            <span><i class="bi bi-clock"></i> {{ q.raisedAt | date:'dd MMM yyyy' }}</span>
+            <span *ngIf="q.deadline" [class]="isDue(q.deadline) ? 'due-overdue' : ''">
+              <i class="bi bi-alarm"></i> Due: {{ q.deadline | date:'dd MMM yyyy' }}
             </span>
-          </span>
+          </div>
+          <div class="qc-response" *ngIf="q.responseText">
+            <div class="qcr-label"><i class="bi bi-reply-fill"></i> Response</div>
+            <div class="qcr-text">{{ q.responseText }}</div>
+            <div class="qcr-meta">{{ q.respondedBy }} · {{ q.respondedAt | date:'dd MMM yyyy' }}</div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="queries.length === 0">
+          <i class="bi bi-chat-dots"></i><p>No queries raised yet.</p>
         </div>
       </div>
     </div>
 
-    <div class="detail-card" *ngIf="audit.auditFindings || audit.remarks">
-      <div class="detail-card-header">
-        <i class="bi bi-file-text-fill"></i>
-        <span>Findings & Remarks</span>
+    <!-- ═══ TAB: Documents ══════════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'documents'">
+      <div class="tab-action-bar">
+        <h6>Document Requests</h6>
+        <button class="btn-add-sm" *ngIf="canRequestDocuments()" (click)="openDocRequestModal()">
+          <i class="bi bi-plus-lg"></i> Request Documents
+        </button>
       </div>
-      <div class="detail-body">
-        <div class="detail-row" *ngIf="audit.auditFindings">
-          <span class="detail-label">Findings</span>
-          <span class="detail-value findings">{{ audit.auditFindings }}</span>
+      <div class="loading-row" *ngIf="docsLoading">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+      </div>
+      <div class="doc-request-list" *ngIf="!docsLoading">
+        <div class="doc-request-card" *ngFor="let dr of docRequests">
+          <div class="drc-header">
+            <span class="code-val">{{ dr.requestNo }}</span>
+            <span class="doc-type-pill">{{ dr.requestType }}</span>
+            <span class="status-badge" [ngClass]="getDocStatusClass(dr.status)">{{ dr.status }}</span>
+          </div>
+          <div class="drc-docs"><i class="bi bi-files"></i> {{ dr.requestedDocuments }}</div>
+          <div class="drc-reason" *ngIf="dr.requestReason">{{ dr.requestReason }}</div>
+          <div class="drc-meta">
+            <span><i class="bi bi-person-fill"></i> {{ dr.requestedBy }}</span>
+            <span><i class="bi bi-clock"></i> {{ dr.requestedAt | date:'dd MMM yyyy' }}</span>
+            <span *ngIf="dr.deadline" [class]="isDue(dr.deadline) ? 'due-overdue' : ''">
+              Due: {{ dr.deadline | date:'dd MMM yyyy' }}
+            </span>
+          </div>
+          <div class="drc-fulfillment" *ngIf="dr.fulfillmentNotes">
+            <i class="bi bi-check-circle-fill text-success"></i> {{ dr.fulfillmentNotes }}
+          </div>
         </div>
-        <div class="detail-row" *ngIf="audit.remarks">
-          <span class="detail-label">Remarks</span>
-          <span class="detail-value findings">{{ audit.remarks }}</span>
+        <div class="empty-state" *ngIf="docRequests.length === 0">
+          <i class="bi bi-folder2-open"></i><p>No document requests yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: Findings ═══════════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'findings'">
+      <div class="tab-action-bar">
+        <h6>Audit Findings</h6>
+        <button class="btn-add-sm" *ngIf="canAddFinding()" (click)="openFindingModal()">
+          <i class="bi bi-plus-lg"></i> Add Finding
+        </button>
+      </div>
+      <div class="loading-row" *ngIf="findingsLoading">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+      </div>
+      <!-- Findings summary totals -->
+      <div class="findings-total-bar" *ngIf="findings.length > 0">
+        <div class="ftb-item">
+          <label>Total Additional Tax</label>
+          <span class="ftb-amount">{{ findingsTotalTax | number:'1.2-2' }} BDT</span>
+        </div>
+      </div>
+      <div class="finding-list" *ngIf="!findingsLoading">
+        <div class="finding-card" *ngFor="let f of findings; let i = index">
+          <div class="fc-num">{{ i + 1 }}</div>
+          <div class="fc-body">
+            <div class="fc-header">
+              <span class="code-val">{{ f.findingNo }}</span>
+              <span class="finding-type-pill">{{ f.findingType }}</span>
+              <span class="status-badge" [ngClass]="getFindingStatusClass(f.status)">{{ f.status }}</span>
+            </div>
+            <div class="fc-desc">{{ f.description }}</div>
+            <div class="fc-basis" *ngIf="f.legalBasis">
+              <i class="bi bi-book-fill"></i> {{ f.legalBasis }}
+            </div>
+            <div class="fc-amounts">
+              <div class="fca-item">
+                <label>Declared</label>
+                <span>{{ f.declaredAmount | number:'1.2-2' }}</span>
+              </div>
+              <div class="fca-item">
+                <label>Assessed</label>
+                <span class="text-primary">{{ f.assessedAmount | number:'1.2-2' }}</span>
+              </div>
+              <div class="fca-item" [class.text-danger]="f.varianceAmount > 0">
+                <label>Variance</label>
+                <span>{{ f.varianceAmount | number:'1.2-2' }}</span>
+              </div>
+              <div class="fca-item">
+                <label>Addl. Tax</label>
+                <span class="text-danger fw-bold">{{ f.additionalTax | number:'1.2-2' }}</span>
+              </div>
+            </div>
+            <div class="fc-meta">
+              <span><i class="bi bi-person-fill"></i> {{ f.recordedBy }}</span>
+              <span><i class="bi bi-clock"></i> {{ f.recordedAt | date:'dd MMM yyyy' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="findings.length === 0">
+          <i class="bi bi-search"></i><p>No findings recorded yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: Assessment ═════════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'assessment'">
+      <div class="tab-action-bar">
+        <h6>Assessment Order</h6>
+        <button class="btn-add-sm success" *ngIf="canProposeAssessment()" (click)="goToAssessment()">
+          <i class="bi bi-calculator-fill"></i> Propose Assessment
+        </button>
+        <button class="btn-add-sm warning" *ngIf="canApproveAssessment()" (click)="openApprovalModal()">
+          <i class="bi bi-shield-check"></i> Approve
+        </button>
+      </div>
+      <ng-container *ngIf="assessment; else noAssessment">
+        <app-assessment-summary [assessment]="assessment"></app-assessment-summary>
+      </ng-container>
+      <ng-template #noAssessment>
+        <div class="empty-state">
+          <i class="bi bi-calculator"></i><p>No assessment proposed yet.</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- ═══ TAB: Demand Notice ══════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'demand'">
+      <ng-container *ngIf="demandNotice; else noDemand">
+        <app-demand-notice-view [demandNotice]="demandNotice"></app-demand-notice-view>
+      </ng-container>
+      <ng-template #noDemand>
+        <div class="empty-state"><i class="bi bi-receipt"></i><p>Demand notice not issued yet.</p></div>
+      </ng-template>
+    </div>
+
+    <!-- ═══ TAB: Timeline ═══════════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'timeline'">
+      <div class="timeline-wrapper">
+        <div class="timeline-item" *ngFor="let h of auditCase.statusHistory; let last = last">
+          <div class="ti-left">
+            <div class="ti-dot" [ngClass]="getStatusClass(h.toStatus)"></div>
+            <div class="ti-line" *ngIf="!last"></div>
+          </div>
+          <div class="ti-content">
+            <div class="ti-header">
+              <span class="status-badge" [ngClass]="getStatusClass(h.toStatus)">
+                {{ getStatusLabel(h.toStatus) }}
+              </span>
+              <span class="ti-time">{{ h.changedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+            </div>
+            <div class="ti-body">
+              <span class="ti-by"><i class="bi bi-person-fill"></i> {{ h.changedBy }}</span>
+              <span class="ti-role" *ngIf="h.changedByRole">({{ h.changedByRole }})</span>
+            </div>
+            <div class="ti-reason" *ngIf="h.changeReason">{{ h.changeReason }}</div>
+            <div class="ti-from" *ngIf="h.fromStatus">
+              <i class="bi bi-arrow-right-short"></i> from
+              <span class="status-badge" [ngClass]="getStatusClass(h.fromStatus)" style="font-size:10px;">
+                {{ getStatusLabel(h.fromStatus) }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="!auditCase.statusHistory || auditCase.statusHistory.length === 0">
+          <i class="bi bi-clock-history"></i><p>No status history yet.</p>
         </div>
       </div>
     </div>
 
   </div>
+</div>
 
-</ng-container>
+<!-- ══ MODAL: Raise Query ════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showQueryModal">
+  <div class="modal-card wide">
+    <div class="modal-accent info"></div>
+    <div class="modal-header-row">
+      <h5><i class="bi bi-chat-dots-fill text-info me-2"></i>Raise Query</h5>
+      <button class="modal-close" (click)="showQueryModal = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form [formGroup]="queryForm" (ngSubmit)="submitQuery()">
+      <div class="form-group mb-3">
+        <label class="form-label required">Query Type</label>
+        <select class="form-select" formControlName="queryType">
+          <option value="GENERAL">General</option>
+          <option value="INCOME">Income</option>
+          <option value="VAT">VAT</option>
+          <option value="DOCUMENT">Document</option>
+          <option value="EXPLANATION">Explanation</option>
+        </select>
+      </div>
+      <div class="form-group mb-3">
+        <label class="form-label required">Subject</label>
+        <input type="text" class="form-control" formControlName="subject"
+          placeholder="Brief subject of the query" />
+      </div>
+      <div class="form-group mb-3">
+        <label class="form-label required">Query Details</label>
+        <textarea class="form-control" rows="4" formControlName="queryText"
+          placeholder="Describe the query in detail..."></textarea>
+      </div>
+      <div class="form-group mb-3">
+        <label class="form-label">Response Deadline</label>
+        <input type="date" class="form-control" formControlName="deadline" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-cancel" (click)="showQueryModal = false">Cancel</button>
+        <button type="submit" class="btn-modal-confirm"
+          [disabled]="queryForm.invalid || querySubmitting">
+          <span class="spinner-border spinner-border-sm" *ngIf="querySubmitting"></span>
+          <i class="bi bi-send-fill" *ngIf="!querySubmitting"></i>
+          Raise Query
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ MODAL: Request Documents ══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showDocModal">
+  <div class="modal-card wide">
+    <div class="modal-accent warning"></div>
+    <div class="modal-header-row">
+      <h5><i class="bi bi-folder2-open text-warning me-2"></i>Request Documents</h5>
+      <button class="modal-close" (click)="showDocModal = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form [formGroup]="docForm" (ngSubmit)="submitDocRequest()">
+      <div class="form-group mb-3">
+        <label class="form-label required">Documents Required</label>
+        <textarea class="form-control" rows="3" formControlName="requestedDocuments"
+          placeholder="e.g. Bank statements (Jan–Jun 2024), Purchase invoices, Import documents..."></textarea>
+      </div>
+      <div class="form-group mb-3">
+        <label class="form-label">Reason / Scope</label>
+        <textarea class="form-control" rows="2" formControlName="requestReason"
+          placeholder="Explain why these documents are needed..."></textarea>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Request Type</label>
+            <select class="form-select" formControlName="requestType">
+              <option value="INITIAL">Initial Request</option>
+              <option value="FOLLOW_UP">Follow-up</option>
+              <option value="CLARIFICATION">Clarification</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Submission Deadline</label>
+            <input type="date" class="form-control" formControlName="deadline" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions mt-3">
+        <button type="button" class="btn-modal-cancel" (click)="showDocModal = false">Cancel</button>
+        <button type="submit" class="btn-modal-confirm warning"
+          [disabled]="docForm.invalid || docSubmitting">
+          <span class="spinner-border spinner-border-sm" *ngIf="docSubmitting"></span>
+          <i class="bi bi-folder2-open" *ngIf="!docSubmitting"></i>
+          Request Documents
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ MODAL: Add Finding ════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showFindingModal">
+  <div class="modal-card wide">
+    <div class="modal-accent purple"></div>
+    <div class="modal-header-row">
+      <h5><i class="bi bi-search me-2"></i>Record Finding</h5>
+      <button class="modal-close" (click)="showFindingModal = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form [formGroup]="findingForm" (ngSubmit)="submitFinding()">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label required">Finding Type</label>
+            <select class="form-select" formControlName="findingType">
+              <option value="INCOME_OMISSION">Income Omission</option>
+              <option value="DEDUCTION_EXCESS">Excess Deduction</option>
+              <option value="VAT_MISMATCH">VAT Mismatch</option>
+              <option value="AIT_CREDIT">AIT Credit Issue</option>
+              <option value="UNDERPAYMENT">Underpayment</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" formControlName="status">
+              <option value="DRAFT">Draft</option>
+              <option value="CONFIRMED">Confirmed</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-group">
+            <label class="form-label required">Description</label>
+            <textarea class="form-control" rows="3" formControlName="description"
+              placeholder="Detailed description of the finding..."></textarea>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-group">
+            <label class="form-label">Legal Basis <span class="label-hint">(Section / Rule)</span></label>
+            <input type="text" class="form-control" formControlName="legalBasis"
+              placeholder="e.g. Section 16(2) ITO 1984" />
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label class="form-label">Declared Amount (BDT)</label>
+            <input type="number" class="form-control" formControlName="declaredAmount" min="0" />
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label class="form-label">Assessed Amount (BDT)</label>
+            <input type="number" class="form-control" formControlName="assessedAmount" min="0"
+              (input)="calculateTaxFromFinding()" />
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label class="form-label">Additional Tax (BDT)</label>
+            <input type="number" class="form-control" formControlName="additionalTax" min="0" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions mt-3">
+        <button type="button" class="btn-modal-cancel" (click)="showFindingModal = false">Cancel</button>
+        <button type="submit" class="btn-modal-confirm"
+          [disabled]="findingForm.invalid || findingSubmitting">
+          <span class="spinner-border spinner-border-sm" *ngIf="findingSubmitting"></span>
+          <i class="bi bi-check-lg" *ngIf="!findingSubmitting"></i>
+          Record Finding
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ MODAL: Approve Assessment ════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showApprovalModal">
+  <div class="modal-card">
+    <div class="modal-accent success"></div>
+    <div class="modal-icon-wrap success">
+      <i class="bi bi-shield-check" style="color:#1A7A45;font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Approve Assessment?</p>
+    <p class="modal-msg">
+      Total Demand:
+      <strong>{{ assessment?.totalDemand | number:'1.2-2' }} BDT</strong><br>
+      Once approved, this assessment becomes a legally binding order.
+    </p>
+    <div class="form-group mb-3">
+      <label class="form-label">Approval Notes</label>
+      <textarea class="form-control" rows="2" [(ngModel)]="approvalNotes"
+        placeholder="Optional approval remarks..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="showApprovalModal = false">Cancel</button>
+      <button class="btn-modal-confirm success" (click)="submitApproval()" [disabled]="approvalSubmitting">
+        <span class="spinner-border spinner-border-sm" *ngIf="approvalSubmitting"></span>
+        <i class="bi bi-shield-check" *ngIf="!approvalSubmitting"></i>
+        Approve
+      </button>
+    </div>
+  </div>
+</div>

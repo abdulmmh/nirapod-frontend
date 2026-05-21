@@ -1,43 +1,58 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from '../../../core/guards/auth.guard';
-import { Role } from '../../../core/constants/roles.constants';
+import { AuthGuard }       from '../../../core/guards/auth.guard';
+
+import { AuditListComponent }            from '../pages/audit-list/audit-list.component';
+import { AuditCreateComponent }          from '../pages/audit-create/audit-create.component';
+import { AuditDetailComponent }          from '../pages/audit-view/audit-view.component';
+import { AssessmentReviewComponent }     from '../pages/assessment-review/assessment-review.component';
+import { Role } from 'src/app/core/constants/roles.constants';
 
 
-import { AuditListComponent }   from '../pages/audit-list/audit-list.component';
-import { AuditCreateComponent } from '../pages/audit-create/audit-create.component';
-import { AuditViewComponent }   from '../pages/audit-view/audit-view.component';
-import { AuditEditComponent }   from '../pages/audit-edit/audit-edit.component';
 
-const routes: Routes = [
+export const AUDIT_ROUTES: Routes = [
+  // ── Officer Routes ──────────────────────────────────────────────────────────
   {
-    path: '',
-    component: AuditListComponent,
+    path: 'audits',
     canActivate: [AuthGuard],
-    data: { roles: [Role.AUDITOR, Role.TAX_COMMISSIONER] }
+    children: [
+      {
+        path: '',
+        component: AuditListComponent,
+        canActivate: [AuthGuard],
+        data: { roles: [Role.TAX_OFFICER, Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.AUDITOR], title: 'Audit Cases' }
+      },
+      {
+        path: 'create',
+        component: AuditCreateComponent,
+        canActivate: [AuthGuard],
+        data: { roles: [Role.TAX_OFFICER, Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.AUDITOR], title: 'New Audit Case' }
+      },
+      {
+        path: ':id',
+        component: AuditDetailComponent,
+        canActivate: [AuthGuard],
+        data: { roles: [Role.TAX_OFFICER, Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.AUDITOR], title: 'Audit Case Details' }
+      },
+      {
+        path: ':id/edit',
+        component: AuditCreateComponent,
+        canActivate: [AuthGuard],
+        data: { roles: [Role.TAX_OFFICER, Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.AUDITOR], title: 'Edit Audit Case' }
+      },
+      {
+        path: ':id/propose-assessment',
+        component: AssessmentReviewComponent,
+        canActivate: [AuthGuard],
+        data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.AUDITOR], title: 'Propose Assessment' }
+      },
+    ]
   },
-  {
-    path: 'create',
-    component: AuditCreateComponent,
-    canActivate: [AuthGuard],
-    data: { roles: [Role.AUDITOR, Role.TAX_COMMISSIONER] }
-  },
-  {
-    path: ':id',
-    component: AuditViewComponent,
-    canActivate: [AuthGuard],
-    data: { roles: [Role.AUDITOR, Role.TAX_COMMISSIONER, Role.TAX_OFFICER] }
-  },
-  {
-    path: ':id/edit',
-    component: AuditEditComponent,
-    canActivate: [AuthGuard],
-    data: { roles: [Role.AUDITOR, Role.TAX_COMMISSIONER] }
-  }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(AUDIT_ROUTES)],
   exports: [RouterModule]
 })
-export class AuditRoutingModule { }
+export class AuditRoutingModule {}
+

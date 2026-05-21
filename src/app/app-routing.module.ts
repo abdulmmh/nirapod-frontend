@@ -140,7 +140,7 @@ const routes: Routes = [
             .then(m => m.PenaltyModule)
       },
       
-      // Audits 
+      // Audits & Assessments
       {
         path: 'audits',
         loadChildren: () =>

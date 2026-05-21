@@ -1,0 +1,379 @@
+<!-- ══════════════════════════════════════════════════════════════════════════
+     taxpayer-audit-detail.component.html
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="page-header" *ngIf="auditCase">
+  <div class="page-header-left">
+    <div class="detail-case-badge">{{ auditCase.caseNo }}</div>
+    <h4>Audit Case Details</h4>
+    <div class="detail-header-meta">
+      <span class="meta-chip"><i class="bi bi-journal-bookmark"></i> {{ getTypeLabel(auditCase.auditType) }}</span>
+      <span class="meta-chip"><i class="bi bi-calendar3"></i> {{ auditCase.fiscalYear || '—' }}</span>
+      <span class="status-badge" [ngClass]="getStatusClass(auditCase.status)">
+        {{ getStatusLabel(auditCase.status) }}
+      </span>
+    </div>
+  </div>
+  <button class="btn-secondary-outline" routerLink="/my-portal/audits">
+    <i class="bi bi-arrow-left"></i> Back
+  </button>
+</div>
+
+<div class="loading-row" *ngIf="isLoading">
+  <div class="spinner-border spinner-border-sm text-primary"></div>
+  <span>Loading...</span>
+</div>
+
+<div class="page-wrapper" *ngIf="!isLoading && auditCase">
+
+  <!-- Action banner -->
+  <div class="tp-action-banner" *ngIf="requiresAction()">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    <div>
+      <strong>Action Required: </strong>
+      <span *ngIf="auditCase.status === 'DOCUMENT_REQUESTED'">
+        Documents have been requested. Please upload them as soon as possible.
+      </span>
+      <span *ngIf="auditCase.openQueryCount > 0">
+        You have {{ auditCase.openQueryCount }} unanswered {{ auditCase.openQueryCount === 1 ? 'query' : 'queries' }}.
+      </span>
+    </div>
+    <button class="btn-respond-now" (click)="scrollToRespond()">
+      Respond Now <i class="bi bi-arrow-down"></i>
+    </button>
+  </div>
+
+  <!-- Demand banner -->
+  <div class="tp-demand-banner" *ngIf="auditCase.status === 'DEMAND_ISSUED' && demandNotice">
+    <i class="bi bi-receipt-cutoff"></i>
+    <div>
+      <strong>Demand Notice Issued</strong><br>
+      Amount Due: <strong>{{ demandNotice.amountDue | number:'1.2-2' }} BDT</strong>
+      · Due Date: <strong>{{ demandNotice.dueDate | date:'dd MMM yyyy' }}</strong>
+    </div>
+    <button class="btn-pay-now" (click)="goToPay()">Pay Now</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="detail-tabs-wrapper">
+    <div class="detail-tabs">
+      <button class="dtab" [class.active]="activeTab === 'overview'"
+        (click)="setTab('overview')"><i class="bi bi-info-circle-fill"></i> Details</button>
+      <button class="dtab" [class.active]="activeTab === 'queries'"
+        (click)="setTab('queries'); loadQueries()">
+        <i class="bi bi-chat-dots-fill"></i> Queries
+        <span class="tab-count warn" *ngIf="auditCase.openQueryCount > 0">
+          {{ auditCase.openQueryCount }}
+        </span>
+      </button>
+      <button class="dtab" [class.active]="activeTab === 'documents'"
+        (click)="setTab('documents'); loadDocRequests()">
+        <i class="bi bi-folder2-open"></i> Documents
+      </button>
+      <button class="dtab" [class.active]="activeTab === 'assessment'"
+        *ngIf="auditCase.hasAssessment"
+        (click)="setTab('assessment'); loadAssessment()">
+        <i class="bi bi-calculator-fill"></i> Assessment Order
+      </button>
+      <button class="dtab" [class.active]="activeTab === 'demand'"
+        *ngIf="auditCase.hasDemandNotice"
+        (click)="setTab('demand'); loadDemand()">
+        <i class="bi bi-receipt-cutoff"></i> Demand Notice
+      </button>
+    </div>
+
+    <!-- ═══ TAB: Overview ═══════════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'overview'">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="info-card">
+            <div class="ic-header"><i class="bi bi-folder-fill"></i> Case Information</div>
+            <div class="ic-body">
+              <div class="ic-row"><label>Case No</label><span class="code-val">{{ auditCase.caseNo }}</span></div>
+              <div class="ic-row"><label>Audit Type</label><span>{{ getTypeLabel(auditCase.auditType) }}</span></div>
+              <div class="ic-row"><label>Tax Type</label><span>{{ getTaxTypeLabel(auditCase.taxType) }}</span></div>
+              <div class="ic-row"><label>Fiscal Year</label><span>{{ auditCase.fiscalYear || '—' }}</span></div>
+              <div class="ic-row"><label>Period</label>
+                <span>{{ auditCase.taxPeriodStart || '—' }} → {{ auditCase.taxPeriodEnd || '—' }}</span>
+              </div>
+              <div class="ic-row"><label>Status</label>
+                <span class="status-badge" [ngClass]="getStatusClass(auditCase.status)">
+                  {{ getStatusLabel(auditCase.status) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="info-card">
+            <div class="ic-header"><i class="bi bi-person-check-fill"></i> Contact Details</div>
+            <div class="ic-body">
+              <div class="ic-row"><label>Audit Officer</label><span>{{ auditCase.assignedOfficerName || '—' }}</span></div>
+              <div class="ic-row"><label>Supervisor</label><span>{{ auditCase.supervisorName || '—' }}</span></div>
+              <div class="ic-row"><label>Due Date</label>
+                <span [class]="isDue(auditCase.dueDate) ? 'due-overdue' : ''">
+                  {{ auditCase.dueDate || '—' }}
+                </span>
+              </div>
+              <div class="ic-row"><label>Notice Issued</label><span>{{ auditCase.createdAt | date:'dd MMM yyyy' }}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: Queries ════════════════════════════════════════════════════ -->
+    <div class="dtab-content" id="respond-section" *ngIf="activeTab === 'queries'">
+      <h6 class="tab-section-title">Queries from Audit Officer</h6>
+      <div class="loading-row" *ngIf="queriesLoading">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+      </div>
+      <div *ngIf="!queriesLoading">
+        <div class="tp-query-card" *ngFor="let q of queries">
+          <div class="tpqc-header">
+            <span class="code-val">{{ q.queryNo }}</span>
+            <span class="tpqc-type">{{ q.queryType }}</span>
+            <span class="status-badge"
+              [ngClass]="q.status === 'OPEN' ? 'badge-warning' : 'badge-success'">
+              {{ q.status }}
+            </span>
+            <span class="tpqc-deadline" *ngIf="q.deadline">
+              <i class="bi bi-alarm"></i> Due: {{ q.deadline | date:'dd MMM yyyy' }}
+            </span>
+          </div>
+          <div class="tpqc-subject">{{ q.subject }}</div>
+          <div class="tpqc-text">{{ q.queryText }}</div>
+
+          <!-- If already responded -->
+          <div class="tpqc-response" *ngIf="q.responseText">
+            <div class="tpqcr-label"><i class="bi bi-check-circle-fill text-success"></i> Your Response</div>
+            <div class="tpqcr-text">{{ q.responseText }}</div>
+            <div class="tpqcr-meta">Responded: {{ q.respondedAt | date:'dd MMM yyyy' }}</div>
+          </div>
+
+          <!-- Respond form if open -->
+          <div class="tpqc-respond-form" *ngIf="q.status === 'OPEN'">
+            <label class="form-label">Your Response</label>
+            <textarea class="form-control mb-2" rows="3"
+              [(ngModel)]="queryResponses[q.id]"
+              placeholder="Type your response here..."></textarea>
+            <button class="btn-respond"
+              [disabled]="!queryResponses[q.id] || respondingQueryId === q.id"
+              (click)="respondToQuery(q.id)">
+              <span class="spinner-border spinner-border-sm" *ngIf="respondingQueryId === q.id"></span>
+              <i class="bi bi-send-fill" *ngIf="respondingQueryId !== q.id"></i>
+              Submit Response
+            </button>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="queries.length === 0">
+          <i class="bi bi-chat-dots"></i><p>No queries have been raised yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: Documents ══════════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'documents'">
+      <h6 class="tab-section-title">Document Requests</h6>
+      <div class="loading-row" *ngIf="docsLoading">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+      </div>
+      <div *ngIf="!docsLoading">
+        <div class="tp-doc-card" *ngFor="let dr of docRequests">
+          <div class="tpdc-header">
+            <span class="code-val">{{ dr.requestNo }}</span>
+            <span class="tpdc-type">{{ dr.requestType }}</span>
+            <span class="status-badge" [ngClass]="getDocStatusClass(dr.status)">{{ dr.status }}</span>
+            <span *ngIf="dr.deadline" [class]="isDue(dr.deadline) ? 'due-overdue tpdc-deadline' : 'tpdc-deadline'">
+              <i class="bi bi-alarm"></i> Due: {{ dr.deadline | date:'dd MMM yyyy' }}
+            </span>
+          </div>
+          <div class="tpdc-docs"><i class="bi bi-files text-primary"></i> {{ dr.requestedDocuments }}</div>
+          <div class="tpdc-reason" *ngIf="dr.requestReason">{{ dr.requestReason }}</div>
+
+          <!-- Already fulfilled -->
+          <div class="tpdc-fulfilled" *ngIf="dr.status === 'FULFILLED'">
+            <i class="bi bi-check-circle-fill text-success"></i> Fulfilled: {{ dr.fulfillmentNotes }}
+          </div>
+
+          <!-- Upload if pending -->
+          <div class="tpdc-upload-zone" *ngIf="dr.status === 'PENDING' || dr.status === 'PARTIALLY_FULFILLED'">
+            <label class="form-label">Upload Documents</label>
+            <div class="upload-drop-zone"
+              [class.drag-over]="dragOverId === dr.id"
+              (dragover)="onDragOver($event, dr.id)"
+              (dragleave)="dragOverId = null"
+              (drop)="onDrop($event, dr.id)"
+              (click)="triggerFileInput(dr.id)">
+              <i class="bi bi-cloud-upload-fill"></i>
+              <p>Drag & drop files here, or click to browse</p>
+              <span class="upload-hint">PDF, JPG, PNG, XLSX — max 10MB each</span>
+              <input type="file" multiple [id]="'file-input-' + dr.id"
+                style="display:none"
+                (change)="onFileSelected($event, dr.id)" />
+            </div>
+
+            <div class="selected-files" *ngIf="selectedFiles[dr.id]?.length">
+              <div class="sf-item" *ngFor="let f of selectedFiles[dr.id]; let i = index">
+                <i class="bi bi-file-earmark-fill"></i>
+                <span>{{ f.name }}</span>
+                <span class="sf-size">({{ formatSize(f.size) }})</span>
+                <button class="sf-remove" (click)="removeFile(dr.id, i)">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group mt-2">
+              <label class="form-label">Description / Notes</label>
+              <input type="text" class="form-control"
+                [(ngModel)]="uploadDescriptions[dr.id]"
+                placeholder="Brief description of uploaded documents..." />
+            </div>
+
+            <button class="btn-upload mt-2"
+              [disabled]="!selectedFiles[dr.id]?.length || uploadingId === dr.id"
+              (click)="uploadDocuments(dr.id)">
+              <span class="spinner-border spinner-border-sm" *ngIf="uploadingId === dr.id"></span>
+              <i class="bi bi-cloud-upload" *ngIf="uploadingId !== dr.id"></i>
+              Upload Documents
+            </button>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="docRequests.length === 0">
+          <i class="bi bi-folder2"></i><p>No document requests yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: Assessment Order ════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'assessment'">
+      <ng-container *ngIf="assessment">
+        <div class="tp-assessment-order">
+          <div class="tpao-letterhead">
+            <div class="tpao-logo">
+              <div class="tpao-logo-circle">NBR</div>
+              <div>
+                <div class="tpao-org">National Board of Revenue</div>
+                <div class="tpao-sub">Government of the People's Republic of Bangladesh</div>
+              </div>
+            </div>
+            <div class="tpao-title">ASSESSMENT ORDER</div>
+            <div class="tpao-ref">Ref: {{ assessment.assessmentNo }}</div>
+          </div>
+
+          <div class="tpao-party-row">
+            <div><label>Taxpayer</label><span>{{ assessment.taxpayerName }}</span></div>
+            <div><label>TIN</label><span class="code-val">{{ assessment.tinNumber }}</span></div>
+            <div><label>Fiscal Year</label><span>{{ assessment.fiscalYear }}</span></div>
+            <div><label>Tax Type</label><span>{{ assessment.taxType }}</span></div>
+          </div>
+
+          <div class="tpao-section-title">Findings Summary</div>
+          <div class="tpao-text">{{ assessment.findingsSummary || 'As per audit findings.' }}</div>
+
+          <div class="tpao-section-title">Legal Basis</div>
+          <div class="tpao-text">{{ assessment.legalBasis || '—' }}</div>
+
+          <div class="tpao-section-title">Demand Calculation</div>
+          <table class="tpao-table">
+            <tr><th>Description</th><th>Amount (BDT)</th></tr>
+            <tr><td>Declared Tax</td><td>{{ assessment.declaredTax | number:'1.2-2' }}</td></tr>
+            <tr><td>Assessed Tax</td><td>{{ assessment.assessedTax | number:'1.2-2' }}</td></tr>
+            <tr class="tr-highlight">
+              <td><strong>Additional Tax</strong></td>
+              <td><strong>{{ assessment.additionalTax | number:'1.2-2' }}</strong></td>
+            </tr>
+            <tr><td>Penalty ({{ assessment.penaltyRate }}%)</td><td>{{ assessment.penaltyAmount | number:'1.2-2' }}</td></tr>
+            <tr><td>Interest ({{ assessment.interestRate }}% × {{ assessment.interestMonths }} months)</td><td>{{ assessment.interestAmount | number:'1.2-2' }}</td></tr>
+            <tr class="tr-total">
+              <td><strong>TOTAL DEMAND</strong></td>
+              <td><strong>{{ assessment.totalDemand | number:'1.2-2' }}</strong></td>
+            </tr>
+          </table>
+
+          <div class="tpao-section-title">Appeal Rights</div>
+          <div class="tpao-appeal-box">
+            <i class="bi bi-info-circle-fill text-primary"></i>
+            {{ assessment.appealRights }}
+          </div>
+
+          <div class="tpao-footer-row">
+            <div>
+              <label>Payment Deadline</label>
+              <span class="due-date-val">{{ assessment.paymentDeadline | date:'dd MMMM yyyy' }}</span>
+            </div>
+            <div>
+              <label>Approved By</label>
+              <span>{{ assessment.approvedBy || '—' }}</span>
+            </div>
+            <div>
+              <label>Approved On</label>
+              <span>{{ assessment.approvedAt | date:'dd MMM yyyy' }}</span>
+            </div>
+          </div>
+
+          <div class="tpao-actions">
+            <button class="btn-download" (click)="downloadAssessment()">
+              <i class="bi bi-download"></i> Download PDF
+            </button>
+            <button class="btn-appeal" (click)="goToAppeal()">
+              <i class="bi bi-shield-exclamation"></i> File Appeal
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- ═══ TAB: Demand Notice ══════════════════════════════════════════════ -->
+    <div class="dtab-content" *ngIf="activeTab === 'demand'">
+      <ng-container *ngIf="demandNotice">
+        <div class="tp-demand-order">
+          <div class="tpdo-header">
+            <div class="tpdo-badge">DEMAND NOTICE</div>
+            <div class="tpdo-number">{{ demandNotice.demandNo }}</div>
+          </div>
+
+          <div class="tpdo-amount-box">
+            <label>Total Amount Due</label>
+            <div class="tpdo-amount">{{ demandNotice.amountDue | number:'1.2-2' }} BDT</div>
+            <div class="tpdo-due" [class.overdue]="isDue(demandNotice.dueDate)">
+              Pay by: {{ demandNotice.dueDate | date:'dd MMMM yyyy' }}
+              <span class="overdue-tag" *ngIf="isDue(demandNotice.dueDate)">OVERDUE</span>
+            </div>
+          </div>
+
+          <div class="tpdo-info-row">
+            <div class="tpdo-info-item"><label>Taxpayer</label><span>{{ demandNotice.taxpayerName }}</span></div>
+            <div class="tpdo-info-item"><label>TIN</label><span class="code-val">{{ demandNotice.tinNumber }}</span></div>
+            <div class="tpdo-info-item"><label>Assessment No</label><span class="code-val">{{ demandNotice.assessmentNo }}</span></div>
+            <div class="tpdo-info-item"><label>Issued By</label><span>{{ demandNotice.issuedBy }}</span></div>
+            <div class="tpdo-info-item"><label>Issued On</label><span>{{ demandNotice.issuedAt | date:'dd MMM yyyy' }}</span></div>
+            <div class="tpdo-info-item"><label>Status</label>
+              <span class="status-badge" [ngClass]="getDemandStatusClass(demandNotice.status)">
+                {{ demandNotice.status }}
+              </span>
+            </div>
+          </div>
+
+          <div class="tpdo-payment-instructions">
+            <div class="tpdo-pi-title"><i class="bi bi-bank"></i> Payment Instructions</div>
+            <div class="tpdo-pi-text">{{ demandNotice.paymentInstructions }}</div>
+          </div>
+
+          <div class="tpdo-actions">
+            <button class="btn-download" (click)="downloadDemand()">
+              <i class="bi bi-download"></i> Download Notice
+            </button>
+            <button class="btn-pay-now" (click)="goToPay()">
+              <i class="bi bi-credit-card-fill"></i> Pay Now
+            </button>
+            <button class="btn-appeal" (click)="goToAppeal()">
+              <i class="bi bi-shield-exclamation"></i> File Appeal
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+  </div>
+</div>

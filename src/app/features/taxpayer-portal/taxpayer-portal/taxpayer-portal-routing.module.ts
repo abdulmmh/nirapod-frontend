@@ -4,6 +4,8 @@ import { PortalLayoutComponent } from '../layout/portal-layout/portal-layout.com
 import { PortalHomeComponent } from '../pages/portal-home/portal-home.component';
 import { PortalItrComponent } from '../pages/portal-itr/portal-itr.component';
 import { PortalApplicationStatusComponent } from '../pages/portal-application-status/portal-application-status.component';
+import { TaxpayerAuditListComponent } from '../pages/portal-audit-list/portal-audit-list.component';
+import { TaxpayerAuditDetailComponent } from '../pages/portal-audit-detail/portal-audit-detail.component';
 
 const routes: Routes = [
   {
@@ -13,9 +15,9 @@ const routes: Routes = [
       { path: '', component: PortalHomeComponent },
       { path: 'itr', component: PortalItrComponent },
       { path: 'application-status', component: PortalApplicationStatusComponent },
-
-      // Existing modules — portal layout এর ভেতরে
-
+      { path: 'audits', component: TaxpayerAuditListComponent },
+      { path: 'audits/:id', component: TaxpayerAuditDetailComponent },
+    
       { path: 'taxpayers', 
         loadChildren: () =>
           import('../../../features/taxpayer-management/taxpayer/taxpayer.module')

@@ -1,0 +1,108 @@
+<!-- ══════════════════════════════════════════════════════════════════════════
+     taxpayer-audit-list.component.html
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>My Audits</h4>
+    <p>View all audit cases opened against your tax account.</p>
+  </div>
+</div>
+
+<div class="page-wrapper">
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading your audit cases...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Case No</th>
+          <th>Audit Type</th>
+          <th>Tax Type</th>
+          <th>Fiscal Year</th>
+          <th>Notice Date</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th>Action Required</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of cases; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><span class="case-code">{{ c.caseNo }}</span></td>
+          <td>
+            <span class="type-badge" [ngClass]="getTypeClass(c.auditType)">
+              {{ getTypeLabel(c.auditType) }}
+            </span>
+          </td>
+          <td>{{ getTaxTypeLabel(c.taxType) }}</td>
+          <td>{{ c.fiscalYear || '—' }}</td>
+          <td>{{ c.createdAt | date:'dd MMM yyyy' }}</td>
+          <td>
+            <span [class]="isDue(c.dueDate) ? 'due-overdue' : ''">
+              {{ c.dueDate || '—' }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(c.status)">
+              {{ getStatusLabel(c.status) }}
+            </span>
+          </td>
+          <td>
+            <span class="action-required-chip" *ngIf="requiresAction(c)">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              {{ getActionRequired(c) }}
+            </span>
+            <span class="no-action" *ngIf="!requiresAction(c)">—</span>
+          </td>
+          <td>
+            <button class="btn-view" (click)="view(c.id)">
+              <i class="bi bi-eye-fill"></i> View
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="cases.length === 0">
+          <td colspan="10">
+            <div class="empty-state">
+              <i class="bi bi-folder2-open"></i>
+              <p>No audit cases found on your account.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let c of cases"
+      [class.mobile-card-alert]="requiresAction(c)">
+      <div class="mobile-card-header">
+        <div>
+          <div class="case-code">{{ c.caseNo }}</div>
+          <div class="mobile-sub">{{ getTypeLabel(c.auditType) }} · {{ c.fiscalYear }}</div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(c.status)">
+          {{ getStatusLabel(c.status) }}
+        </span>
+      </div>
+      <div class="action-required-chip mb-2" *ngIf="requiresAction(c)">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        {{ getActionRequired(c) }}
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="view(c.id)">
+          <i class="bi bi-eye-fill"></i> View Details
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="cases.length === 0">
+      <i class="bi bi-folder2-open"></i><p>No audit cases found.</p>
+    </div>
+  </div>
+</div>

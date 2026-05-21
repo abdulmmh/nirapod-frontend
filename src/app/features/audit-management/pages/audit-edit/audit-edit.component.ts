@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Audit } from '../../../../models/audit.model';
+import { AuditCase } from '../../../../models/audit.model';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
@@ -17,7 +17,7 @@ export class AuditEditComponent implements OnInit {
   isSaving = false;
   auditId: number | null = null;
 
-  form: Partial<Audit> = {};
+  form: Partial<AuditCase> = {};
   private destroy$ = new Subject<void>();
 
   // ────────── Static Data ──────────────
@@ -99,7 +99,7 @@ export class AuditEditComponent implements OnInit {
     this.isLoading = true;
 
     this.http
-      .get<Audit>(API_ENDPOINTS.AUDITS.GET(this.auditId))
+      .get<AuditCase>(API_ENDPOINTS.AUDITS.GET(this.auditId))
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false)),
@@ -110,7 +110,7 @@ export class AuditEditComponent implements OnInit {
       });
   }
 
-  private handleFetchSuccess(data: Audit): void {
+  private handleFetchSuccess(data: AuditCase): void {
     this.form = { ...data };
   }
 
@@ -125,8 +125,7 @@ export class AuditEditComponent implements OnInit {
     return !!(
       this.form.auditType &&
       this.form.priority &&
-      this.form.scheduledDate &&
-      this.form.assignedTo
+      this.form.scheduledDate
     );
   }
 
