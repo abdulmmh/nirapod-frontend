@@ -16,7 +16,7 @@ export interface Penalty {
   paidAmount: number;
   returnNo: string;
   assessmentYear: string;
-  issueDate: string; 
+  issueDate: string;   
   dueDate: string;
   paymentDate: string | null;
   status: PenaltyStatus;

@@ -32,17 +32,13 @@
         <div class="search-row">
           <div class="input-wrap search-input-wrap">
             <i class="bi bi-search input-icon"></i>
-            <input type="text" class="form-input"
-              placeholder="Enter NID, name or TIN..."
-              [(ngModel)]="searchQuery"
-              [disabled]="selectedTaxpayer !== null"
-              (keyup.enter)="searchTaxpayer()" />
+            <input type="text" class="form-input" placeholder="Enter NID, name or TIN..." [(ngModel)]="searchQuery"
+              [disabled]="selectedTaxpayer !== null" (keyup.enter)="searchTaxpayer()" />
             <button *ngIf="selectedTaxpayer" class="clear-btn" (click)="clearTaxpayer()">
               <i class="bi bi-x-lg"></i>
             </button>
           </div>
-          <button class="btn-search" (click)="searchTaxpayer()"
-            [disabled]="isSearching || selectedTaxpayer !== null">
+          <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching || selectedTaxpayer !== null">
             <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
             <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span></span>
           </button>
@@ -103,7 +99,8 @@
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.assessmentYear">
-            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+            <option *ngIf="assessmentYears.length === 0" value="">No fiscal years available</option>
+            <option *ngFor="let y of assessmentYears" [value]="y.yearName">{{ y.yearName }}</option>
           </select>
         </div>
       </div>

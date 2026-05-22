@@ -3,8 +3,7 @@
     <h4>Penalty & Fines</h4>
     <p>Manage all tax penalties and fines issued by NBR.</p>
   </div>
-  <a *canDo="'create'" routerLink="/penalties/create"
-     class="btn-add-primary desktop-add-btn">
+  <a *canDo="'create'" routerLink="/penalties/create" class="btn-add-primary desktop-add-btn">
     <i class="bi bi-plus-lg"></i> Issue Penalty
   </a>
 </div>
@@ -16,11 +15,7 @@
     <div class="search-field-row">
       <div class="search-field">
         <i class="bi bi-search"></i>
-        <input
-          type="text"
-          placeholder="Search by penalty no, TIN, taxpayer, type..."
-          [(ngModel)]="searchTerm"
-        />
+        <input type="text" placeholder="Search by penalty no, TIN, taxpayer, type..." [(ngModel)]="searchTerm" />
       </div>
       <button *canDo="'export'" class="btn-export">
         <i class="bi bi-download"></i>
@@ -114,16 +109,11 @@
               <button class="btn-view" (click)="viewPenalty(p.id)">
                 <i class="bi bi-eye-fill"></i> View
               </button>
-              <button *canDo="'edit'" class="btn-edit"
-                (click)="editPenalty(p.id)">
+              <button *canDo="'edit'" class="btn-edit" (click)="editPenalty(p.id)">
                 <i class="bi bi-pencil-fill"></i> Edit
               </button>
-              <button
-                *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
-                class="btn-delete"
-                (click)="confirmDelete(p.id)"
-              >
-                <i class="bi bi-trash-fill"></i> Delete
+              <button *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(p.id)">
+                <i class="bi bi-trash-fill"></i>
               </button>
             </div>
           </td>
@@ -189,12 +179,12 @@
         </div>
         <div class="mobile-field">
           <label>Issue Date</label>
-          <span>{{ p.issueDate }}</span>
+          <span>{{ p.issueDate | date:'dd MMM yyyy' }}</span>
         </div>
         <div class="mobile-field">
           <label>Due Date</label>
-          <span [class]="p.status === 'Overdue' ? 'due-overdue' : ''">
-            {{ p.dueDate }}
+          <span [class]="p.status === 'Overdue' ? 'due-overdue' : 'due-normal'">
+            {{ p.dueDate | date:'dd MMM yyyy' }}
           </span>
         </div>
         <div class="mobile-field" *ngIf="p.description">
@@ -207,15 +197,10 @@
         <button class="btn-view" (click)="viewPenalty(p.id)">
           <i class="bi bi-eye-fill"></i> View
         </button>
-        <button *canDo="'edit'" class="btn-edit"
-          (click)="editPenalty(p.id)">
+        <button *canDo="'edit'" class="btn-edit" (click)="editPenalty(p.id)">
           <i class="bi bi-pencil-fill"></i> Edit
         </button>
-        <button
-          *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']"
-          class="btn-delete"
-          (click)="confirmDelete(p.id)"
-        >
+        <button *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(p.id)">
           <i class="bi bi-trash-fill"></i> Delete
         </button>
       </div>
@@ -231,8 +216,7 @@
 </div>
 
 <!-- FAB -->
-<button *canDo="'create'" class="fab-btn"
-  routerLink="/penalties/create" title="Issue Penalty">
+<button *canDo="'create'" class="fab-btn" routerLink="/penalties/create" title="Issue Penalty">
   <i class="bi bi-plus-lg"></i>
 </button>
 

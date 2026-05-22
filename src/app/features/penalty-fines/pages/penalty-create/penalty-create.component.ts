@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { PenaltyCreateRequest } from '../../../../models/penalty.model';
 import { PenaltyService } from '../../services/penalty.service';
+import { FiscalYear } from '../../../../models/fiscal-year.model';
 
 @Component({
   selector: 'app-penalty-create',
@@ -35,7 +36,7 @@ export class PenaltyCreateComponent implements OnDestroy {
     'Other',
   ];
   severities = ['Low', 'Medium', 'High', 'Critical'];
-  assessmentYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
+  assessmentYears: FiscalYear[] = [];
   officers = [
     'Tax Officer',
     'Senior Tax Officer',
@@ -59,7 +60,6 @@ export class PenaltyCreateComponent implements OnDestroy {
     remarks: '',
   };
 
-  // Auto calculate interest at 15% of penalty
   onPenaltyChange(): void {
     this.form.interestAmount = Math.round(this.form.penaltyAmount * 0.15);
     this.setDefaultDueDate();
@@ -92,9 +92,32 @@ export class PenaltyCreateComponent implements OnDestroy {
     private http: HttpClient,
     private router: Router,
     private toast: ToastService,
-    private penaltyService: PenaltyService 
+    private penaltyService: PenaltyService,
   ) {
     this.setDefaultDueDate();
+    this.loadFiscalYears();
+  }
+
+  private loadFiscalYears(): void {
+    this.http
+      .get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (years) => {
+          this.assessmentYears = years.sort((a, b) =>
+            b.yearName.localeCompare(a.yearName),
+          );
+          if (this.assessmentYears.length > 0) {
+            this.form.assessmentYear = this.assessmentYears[0].yearName;
+          }
+        },
+        error: () => {
+          this.assessmentYears = [];
+          this.toast.warning(
+            'Could not load fiscal year list. Please try again later.',
+          );
+        },
+      });
   }
 
   onSubmit(): void {
@@ -108,23 +131,25 @@ export class PenaltyCreateComponent implements OnDestroy {
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.penaltyService.create(this.form)
+    this.penaltyService
+      .create(this.form)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.successMsg = 'Penalty issued successfully!';
-        this.toast.success('Penalty issued successfully!');
-        timer(1500).pipe(takeUntil(this.destroy$))
-          .subscribe(() => this.router.navigate(['/penalties']));
-      },
-      error: () => {
-        this.isLoading = false;
-        this.successMsg = '';
-        this.errorMsg = 'Failed to issue penalty. Please try again.';
-        this.toast.error('Failed to issue penalty. Please try again.');
-      },
-    });
+        next: () => {
+          this.isLoading = false;
+          this.successMsg = 'Penalty issued successfully!';
+          this.toast.success('Penalty issued successfully!');
+          timer(1500)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.router.navigate(['/penalties']));
+        },
+        error: () => {
+          this.isLoading = false;
+          this.successMsg = '';
+          this.errorMsg = 'Failed to issue penalty. Please try again.';
+          this.toast.error('Failed to issue penalty. Please try again.');
+        },
+      });
   }
 
   onReset(): void {
