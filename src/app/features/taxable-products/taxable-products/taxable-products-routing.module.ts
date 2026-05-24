@@ -12,7 +12,10 @@ const routes: Routes = [
   { path: 'create', component: TaxableProductCreateComponent, canActivate: [AuthGuard] },
   { path: 'view/:id', component: TaxableProductViewComponent, canActivate: [AuthGuard] },
   { path: 'edit/:id', component: TaxableProductEditComponent, canActivate: [AuthGuard],
-    data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] } }
+    data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] } },
+  { path: ':id/edit', component: TaxableProductEditComponent, canActivate: [AuthGuard],
+    data: { roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER] } },
+  { path: ':id', component: TaxableProductViewComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

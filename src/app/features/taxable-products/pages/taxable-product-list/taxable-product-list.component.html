@@ -9,6 +9,38 @@
   </a>
 </div>
 
+<!-- Stats Row -->
+<div class="stats-row" *ngIf="!isLoading">
+  <div class="stat-card">
+    <div class="sc-icon blue"><i class="bi bi-box-seam-fill"></i></div>
+    <div>
+      <div class="sc-label">Total Products</div>
+      <div class="sc-value">{{ products.length }}</div>
+    </div>
+  </div>
+  <div class="stat-card highlight">
+    <div class="sc-icon green"><i class="bi bi-check-circle-fill"></i></div>
+    <div>
+      <div class="sc-label">Active</div>
+      <div class="sc-value">{{ activeCount }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="sc-icon gray"><i class="bi bi-slash-circle-fill"></i></div>
+    <div>
+      <div class="sc-label">Inactive</div>
+      <div class="sc-value">{{ inactiveCount }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="sc-icon amber"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <div>
+      <div class="sc-label">Restricted</div>
+      <div class="sc-value">{{ restrictedCount }}</div>
+    </div>
+  </div>
+</div>
+
 <div class="page-wrapper">
 
   <div class="list-search-bar">
@@ -52,14 +84,12 @@
           <td><span class="prod-code">{{ p.productCode }}</span></td>
           <td>
             <div class="td-name">
-              <!-- FIX: prod-avatar → td-avatar (CSS class নাম ঠিক করা হয়েছে) -->
               <div class="td-avatar">
                 <i [class]="getCategoryIcon(p.category)"></i>
               </div>
               <div>
                 <span class="td-title">{{ p.productName }}</span>
-                <!-- FIX: description null/undefined হলে slice crash করত -->
-                <span class="td-sub">{{ (p.description || '') | slice:0:35 }}...</span>
+                <span class="td-sub">{{ (p.description || '') | slice:0:35 }}{{ (p.description?.length ?? 0) > 35 ? '...' : '' }}</span>
               </div>
             </div>
           </td>
@@ -90,7 +120,10 @@
         </tr>
         <tr *ngIf="filtered.length === 0">
           <td colspan="10">
-            <div class="empty-state"><i class="bi bi-box-seam"></i><p>No products found.</p></div>
+            <div class="empty-state">
+              <i class="bi bi-box-seam"></i>
+              <p>No products found.</p>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -102,7 +135,6 @@
     <div class="mobile-card" *ngFor="let p of filtered">
       <div class="mobile-card-header">
         <div class="mobile-card-title">
-          <!-- FIX: mobile-avatar prod-avatar → mobile-avatar (CSS class ঠিক করা হয়েছে) -->
           <div class="mobile-avatar"><i [class]="getCategoryIcon(p.category)"></i></div>
           <div>
             <div class="mobile-name">{{ p.productName }}</div>
@@ -114,14 +146,14 @@
       <div class="mobile-card-body">
         <div class="mobile-field"><label>Category</label><span>{{ p.category }}</span></div>
         <div class="mobile-field"><label>Tax Type</label><span>{{ p.taxType }}</span></div>
-        <div class="mobile-field"><label>Tax Rate</label>
+        <div class="mobile-field">
+          <label>Tax Rate</label>
           <span class="rate-chip" [class.zero-rate]="p.taxRate === 0">
             {{ p.taxRate === 0 ? 'Zero Rated' : p.taxRate + '%' }}
           </span>
         </div>
         <div class="mobile-field"><label>Unit</label><span>{{ p.unit }}</span></div>
       </div>
-      <!-- FIX: mobile card actions এ view ও edit button যোগ করা হয়েছে -->
       <div class="mobile-card-actions">
         <button class="btn-view" (click)="view(p.id)">
           <i class="bi bi-eye-fill"></i> View
@@ -146,6 +178,7 @@
   <i class="bi bi-plus-lg"></i>
 </button>
 
+<!-- Delete Confirmation Modal -->
 <div class="modal-overlay" *ngIf="showDeleteModal">
   <div class="modal-card">
     <div class="modal-accent error"></div>

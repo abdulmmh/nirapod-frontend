@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Penalty } from '../../../../models/penalty.model';
 import { PenaltyService } from '../../services/penalty.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-penalty-list',
@@ -14,31 +15,60 @@ import { PenaltyService } from '../../services/penalty.service';
 export class PenaltyListComponent implements OnInit {
   penalties: Penalty[] = [];
   searchTerm = '';
+  activeStatus = '';
   isLoading = false;
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
 
+  private search$ = new Subject<string>();
+
+  readonly statusFilters = [
+    { label: 'All', value: '' },
+    { label: 'Draft', value: 'DRAFT' },
+    { label: 'Pending Approval', value: 'PENDING_APPROVAL' },
+    { label: 'Approved', value: 'APPROVED' },
+    { label: 'Issued', value: 'ISSUED' },
+    { label: 'Paid', value: 'PAID' },
+    { label: 'Appealed', value: 'APPEALED' },
+    { label: 'Cancelled', value: 'CANCELLED' },
+  ];
 
   constructor(
-    private http: HttpClient,
     private router: Router,
     private toast: ToastService,
-    private penaltyService: PenaltyService
+    private penaltyService: PenaltyService,
   ) {}
 
   ngOnInit(): void {
+    this.load();
+    this.search$
+      .pipe(debounceTime(400), distinctUntilChanged())
+      .subscribe((term) => this.load(term, this.activeStatus));
+  }
+
+  load(search = '', status = ''): void {
     this.isLoading = true;
-    this.penaltyService.getAll().subscribe({
-      next: (data) => {
-        this.penalties = data;
-        this.isLoading = false;
-      },
-      error: () => {
-        // this.penalties = this.fallback;
-        this.isLoading = false;
-        this.toast.error('Failed to load penalties. Showing sample data.');
-      },
-    });
+    this.penaltyService
+      .getAll(search || undefined, status || undefined)
+      .subscribe({
+        next: (data) => {
+          this.penalties = data;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.toast.error('Failed to load penalties.');
+        },
+      });
+  }
+
+  onSearchInput(): void {
+    this.search$.next(this.searchTerm);
+  }
+
+  filterByStatus(status: string): void {
+    this.activeStatus = status;
+    this.load(this.searchTerm, status);
   }
 
   get filteredPenalties(): Penalty[] {
@@ -56,11 +86,18 @@ export class PenaltyListComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const map: Record<string, string> = {
+      DRAFT: 'status-draft',
+      PENDING_APPROVAL: 'status-pending',
+      APPROVED: 'status-approved',
+      ISSUED: 'status-issued',
+      PARTIALLY_PAID: 'status-partial',
+      PAID: 'status-active',
+      APPEALED: 'status-appealed',
+      CANCELLED: 'status-cancelled',
+      CLOSED: 'status-closed',
       Issued: 'status-issued',
       Pending: 'status-pending',
       Paid: 'status-active',
-      Waived: 'status-waived',
-      Appealed: 'status-appealed',
       Overdue: 'status-overdue',
     };
     return map[status] ?? '';
@@ -89,6 +126,7 @@ export class PenaltyListComponent implements OnInit {
   }
 
   formatCurrency(amount: number): string {
+    if (!amount) return '৳0';
     if (amount >= 100000) return `৳${(amount / 100000).toFixed(2)}L`;
     return `৳${amount.toLocaleString()}`;
   }
@@ -96,7 +134,6 @@ export class PenaltyListComponent implements OnInit {
   viewPenalty(id: number): void {
     this.router.navigate(['/penalties', 'view', id]);
   }
-
   editPenalty(id: number): void {
     this.router.navigate(['/penalties', 'edit', id]);
   }
@@ -105,33 +142,21 @@ export class PenaltyListComponent implements OnInit {
     this.pendingDeleteId = id;
     this.showDeleteModal = true;
   }
-
   cancelDelete(): void {
-    this.resetDeleteState();
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
   }
 
   confirmDeleteExecute(): void {
-    if (this.pendingDeleteId === null) return;
+    if (!this.pendingDeleteId) return;
     const id = this.pendingDeleteId;
-    this.resetDeleteState();
-    this.delete(id);
-  }
-
-  private delete(id: number): void {
-    this.http.delete(`${API_ENDPOINTS.PENALTIES.LIST}/${id}`).subscribe({
+    this.cancelDelete();
+    this.penaltyService.delete(id).subscribe({
       next: () => {
         this.penalties = this.penalties.filter((p) => p.id !== id);
-        this.toast.success('Penalty deleted successfully.');
+        this.toast.success('Penalty deleted.');
       },
-      error: () => {
-        this.penalties = this.penalties.filter((p) => p.id !== id);
-        this.toast.warning('Penalty removed locally. Server delete failed.');
-      },
+      error: () => this.toast.error('Delete failed.'),
     });
-  }
-
-  private resetDeleteState(): void {
-    this.pendingDeleteId = null;
-    this.showDeleteModal = false;
   }
 }

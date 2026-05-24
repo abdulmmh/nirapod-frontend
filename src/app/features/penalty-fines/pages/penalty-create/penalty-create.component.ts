@@ -22,6 +22,7 @@ export class PenaltyCreateComponent implements OnDestroy {
   isSearching = false;
   searchResults: Taxpayer[] = [];
   selectedTaxpayer: Taxpayer | null = null;
+  interestAmount = 0;
   showResults = false;
   private destroy$ = new Subject<void>();
   successMsg = '';
@@ -50,7 +51,6 @@ export class PenaltyCreateComponent implements OnDestroy {
     penaltyType: '',
     severity: 'Medium',
     penaltyAmount: 0,
-    interestAmount: 0,
     returnNo: '',
     assessmentYear: '2024-25',
     issueDate: new Date().toISOString().split('T')[0],
@@ -61,12 +61,12 @@ export class PenaltyCreateComponent implements OnDestroy {
   };
 
   onPenaltyChange(): void {
-    this.form.interestAmount = Math.round(this.form.penaltyAmount * 0.15);
+    this.interestAmount = Math.round(this.form.penaltyAmount * 0.15);
     this.setDefaultDueDate();
   }
 
   get totalAmount(): number {
-    return this.form.penaltyAmount + this.form.interestAmount;
+    return this.form.penaltyAmount + this.interestAmount;
   }
 
   setDefaultDueDate(): void {
@@ -127,12 +127,15 @@ export class PenaltyCreateComponent implements OnDestroy {
       return;
     }
 
+    const payload = { ...this.form };
+    delete (payload as any).interestAmount;
+
     this.isLoading = true;
     this.errorMsg = '';
     this.successMsg = '';
 
     this.penaltyService
-      .create(this.form)
+      .create(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -153,14 +156,14 @@ export class PenaltyCreateComponent implements OnDestroy {
   }
 
   onReset(): void {
+    this.interestAmount = 0;
     this.form = {
       taxpayerId: null,
       penaltyType: '',
       severity: 'Medium',
       penaltyAmount: 0,
-      interestAmount: 0,
       returnNo: '',
-      assessmentYear: '2024-25',
+      assessmentYear: '',
       issueDate: new Date().toISOString().split('T')[0],
       dueDate: '',
       issuedBy: '',
@@ -168,8 +171,6 @@ export class PenaltyCreateComponent implements OnDestroy {
       remarks: '',
     };
     this.setDefaultDueDate();
-    this.errorMsg = '';
-    this.successMsg = '';
   }
 
   onCancel(): void {

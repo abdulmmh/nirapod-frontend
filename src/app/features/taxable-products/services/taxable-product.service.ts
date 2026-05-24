@@ -1,58 +1,70 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { BaseApiService } from 'src/app/core/services/base-api.service';
 import { TaxStructure } from 'src/app/models/tax-structure.model';
-import { TaxableProduct, TaxableProductCreateRequest, TaxableProductViewModel } from 'src/app/models/taxable-product.model';
+import {
+  TaxableProduct,
+  TaxableProductCreateRequest,
+  TaxableProductViewModel,
+} from 'src/app/models/taxable-product.model';
 
 @Injectable({ providedIn: 'root' })
-export class TaxableProductService {
+export class TaxableProductService extends BaseApiService {
 
-  constructor(private http: HttpClient) {}
-
-  list(): Observable<TaxableProduct[]> {
-    return this.http.get<TaxableProduct[]>(API_ENDPOINTS.TAXABLE_PRODUCTS.LIST);
+  constructor(http: HttpClient) {
+    super(http);
   }
 
-  get(id: number): Observable<TaxableProduct> {
-    return this.http.get<TaxableProduct>(API_ENDPOINTS.TAXABLE_PRODUCTS.GET(id));
+  // ── CRUD ─────────────────────────────────────────────────────────────────
+
+  list(): Observable<TaxableProduct[]> {
+    return this.get<TaxableProduct[]>(API_ENDPOINTS.TAXABLE_PRODUCTS.LIST);
+  }
+
+  getById(id: number): Observable<TaxableProduct> {
+    return this.get<TaxableProduct>(`${API_ENDPOINTS.TAXABLE_PRODUCTS.LIST}/${id}`);
   }
 
   create(request: TaxableProductCreateRequest): Observable<void> {
-    return this.http.post<void>(API_ENDPOINTS.TAXABLE_PRODUCTS.CREATE, request);
+    return this.post<void>(API_ENDPOINTS.TAXABLE_PRODUCTS.CREATE, request);
   }
 
   update(id: number, request: TaxableProductCreateRequest): Observable<void> {
-    return this.http.put<void>(API_ENDPOINTS.TAXABLE_PRODUCTS.UPDATE(id), request);
+    return this.put<void>(`${API_ENDPOINTS.TAXABLE_PRODUCTS.LIST}/${id}`, request);
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(API_ENDPOINTS.TAXABLE_PRODUCTS.DELETE(id));
+  deleteProduct(id: number): Observable<void> {
+    return this.delete<void>(`${API_ENDPOINTS.TAXABLE_PRODUCTS.LIST}/${id}`);
   }
+
+  // ── Master Data ───────────────────────────────────────────────────────────
 
   listCategories(): Observable<string[]> {
-    return this.http.get<string[]>(API_ENDPOINTS.TAXABLE_PRODUCTS.CATEGORIES);
+    return this.get<string[]>(API_ENDPOINTS.TAXABLE_PRODUCTS.CATEGORIES);
   }
 
   listUnits(): Observable<string[]> {
-    return this.http.get<string[]>(API_ENDPOINTS.TAXABLE_PRODUCTS.UNITS);
+    return this.get<string[]>(API_ENDPOINTS.TAXABLE_PRODUCTS.UNITS);
   }
 
   listTaxStructures(): Observable<TaxStructure[]> {
-    return this.http.get<TaxStructure[]>(API_ENDPOINTS.TAX_STRUCTURES.LIST)
-      .pipe(map(items => items.filter(item => item.status === 'Active')));
+    return this.get<TaxStructure[]>(API_ENDPOINTS.TAX_STRUCTURES.LIST);
   }
 
+  // ── View Model Enrichment ─────────────────────────────────────────────────
+
   enrichProduct(product: TaxableProduct, taxStructures: TaxStructure[]): TaxableProductViewModel {
-    const structure = taxStructures.find(item => item.id === Number(product.taxStructureId));
+    const ts = taxStructures.find(t => t.id === product.taxStructureId);
     return {
       ...product,
-      taxType: structure?.taxType ?? product.taxType ?? 'N/A',
-      taxRate: structure?.rate ?? product.taxRate ?? 0,
+      taxType: ts?.taxType ?? product.taxType ?? 'VAT',
+      taxRate: ts?.rate    ?? product.taxRate  ?? 0,
     };
   }
 
   enrichProducts(products: TaxableProduct[], taxStructures: TaxStructure[]): TaxableProductViewModel[] {
-    return products.map(product => this.enrichProduct(product, taxStructures));
+    return products.map(p => this.enrichProduct(p, taxStructures));
   }
 }

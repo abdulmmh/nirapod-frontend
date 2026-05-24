@@ -40,3 +40,136 @@
   background: #f0f4f8;
   color: #666;
 }
+/* Action bar */
+.action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-action.submit {
+  background: #1a3f8f;
+  color: #fff;
+}
+.btn-action.approve {
+  background: #1b6b3a;
+  color: #fff;
+}
+.btn-action.reject {
+  background: #f59e0b;
+  color: #fff;
+}
+.btn-action.issue {
+  background: #0e6655;
+  color: #fff;
+}
+.btn-action.cancel {
+  background: #a32d2d;
+  color: #fff;
+}
+.btn-action:hover {
+  filter: brightness(1.1);
+}
+
+/* Timeline */
+.timeline-body {
+  padding: 16px 20px;
+}
+.timeline-item {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.tl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #1a3f8f;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.tl-content {
+  flex: 1;
+}
+.tl-action {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a2340;
+  text-transform: capitalize;
+}
+.tl-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: #888;
+  margin: 2px 0;
+}
+.tl-transition {
+  background: #e8eef9;
+  color: #1a3f8f;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.tl-who {
+  font-weight: 600;
+  color: #444;
+}
+.tl-role {
+  color: #aaa;
+}
+.tl-remarks {
+  font-size: 12px;
+  color: #555;
+  margin-top: 3px;
+  font-style: italic;
+}
+.tl-date {
+  font-size: 11px;
+  color: #bbb;
+  margin-top: 3px;
+}
+
+/* Status classes */
+.status-draft {
+  background: #f0f4f8;
+  color: #64748b;
+}
+.status-approved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.status-partial {
+  background: #fff3e0;
+  color: #e65100;
+}
+.status-cancelled {
+  background: #fce4ec;
+  color: #880e4f;
+}
+.status-closed {
+  background: #ede7f6;
+  color: #4527a0;
+}
+
+/* Modal success variant */
+.btn-modal-confirm.success {
+  background: linear-gradient(135deg, #1b6b3a, #2e7d32);
+  color: #fff;
+}
+.btn-modal-confirm.success:hover {
+  filter: brightness(1.1);
+}

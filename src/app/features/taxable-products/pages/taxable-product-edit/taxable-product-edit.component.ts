@@ -1,140 +1,168 @@
-
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { TaxStructure } from 'src/app/models/tax-structure.model';
 import { TaxableProductCreateRequest } from 'src/app/models/taxable-product.model';
-
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TaxableProductService } from '../../services/taxable-product.service';
-
 
 @Component({
   selector: 'app-taxable-product-edit',
   templateUrl: './taxable-product-edit.component.html',
-  styleUrls: ['./taxable-product-edit.component.css']
+  styleUrls: ['./taxable-product-edit.component.css'],
 })
-export class TaxableProductEditComponent implements OnInit {
+export class TaxableProductEditComponent implements OnInit, OnDestroy {
 
-  productId!: number;
+  productForm!: FormGroup;
 
-  // ── Dropdown data (loaded dynamically) ───────────────────────────────────
-  categories:    string[]       = [];
-  units:         string[]       = [];
+  // ── Dropdown Data ────────────────────────────────────────────────────────
+  categories: string[] = [];
+  units: string[] = [];
   taxStructures: TaxStructure[] = [];
 
-  // ── Form model ────────────────────────────────────────────────────────────
-  request: TaxableProductCreateRequest = {
-    productName:    '',
-    hsCode:         '',
-    category:       '',
-    taxStructureId: 0,
-    unit:           '',
-    description:    '',
-    status:         'Active'
-  };
-
+  // ── Tax Rate Preview ─────────────────────────────────────────────────────
   taxRatePreview: number | null = null;
-  taxTypePreview: string        = '';
+  taxTypePreview: string = '';
 
-  errorMessage = '';
-  loading      = false;
+  // ── State ────────────────────────────────────────────────────────────────
   initialising = true;
-
+  loading = false;
+  private productId!: number;
+  private destroy$ = new Subject<void>();
 
   constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private toast: ToastService,
     private productService: TaxableProductService,
-    private route: Router,
-    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.productId = Number(this.activatedRoute.snapshot.paramMap.get('id'));
+    this.productId = Number(this.route.snapshot.paramMap.get('id'));
+    this.initForm();
     this.loadDropdownsThenProduct();
   }
 
-  // ── Data loading ──────────────────────────────────────────────────────────
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ── Form ─────────────────────────────────────────────────────────────────
+
+  private initForm(): void {
+    this.productForm = this.fb.group({
+      productName:    ['', Validators.required],
+      hsCode:         ['', Validators.required],
+      category:       ['', Validators.required],
+      unit:           ['', Validators.required],
+      taxStructureId: [null, Validators.required],
+      description:    [''],
+      status:         ['Active', Validators.required],
+    });
+  }
+
+  get f() { return this.productForm.controls; }
+
+  // ── Data Loading ─────────────────────────────────────────────────────────
 
   private loadDropdownsThenProduct(): void {
-    let categoriesDone    = false;
-    let unitsDone         = false;
-    let taxStructuresDone = false;
-
-    const tryLoadProduct = () => {
-      if (categoriesDone && unitsDone && taxStructuresDone) {
+    forkJoin({
+      categories:    this.productService.listCategories(),
+      units:         this.productService.listUnits(),
+      taxStructures: this.productService.listTaxStructures(),
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: ({ categories, units, taxStructures }) => {
+        this.categories    = categories;
+        this.units         = units;
+        this.taxStructures = taxStructures;
         this.loadProduct();
-      }
-    };
-
-    this.productService.listCategories().subscribe({
-      next:  data => { this.categories = data;    categoriesDone    = true; tryLoadProduct(); },
-      error: ()   => { categoriesDone = true; tryLoadProduct(); }
-    });
-
-    this.productService.listUnits().subscribe({
-      next:  data => { this.units = data;          unitsDone         = true; tryLoadProduct(); },
-      error: ()   => { unitsDone = true; tryLoadProduct(); }
-    });
-
-    this.productService.listTaxStructures().subscribe({
-      next:  data => { this.taxStructures = data;  taxStructuresDone = true; tryLoadProduct(); },
-      error: ()   => { taxStructuresDone = true; tryLoadProduct(); }
+      },
+      error: () => {
+        this.initialising = false;
+        this.toast.error('Failed to load dropdown data.');
+      },
     });
   }
 
   private loadProduct(): void {
-    this.productService.get(this.productId).subscribe({
-      next: product => {
-        this.request = {
-          productName:    product.productName,
-          hsCode:         product.hsCode,
-          category:       product.category,
-          taxStructureId: product.taxStructureId ?? 0,
-          unit:           product.unit,
-          description:    product.description,
-          status:         product.status
-        };
-        this.refreshTaxPreview(product.taxStructureId);
-        this.initialising = false;
-      },
-      error: () => {
-        this.errorMessage = 'Failed to load product data.';
-        this.initialising = false;
-      }
-    });
+    this.productService.getById(this.productId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (product) => {
+          this.productForm.patchValue({
+            productName:    product.productName,
+            hsCode:         product.hsCode,
+            category:       product.category,
+            unit:           product.unit,
+            taxStructureId: product.taxStructureId,
+            description:    product.description,
+            status:         product.status,
+          });
+          this.refreshTaxPreview(product.taxStructureId);
+          this.initialising = false;
+        },
+        error: () => {
+          this.initialising = false;
+          this.toast.error('Failed to load product data.');
+        },
+      });
   }
 
-  // ── Tax rate preview ──────────────────────────────────────────────────────
+  // ── Tax Rate Preview ─────────────────────────────────────────────────────
 
   onTaxStructureChange(taxStructureId: number): void {
-    this.refreshTaxPreview(+taxStructureId);
+    this.refreshTaxPreview(Number(taxStructureId));
   }
 
   private refreshTaxPreview(taxStructureId: number | null | undefined): void {
-    const selected = this.taxStructures.find(ts => ts.id === taxStructureId);
-    if (selected) {
-      this.taxRatePreview = selected.rate;
-      this.taxTypePreview = selected.taxType;
+    const ts = this.taxStructures.find(t => t.id == taxStructureId);
+    if (ts) {
+      this.taxRatePreview = ts.rate;
+      this.taxTypePreview = ts.taxType;
     } else {
       this.taxRatePreview = null;
       this.taxTypePreview = '';
     }
   }
 
-  // ── Form submission ───────────────────────────────────────────────────────
+  // ── Actions ──────────────────────────────────────────────────────────────
 
   onSubmit(): void {
-    this.errorMessage = '';
-    this.loading = true;
+    if (this.productForm.invalid) {
+      this.productForm.markAllAsTouched();
+      this.toast.warning('Please fill in all required fields.');
+      return;
+    }
 
-    this.productService.update(this.productId, this.request).subscribe({
-      next:  ()  => this.route.navigate(['/taxable-products']),
-      error: err => {
-        this.errorMessage = err?.error?.message ?? 'Failed to update product.';
-        this.loading = false;
-      }
-    });
+    this.loading = true;
+    const request: TaxableProductCreateRequest = this.productForm.value;
+
+    this.productService.update(this.productId, request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          this.toast.success('Product updated successfully.');
+          this.router.navigate(['/taxable-products', this.productId]);
+        },
+        error: (err) => {
+          this.loading = false;
+          if (err?.status === 409) {
+            this.toast.error('A product with this HS code already exists.');
+          } else {
+            this.toast.error('Failed to update product. Please try again.');
+          }
+        },
+      });
   }
 
   onCancel(): void {
-    this.route.navigate(['/taxable-products']);
+    this.router.navigate(['/taxable-products', this.productId]);
   }
 }

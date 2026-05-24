@@ -155,7 +155,7 @@
         <label class="form-label">Interest Amount (15%)</label>
         <div class="input-wrap">
           <i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input calc-field" [value]="form.interestAmount" readonly />
+          <input type="number" class="form-input calc-field" [value]="interestAmount" readonly />
         </div>
       </div>
     </div>
@@ -168,7 +168,7 @@
       </div>
       <div class="ps-row">
         <span class="ps-label">Interest (15%)</span>
-        <span class="ps-value interest">+ {{ fmt(form.interestAmount) }}</span>
+        <span class="ps-value interest">+ {{ fmt(interestAmount) }}</span>
       </div>
       <div class="ps-divider"></div>
       <div class="ps-row total-row">

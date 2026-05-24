@@ -1,145 +1,203 @@
-<!-- src/app/features/taxable-product/edit/product-edit.component.html -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Edit Taxable Product</h4>
+    <p>Update product information and tax configuration.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to List
+  </button>
+</div>
 
-<div class="page-wrapper">
-  <div class="form-card">
+<div class="loading-overlay" *ngIf="initialising">
+  <div class="spinner-border text-primary"></div>
+  <p>Loading product data…</p>
+</div>
 
-    <div class="card-header">
-      <h2 class="card-title">Edit Taxable Product</h2>
+<div class="form-card" *ngIf="!initialising" [formGroup]="productForm">
+
+  <!-- Section 1: Product Identity -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="bi bi-box-seam-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Product Identity</h6>
+        <span class="section-sub">Basic product information and HS code</span>
+      </div>
     </div>
 
-    <div class="card-body">
+    <div class="form-grid">
 
-      <div *ngIf="initialising" class="loading-state">Loading product data…</div>
+      <div class="form-group">
+        <label class="form-label required">Product Name</label>
+        <div class="input-wrap">
+          <i class="bi bi-tag-fill input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. Premium Rice"
+            formControlName="productName" />
+        </div>
+        <span class="field-error"
+          *ngIf="f['productName'].touched && f['productName'].hasError('required')">
+          Product name is required.
+        </span>
+      </div>
 
-      <ng-container *ngIf="!initialising">
+      <div class="form-group">
+        <label class="form-label required">HS Code</label>
+        <div class="input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="e.g. 1006.30"
+            formControlName="hsCode" />
+        </div>
+        <span class="field-error"
+          *ngIf="f['hsCode'].touched && f['hsCode'].hasError('required')">
+          HS code is required.
+        </span>
+      </div>
 
-        <div *ngIf="errorMessage" class="alert-error">{{ errorMessage }}</div>
+      <div class="form-group">
+        <label class="form-label required">Category</label>
+        <div class="input-wrap">
+          <i class="bi bi-grid-fill input-icon"></i>
+          <select class="form-input form-select" formControlName="category">
+            <option value="">Select category</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+        <span class="field-error"
+          *ngIf="f['category'].touched && f['category'].hasError('required')">
+          Category is required.
+        </span>
+      </div>
 
-        <form (ngSubmit)="onSubmit()" #productForm="ngForm">
-
-          <div class="form-row">
-
-            <div class="form-group">
-              <label for="productName" class="form-label">Product Name <span class="required">*</span></label>
-              <input
-                id="productName"
-                type="text"
-                class="form-control"
-                name="productName"
-                [(ngModel)]="request.productName"
-                required>
-            </div>
-
-            <div class="form-group">
-              <label for="hsCode" class="form-label">HS Code <span class="required">*</span></label>
-              <input
-                id="hsCode"
-                type="text"
-                class="form-control"
-                name="hsCode"
-                [(ngModel)]="request.hsCode"
-                required>
-            </div>
-
-          </div>
-
-          <div class="form-row">
-
-            <!-- Category — dynamic -->
-            <div class="form-group">
-              <label for="category" class="form-label">Category <span class="required">*</span></label>
-              <select
-                id="category"
-                class="form-control"
-                name="category"
-                [(ngModel)]="request.category"
-                required>
-                <option value="" disabled>Select category</option>
-                <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-              </select>
-            </div>
-
-            <!-- Unit — dynamic -->
-            <div class="form-group">
-              <label for="unit" class="form-label">Unit <span class="required">*</span></label>
-              <select
-                id="unit"
-                class="form-control"
-                name="unit"
-                [(ngModel)]="request.unit"
-                required>
-                <option value="" disabled>Select unit</option>
-                <option *ngFor="let u of units" [value]="u">{{ u }}</option>
-              </select>
-            </div>
-
-          </div>
-
-          <div class="form-row">
-
-            <!-- Tax Structure — dynamic -->
-            <div class="form-group">
-              <label for="taxStructureId" class="form-label">Tax Structure <span class="required">*</span></label>
-              <select
-                id="taxStructureId"
-                class="form-control"
-                name="taxStructureId"
-                [(ngModel)]="request.taxStructureId"
-                (change)="onTaxStructureChange($any($event.target).value)"
-                required>
-                <option [ngValue]="null" disabled>Select tax structure</option>
-                <option *ngFor="let ts of taxStructures" [value]="ts.id">
-                  {{ ts.taxName }} ({{ ts.taxCode }})
-                </option>
-              </select>
-            </div>
-
-            <!-- Tax Rate Preview — read-only -->
-            <div class="form-group">
-              <label class="form-label">Tax Rate (Preview)</label>
-              <input
-                type="text"
-                class="form-control form-control-readonly"
-                [value]="taxRatePreview !== null ? (taxRatePreview + '% — ' + taxTypePreview) : 'Select a tax structure'"
-                 readonly>
-              <small class="field-hint">Automatically determined by the selected tax structure.</small>
-            </div>
-
-          </div>
-
-          <div class="form-group form-group-full">
-            <label for="description" class="form-label">Description</label>
-            <textarea
-              id="description"
-              class="form-control"
-              name="description"
-              [(ngModel)]="request.description"
-              rows="3"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="status" class="form-label">Status <span class="required">*</span></label>
-            <select
-              id="status"
-              class="form-control"
-              name="status"
-              [(ngModel)]="request.status"
-              required>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || loading">
-              {{ loading ? 'Updating…' : 'Update Product' }}
-            </button>
-          </div>
-
-        </form>
-      </ng-container>
+      <div class="form-group">
+        <label class="form-label required">Unit</label>
+        <div class="input-wrap">
+          <i class="bi bi-rulers input-icon"></i>
+          <select class="form-input form-select" formControlName="unit">
+            <option value="">Select unit</option>
+            <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+          </select>
+        </div>
+        <span class="field-error"
+          *ngIf="f['unit'].touched && f['unit'].hasError('required')">
+          Unit is required.
+        </span>
+      </div>
 
     </div>
   </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: Tax Configuration -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon teal">
+        <i class="bi bi-percent"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Tax Configuration</h6>
+        <span class="section-sub">Link a tax structure — rate is auto-determined</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label class="form-label required">Tax Structure</label>
+        <div class="input-wrap">
+          <i class="bi bi-diagram-3-fill input-icon"></i>
+          <select class="form-input form-select"
+            formControlName="taxStructureId"
+            (change)="onTaxStructureChange($any($event.target).value)">
+            <option [ngValue]="null">Select tax structure</option>
+            <option *ngFor="let ts of taxStructures" [value]="ts.id">
+              {{ ts.taxName }}
+            </option>
+          </select>
+        </div>
+        <span class="field-error"
+          *ngIf="f['taxStructureId'].touched && f['taxStructureId'].hasError('required')">
+          Tax structure is required.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tax Rate (Preview)</label>
+        <div class="input-wrap">
+          <i class="bi bi-calculator input-icon"></i>
+          <input type="text" class="form-input"
+            [value]="taxRatePreview !== null
+              ? (taxRatePreview + '% — ' + taxTypePreview)
+              : 'Select a tax structure to preview'"
+            readonly />
+        </div>
+        <span class="field-hint">Automatically determined by the selected tax structure.</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Additional Info -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon orange">
+        <i class="bi bi-chat-text-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Additional Info</h6>
+        <span class="section-sub">Optional description and product status</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group full-width">
+        <label class="form-label">Description</label>
+        <div class="input-wrap">
+          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+          <textarea class="form-input form-textarea"
+            placeholder="Optional product description..."
+            formControlName="description"
+            rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" formControlName="status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Restricted">Restricted</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button class="btn-cancel" type="button" (click)="onCancel()" [disabled]="loading">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-submit" type="button"
+      (click)="onSubmit()"
+      [disabled]="loading || productForm.invalid">
+      <span *ngIf="!loading">
+        <i class="bi bi-check-lg"></i> Update Product
+      </span>
+      <span *ngIf="loading">
+        <span class="spinner-border spinner-border-sm me-2"></span> Updating…
+      </span>
+    </button>
+  </div>
+
 </div>

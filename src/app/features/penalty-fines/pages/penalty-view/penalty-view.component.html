@@ -7,7 +7,7 @@
     <button class="btn-back" (click)="onBack()">
       <i class="bi bi-arrow-left"></i> Back
     </button>
-    <button *canDo="'edit'" class="btn-edit-top" (click)="onEdit()">
+    <button *ngIf="canEdit()" class="btn-edit-top" (click)="onEdit()">
       <i class="bi bi-pencil-fill"></i> Edit
     </button>
   </div>
@@ -19,7 +19,7 @@
 
 <ng-container *ngIf="!isLoading && penalty">
 
-  <!-- Penalty Header Card -->
+  <!-- Header Card -->
   <div class="view-header-card red">
     <div class="penalty-header-left">
       <div class="penalty-icon">
@@ -29,12 +29,11 @@
         <div class="penalty-no">{{ penalty.penaltyNo }}</div>
         <div class="penalty-meta">
           <span class="sev-badge" [ngClass]="getSeverityClass(penalty.severity)">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            {{ penalty.severity }}
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ penalty.severity }}
           </span>
           <span class="penalty-type-label">{{ penalty.penaltyType }}</span>
           <span class="penalty-date">
-            <i class="bi bi-calendar3"></i> {{ penalty.issueDate }}
+            <i class="bi bi-calendar3"></i> {{ penalty.issueDate | date:'dd MMM yyyy' }}
           </span>
         </div>
       </div>
@@ -46,6 +45,25 @@
         {{ penalty.status }}
       </span>
     </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-bar" *ngIf="canSubmit() || canApprove() || canReject() || canIssue() || canCancel()">
+    <button *ngIf="canSubmit()" class="btn-action submit" (click)="openAction('submit')">
+      <i class="bi bi-send-fill"></i> Submit for Approval
+    </button>
+    <button *ngIf="canApprove()" class="btn-action approve" (click)="openAction('approve')">
+      <i class="bi bi-check-circle-fill"></i> Approve
+    </button>
+    <button *ngIf="canReject()" class="btn-action reject" (click)="openAction('reject')">
+      <i class="bi bi-arrow-counterclockwise"></i> Return to Draft
+    </button>
+    <button *ngIf="canIssue()" class="btn-action issue" (click)="openAction('issue')">
+      <i class="bi bi-send-check-fill"></i> Issue Officially
+    </button>
+    <button *ngIf="canCancel()" class="btn-action cancel" (click)="openAction('cancel')">
+      <i class="bi bi-x-circle-fill"></i> Cancel
+    </button>
   </div>
 
   <!-- Amount Summary -->
@@ -60,7 +78,7 @@
     <div class="amount-card">
       <div class="ac-icon interest"><i class="bi bi-percent"></i></div>
       <div class="ac-body">
-        <span class="ac-label">Interest (15%)</span>
+        <span class="ac-label">Interest ({{ penalty.interestRate }}%)</span>
         <span class="ac-value interest">{{ fmt(penalty.interestAmount) }}</span>
       </div>
     </div>
@@ -84,11 +102,9 @@
 
   <!-- Details Grid -->
   <div class="details-grid">
-
     <div class="detail-card">
       <div class="detail-card-header">
-        <i class="bi bi-person-badge-fill"></i>
-        <span>Taxpayer Information</span>
+        <i class="bi bi-person-badge-fill"></i><span>Taxpayer Information</span>
       </div>
       <div class="detail-body">
         <div class="detail-row">
@@ -112,8 +128,7 @@
 
     <div class="detail-card">
       <div class="detail-card-header">
-        <i class="bi bi-exclamation-triangle-fill"></i>
-        <span>Penalty Information</span>
+        <i class="bi bi-exclamation-triangle-fill"></i><span>Penalty Information</span>
       </div>
       <div class="detail-body">
         <div class="detail-row">
@@ -130,25 +145,25 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Issue Date</span>
-          <span class="detail-value">{{ penalty.issueDate }}</span>
+          <span class="detail-value">{{ penalty.issueDate | date:'dd MMM yyyy' }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Due Date</span>
-          <span class="detail-value" [class]="penalty.status === 'Overdue' ? 'due-overdue' : ''">
-            {{ penalty.dueDate }}
+          <span class="detail-value"
+            [class]="penalty.status === 'Overdue' ? 'due-overdue' : ''">
+            {{ penalty.dueDate | date:'dd MMM yyyy' }}
           </span>
         </div>
         <div class="detail-row" *ngIf="penalty.paymentDate">
           <span class="detail-label">Payment Date</span>
-          <span class="detail-value">{{ penalty.paymentDate }}</span>
+          <span class="detail-value">{{ penalty.paymentDate | date:'dd MMM yyyy' }}</span>
         </div>
       </div>
     </div>
 
     <div class="detail-card">
       <div class="detail-card-header">
-        <i class="bi bi-person-gear"></i>
-        <span>Processing Information</span>
+        <i class="bi bi-person-gear"></i><span>Processing Information</span>
       </div>
       <div class="detail-body">
         <div class="detail-row">
@@ -172,27 +187,79 @@
 
     <div class="detail-card" *ngIf="penalty.description || penalty.remarks">
       <div class="detail-card-header">
-        <i class="bi bi-chat-text-fill"></i>
-        <span>Description & Remarks</span>
+        <i class="bi bi-chat-text-fill"></i><span>Description & Remarks</span>
       </div>
       <div class="detail-body">
         <div class="detail-row" *ngIf="penalty.description">
           <span class="detail-label">Description</span>
           <span class="detail-value"
-            style="text-align:left; max-width:300px; word-break:break-word; white-space:normal;">
+            style="text-align:left;max-width:300px;word-break:break-word;white-space:normal;">
             {{ penalty.description }}
           </span>
         </div>
         <div class="detail-row" *ngIf="penalty.remarks">
           <span class="detail-label">Remarks</span>
           <span class="detail-value"
-            style="text-align:left; max-width:300px; word-break:break-word; white-space:normal;">
+            style="text-align:left;max-width:300px;word-break:break-word;white-space:normal;">
             {{ penalty.remarks }}
           </span>
         </div>
       </div>
     </div>
+  </div>
 
+  <!-- Audit Timeline -->
+  <div class="detail-card mt-3" *ngIf="penalty.auditLogs && penalty.auditLogs.length > 0">
+    <div class="detail-card-header">
+      <i class="bi bi-clock-history"></i><span>Activity Timeline</span>
+    </div>
+    <div class="timeline-body">
+      <div class="timeline-item" *ngFor="let log of penalty.auditLogs">
+        <div class="tl-dot" [class]="'tl-' + log.action.toLowerCase()"></div>
+        <div class="tl-content">
+          <div class="tl-action">{{ formatAction(log.action) }}</div>
+          <div class="tl-meta">
+            <span *ngIf="log.fromStatus && log.toStatus" class="tl-transition">
+              {{ log.fromStatus }} → {{ log.toStatus }}
+            </span>
+            <span class="tl-who">{{ log.performedBy }}</span>
+            <span class="tl-role">({{ log.performedByRole }})</span>
+          </div>
+          <div class="tl-remarks" *ngIf="log.remarks">{{ log.remarks }}</div>
+          <div class="tl-date">{{ log.createdAt | date:'dd MMM yyyy, hh:mm a' }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 
 </ng-container>
+
+<!-- Action Modal -->
+<div class="modal-overlay" *ngIf="showActionModal">
+  <div class="modal-card">
+    <div class="modal-accent"></div>
+    <div class="modal-icon-wrap">
+      <i class="bi bi-shield-check" style="font-size:22px;"></i>
+    </div>
+    <p class="modal-title">{{ getActionLabel(pendingAction) }}</p>
+    <p class="modal-msg">Add remarks (optional)</p>
+    <div class="input-wrap" style="margin:0 16px 16px;">
+      <textarea class="form-input form-textarea"
+        [(ngModel)]="actionRemarks"
+        placeholder="Remarks..." rows="3">
+      </textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="closeAction()" [disabled]="isActing">
+        Cancel
+      </button>
+      <button [class]="getActionClass(pendingAction)"
+        (click)="confirmAction()" [disabled]="isActing">
+        <span *ngIf="!isActing">{{ getActionLabel(pendingAction) }}</span>
+        <span *ngIf="isActing">
+          <span class="spinner-border spinner-border-sm"></span> Processing...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

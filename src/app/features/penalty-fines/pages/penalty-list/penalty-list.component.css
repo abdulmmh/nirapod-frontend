@@ -70,3 +70,51 @@
 .data-table {
   min-width: 1400px;
 }
+.status-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0 4px;
+}
+.filter-pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #dde3f0;
+  background: #f4f6fb;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.filter-pill:hover {
+  border-color: #1a3f8f;
+  color: #1a3f8f;
+}
+.filter-pill.active {
+  background: #1a3f8f;
+  color: #fff;
+  border-color: #1a3f8f;
+}
+
+/* New status classes */
+.status-draft {
+  background: #f0f4f8;
+  color: #64748b;
+}
+.status-approved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.status-partial {
+  background: #fff3e0;
+  color: #e65100;
+}
+.status-cancelled {
+  background: #fce4ec;
+  color: #880e4f;
+}
+.status-closed {
+  background: #ede7f6;
+  color: #4527a0;
+}

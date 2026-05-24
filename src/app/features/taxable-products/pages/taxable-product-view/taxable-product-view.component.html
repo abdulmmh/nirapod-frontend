@@ -19,32 +19,37 @@
 
 <ng-container *ngIf="!isLoading && product">
 
-  <!-- Header Card -->
-  <div class="view-header-card">
-    <div class="phc-left">
-      <div class="phc-icon"><i [class]="getCategoryIcon(product.category)"></i></div>
+  <!-- Product Header Card -->
+  <div class="prod-header-card">
+    <div class="prod-header-left">
+      <div class="prod-icon">
+        <i [class]="getCategoryIcon(product.category)"></i>
+      </div>
       <div>
-        <div class="phc-code">{{ product.productCode }}</div>
-        <div class="phc-name">{{ product.productName }}</div>
-        <div class="phc-meta">
+        <div class="prod-code">{{ product.productCode }}</div>
+        <div class="prod-name">{{ product.productName }}</div>
+        <div class="prod-meta">
           <span class="hs-pill">HS: {{ product.hsCode }}</span>
-          <span class="cat-pill-sm">{{ product.category }}</span>
+          <span class="cat-pill">{{ product.category }}</span>
           <span class="status-badge" [ngClass]="getStatusClass(product.status)">
             {{ product.status }}
           </span>
         </div>
       </div>
     </div>
-    <div class="phc-right">
-      <div class="phc-rate">{{ product.taxRate === 0 ? 'Zero' : product.taxRate + '%' }}</div>
-      <div class="phc-rate-label">{{ product.taxType }}</div>
-      <div class="phc-unit">Per {{ product.unit }}</div>
+    <div class="prod-header-right">
+      <div class="prod-rate">
+        {{ product.taxRate === 0 ? 'Zero' : product.taxRate + '%' }}
+      </div>
+      <div class="prod-rate-label">{{ product.taxType }}</div>
+      <div class="prod-unit">Per {{ product.unit }}</div>
     </div>
   </div>
 
   <!-- Details Grid -->
   <div class="details-grid">
 
+    <!-- Product Information -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-box-seam-fill"></i>
@@ -53,7 +58,9 @@
       <div class="detail-body">
         <div class="detail-row">
           <span class="detail-label">Product Code</span>
-          <span class="detail-value"><span class="code-badge cyan">{{ product.productCode }}</span></span>
+          <span class="detail-value">
+            <span class="code-badge">{{ product.productCode }}</span>
+          </span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Product Name</span>
@@ -61,7 +68,9 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">HS Code</span>
-          <span class="detail-value"><span class="code-badge blue">{{ product.hsCode }}</span></span>
+          <span class="detail-value">
+            <span class="code-badge code-sm">{{ product.hsCode }}</span>
+          </span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Category</span>
@@ -74,43 +83,46 @@
         <div class="detail-row">
           <span class="detail-label">Status</span>
           <span class="detail-value">
-            <span class="status-badge" [ngClass]="getStatusClass(product.status)">{{ product.status }}</span>
+            <span class="status-badge" [ngClass]="getStatusClass(product.status)">
+              {{ product.status }}
+            </span>
           </span>
         </div>
       </div>
     </div>
 
+    <!-- Tax Information -->
     <div class="detail-card">
       <div class="detail-card-header">
         <i class="bi bi-percent"></i>
         <span>Tax Information</span>
       </div>
       <div class="detail-body">
-        <!-- FIX: product.taxStructure.taxName → enrichProduct এ taxType ও taxRate আছে -->
         <div class="detail-row">
           <span class="detail-label">Tax Type</span>
           <span class="detail-value fw-bold">{{ product.taxType }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Tax Rate</span>
-          <span class="detail-value rate-big">
+          <span class="detail-value rate-value">
             {{ product.taxRate === 0 ? 'Zero Rated (0%)' : product.taxRate + '%' }}
           </span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Created At</span>
-          <span class="detail-value">{{ product.createdAt }}</span>
+          <span class="detail-value">{{ product.createdAt | date:'dd MMM yyyy' }}</span>
         </div>
       </div>
     </div>
 
+    <!-- Description (full width, only if present) -->
     <div class="detail-card full-card" *ngIf="product.description">
       <div class="detail-card-header">
         <i class="bi bi-chat-text-fill"></i>
         <span>Description</span>
       </div>
-      <div style="padding:14px 18px; font-size:13px; color:#444; line-height:1.7;">
-        {{ product.description }}
+      <div class="detail-body">
+        <p class="description-text">{{ product.description }}</p>
       </div>
     </div>
 

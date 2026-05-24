@@ -46,7 +46,7 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
     private router: Router,
     private http: HttpClient,
     private toast: ToastService,
-    private penaltyService: PenaltyService
+    private penaltyService: PenaltyService,
   ) {}
 
   ngOnInit(): void {
@@ -61,12 +61,16 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
 
   loadPenalty(): void {
     this.isLoading = true;
-    this.penaltyService.getById(this.penaltyId)
+    this.penaltyService
+      .getById(this.penaltyId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.form = { ...data };
           this.isLoading = false;
+          if (data.status !== 'DRAFT') {
+            this.errorMsg = `This penalty is "${data.status}" — only DRAFT penalties can be edited.`;
+          }
         },
         error: () => {
           this.form = {
@@ -106,6 +110,7 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
   }
 
   isFormValid(): boolean {
+    if (this.form.status !== 'DRAFT') return false; // ← যোগ করো
     return !!(
       this.form.penaltyType &&
       this.form.severity &&
@@ -123,14 +128,16 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
     this.isSaving = true;
     this.errorMsg = '';
     this.successMsg = '';
-    this.penaltyService.update(this.penaltyId, this.form)
+    this.penaltyService
+      .update(this.penaltyId, this.form)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.isSaving = false;
           this.successMsg = 'Penalty updated successfully!';
           this.toast.success('Penalty updated successfully!');
-          timer(1500).pipe(takeUntil(this.destroy$))
+          timer(1500)
+            .pipe(takeUntil(this.destroy$))
             .subscribe(() => this.router.navigate(['/penalties']));
         },
         error: () => {

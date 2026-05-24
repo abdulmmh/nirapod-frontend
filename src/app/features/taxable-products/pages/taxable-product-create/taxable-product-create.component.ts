@@ -1,13 +1,11 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin, Subject, timer } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TaxStructure } from 'src/app/models/tax-structure.model';
-import {
-  ProductStatus,
-  TaxableProductCreateRequest,
-} from '../../../../models/taxable-product.model';
+import { ProductStatus } from '../../../../models/taxable-product.model';
 import { TaxableProductService } from '../../services/taxable-product.service';
 
 @Component({
@@ -16,26 +14,31 @@ import { TaxableProductService } from '../../services/taxable-product.service';
   styleUrls: ['./taxable-product-create.component.css'],
 })
 export class TaxableProductCreateComponent implements OnInit, OnDestroy {
-  isLoading = false;
-  isMasterDataLoading = false;
-  successMsg = '';
-  errorMsg = '';
-  private destroy$ = new Subject<void>();
 
+  productForm!: FormGroup;
+
+  // ── Dropdown Data ────────────────────────────────────────────────────────
   categories: string[] = [];
   units: string[] = [];
-  statuses: ProductStatus[] = ['Active', 'Inactive', 'Restricted'];
   taxStructures: TaxStructure[] = [];
+  statuses: ProductStatus[] = ['Active', 'Inactive', 'Restricted'];
 
-  form: TaxableProductCreateRequest = this.createEmptyForm();
+  // ── State ────────────────────────────────────────────────────────────────
+  isMasterDataLoading = false;
+  isLoading = false;
+  selectedTaxStructure: TaxStructure | undefined;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
+    private fb: FormBuilder,
     private router: Router,
-    private productService: TaxableProductService,
     private toast: ToastService,
+    private productService: TaxableProductService,
   ) {}
 
   ngOnInit(): void {
+    this.initForm();
     this.loadMasterData();
   }
 
@@ -44,11 +47,24 @@ export class TaxableProductCreateComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  get selectedTaxStructure(): TaxStructure | undefined {
-    return this.taxStructures.find(
-      (t) => t.id === Number(this.form.taxStructureId),
-    );
+  // ── Form ─────────────────────────────────────────────────────────────────
+
+  private initForm(): void {
+    this.productForm = this.fb.group({
+      productName:    ['', Validators.required],
+      hsCode:         ['', Validators.required],
+      category:       ['', Validators.required],
+      unit:           ['', Validators.required],
+      taxStructureId: [null, Validators.required],
+      description:    [''],
+      status:         ['Active', Validators.required],
+    });
   }
+
+  /** Shorthand for template access */
+  get f() { return this.productForm.controls; }
+
+  // ── Tax Rate Preview ─────────────────────────────────────────────────────
 
   get selectedTaxType(): string {
     return this.selectedTaxStructure?.taxType ?? '';
@@ -58,91 +74,70 @@ export class TaxableProductCreateComponent implements OnInit, OnDestroy {
     return this.selectedTaxStructure?.rate ?? 0;
   }
 
+  onTaxStructureChange(): void {
+    const id = this.productForm.value.taxStructureId;
+    this.selectedTaxStructure = this.taxStructures.find(ts => ts.id == id);
+  }
+
+  // ── Data Loading ─────────────────────────────────────────────────────────
+
   loadMasterData(): void {
     this.isMasterDataLoading = true;
     forkJoin({
-      categories: this.productService.listCategories(),
-      units: this.productService.listUnits(),
-      taxStructures: this.productService.listTaxStructures(),
-    }).pipe(takeUntil(this.destroy$)).subscribe({
+      categories:     this.productService.listCategories(),
+      units:          this.productService.listUnits(),
+      taxStructures:  this.productService.listTaxStructures(),
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: ({ categories, units, taxStructures }) => {
-        this.categories = categories;
-        this.units = units;
+        this.categories    = categories;
+        this.units         = units;
         this.taxStructures = taxStructures;
         this.isMasterDataLoading = false;
       },
       error: () => {
         this.isMasterDataLoading = false;
-        this.errorMsg =
-          'Failed to load product master data. Please refresh the page.';
-        this.toast.error(this.errorMsg);
+        this.toast.error('Failed to load product master data. Please refresh.');
       },
     });
   }
 
-  onTaxStructureChange(): void {}
-
-  isFormValid(): boolean {
-    return !!(
-      this.form.productName.trim() &&
-      this.form.hsCode.trim() &&
-      this.form.category &&
-      this.form.unit &&
-      this.form.taxStructureId > 0
-    );
-  }
+  // ── Actions ──────────────────────────────────────────────────────────────
 
   onSubmit(): void {
-    if (!this.isFormValid()) {
-      this.errorMsg = 'Please fill in all required fields.';
-      this.toast.error(this.errorMsg);
-      this.successMsg = '';
+    if (this.productForm.invalid) {
+      this.productForm.markAllAsTouched();
+      this.toast.warning('Please fill in all required fields.');
       return;
     }
 
     this.isLoading = true;
-    this.errorMsg = '';
-    this.successMsg = '';
-
-    this.productService.create(this.form).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.successMsg = 'Taxable product created successfully!';
-        this.toast.success(this.successMsg);
-        timer(1500).pipe(takeUntil(this.destroy$))
-          .subscribe(() => this.router.navigate(['/taxable-products']));
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMsg =
-          err.status === 400
-            ? 'Invalid input. Please check the form.'
-            : 'Create failed. Please try again.';
-        this.toast.error(this.errorMsg);
-      },
-    });
+    this.productService.create(this.productForm.value)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.toast.success('Product saved successfully.');
+          this.router.navigate(['/taxable-products']);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          if (err?.status === 409) {
+            this.toast.error('A product with this HS code already exists.');
+          } else {
+            this.toast.error('Failed to save product. Please try again.');
+          }
+        },
+      });
   }
 
   onReset(): void {
-    this.form = this.createEmptyForm();
-    this.errorMsg = '';
-    this.successMsg = '';
-    this.toast.info('Form has been reset.');
+    this.productForm.reset({ status: 'Active' });
+    this.selectedTaxStructure = undefined;
   }
 
   onCancel(): void {
     this.router.navigate(['/taxable-products']);
-  }
-
-  private createEmptyForm(): TaxableProductCreateRequest {
-    return {
-      productName: '',
-      hsCode: '',
-      category: '',
-      taxStructureId: 0,
-      unit: '',
-      description: '',
-      status: 'Active',
-    };
   }
 }

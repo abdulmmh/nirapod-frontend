@@ -23,6 +23,12 @@
       </button>
     </div>
   </div>
+  <div class="status-filter-row">
+    <button *ngFor="let f of statusFilters" class="filter-pill" [class.active]="activeStatus === f.value"
+      (click)="filterByStatus(f.value)">
+      {{ f.label }}
+    </button>
+  </div>
 
   <!-- Loading -->
   <div class="loading-row" *ngIf="isLoading">
