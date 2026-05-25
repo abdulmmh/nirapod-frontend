@@ -1,156 +1,201 @@
-// ─── audit.service.ts ────────────────────────────────────────────────────────
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
-  AuditCase, AuditCaseCreateRequest, AuditFinding, AuditFindingRequest,
-  AuditQuery, AuditDocumentRequest, Assessment, AssessmentProposeRequest,
-  DemandNotice, PageResult
+  AuditCase,
+  AuditCaseCreateRequest,
+  AuditFinding,
+  AuditFindingRequest,
+  AuditQuery,
+  AuditDocumentRequest,
+  Assessment,
+  AssessmentProposeRequest,
+  DemandNotice,
+  PageResult,
 } from '../../../models/audit.model';
-
-const OFFICER_BASE  = '/api/audits';
-const TAXPAYER_BASE = '/api/my-portal/audits';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class AuditService {
-
   constructor(private http: HttpClient) {}
 
   // ── Officer: Audit Cases ───────────────────────────────────────────────────
 
   createCase(req: AuditCaseCreateRequest): Observable<AuditCase> {
-    return this.http.post<AuditCase>(OFFICER_BASE, req);
+    return this.http.post<AuditCase>(API_ENDPOINTS.AUDITS.CREATE, req);
   }
 
-  getCases(status?: string, auditType?: string, fiscalYear?: string,
-           priority?: string, page = 0, size = 20): Observable<PageResult<AuditCase>> {
+  getCases(
+    status?: string,
+    auditType?: string,
+    fiscalYear?: string,
+    priority?: string,
+    page = 0,
+    size = 20,
+  ): Observable<PageResult<AuditCase>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    if (status)    params = params.set('status', status);
+    if (status) params = params.set('status', status);
     if (auditType) params = params.set('auditType', auditType);
     if (fiscalYear) params = params.set('fiscalYear', fiscalYear);
-    if (priority)  params = params.set('priority', priority);
-    return this.http.get<PageResult<AuditCase>>(OFFICER_BASE, { params });
-  }
-
-  getCaseById(id: number): Observable<AuditCase> {
-    return this.http.get<AuditCase>(`${OFFICER_BASE}/${id}`);
-  }
-
-  searchCases(q: string): Observable<AuditCase[]> {
-    return this.http.get<AuditCase[]>(`${OFFICER_BASE}/search`, {
-      params: new HttpParams().set('q', q)
+    if (priority) params = params.set('priority', priority);
+    return this.http.get<PageResult<AuditCase>>(API_ENDPOINTS.AUDITS.LIST, {
+      params,
     });
   }
 
-  updateStatus(id: number, status: string, reason: string): Observable<AuditCase> {
-    return this.http.patch<AuditCase>(`${OFFICER_BASE}/${id}/status`, { status, reason });
+  getCaseById(id: number): Observable<AuditCase> {
+    return this.http.get<AuditCase>(API_ENDPOINTS.AUDITS.GET(id));
+  }
+
+  searchCases(q: string): Observable<AuditCase[]> {
+    return this.http.get<AuditCase[]>(API_ENDPOINTS.AUDITS.SEARCH, {
+      params: new HttpParams().set('q', q),
+    });
+  }
+
+  updateStatus(
+    id: number,
+    status: string,
+    reason: string,
+  ): Observable<AuditCase> {
+    return this.http.patch<AuditCase>(API_ENDPOINTS.AUDITS.STATUS(id), {
+      status,
+      reason,
+    });
   }
 
   issueNotice(id: number, remarks?: string): Observable<AuditCase> {
-    return this.http.post<AuditCase>(`${OFFICER_BASE}/${id}/issue-notice`, { remarks });
+    return this.http.post<AuditCase>(API_ENDPOINTS.AUDITS.ISSUE_NOTICE(id), {
+      remarks,
+    });
   }
 
   deleteCase(id: number): Observable<void> {
-    return this.http.delete<void>(`${OFFICER_BASE}/${id}`);
+    return this.http.delete<void>(API_ENDPOINTS.AUDITS.DELETE(id));
   }
 
   getKpis(): Observable<{ [key: string]: number }> {
-    return this.http.get<{ [key: string]: number }>(`${OFFICER_BASE}/kpis`);
+    return this.http.get<any>(API_ENDPOINTS.AUDITS.KPIS);
   }
 
   // ── Officer: Document Requests ─────────────────────────────────────────────
 
-  requestDocuments(caseId: number, req: {
-    requestedDocuments: string;
-    requestReason?: string;
-    requestType?: string;
-    deadline?: string;
-  }): Observable<AuditDocumentRequest> {
+  requestDocuments(caseId: number, req: any): Observable<AuditDocumentRequest> {
     return this.http.post<AuditDocumentRequest>(
-      `${OFFICER_BASE}/${caseId}/request-documents`, req);
+      API_ENDPOINTS.AUDITS.REQUEST_DOCS(caseId),
+      req,
+    );
   }
 
   getDocumentRequests(caseId: number): Observable<AuditDocumentRequest[]> {
-    return this.http.get<AuditDocumentRequest[]>(`${OFFICER_BASE}/${caseId}/document-requests`);
+    return this.http.get<AuditDocumentRequest[]>(
+      API_ENDPOINTS.AUDITS.DOC_REQUESTS(caseId),
+    );
   }
 
   // ── Officer: Queries ───────────────────────────────────────────────────────
 
-  raiseQuery(caseId: number, req: {
-    subject: string; queryText: string; queryType?: string; deadline?: string;
-  }): Observable<AuditQuery> {
-    return this.http.post<AuditQuery>(`${OFFICER_BASE}/${caseId}/queries`, req);
+  raiseQuery(caseId: number, req: any): Observable<AuditQuery> {
+    return this.http.post<AuditQuery>(
+      API_ENDPOINTS.AUDITS.QUERIES(caseId),
+      req,
+    );
   }
 
   getQueries(caseId: number): Observable<AuditQuery[]> {
-    return this.http.get<AuditQuery[]>(`${OFFICER_BASE}/${caseId}/queries`);
+    return this.http.get<AuditQuery[]>(API_ENDPOINTS.AUDITS.QUERIES(caseId));
   }
 
   // ── Officer: Findings ──────────────────────────────────────────────────────
 
-  addFinding(caseId: number, req: AuditFindingRequest): Observable<AuditFinding> {
-    return this.http.post<AuditFinding>(`${OFFICER_BASE}/${caseId}/findings`, req);
+  addFinding(
+    caseId: number,
+    req: AuditFindingRequest,
+  ): Observable<AuditFinding> {
+    return this.http.post<AuditFinding>(
+      API_ENDPOINTS.AUDITS.FINDINGS(caseId),
+      req,
+    );
   }
 
   getFindings(caseId: number): Observable<AuditFinding[]> {
-    return this.http.get<AuditFinding[]>(`${OFFICER_BASE}/${caseId}/findings`);
+    return this.http.get<AuditFinding[]>(API_ENDPOINTS.AUDITS.FINDINGS(caseId));
   }
-
   // ── Officer: Assessment ────────────────────────────────────────────────────
 
-  proposeAssessment(caseId: number, req: AssessmentProposeRequest): Observable<Assessment> {
-    return this.http.post<Assessment>(`${OFFICER_BASE}/${caseId}/propose-assessment`, req);
+  proposeAssessment(
+    caseId: number,
+    req: AssessmentProposeRequest,
+  ): Observable<Assessment> {
+    return this.http.post<Assessment>(
+      API_ENDPOINTS.AUDITS.PROPOSE(caseId),
+      req,
+    );
   }
-
   getAssessment(caseId: number): Observable<Assessment> {
-    return this.http.get<Assessment>(`${OFFICER_BASE}/${caseId}/assessment`);
+    return this.http.get<Assessment>(API_ENDPOINTS.AUDITS.ASSESSMENT(caseId));
   }
 
-  approveAssessment(caseId: number, approvalNotes?: string): Observable<Assessment> {
-    return this.http.post<Assessment>(`${OFFICER_BASE}/${caseId}/approve-assessment`,
-      { approvalNotes });
+  approveAssessment(
+    caseId: number,
+    approvalNotes?: string,
+  ): Observable<Assessment> {
+    return this.http.post<Assessment>(API_ENDPOINTS.AUDITS.APPROVE(caseId), {
+      approvalNotes,
+    });
   }
 
   issueDemandNotice(caseId: number): Observable<DemandNotice> {
-    return this.http.post<DemandNotice>(`${OFFICER_BASE}/${caseId}/issue-demand`, {});
+    return this.http.post<DemandNotice>(
+      API_ENDPOINTS.AUDITS.ISSUE_DEMAND(caseId),
+      {},
+    );
   }
 
   getDemandNotice(caseId: number): Observable<DemandNotice> {
-    return this.http.get<DemandNotice>(`${OFFICER_BASE}/${caseId}/demand-notice`);
+    return this.http.get<DemandNotice>(API_ENDPOINTS.AUDITS.DEMAND(caseId));
   }
 
   // ── Taxpayer Portal ────────────────────────────────────────────────────────
 
   getMyAudits(): Observable<AuditCase[]> {
-    return this.http.get<AuditCase[]>(`${TAXPAYER_BASE}/my`);
+    return this.http.get<AuditCase[]>(API_ENDPOINTS.AUDITS.MY_LIST);
   }
 
   getMyAuditById(id: number): Observable<AuditCase> {
-    return this.http.get<AuditCase>(`${TAXPAYER_BASE}/${id}`);
+    return this.http.get<AuditCase>(API_ENDPOINTS.AUDITS.MY_GET(id));
   }
 
-  respond(caseId: number, req: {
-    responseText: string; queryId?: number; documentRequestId?: number;
-  }): Observable<AuditCase> {
-    return this.http.post<AuditCase>(`${TAXPAYER_BASE}/${caseId}/respond`, req);
+  respond(caseId: number, req: any): Observable<AuditCase> {
+    return this.http.post<AuditCase>(
+      API_ENDPOINTS.AUDITS.MY_RESPOND(caseId),
+      req,
+    );
   }
 
-  uploadDocuments(caseId: number, files: File[],
-                  documentRequestId?: number, description?: string): Observable<any> {
+  uploadDocuments(
+    caseId: number,
+    files: File[],
+    documentRequestId?: number,
+    description?: string,
+  ): Observable<any> {
     const formData = new FormData();
-    files.forEach(f => formData.append('files', f));
-    if (documentRequestId) formData.append('documentRequestId', String(documentRequestId));
-    if (description)       formData.append('description', description);
-    return this.http.post(`${TAXPAYER_BASE}/${caseId}/upload-documents`, formData);
+    files.forEach((f) => formData.append('files', f));
+    if (documentRequestId)
+      formData.append('documentRequestId', String(documentRequestId));
+    if (description) formData.append('description', description);
+    return this.http.post(API_ENDPOINTS.AUDITS.MY_UPLOAD(caseId), formData);
   }
 
   getMyAssessment(caseId: number): Observable<Assessment> {
-    return this.http.get<Assessment>(`${TAXPAYER_BASE}/${caseId}/assessment`);
+    return this.http.get<Assessment>(
+      API_ENDPOINTS.AUDITS.MY_ASSESSMENT(caseId),
+    );
   }
 
   getMyDemandNotice(caseId: number): Observable<DemandNotice> {
-    return this.http.get<DemandNotice>(`${TAXPAYER_BASE}/${caseId}/demand-notice`);
+    return this.http.get<DemandNotice>(API_ENDPOINTS.AUDITS.MY_DEMAND(caseId));
   }
 }

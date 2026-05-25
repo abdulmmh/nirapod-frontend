@@ -1,4 +1,3 @@
-
 <div class="page-header">
   <div class="page-header-left">
     <h4>Audit Cases</h4>
@@ -10,47 +9,46 @@
 </div>
 
 <!-- KPI Stats Row -->
-<div class="audit-stats" *ngIf="kpis">
-  <div class="as-card">
-    <div class="asc-icon open"><i class="bi bi-folder2-open"></i></div>
-    <div>
-      <span class="asc-label">Open Audits</span>
-      <span class="asc-value">{{ kpis['openAudits'] ?? 0 }}</span>
+<div class="audit-kpi-row" *ngIf="kpis">
+  <div class="akpi-card">
+    <div class="akpi-icon blue"><i class="bi bi-folder2-open"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Open Audits</span>
+      <span class="akpi-value">{{ kpis['openAudits'] }}</span>
     </div>
   </div>
-  <div class="as-card">
-    <div class="asc-icon approved"><i class="bi bi-check-circle-fill"></i></div>
-    <div>
-      <span class="asc-label">Approved</span>
-      <span class="asc-value">{{ kpis['assessmentApproved'] ?? 0 }}</span>
+  <div class="akpi-card">
+    <div class="akpi-icon green"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Approved</span>
+      <span class="akpi-value">{{ kpis['assessmentApproved']  }}</span>
     </div>
   </div>
-  <div class="as-card">
-    <div class="asc-icon demand"><i class="bi bi-receipt-cutoff"></i></div>
-    <div>
-      <span class="asc-label">Demand Issued</span>
-      <span class="asc-value">{{ kpis['demandIssued'] ?? 0 }}</span>
+  <div class="akpi-card">
+    <div class="akpi-icon orange"><i class="bi bi-receipt-cutoff"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Demand Issued</span>
+      <span class="akpi-value">{{ kpis['demandIssued']  }}</span>
     </div>
   </div>
-  <div class="as-card">
-    <div class="asc-icon paid"><i class="bi bi-cash-coin"></i></div>
-    <div>
-      <span class="asc-label">Paid</span>
-      <span class="asc-value">{{ kpis['paid'] ?? 0 }}</span>
+  <div class="akpi-card">
+    <div class="akpi-icon teal"><i class="bi bi-cash-coin"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Paid</span>
+      <span class="akpi-value">{{ kpis['paid']  }}</span>
     </div>
   </div>
-  <div class="as-card">
-    <div class="asc-icon appealed"><i class="bi bi-shield-exclamation"></i></div>
-    <div>
-      <span class="asc-label">Appealed</span>
-      <span class="asc-value">{{ kpis['appealed'] ?? 0 }}</span>
+  <div class="akpi-card">
+    <div class="akpi-icon red"><i class="bi bi-shield-exclamation"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Appealed</span>
+      <span class="akpi-value">{{ kpis['appealed'] }}</span>
     </div>
   </div>
 </div>
 
 <div class="page-wrapper">
 
-  <!-- Search & Filters -->
   <div class="list-search-bar">
     <div class="search-field-row">
       <div class="search-field">
@@ -58,11 +56,10 @@
         <input type="text" placeholder="Search case no, TIN, taxpayer, officer..."
           [(ngModel)]="searchTerm" (input)="onSearch()" />
       </div>
-      <button class="btn-export" (click)="exportCsv()">
-        <i class="bi bi-download"></i><span>Export</span>
+      <button class="btn btn-export" (click)="exportCsv()">
+        <i class="bi bi-file-earmark-excel"></i> Export
       </button>
     </div>
-    <!-- Advanced Filters -->
     <div class="filter-row">
       <select class="filter-select" [(ngModel)]="filters.status" (change)="loadCases()">
         <option value="">All Statuses</option>
@@ -102,11 +99,11 @@
           <th>#</th>
           <th>Case No</th>
           <th>Taxpayer</th>
-          <th>Audit Type</th>
+          <th>Type</th>
           <th>Tax Type</th>
           <th>Fiscal Year</th>
           <th>Priority</th>
-          <th>Assigned Officer</th>
+          <th>Officer</th>
           <th>Due Date</th>
           <th>Status</th>
           <th>Actions</th>
@@ -115,9 +112,7 @@
       <tbody>
         <tr *ngFor="let c of cases; let i = index">
           <td>{{ (currentPage * pageSize) + i + 1 }}</td>
-
-          <td><span class="case-code">{{ c.caseNo }}</span></td>
-
+          <td><span class="code-badge">{{ c.caseNo }}</span></td>
           <td>
             <div class="td-name">
               <div class="td-avatar">{{ c.taxpayerName.charAt(0) }}</div>
@@ -127,47 +122,28 @@
               </div>
             </div>
           </td>
-
-          <td>
-            <span class="type-badge" [ngClass]="getTypeClass(c.auditType)">
-              {{ getTypeLabel(c.auditType) }}
-            </span>
-          </td>
-
-          <td>
-            <span class="tax-type-pill">{{ getTaxTypeLabel(c.taxType) }}</span>
-          </td>
-
+          <td><span class="cat-badge" [ngClass]="getTypeClass(c.auditType)">{{ getTypeLabel(c.auditType) }}</span></td>
+          <td>{{ getTaxTypeLabel(c.taxType) }}</td>
           <td>{{ c.fiscalYear || '—' }}</td>
-
-          <td>
-            <span class="priority-badge" [ngClass]="getPriorityClass(c.priority)">
-              <i class="bi bi-circle-fill me-1" style="font-size:7px;"></i>
-              {{ c.priority }}
-            </span>
-          </td>
-
+          <td><span class="priority-pill" [ngClass]="getPriorityClass(c.priority)">{{ c.priority }}</span></td>
           <td>{{ c.assignedOfficerName || '—' }}</td>
-
           <td>
-            <span [class]="isDue(c.dueDate) ? 'due-overdue' : 'due-normal'">
+            <span [class]="isDue(c.dueDate) ? 'due-overdue' : ''">
               {{ c.dueDate || '—' }}
             </span>
           </td>
-
           <td>
             <span class="status-badge" [ngClass]="getStatusClass(c.status)">
               {{ getStatusLabel(c.status) }}
             </span>
           </td>
-
           <td>
             <div class="action-btns">
               <button class="btn-view" (click)="view(c.id)">
                 <i class="bi bi-eye-fill"></i> View
               </button>
               <button *canDo="'edit'" class="btn-edit" (click)="edit(c.id)">
-                <i class="bi bi-pencil-fill"></i>
+                <i class="bi bi-pencil-fill"></i> Edit
               </button>
               <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
                 class="btn-delete" (click)="confirmDelete(c.id)">
@@ -176,7 +152,6 @@
             </div>
           </td>
         </tr>
-
         <tr *ngIf="cases.length === 0">
           <td colspan="11">
             <div class="empty-state">
@@ -200,20 +175,16 @@
             <div class="mobile-sub">{{ c.caseNo }}</div>
           </div>
         </div>
-        <span class="status-badge" [ngClass]="getStatusClass(c.status)">
-          {{ getStatusLabel(c.status) }}
-        </span>
+        <span class="status-badge" [ngClass]="getStatusClass(c.status)">{{ getStatusLabel(c.status) }}</span>
       </div>
       <div class="mobile-card-body">
         <div class="mobile-field"><label>TIN</label><span>{{ c.tinNumber }}</span></div>
         <div class="mobile-field"><label>Type</label>
-          <span class="type-badge" [ngClass]="getTypeClass(c.auditType)">
-            {{ getTypeLabel(c.auditType) }}
-          </span>
+          <span class="cat-badge" [ngClass]="getTypeClass(c.auditType)">{{ getTypeLabel(c.auditType) }}</span>
         </div>
         <div class="mobile-field"><label>Tax Type</label><span>{{ getTaxTypeLabel(c.taxType) }}</span></div>
         <div class="mobile-field"><label>Priority</label>
-          <span class="priority-badge" [ngClass]="getPriorityClass(c.priority)">{{ c.priority }}</span>
+          <span class="priority-pill" [ngClass]="getPriorityClass(c.priority)">{{ c.priority }}</span>
         </div>
         <div class="mobile-field"><label>Fiscal Year</label><span>{{ c.fiscalYear || '—' }}</span></div>
         <div class="mobile-field"><label>Due Date</label>
@@ -223,30 +194,31 @@
       </div>
       <div class="mobile-card-actions">
         <button class="btn-view" (click)="view(c.id)"><i class="bi bi-eye-fill"></i> View</button>
-        <button *canDo="'edit'" class="btn-edit" (click)="edit(c.id)">
-          <i class="bi bi-pencil-fill"></i>
+        <button *canDo="'edit'" class="btn-edit" (click)="edit(c.id)"><i class="bi bi-pencil-fill"></i> Edit</button>
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(c.id)">
+          <i class="bi bi-trash-fill"></i>
         </button>
       </div>
     </div>
     <div class="empty-state" *ngIf="cases.length === 0">
-      <i class="bi bi-folder2-open"></i><p>No audit cases found.</p>
+      <i class="bi bi-folder2-open"></i>
+      <p>No audit cases found.</p>
     </div>
   </div>
 
   <!-- Pagination -->
   <div class="pagination-row" *ngIf="totalElements > 0">
     <span class="pagination-info">
-      Showing {{ currentPage * pageSize + 1 }}–{{ Math.min((currentPage + 1) * pageSize, totalElements) }}
+      Showing {{ currentPage * pageSize + 1 }}–{{ Math.min((currentPage+1)*pageSize, totalElements) }}
       of {{ totalElements }}
     </span>
     <div class="pagination-controls">
       <button class="btn-page" [disabled]="currentPage === 0" (click)="prevPage()">← Prev</button>
       <span *ngFor="let p of pageNumbers" class="page-num"
         [class.active]="p === currentPage" (click)="goToPage(p)">{{ p + 1 }}</span>
-      <button class="btn-page" [disabled]="currentPage >= totalPages - 1" (click)="nextPage()">Next →</button>
+      <button class="btn-page" [disabled]="currentPage >= totalPages-1" (click)="nextPage()">Next →</button>
     </div>
-    <select class="page-size-select"
-      (change)="pageSize = +$any($event.target).value; loadCases()">
+    <select class="page-size-select" (change)="pageSize = +$any($event.target).value; loadCases()">
       <option value="10">10 / page</option>
       <option value="20" selected>20 / page</option>
       <option value="50">50 / page</option>
@@ -255,7 +227,6 @@
 
 </div>
 
-<!-- FAB -->
 <button *canDo="'create'" class="fab-btn" routerLink="/audits/create">
   <i class="bi bi-plus-lg"></i>
 </button>
@@ -268,9 +239,7 @@
       <i class="bi bi-trash-fill" style="color:#A32D2D;font-size:22px;"></i>
     </div>
     <p class="modal-title">Delete Audit Case?</p>
-    <p class="modal-msg">
-      This action cannot be undone. Active cases in approved or demand-issued status cannot be deleted.
-    </p>
+    <p class="modal-msg">This action cannot be undone. Cases in approved or demand-issued status cannot be deleted.</p>
     <div class="modal-actions">
       <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
       <button class="btn-modal-confirm error" (click)="executeDelete()">

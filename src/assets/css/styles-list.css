@@ -1,0 +1,81 @@
+/* ── Filter Row ── */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: 8px 32px 8px 12px;
+  border: 1px solid #e0e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+  background: #fafbfc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 10px center;
+  background-size: 16px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 130px;
+}
+
+.filter-select:focus {
+  border-color: #1a3f8f;
+  box-shadow: 0 0 0 3px rgba(26, 63, 143, 0.08);
+  background-color: #fff;
+}
+
+.filter-select:hover {
+  border-color: #1a3f8f;
+}
+
+/* ── Clear Filter Button ── */
+.btn-clear-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border: 1px solid #e0e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #888;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-clear-filter:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: #fff0f0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .filter-row {
+    gap: 6px;
+  }
+  .filter-select {
+    min-width: calc(50% - 4px);
+    flex: 0 0 calc(50% - 4px);
+    font-size: 12px;
+  }
+  .btn-clear-filter {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-select {
+    min-width: 100%;
+    flex: 0 0 100%;
+  }
+}

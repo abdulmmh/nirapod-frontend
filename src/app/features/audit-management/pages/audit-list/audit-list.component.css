@@ -1,112 +1,115 @@
-// audit-list.component.scss
-// Matches existing project design tokens — do not change class names
-
-// ── KPI Stats ─────────────────────────────────────────────────────────────────
-.audit-stats {
+/* ── KPI Row ─────────────────────────────────────────────────────────────── */
+.audit-kpi-row {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   padding: 0 20px 16px;
-
-  .as-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #fff;
-    border: 1px solid #E8ECF0;
-    border-radius: 10px;
-    padding: 14px 18px;
-    min-width: 150px;
-    flex: 1;
-    box-shadow: 0 1px 4px rgba(0,0,0,.05);
-    transition: box-shadow .2s;
-
-    &:hover { box-shadow: 0 3px 10px rgba(0,0,0,.08); }
-  }
-
-  .asc-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-
-    &.open     { background: #EBF3FF; color: #1A6FBF; }
-    &.approved { background: #E6F7EE; color: #1A7A45; }
-    &.demand   { background: #FFF3E0; color: #E65100; }
-    &.paid     { background: #E8F5E9; color: #2E7D32; }
-    &.appealed { background: #FCE4EC; color: #C62828; }
-  }
-
-  .asc-label {
-    display: block; font-size: 11px; color: #8A94A6; font-weight: 500;
-    text-transform: uppercase; letter-spacing: .4px;
-  }
-  .asc-value {
-    display: block; font-size: 22px; font-weight: 700; color: #1C2B3A;
-    line-height: 1.2;
-  }
 }
 
-// ── Type Badges ───────────────────────────────────────────────────────────────
-.type-badge {
-  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
-  text-transform: uppercase; letter-spacing: .3px;
-
-  &.type-desk   { background: #E8F0FE; color: #1967D2; }
-  &.type-field  { background: #FEF7E0; color: #B45309; }
-  &.type-comp   { background: #F3E8FF; color: #6D28D9; }
-  &.type-vat    { background: #ECFDF5; color: #059669; }
-  &.type-refund { background: #FFF1F2; color: #BE123C; }
-  &.type-special{ background: #FFF7ED; color: #C2410C; }
+.akpi-card {
+  flex: 1;
+  min-width: 140px;
+  background: #fff;
+  border: 1px solid #eef2f8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  transition: box-shadow .2s;
 }
 
-// ── Tax type pill ─────────────────────────────────────────────────────────────
-.tax-type-pill {
-  font-size: 11px; padding: 2px 7px; border-radius: 20px;
-  background: #F1F3F9; color: #3A4C6B; font-weight: 500;
+.akpi-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.09); }
+
+.akpi-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
 }
 
-// ── Priority Badges ───────────────────────────────────────────────────────────
-.priority-badge {
-  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
-  display: inline-flex; align-items: center;
+.akpi-icon.blue   { background: #e8eef9; color: #1a3f8f; }
+.akpi-icon.green  { background: #e6f7ee; color: #1a7a45; }
+.akpi-icon.orange { background: #fff3e0; color: #e65100; }
+.akpi-icon.teal   { background: #e0f7fa; color: #00695c; }
+.akpi-icon.red    { background: #fce4ec; color: #c62828; }
 
-  &.pri-low      { background: #F1F3F9; color: #546E7A; }
-  &.pri-normal   { background: #E8F0FE; color: #1565C0; }
-  &.pri-high     { background: #FFF3E0; color: #E65100; }
-  &.pri-critical { background: #FEEBEE; color: #C62828; }
+.akpi-label {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .4px;
 }
 
-// ── Due date ──────────────────────────────────────────────────────────────────
-.due-overdue { color: #C62828; font-weight: 600; font-size: 12px; }
-.due-normal  { color: #374151; font-size: 12px; }
-
-// ── Case code ─────────────────────────────────────────────────────────────────
-.case-code {
-  font-family: 'Courier New', monospace;
-  font-size: 12px; font-weight: 600;
-  color: #1A6FBF; background: #EBF3FF;
-  padding: 2px 6px; border-radius: 4px;
+.akpi-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a2340;
+  line-height: 1.2;
 }
 
-// ── Status Badge extensions ───────────────────────────────────────────────────
-// (base .status-badge comes from global styles)
-.badge-orange  { background: #FFF3E0; color: #E65100; border: 1px solid #FDDCB5; }
-.badge-teal    { background: #E0F7FA; color: #00695C; border: 1px solid #B2EBF2; }
-.badge-purple  { background: #F3E8FF; color: #6D28D9; border: 1px solid #DDD6FE; }
-.badge-indigo  { background: #E0E7FF; color: #3730A3; border: 1px solid #C7D2FE; }
-.badge-yellow  { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
-.badge-pink    { background: #FCE7F3; color: #9D174D; border: 1px solid #FBCFE8; }
-.badge-lime    { background: #F7FEE7; color: #3F6212; border: 1px solid #D9F99D; }
-.badge-muted   { background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; }
+/* ── Type Badges ─────────────────────────────────────────────────────────── */
+.cat-badge.type-desk    { background: #e8f0fe; color: #1967d2; }
+.cat-badge.type-field   { background: #fef7e0; color: #b45309; }
+.cat-badge.type-comp    { background: #f3e8ff; color: #6d28d9; }
+.cat-badge.type-vat     { background: #ecfdf5; color: #059669; }
+.cat-badge.type-refund  { background: #fff1f2; color: #be123c; }
+.cat-badge.type-special { background: #fff7ed; color: #c2410c; }
 
-// ── Audit-stats responsive ────────────────────────────────────────────────────
+/* ── Priority Pills ──────────────────────────────────────────────────────── */
+.priority-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.priority-pill.pri-low      { background: #f5f7fb; color: #546e7a; }
+.priority-pill.pri-normal   { background: #e8eef9; color: #1a3f8f; }
+.priority-pill.pri-high     { background: #fff3e0; color: #e65100; }
+.priority-pill.pri-critical { background: #fce4ec; color: #c62828; }
+
+/* ── Due Date ────────────────────────────────────────────────────────────── */
+.due-overdue { color: #c62828; font-weight: 700; font-size: 12px; }
+
+/* ── Code Badge ──────────────────────────────────────────────────────────── */
+.code-badge {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a3f8f;
+  background: #e8eef9;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+/* ── Extra status colors ─────────────────────────────────────────────────── */
+.badge-orange { background: #fff3e0; color: #e65100; border: 1px solid #fddcb5; }
+.badge-teal   { background: #e0f7fa; color: #00695c; border: 1px solid #b2ebf2; }
+.badge-purple { background: #f3e8ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+.badge-indigo { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+.badge-yellow { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.badge-pink   { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+.badge-lime   { background: #f7fee7; color: #3f6212; border: 1px solid #d9f99d; }
+.badge-muted  { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .audit-stats {
-    padding: 0 12px 12px;
-    .as-card { min-width: calc(50% - 6px); flex: 0 0 calc(50% - 6px); }
-  }
+  .audit-kpi-row { padding: 0 12px 12px; }
+  .akpi-card { min-width: calc(50% - 6px); flex: 0 0 calc(50% - 6px); }
 }
 
 @media (max-width: 480px) {
-  .audit-stats .as-card { min-width: 100%; flex: 0 0 100%; }
+  .akpi-card { min-width: 100%; flex: 0 0 100%; }
 }

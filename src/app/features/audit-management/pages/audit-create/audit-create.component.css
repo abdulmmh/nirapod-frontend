@@ -1,60 +1,21 @@
-
-.input-with-btn {
-  position: relative;
-  display: flex;
-  .form-control { border-radius: 8px 0 0 8px; flex: 1; }
-  .btn-input-action {
-    background: #1A6FBF; color: #fff;
-    border: none; padding: 0 14px;
-    border-radius: 0 8px 8px 0; cursor: pointer;
-    &:hover { background: #155DA0; }
-    i { font-size: 14px; }
-  }
-}
-
-.dropdown-list {
-  position: absolute; z-index: 1000;
-  background: #fff; border: 1px solid #D9DDE4;
-  border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.12);
-  max-height: 220px; overflow-y: auto; width: 100%;
-  margin-top: 2px;
-}
-
-.dropdown-item-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; cursor: pointer;
-  transition: background .15s;
-  &:hover { background: #F4F7FB; }
-
-  .dli-avatar {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: #1A6FBF; color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; flex-shrink: 0;
-  }
-  .dli-title { font-size: 13px; font-weight: 600; color: #1C2B3A; }
-  .dli-sub   { font-size: 11px; color: #8A94A6; }
-}
+/* audit-create uses global styles-form.css for all layout */
+/* Only audit-specific additions needed here */
 
 .risk-bar {
-  height: 4px; background: #E8ECF0; border-radius: 2px; margin-top: 6px;
-  .risk-fill {
-    height: 100%; border-radius: 2px; transition: width .3s;
-    &.risk-low      { background: #22C55E; }
-    &.risk-medium   { background: #EAB308; }
-    &.risk-high     { background: #F97316; }
-    &.risk-critical { background: #EF4444; }
-  }
+  height: 4px;
+  background: #E0E8F0;
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
 }
 
-.label-hint { font-size: 11px; color: #8A94A6; font-weight: 400; margin-left: 4px; }
-
-.fsh-icon {
-  width: 40px; height: 40px; border-radius: 10px;
-  background: #EBF3FF; color: #1A6FBF;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; flex-shrink: 0;
-
-  &.warning { background: #FFF3E0; color: #E65100; }
-  &.success { background: #E6F7EE; color: #1A7A45; }
+.risk-bar .risk-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .3s;
 }
+
+.risk-bar .risk-fill.risk-low      { background: #22C55E; }
+.risk-bar .risk-fill.risk-medium   { background: #EAB308; }
+.risk-bar .risk-fill.risk-high     { background: #F97316; }
+.risk-bar .risk-fill.risk-critical { background: #EF4444; }
