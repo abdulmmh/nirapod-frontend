@@ -9,292 +9,285 @@
 </div>
 
 <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-<div class="form-card">
+  <div class="form-card">
 
-  <!-- ── Section 0: VAT Registration Picker (child component) ────────────── -->
-  <div class="form-section">
-    <app-vat-registration-picker
-      (registrationSelected)="onRegistrationSelected($event)"
-      (registrationCleared)="onRegistrationCleared()">
-    </app-vat-registration-picker>
+    <!-- ── Section 0: VAT Registration Picker (child component) ────────────── -->
+    <div class="form-section">
+      <app-vat-registration-picker (registrationSelected)="onRegistrationSelected($event)"
+        (registrationCleared)="onRegistrationCleared()">
+      </app-vat-registration-picker>
 
-    <!-- Validation error shown only after touch (e.g. user tried submitting) -->
-    <span class="field-error-msg"
-      *ngIf="ctrl('vatRegistrationId')?.errors?.['required'] && ctrl('vatRegistrationId')?.touched">
-      Please search and select a VAT registration.
-    </span>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ── Section 1: Return Period ────────────────────────────────────────── -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon teal">
-        <i class="bi bi-calendar-range-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Return Period</h6>
-        <span class="section-sub">Filing period and assessment year</span>
-      </div>
-    </div>
-
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label class="form-label required">Return Period</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar3 input-icon"></i>
-          <select class="form-input form-select" formControlName="returnPeriod">
-            <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label required">Period</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-month input-icon"></i>
-          <select class="form-input form-select" formControlName="periodMonth"
-            [class.is-invalid]="ctrl('periodMonth')?.invalid && ctrl('periodMonth')?.touched">
-            <option value="">Select Period</option>
-            <option *ngFor="let m of periodOptions" [value]="m">{{ m }}</option>
-          </select>
-        </div>
-        <span class="field-error-msg"
-          *ngIf="ctrl('periodMonth')?.errors?.['required'] && ctrl('periodMonth')?.touched">
-          Period is required.
-        </span>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label required">Year</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar input-icon"></i>
-          <select class="form-input form-select" formControlName="periodYear">
-            <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Assessment Year</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-check input-icon"></i>
-          <select class="form-input form-select" formControlName="assessmentYear">
-            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Submission Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar3 input-icon"></i>
-          <input type="date" class="form-input" formControlName="submissionDate"
-            [class.is-invalid]="form.errors?.['submissionBeforePeriod'] && ctrl('submissionDate')?.touched" />
-        </div>
-        <!-- Cross-field validator error surfaced here -->
-        <span class="field-error-msg"
-          *ngIf="form.errors?.['submissionBeforePeriod'] && ctrl('submissionDate')?.touched">
-          Submission date cannot be before the start of the filing period.
-        </span>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Due Date</label>
-        <div class="input-wrap">
-          <i class="bi bi-calendar-x input-icon"></i>
-          <input type="date" class="form-input" formControlName="dueDate" />
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ── Section 2: Supplies & Tax Calculation (2-column layout) ─────────── -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon purple">
-        <i class="bi bi-table"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Supplies &amp; Tax Calculation</h6>
-        <span class="section-sub">
-          Output VAT auto-calculated at
-          <strong>{{ effectiveVatRateLabel }}</strong>
-          ({{ selectedReg?.vatCategory || 'Standard' }} rate) — net tax recalculated on every change
-        </span>
-      </div>
-    </div>
-
-    <!-- 2-column layout: Supplies | VAT Computation -->
-    <div class="supplies-tax-grid">
-
-      <!-- LEFT column: Supply amounts -->
-      <div class="supply-col">
-        <p class="col-heading"><i class="bi bi-box-seam-fill me-1"></i> Supply Amounts</p>
-
-        <div class="form-group">
-          <label class="form-label">Taxable Supplies (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-currency-dollar input-icon"></i>
-            <!-- No (input) binding — valueChanges handles recalculation reactively -->
-            <input type="number" class="form-input" placeholder="0"
-              formControlName="taxableSupplies" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Exempt Supplies (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-currency-dollar input-icon"></i>
-            <input type="number" class="form-input" placeholder="0"
-              formControlName="exemptSupplies" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Zero Rated Supplies (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-currency-dollar input-icon"></i>
-            <input type="number" class="form-input" placeholder="0"
-              formControlName="zeroRatedSupplies" />
-          </div>
-        </div>
-
-        <div class="total-supplies-chip">
-          <span>Total Supplies</span>
-          <span class="chip-value">৳{{ totalSupplies.toLocaleString() }}</span>
-        </div>
-      </div>
-
-      <!-- RIGHT column: VAT computation -->
-      <div class="vat-col">
-        <p class="col-heading"><i class="bi bi-percent me-1"></i> VAT Computation</p>
-
-        <div class="form-group">
-          <label class="form-label">
-            Output VAT @ {{ effectiveVatRateLabel }} (৳)
-            <span class="auto-badge">Auto</span>
-          </label>
-          <div class="input-wrap">
-            <i class="bi bi-percent input-icon"></i>
-            <!-- disabled in form — read-only display, value set by valueChanges logic -->
-            <input type="number" class="form-input form-input-readonly" placeholder="0"
-              formControlName="outputTax" readonly />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Input VAT Credit (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-arrow-down-circle input-icon"></i>
-            <input type="number" class="form-input" placeholder="0"
-              formControlName="inputTax" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Tax Paid (৳)</label>
-          <div class="input-wrap">
-            <i class="bi bi-cash-coin input-icon"></i>
-            <input type="number" class="form-input" placeholder="0"
-              formControlName="taxPaid" />
-          </div>
-        </div>
-
-        <!-- Real-time summary panel embedded in the right column -->
-        <div class="tax-summary">
-          <div class="ts-row">
-            <span class="ts-label">Output VAT</span>
-            <span class="ts-value output">৳{{ (form.getRawValue().outputTax || 0).toLocaleString() }}</span>
-          </div>
-          <div class="ts-row">
-            <span class="ts-label">Less: Input VAT Credit</span>
-            <span class="ts-value credit">— ৳{{ (form.value.inputTax || 0).toLocaleString() }}</span>
-          </div>
-          <div class="ts-divider"></div>
-          <div class="ts-row total-row">
-            <span class="ts-label total">Net Tax Payable</span>
-            <span class="ts-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
-          </div>
-          <ng-container *ngIf="form.value.taxPaid > 0">
-            <div class="ts-row">
-              <span class="ts-label">Less: Tax Paid</span>
-              <span class="ts-value credit">— ৳{{ (form.value.taxPaid || 0).toLocaleString() }}</span>
-            </div>
-            <div class="ts-row balance-row">
-              <span class="ts-label total">Balance Due</span>
-              <span class="ts-value"
-                [class.due]="balanceDue > 0"
-                [class.settled]="balanceDue === 0">
-                {{ balanceDue > 0 ? '৳' + balanceDue.toLocaleString() : '৳0 — Settled' }}
-              </span>
-            </div>
-          </ng-container>
-        </div>
-
-      </div><!-- /vat-col -->
-    </div><!-- /supplies-tax-grid -->
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ── Section 3: Submission Details ───────────────────────────────────── -->
-  <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon orange">
-        <i class="bi bi-person-badge-fill"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Submission Details</h6>
-        <span class="section-sub">Who is filing this return</span>
-      </div>
-    </div>
-
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label class="form-label">Submitted By</label>
-        <div class="input-wrap">
-          <i class="bi bi-person-fill input-icon"></i>
-          <select class="form-input form-select" formControlName="submittedBy">
-            <option value="">Select</option>
-            <option *ngFor="let s of submitters" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group full-width">
-        <label class="form-label">Remarks</label>
-        <div class="input-wrap">
-          <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea"
-            placeholder="Optional remarks..." formControlName="remarks" rows="2"></textarea>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ── Actions ──────────────────────────────────────────────────────────── -->
-  <div class="form-actions">
-    <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
-      <i class="bi bi-x-lg"></i> Cancel
-    </button>
-    <button type="button" class="btn-reset" (click)="onReset()" [disabled]="isLoading">
-      <i class="bi bi-arrow-counterclockwise"></i> Reset
-    </button>
-    <button type="submit" class="btn-submit" [disabled]="isLoading || form.invalid">
-      <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> File Return</span>
-      <span *ngIf="isLoading">
-        <span class="spinner-border spinner-border-sm me-2"></span>Filing...
+      <!-- Validation error shown only after touch (e.g. user tried submitting) -->
+      <span class="field-error-msg"
+        *ngIf="ctrl('vatRegistrationId')?.errors?.['required'] && ctrl('vatRegistrationId')?.touched">
+        Please search and select a VAT registration.
       </span>
-    </button>
-  </div>
+    </div>
 
-</div>
+    <div class="section-divider"></div>
+
+    <!-- ── Section 1: Return Period ────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon teal">
+          <i class="bi bi-calendar-range-fill"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Return Period</h6>
+          <span class="section-sub">Filing period and assessment year</span>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label required">Return Period</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar3 input-icon"></i>
+            <select class="form-input form-select" formControlName="returnPeriod">
+              <option *ngFor="let p of returnPeriods" [value]="p">{{ p }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Period</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar-month input-icon"></i>
+            <select class="form-input form-select" formControlName="periodMonth"
+              [class.is-invalid]="ctrl('periodMonth')?.invalid && ctrl('periodMonth')?.touched">
+              <option value="">Select Period</option>
+              <option *ngFor="let m of periodOptions" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+          <span class="field-error-msg"
+            *ngIf="ctrl('periodMonth')?.errors?.['required'] && ctrl('periodMonth')?.touched">
+            Period is required.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Year</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar input-icon"></i>
+            <select class="form-input form-select" formControlName="periodYear">
+              <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Assessment Year</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar-check input-icon"></i>
+            <select class="form-input form-select" formControlName="assessmentYear">
+              <option value="">Select Assessment Year</option>
+              <option *ngFor="let y of assessmentYears" [value]="y.yearName">{{ y.yearName }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Submission Date</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar3 input-icon"></i>
+            <input type="date" class="form-input" formControlName="submissionDate"
+              [class.is-invalid]="form.errors?.['submissionBeforePeriod'] && ctrl('submissionDate')?.touched" />
+          </div>
+          <!-- Cross-field validator error surfaced here -->
+          <span class="field-error-msg"
+            *ngIf="form.errors?.['submissionBeforePeriod'] && ctrl('submissionDate')?.touched">
+            Submission date cannot be before the start of the filing period.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <div class="input-wrap">
+            <i class="bi bi-calendar-x input-icon"></i>
+            <input type="date" class="form-input" formControlName="dueDate" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ── Section 2: Supplies & Tax Calculation (2-column layout) ─────────── -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon purple">
+          <i class="bi bi-table"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Supplies &amp; Tax Calculation</h6>
+          <span class="section-sub">
+            Output VAT auto-calculated at
+            <strong>{{ effectiveVatRateLabel }}</strong>
+            ({{ selectedReg?.vatCategory || 'Standard' }} rate) — net tax recalculated on every change
+          </span>
+        </div>
+      </div>
+
+      <!-- 2-column layout: Supplies | VAT Computation -->
+      <div class="supplies-tax-grid">
+
+        <!-- LEFT column: Supply amounts -->
+        <div class="supply-col">
+          <p class="col-heading"><i class="bi bi-box-seam-fill me-1"></i> Supply Amounts</p>
+
+          <div class="form-group">
+            <label class="form-label">Taxable Supplies (৳)</label>
+            <div class="input-wrap">
+              <i class="bi bi-currency-dollar input-icon"></i>
+              <!-- No (input) binding — valueChanges handles recalculation reactively -->
+              <input type="number" class="form-input" placeholder="0" formControlName="taxableSupplies" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Exempt Supplies (৳)</label>
+            <div class="input-wrap">
+              <i class="bi bi-currency-dollar input-icon"></i>
+              <input type="number" class="form-input" placeholder="0" formControlName="exemptSupplies" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Zero Rated Supplies (৳)</label>
+            <div class="input-wrap">
+              <i class="bi bi-currency-dollar input-icon"></i>
+              <input type="number" class="form-input" placeholder="0" formControlName="zeroRatedSupplies" />
+            </div>
+          </div>
+
+          <div class="total-supplies-chip">
+            <span>Total Supplies</span>
+            <span class="chip-value">৳{{ totalSupplies.toLocaleString() }}</span>
+          </div>
+        </div>
+
+        <!-- RIGHT column: VAT computation -->
+        <div class="vat-col">
+          <p class="col-heading"><i class="bi bi-percent me-1"></i> VAT Computation</p>
+
+          <div class="form-group">
+            <label class="form-label">
+              Output VAT @ {{ effectiveVatRateLabel }} (৳)
+              <span class="auto-badge">Auto</span>
+            </label>
+            <div class="input-wrap">
+              <i class="bi bi-percent input-icon"></i>
+              <!-- disabled in form — read-only display, value set by valueChanges logic -->
+              <input type="number" class="form-input form-input-readonly" placeholder="0" formControlName="outputTax"
+                readonly />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Input VAT Credit (৳)</label>
+            <div class="input-wrap">
+              <i class="bi bi-arrow-down-circle input-icon"></i>
+              <input type="number" class="form-input" placeholder="0" formControlName="inputTax" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tax Paid (৳)</label>
+            <div class="input-wrap">
+              <i class="bi bi-cash-coin input-icon"></i>
+              <input type="number" class="form-input" placeholder="0" formControlName="taxPaid" />
+            </div>
+          </div>
+
+          <!-- Real-time summary panel embedded in the right column -->
+          <div class="tax-summary">
+            <div class="ts-row">
+              <span class="ts-label">Output VAT</span>
+              <span class="ts-value output">৳{{ (form.getRawValue().outputTax || 0).toLocaleString() }}</span>
+            </div>
+            <div class="ts-row">
+              <span class="ts-label">Less: Input VAT Credit</span>
+              <span class="ts-value credit">— ৳{{ (form.value.inputTax || 0).toLocaleString() }}</span>
+            </div>
+            <div class="ts-divider"></div>
+            <div class="ts-row total-row">
+              <span class="ts-label total">Net Tax Payable</span>
+              <span class="ts-value total">৳{{ netTaxPayable.toLocaleString() }}</span>
+            </div>
+            <ng-container *ngIf="form.value.taxPaid > 0">
+              <div class="ts-row">
+                <span class="ts-label">Less: Tax Paid</span>
+                <span class="ts-value credit">— ৳{{ (form.value.taxPaid || 0).toLocaleString() }}</span>
+              </div>
+              <div class="ts-row balance-row">
+                <span class="ts-label total">Balance Due</span>
+                <span class="ts-value" [class.due]="balanceDue > 0" [class.settled]="balanceDue === 0">
+                  {{ balanceDue > 0 ? '৳' + balanceDue.toLocaleString() : '৳0 — Settled' }}
+                </span>
+              </div>
+            </ng-container>
+          </div>
+
+        </div><!-- /vat-col -->
+      </div><!-- /supplies-tax-grid -->
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ── Section 3: Submission Details ───────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon orange">
+          <i class="bi bi-person-badge-fill"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Submission Details</h6>
+          <span class="section-sub">Who is filing this return</span>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label">Submitted By</label>
+          <div class="input-wrap">
+            <i class="bi bi-person-fill input-icon"></i>
+            <select class="form-input form-select" formControlName="submittedBy">
+              <option value="">Select</option>
+              <option *ngFor="let s of submitters" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Remarks</label>
+          <div class="input-wrap">
+            <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+            <textarea class="form-input form-textarea" placeholder="Optional remarks..." formControlName="remarks"
+              rows="2"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Actions ──────────────────────────────────────────────────────────── -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isLoading">
+        <i class="bi bi-x-lg"></i> Cancel
+      </button>
+      <button type="button" class="btn-reset" (click)="onReset()" [disabled]="isLoading">
+        <i class="bi bi-arrow-counterclockwise"></i> Reset
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="isLoading || form.invalid">
+        <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i> File Return</span>
+        <span *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm me-2"></span>Filing...
+        </span>
+      </button>
+    </div>
+
+  </div>
 </form>
