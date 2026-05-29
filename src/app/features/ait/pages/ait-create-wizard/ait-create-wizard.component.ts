@@ -1,110 +1,90 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject, timer } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import {
+  AitSourceType,
+  CreateAitPayload,
+  AIT_SOURCE_LABELS,
+} from '../../models/ait.model';
+import { Role } from 'src/app/core/constants/roles.constants';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AitService } from '../../services/ait.service';
-import { AitRecord, CreateAitPayload, AitDocument } from '../../models/ait.model';
 
-interface ImportDutyRecord {
-  id: number;
-  referenceNo: string;
-  date: string;
-  importerName: string;
-  hsCode: string;
-  description: string;
-  quantity: number;
-  unit: string;
-  taxableValue: number;
-  portOfEntry: string;
-  origin: string;
+interface SourceTypeOption {
+  value: AitSourceType;
+  label: string;
+  icon: string;
 }
 
-interface WizardState {
-  step: number;
-  selectedTransaction?: ImportDutyRecord;
-  calculatedAit?: number;
-  uploadedDocuments: File[];
-  documentIds: number[];
-  formData: Partial<CreateAitPayload>;
-  isDraft: boolean;
-  draftId?: number;
-}
+type StepState = 'active' | 'done' | 'pending';
 
 @Component({
   selector: 'app-ait-create-wizard',
   templateUrl: './ait-create-wizard.component.html',
-  styleUrls: ['./ait-create-wizard.component.css']
+  styleUrls: ['./ait-create-wizard.component.css'],
 })
 export class AitCreateWizardComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+  currentStep = 1;
+  totalSteps = 3;
+  isSaving = false;
+  isTaxpayerRole = false;
+  fiscalYearName = '';
 
-  state: WizardState = {
-    step: 1,
-    uploadedDocuments: [],
-    documentIds: [],
-    formData: {},
-    isDraft: false
-  };
+  // Step 1 — Taxpayer
+  step1Form!: FormGroup;
+  searchControl = new FormControl('');
+  searchResults: any[] = [];
+  isSearching = false;
+  isAutoFilled = false;
 
-  mockTransactions: ImportDutyRecord[] = [
-    {
-      id: 101,
-      referenceNo: 'BOE-2026-001',
-      date: '2026-05-10',
-      importerName: 'ABC Import Co.',
-      hsCode: '8471.30.10',
-      description: 'Computer processors',
-      quantity: 100,
-      unit: 'Units',
-      taxableValue: 50000,
-      portOfEntry: 'Dhaka Port',
-      origin: 'China'
-    },
-    {
-      id: 102,
-      referenceNo: 'BOE-2026-002',
-      date: '2026-05-12',
-      importerName: 'Tech Solutions Ltd.',
-      hsCode: '8517.62.10',
-      description: 'Mobile phones',
-      quantity: 50,
-      unit: 'Units',
-      taxableValue: 75000,
-      portOfEntry: 'Chittagong Port',
-      origin: 'Vietnam'
-    },
-    {
-      id: 103,
-      referenceNo: 'BOE-2026-003',
-      date: '2026-05-14',
-      importerName: 'Fabric Imports Inc.',
-      hsCode: '5208.31.00',
-      description: 'Cotton fabrics',
-      quantity: 500,
-      unit: 'Meters',
-      taxableValue: 30000,
-      portOfEntry: 'Dhaka Port',
-      origin: 'India'
-    }
+  // Step 2 — AIT Details
+  step2Form!: FormGroup;
+  calculatedAitAmount = 0;
+
+  // Step 3 — Documents
+  uploadedFiles: File[] = [];
+
+  sourceTypes: SourceTypeOption[] = [
+    { value: 'IMPORT', label: 'Import Duty', icon: 'bi-box-seam' },
+    { value: 'SUPPLIER', label: 'Supplier Payment', icon: 'bi-truck' },
+    { value: 'SALARY', label: 'Salary Deduction', icon: 'bi-person-badge' },
+    { value: 'CONTRACTOR', label: 'Contractor Payment', icon: 'bi-tools' },
+    { value: 'RENT', label: 'Rent Payment', icon: 'bi-building' },
   ];
 
-  transactionList: ImportDutyRecord[] = [];
-  filteredTransactions: ImportDutyRecord[] = [];
-  searchQuery: string = '';
-  aitRate: number = 3;
-  isSubmitting: boolean = false;
-  submitError: string | null = null;
-  successMessage: string | null = null;
-  newAitRefNo: string | null = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
+    private fb: FormBuilder,
     private aitService: AitService,
-    private router: Router
+    private toast: ToastService,
+    private auth: AuthService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
-    this.loadTransactions();
-    this.restoreDraftIfExists();
+    this.isTaxpayerRole = this.auth.hasRole(Role.TAXPAYER);
+    this.buildForms();
+
+    if (this.isTaxpayerRole) {
+      this.autoFillFromCurrentUser();
+    }
+
+    this.searchControl.valueChanges
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((term) => {
+        if (term && term.length >= 3 && !this.isAutoFilled) {
+          this.searchTaxpayer();
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -112,179 +92,276 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadTransactions(): void {
-    this.transactionList = this.mockTransactions;
-    this.filteredTransactions = [...this.transactionList];
+  // ── Form construction ──────────────────────────────────────────────────────
+
+  buildForms(): void {
+    this.step1Form = this.fb.group({
+      taxpayerId: [null, Validators.required],
+      taxpayerName: [''],
+      taxpayerTin: [''],
+      taxpayerType: [''],
+    });
+
+    this.step2Form = this.fb.group({
+      sourceType: ['IMPORT', Validators.required],
+      importDutyRecordId: [null],
+      hsCode: [''],
+      deductorName: [''],
+      deductorTin: [''],
+      taxableValue: [null, [Validators.required, Validators.min(0.01)]],
+      aitRate: [
+        null,
+        [Validators.required, Validators.min(0.01), Validators.max(100)],
+      ],
+    });
+
+    // Dynamic validators based on source type
+    this.step2Form
+      .get('sourceType')!
+      .valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((src) => this.updateConditionalValidators(src));
   }
 
-  restoreDraftIfExists(): void {
-    const draft = sessionStorage.getItem('ait_draft');
-    if (draft) {
-      const parsed = JSON.parse(draft);
-      this.state = parsed;
+  private updateConditionalValidators(sourceType: AitSourceType): void {
+    const importCtrl = this.step2Form.get('importDutyRecordId')!;
+    const deductorCtrl = this.step2Form.get('deductorName')!;
+
+    importCtrl.clearValidators();
+    deductorCtrl.clearValidators();
+
+    if (sourceType === 'IMPORT') {
+      importCtrl.setValidators(Validators.required);
+    } else {
+      deductorCtrl.setValidators([
+        Validators.required,
+        Validators.maxLength(200),
+      ]);
+    }
+
+    importCtrl.updateValueAndValidity();
+    deductorCtrl.updateValueAndValidity();
+  }
+
+  // ── Taxpayer search ────────────────────────────────────────────────────────
+
+  searchTaxpayer(): void {
+    const term = this.searchControl.value?.trim();
+    if (!term) return;
+
+    this.isSearching = true;
+    this.aitService
+      .searchTaxpayers(term)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (results) => {
+          this.searchResults = results;
+          this.isSearching = false;
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Taxpayer search failed.');
+          this.isSearching = false;
+        },
+      });
+  }
+
+  selectTaxpayer(t: any): void {
+    this.step1Form.patchValue({
+      taxpayerId: t.id,
+      taxpayerName: t.fullName || t.companyName,
+      taxpayerTin: t.tinNumber,
+      taxpayerType: t.taxpayerType,
+    });
+    this.searchResults = [];
+    this.isAutoFilled = true;
+  }
+
+  clearSelectedTaxpayer(): void {
+    this.step1Form.reset();
+    this.searchControl.setValue('');
+    this.isAutoFilled = false;
+    this.searchResults = [];
+  }
+
+  private autoFillFromCurrentUser(): void {
+    const user = this.auth.currentUser;
+    if (user && user.taxpayerId) {
+      this.step1Form.patchValue({
+        taxpayerId: user.taxpayerId,
+        taxpayerName: user.fullName,
+        taxpayerTin: user.tinNumber ?? '',
+        taxpayerType: user.taxpayerType ?? '',
+      });
+      this.isAutoFilled = true;
     }
   }
 
-  saveDraft(): void {
-    sessionStorage.setItem('ait_draft', JSON.stringify(this.state));
-    alert('Draft saved. You can return to complete this later.');
+  // ── Source type ────────────────────────────────────────────────────────────
+
+  selectSourceType(src: AitSourceType): void {
+    this.step2Form.patchValue({ sourceType: src });
+    this.updateConditionalValidators(src);
   }
 
-  discardDraft(): void {
-    sessionStorage.removeItem('ait_draft');
-    this.router.navigate(['/aits/dashboard']);
-  }
+  // ── Calculation ────────────────────────────────────────────────────────────
 
-  // STEP 1: Transaction Selection
-  searchTransactions(): void {
-    this.filteredTransactions = this.transactionList.filter(t =>
-      t.referenceNo.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      t.importerName.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      t.hsCode.toLowerCase().includes(this.searchQuery.toLowerCase())
-    );
-  }
-
-  selectTransaction(tx: ImportDutyRecord): void {
-    this.state.selectedTransaction = tx;
-    this.state.formData = {
-      importDutyRecordId: tx.id,
-      taxableValue: tx.taxableValue,
-      hsCode: tx.hsCode,
-      aitRate: this.aitRate
-    };
-    this.calculateAit();
-    this.nextStep();
-  }
-
-  // STEP 2: Calculate AIT
-  calculateAit(): void {
-    if (this.state.formData.taxableValue && this.state.formData.aitRate) {
-      this.state.calculatedAit = (this.state.formData.taxableValue * this.state.formData.aitRate) / 100;
+  recalculate(): void {
+    const taxable = parseFloat(this.step2Form.get('taxableValue')?.value ?? 0);
+    const rate = parseFloat(this.step2Form.get('aitRate')?.value ?? 0);
+    if (taxable > 0 && rate > 0) {
+      this.calculatedAitAmount =
+        Math.round(((taxable * rate) / 100) * 100) / 100;
+    } else {
+      this.calculatedAitAmount = 0;
     }
   }
 
-  onRateChange(newRate: number): void {
-    this.state.formData.aitRate = newRate;
-    this.calculateAit();
+  // ── Step navigation ────────────────────────────────────────────────────────
+
+  getStepState(step: number): StepState {
+    if (step < this.currentStep) return 'done';
+    if (step === this.currentStep) return 'active';
+    return 'pending';
   }
 
-  // STEP 3: Upload Documents
-  onFilesSelected(files: FileList | null): void {
-    if (!files) return;
-    for (let i = 0; i < files.length; i++) {
-      this.state.uploadedDocuments.push(files[i]);
+  goToStep(step: number): void {
+    // Only allow going back to completed steps
+    if (step < this.currentStep) {
+      this.currentStep = step;
     }
   }
 
-  removeDocument(index: number): void {
-    this.state.uploadedDocuments.splice(index, 1);
-  }
-
-  formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-  }
-
-  // STEP 4: Review & Submit
-  async submitAit(): Promise<void> {
-    if (!this.state.formData.taxpayerId) {
-      this.submitError = 'Taxpayer ID not found. Please log in again.';
-      return;
-    }
-
-    this.isSubmitting = true;
-    this.submitError = null;
-
-    try {
-      // Step 1: Create AIT record (DRAFT)
-      const createPayload: CreateAitPayload = {
-        taxpayerId: this.state.formData.taxpayerId || 0,
-        importDutyRecordId: this.state.formData.importDutyRecordId || 0,
-        hsCode: this.state.formData.hsCode,
-        taxableValue: this.state.formData.taxableValue || 0,
-        aitRate: this.state.formData.aitRate || 0
-      };
-
-      const createdAit = await this.aitService.create(createPayload).toPromise();
-      if (!createdAit?.id) {
-        throw new Error('Failed to create AIT record');
-      }
-
-      // Step 2: Upload documents if any
-      if (this.state.uploadedDocuments.length > 0) {
-        for (const file of this.state.uploadedDocuments) {
-          await this.aitService.uploadDocument(createdAit.id, file).toPromise();
-        }
-      }
-
-      // Step 3: Submit AIT for review (DRAFT → SUBMITTED → PENDING)
-      const submittedAit = await this.aitService.submit(createdAit.id, this.state.documentIds).toPromise();
-
-      this.newAitRefNo = submittedAit?.aitReferenceNo || 'Unknown';
-      this.successMessage = `AIT successfully created and submitted! Reference: ${this.newAitRefNo}`;
-      sessionStorage.removeItem('ait_draft');
-
-      timer(3000).pipe(takeUntil(this.destroy$))
-        .subscribe(() => this.router.navigate(['/aits/dashboard']));
-
-    } catch (error: any) {
-      this.submitError = error?.message || 'Failed to submit AIT. Please try again.';
-      this.isSubmitting = false;
-    }
-  }
-
-  // Navigation
   nextStep(): void {
-    if (this.state.step < 4) {
-      this.state.step++;
-      window.scrollTo(0, 0);
+    if (this.currentStep === 1) {
+      this.step1Form.markAllAsTouched();
+      if (this.step1Form.invalid) return;
+    }
+    if (this.currentStep === 2) {
+      this.step2Form.markAllAsTouched();
+      if (this.step2Form.invalid) return;
+      this.recalculate();
+    }
+    if (this.currentStep < this.totalSteps) {
+      this.currentStep++;
     }
   }
 
   prevStep(): void {
-    if (this.state.step > 1) {
-      this.state.step--;
-      window.scrollTo(0, 0);
+    if (this.currentStep > 1) this.currentStep--;
+  }
+
+  // ── Document upload ────────────────────────────────────────────────────────
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      const newFiles = Array.from(input.files);
+      this.uploadedFiles = [...this.uploadedFiles, ...newFiles];
     }
   }
 
-  goToStep(stepNum: number): void {
-    if (stepNum < this.state.step || (stepNum === 4 && this.isStepComplete(3))) {
-      this.state.step = stepNum;
-      window.scrollTo(0, 0);
+  removeFile(index: number): void {
+    this.uploadedFiles.splice(index, 1);
+  }
+
+  // ── Submit ─────────────────────────────────────────────────────────────────
+
+  onSubmit(): void {
+    if (this.uploadedFiles.length === 0) {
+      this.toast.warning('Please upload at least one supporting document.');
+      return;
     }
+
+    this.isSaving = true;
+
+    const payload: CreateAitPayload = {
+      taxpayerId: this.step1Form.value.taxpayerId,
+      sourceType: this.step2Form.value.sourceType,
+      importDutyRecordId: this.step2Form.value.importDutyRecordId || undefined,
+      hsCode: this.step2Form.value.hsCode || undefined,
+      deductorName: this.step2Form.value.deductorName || undefined,
+      deductorTin: this.step2Form.value.deductorTin || undefined,
+      taxableValue: this.step2Form.value.taxableValue,
+      aitRate: this.step2Form.value.aitRate,
+    };
+
+    this.aitService
+      .create(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (created) => {
+          // Upload documents after record is created
+          this.uploadDocuments(created.id!);
+        },
+        error: (err) => {
+          this.toast.error(
+            err?.error?.message ?? 'Failed to create AIT record.',
+          );
+          this.isSaving = false;
+        },
+      });
   }
 
-  isStepComplete(stepNum: number): boolean {
-    switch (stepNum) {
-      case 1:
-        return !!this.state.selectedTransaction;
-      case 2:
-        return !!this.state.calculatedAit;
-      case 3:
-        return this.state.uploadedDocuments.length > 0;
-      case 4:
-        return true;
-      default:
-        return false;
-    }
+  private uploadDocuments(aitId: number): void {
+    const uploads = this.uploadedFiles.map((f) =>
+      this.aitService.uploadDocument(aitId, f).pipe(takeUntil(this.destroy$)),
+    );
+
+    // Sequential upload; switch to forkJoin if parallel is preferred
+    let completed = 0;
+    const tryNext = () => {
+      if (completed >= uploads.length) {
+        this.toast.success('AIT record created and documents uploaded.');
+        this.isSaving = false;
+        this.router.navigate(['/ait', aitId]);
+        return;
+      }
+      uploads[completed].subscribe({
+        next: () => {
+          completed++;
+          tryNext();
+        },
+        error: (err) => {
+          // Non-fatal: record was created, just warn about doc upload failure
+          this.toast.warning(
+            'Record saved, but one or more documents failed to upload.',
+          );
+          this.isSaving = false;
+          this.router.navigate(['/ait', aitId]);
+        },
+      });
+    };
+    tryNext();
   }
 
-  isStepValid(stepNum: number): boolean {
-    return this.isStepComplete(stepNum);
+  onCancel(): void {
+    this.router.navigate(['/ait']);
   }
 
-  getStepStatus(stepNum: number): 'done' | 'active' | 'pending' {
-    if (this.state.step === stepNum) return 'active';
-    if (stepNum < this.state.step) return 'done';
-    return 'pending';
+  // ── Display helpers ────────────────────────────────────────────────────────
+
+  getSourceLabel(source: AitSourceType): string {
+    return AIT_SOURCE_LABELS[source] ?? source;
   }
 
-  getStepLabel(stepNum: number): string {
-    const labels = ['', 'Select Transaction', 'Calculate AIT', 'Upload Documents', 'Review & Submit'];
-    return labels[stepNum] || '';
+  getSourceClass(source: AitSourceType): string {
+    const map: Record<AitSourceType, string> = {
+      IMPORT: 'cat-import',
+      SUPPLIER: 'cat-supplier',
+      SALARY: 'cat-salary',
+      CONTRACTOR: 'cat-contractor',
+      RENT: 'cat-rent',
+    };
+    return map[source] ?? '';
+  }
+
+  formatCurrency(value: number | null | undefined): string {
+    if (!value) return '৳0.00';
+    return (
+      '৳' +
+      value.toLocaleString('en-BD', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    );
   }
 }

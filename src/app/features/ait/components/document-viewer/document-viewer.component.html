@@ -1,0 +1,17 @@
+<div class="document-viewer">
+      <div class="viewer-header" *ngIf="document">
+        <h4>{{ document.fileName }}</h4>
+        <p class="viewer-meta">
+          {{ formatFileSize(document.fileSize) }} • {{ document.fileType }} • {{ formatDate(document.uploadedAt) }}
+        </p>
+      </div>
+
+      <div class="viewer-placeholder">
+        <i class="ti ti-file"></i>
+        <p>Document preview not available in browser</p>
+        <p class="hint" *ngIf="document">{{ document.fileName }}</p>
+        <button class="btn-download" title="Download document">
+          <i class="ti ti-download"></i> Download
+        </button>
+      </div>
+    </div>

@@ -1,356 +1,119 @@
-/* =====================================================
-   ait-dashboard.component.css
-   Design: Fintech-clean · matches taxpayer_ait_dashboard mockup
-   ===================================================== */
+/* ait-list.component.css
+   Extends the shared project design system.
+   AIT-specific overrides only — all base styles come from global.css / shared.css
+*/
 
-/* ── Shared Design Tokens ────────────────────────────── */
-.ait-db {
-  --c-bg:       #FFFFFF;
-  --c-bg2:      var(--color-background-secondary, #F7F7F5);
-  --c-border:   var(--color-border-tertiary, #E5E4DF);
-  --c-border2:  var(--color-border-secondary, #D0CEC7);
-  --c-text:     var(--color-text-primary, #1A1A18);
-  --c-text2:    var(--color-text-secondary, #5F5E5A);
-  --c-text3:    var(--color-text-tertiary, #9B9A96);
-  --c-green:    #0F6E56;
-  --c-green-bg: #E1F5EE;
-  --c-amber:    #BA7517;
-  --c-amber-bg: #FAEEDA;
-  --c-blue:     #185FA5;
-  --c-blue-bg:  #E6F1FB;
-  --c-red-bg:   #FCEBEB;
-  --c-red:      #791F1F;
-  --r-sm:       6px;
-  --r-md:       var(--border-radius-md, 10px);
-  --r-lg:       var(--border-radius-lg, 12px);
-  padding-bottom: 1.5rem;
-  font-size: 13px;
-  color: var(--c-text);
+/* ── Reference number ────────────────────────────────────────────────────────── */
+.return-code {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a3f8f;
+  background: #e8eef9;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-family: monospace;
+  white-space: nowrap;
 }
 
-/* ── Header ──────────────────────────────────────────── */
-.ait-db__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
+/* ── Avatars ─────────────────────────────────────────────────────────────────── */
+.ait-avatar {
+  background: #ede9fe;
+  color: #7c3aed;
 }
 
-.ait-db__title {
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--c-text);
-}
-
-.ait-db__subtitle {
-  font-size: 12.5px;
-  color: var(--c-text2);
-  margin-top: 3px;
-}
-
-/* ── Buttons ─────────────────────────────────────────── */
-.ait-btn {
+/* ── Source type badges ───────────────────────────────────────────────────────── */
+/* Uses Bootstrap Icons — no inline SVG, no Tabler icons */
+.cat-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: var(--r-sm);
-  transition: background .15s, border-color .15s, opacity .15s;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 5px;
   white-space: nowrap;
-  border: 0.5px solid transparent;
+}
+.cat-import     { background: #e0f2f9; color: #0891b2; }
+.cat-supplier   { background: #e8eef9; color: #1a3f8f; }
+.cat-salary     { background: #e6f7f3; color: #1faa8b; }
+.cat-contractor { background: #fef3e2; color: #f59e0b; }
+.cat-rent       { background: #fce7f3; color: #be185d; }
+
+/* ── Fiscal year badge ──────────────────────────────────────────────────────── */
+.year-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: #e8eef9;
+  color: #1a3f8f;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
-.ait-btn--primary {
-  padding: 8px 15px;
-  background: var(--c-green);
-  color: var(--c-green-bg);
-  border-color: var(--c-green);
-}
-.ait-btn--primary:hover { background: #0d5b47; }
-
-.ait-btn--warn {
-  padding: 3px 9px;
-  background: transparent;
-  color: var(--c-amber);
-  border-color: var(--c-amber);
-}
-.ait-btn--warn:hover { background: var(--c-amber-bg); }
-
-.ait-btn--ghost {
-  padding: 3px 9px;
-  background: transparent;
-  color: var(--c-text);
-  border-color: var(--c-border2);
-}
-.ait-btn--ghost:hover { background: var(--c-bg2); }
-
-.ait-btn--sm { padding: 3px 9px; font-size: 11px; }
-
-.ait-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* ── Alert ───────────────────────────────────────────── */
-.ait-alert {
-  display: flex;
+/* ── Challan status ──────────────────────────────────────────────────────────── */
+.challan-verified {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1faa8b;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: var(--r-sm);
-  font-size: 12px;
-  margin-bottom: 14px;
+  gap: 3px;
 }
-.ait-alert--warn {
-  background: var(--c-amber-bg);
-  border: 0.5px solid #D4860C;
-  color: #633806;
-}
-
-/* ── Loading ─────────────────────────────────────────── */
-.ait-loading {
-  display: flex;
-  flex-direction: column;
+.challan-pending {
+  font-size: 11px;
+  font-weight: 600;
+  color: #f59e0b;
+  display: inline-flex;
   align-items: center;
-  padding: 48px 20px;
-  gap: 14px;
-  color: var(--c-text2);
-  font-size: 13px;
+  gap: 3px;
 }
 
-.ait-spinner {
-  width: 28px;
-  height: 28px;
-  border: 2.5px solid var(--c-border);
-  border-top-color: var(--c-green);
-  border-radius: 50%;
-  animation: ait-spin .75s linear infinite;
-}
-@keyframes ait-spin { to { transform: rotate(360deg); } }
+/* ── Amount cells ────────────────────────────────────────────────────────────── */
+.amt-cell { font-variant-numeric: tabular-nums; }
+.net      { color: #1a3f8f; font-weight: 700; }
 
-/* ── KPI Cards ───────────────────────────────────────── */
-.ait-kpis {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 18px;
-  flex-wrap: wrap;
-}
+/* ── Status badges — consistent with project design system ──────────────────── */
+/* These class names match the shared .status-badge variants */
+.status-draft        { background: #f3f4f6; color: #6b7280; }
+.status-submitted    { background: #dbeafe; color: #1d4ed8; }
+.status-pending      { background: #fef3c7; color: #92400e; }
+.status-review       { background: #ede9fe; color: #5b21b6; }
+.status-approved     { background: #dcfce7; color: #166534; }
+.status-rejected     { background: #fee2e2; color: #991b1b; }
+.status-credited     { background: #d1fae5; color: #065f46; }
+.status-cancelled    { background: #f3f4f6; color: #9ca3af; }
 
-.ait-kpi {
-  flex: 1;
-  min-width: 150px;
-  background: var(--c-bg2);
-  border-radius: var(--r-md);
-  padding: 14px 16px;
-  transition: box-shadow .2s;
-}
-.ait-kpi:hover { box-shadow: 0 1px 4px rgba(0,0,0,.07); }
-
-.ait-kpi__label {
-  display: flex;
+/* ── Amend/Correct button ────────────────────────────────────────────────────── */
+.btn-amend {
+  display: inline-flex;
   align-items: center;
   gap: 5px;
+  background: #fef3e2;
+  color: #f59e0b;
+  border: 1px solid #fde8c0;
+  padding: 5px 12px;
+  border-radius: 7px;
   font-size: 12px;
-  color: var(--c-text2);
-  margin-bottom: 6px;
-}
-
-.ait-kpi__value {
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--c-text);
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.ait-kpi__sub {
-  font-size: 11px;
-  color: var(--c-text3);
-}
-
-/* ── Filters ─────────────────────────────────────────── */
-.ait-filters {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
-.ait-fsel,
-.ait-search {
-  font-size: 12px;
-  padding: 5px 9px;
-  border-radius: var(--r-sm);
-  border: 0.5px solid var(--c-border2);
-  background: var(--c-bg);
-  color: var(--c-text);
-  transition: border-color .15s;
-}
-.ait-fsel:hover,
-.ait-search:focus {
-  border-color: var(--c-green);
-  outline: none;
-}
-
-.ait-search {
-  flex: 1;
-  min-width: 160px;
-}
-
-/* ── Table ───────────────────────────────────────────── */
-.ait-table-wrap {
-  background: var(--c-bg);
-  border: 0.5px solid var(--c-border);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  min-height: 160px;
-}
-
-.ait-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.ait-table thead {
-  background: var(--c-bg2);
-}
-
-.ait-table th {
-  font-size: 10.5px;
-  font-weight: 500;
-  color: var(--c-text2);
-  text-transform: uppercase;
-  letter-spacing: .4px;
-  padding: 8px 10px;
-  text-align: left;
-  border-bottom: 0.5px solid var(--c-border);
-  white-space: nowrap;
-}
-
-.ait-table td {
-  padding: 9px 10px;
-  border-bottom: 0.5px solid var(--c-border);
-  vertical-align: middle;
-}
-
-.ait-table tbody tr { transition: background .12s; }
-.ait-table tbody tr:hover td { background: var(--c-bg2); }
-.ait-table tbody tr:last-child td { border-bottom: none; }
-
-/* Row highlights */
-.ait-table .row-warn td  { background: rgba(250,238,218,.18); }
-.ait-table .row-danger td { background: rgba(252,235,235,.18); }
-
-.text-right { text-align: right !important; }
-
-/* ── Table Cell Variants ─────────────────────────────── */
-.ait-ref-link {
-  font-size: 12px;
-  color: var(--c-blue);
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  text-decoration: none;
+  transition: background 0.2s;
 }
-.ait-ref-link:hover { text-decoration: underline; }
+.btn-amend:hover { background: #fde8c0; }
 
-.ait-date { font-size: 12px; color: var(--c-text2); }
-
-.ait-product-name { font-weight: 500; font-size: 12px; }
-.ait-product-code { font-size: 11px; color: var(--c-text2); margin-top: 1px; }
-
-.ait-amt { font-size: 13px; font-weight: 500; text-align: right; }
-
-.ait-actions { display: flex; gap: 4px; flex-wrap: wrap; }
-
-/* ── Status Badges ───────────────────────────────────── */
-.ait-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.b-draft      { background: #F1EFE8; color: #444441; }
-.b-submitted  { background: var(--c-blue-bg); color: #0C447C; }
-.b-pending    { background: var(--c-amber-bg); color: #633806; }
-.b-paid       { background: var(--c-green-bg); color: #085041; }
-.b-review     { background: #EEEDFE; color: #3C3489; }
-.b-approved   { background: #EAF3DE; color: #27500A; }
-.b-rejected   { background: var(--c-red-bg); color: var(--c-red); }
-.b-credited   { background: #EAF3DE; color: #085041; border: 1px solid #3B6D11; }
-.b-cancelled  { background: #F1EFE8; color: #5F5E5A; }
-
-/* ── Empty State ─────────────────────────────────────── */
-.ait-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 20px;
-  text-align: center;
-  gap: 8px;
-}
-
-.ait-empty__title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--c-text);
-  margin: 6px 0 0;
-}
-
-.ait-empty__hint {
-  font-size: 12px;
-  color: var(--c-text2);
-  margin: 0 0 10px;
-}
-
-/* ── Pagination ──────────────────────────────────────── */
-.ait-pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--c-text2);
-}
-
-.ait-pagination__controls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.ait-pagination__num {
-  padding: 3px 9px;
-  border-radius: var(--r-sm);
-  background: var(--c-bg2);
-  font-weight: 500;
-  color: var(--c-text);
-  font-size: 11px;
-}
-
-/* ── Responsive ─────────────────────────────────────── */
-@media (max-width: 900px) {
-  .ait-kpis { gap: 8px; }
-  .ait-kpi  { min-width: 140px; padding: 12px 14px; }
-  .ait-kpi__value { font-size: 18px; }
-}
-
-@media (max-width: 768px) {
-  .ait-db__header { flex-direction: column; gap: 12px; }
-  .ait-kpis { flex-direction: column; }
-  .ait-filters { flex-direction: column; }
-  .ait-fsel, .ait-search { width: 100%; }
-  .ait-pagination { flex-direction: column; gap: 8px; align-items: flex-start; }
-}
-
-/* Screen-reader only */
-.sr-only {
-  position: absolute; width: 1px; height: 1px;
-  padding: 0; margin: -1px; overflow: hidden;
-  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-}
+/* ── Table min-width ─────────────────────────────────────────────────────────── */
+.data-table { min-width: 1400px; }
+.btn-cert {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-cert:hover { background: #dcfce7; }

@@ -1,0 +1,133 @@
+/* ait-credit-ledger.component.css */
+
+/* ── KPI row ─────────────────────────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.kpi-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.kpi-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.kpi-green  { background: #f0fdf4; color: #16a34a; }
+.kpi-blue   { background: #eff6ff; color: #2563eb; }
+.kpi-purple { background: #f5f3ff; color: #7c3aed; }
+.kpi-amber  { background: #fffbeb; color: #d97706; }
+.kpi-label  { font-size: 11px; color: #6b7280; font-weight: 500; }
+.kpi-value  { font-size: 16px; font-weight: 800; color: #111827; margin-top: 2px; }
+.kpi-value.available { color: #16a34a; }
+
+/* ── Amount cells ────────────────────────────────────────────────────────── */
+.used      { color: #6b7280; }
+.remaining { color: #16a34a; font-weight: 700; }
+
+/* ── Credit avatar ───────────────────────────────────────────────────────── */
+.credit-avatar { background: #f0fdf4; color: #16a34a; }
+
+/* ── Source/status/year badges — same as ait-list ──────────────────────── */
+.return-code    { font-size:12px; font-weight:700; color:#1a3f8f; background:#e8eef9; padding:3px 8px; border-radius:5px; font-family:monospace; white-space:nowrap; }
+.year-badge     { font-size:11px; font-weight:700; background:#e8eef9; color:#1a3f8f; padding:2px 7px; border-radius:4px; display:inline-block; }
+.cat-badge      { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:3px 9px; border-radius:5px; }
+.cat-import     { background:#e0f2f9; color:#0891b2; }
+.cat-supplier   { background:#e8eef9; color:#1a3f8f; }
+.cat-salary     { background:#e6f7f3; color:#1faa8b; }
+.cat-contractor { background:#fef3e2; color:#f59e0b; }
+.cat-rent       { background:#fce7f3; color:#be185d; }
+.status-badge     { font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; }
+.status-approved  { background:#dcfce7; color:#166534; }
+.status-pending   { background:#fef3c7; color:#92400e; }
+.status-credited  { background:#d1fae5; color:#065f46; }
+.status-cancelled { background:#f3f4f6; color:#9ca3af; }
+.status-rejected  { background:#fee2e2; color:#991b1b; }
+
+/* ── Detail modal ────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 16px;
+}
+.detail-modal {
+  background: #fff; border-radius: 16px;
+  width: 100%; max-width: 560px;
+  max-height: 85vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.detail-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px; border-bottom: 1px solid #e5e7eb;
+  position: sticky; top: 0; background: #fff; z-index: 1;
+}
+.detail-modal-title { font-size: 15px; font-weight: 700; color: #111827; }
+.detail-modal-sub   { font-size: 12px; color: #6b7280; margin-top: 2px; font-family: monospace; }
+.close-btn { background: none; border: none; cursor: pointer; color: #6b7280; font-size: 16px; padding: 4px; }
+.close-btn:hover { color: #111827; }
+.detail-modal-body { padding: 20px; }
+
+/* ── Credit amounts grid ─────────────────────────────────────────────────── */
+.credit-amounts-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-bottom: 20px;
+}
+.credit-amount-box {
+  text-align: center; padding: 12px 8px;
+  border-radius: 10px; border: 1px solid #e5e7eb;
+}
+.credit-amount-box.credited  { background: #eff6ff; border-color: #bfdbfe; }
+.credit-amount-box.used      { background: #f9fafb; }
+.credit-amount-box.remaining { background: #f0fdf4; border-color: #bbf7d0; }
+.ca-label { font-size: 11px; color: #6b7280; font-weight: 500; }
+.ca-val   { font-size: 15px; font-weight: 800; color: #111827; margin-top: 4px; }
+.credit-amount-box.credited  .ca-val { color: #1d4ed8; }
+.credit-amount-box.remaining .ca-val { color: #16a34a; }
+
+/* ── Detail sections ─────────────────────────────────────────────────────── */
+.detail-section { margin-bottom: 20px; }
+.detail-section-title {
+  font-size: 13px; font-weight: 700; color: #111827;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.empty-state-sm {
+  text-align: center; padding: 16px;
+  color: #9ca3af; font-size: 13px;
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+}
+
+/* ── Application list ────────────────────────────────────────────────────── */
+.application-list { display: flex; flex-direction: column; gap: 10px; }
+.app-item {
+  padding: 12px; background: #f9fafb;
+  border: 1px solid #e5e7eb; border-radius: 8px;
+}
+.app-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.app-detail {
+  font-size: 12px; color: #6b7280;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.app-reversal { font-size: 11px; color: #dc2626; margin-top: 4px; font-style: italic; }
+
+/* ── Meta grid ───────────────────────────────────────────────────────────── */
+.detail-meta-grid { display: flex; flex-direction: column; gap: 8px; }
+.meta-row { display: flex; justify-content: space-between; }
+.meta-label { font-size: 12px; color: #6b7280; }
+.meta-val   { font-size: 12px; font-weight: 600; color: #111827; }
+
+.data-table { min-width: 1000px; }

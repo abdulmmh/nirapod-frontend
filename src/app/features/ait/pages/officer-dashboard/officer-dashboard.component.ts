@@ -7,7 +7,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   selector: 'app-officer-dashboard',
   templateUrl: './officer-dashboard.component.html',
-  styleUrls: ['./officer-dashboard.component.css']
+  styleUrls: ['./officer-dashboard.component.css'],
 })
 export class OfficerDashboardComponent implements OnInit {
   Math = Math;
@@ -37,7 +37,12 @@ export class OfficerDashboardComponent implements OnInit {
   // Bulk selection
   selectedIds: Set<number> = new Set();
 
-  statusOptions: AitStatus[] = ['PAID', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'];
+  statusOptions: AitStatus[] = [
+    'PENDING',
+    'UNDER_REVIEW',
+    'APPROVED',
+    'REJECTED',
+  ];
   isLoading: boolean = true;
   loadError: string | null = null;
 
@@ -47,7 +52,7 @@ export class OfficerDashboardComponent implements OnInit {
   constructor(
     private aitService: AitService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -60,10 +65,12 @@ export class OfficerDashboardComponent implements OnInit {
 
   get approvalRate(): number {
     const total = this.allRecords.filter(
-      r => r.status === 'APPROVED' || r.status === 'REJECTED'
+      (r) => r.status === 'APPROVED' || r.status === 'REJECTED',
     ).length;
     if (total === 0) return 0;
-    const approved = this.allRecords.filter(r => r.status === 'APPROVED').length;
+    const approved = this.allRecords.filter(
+      (r) => r.status === 'APPROVED',
+    ).length;
     return Math.round((approved / total) * 100);
   }
 
@@ -71,7 +78,7 @@ export class OfficerDashboardComponent implements OnInit {
     this.isLoading = true;
     this.loadError = null;
 
-    this.aitService.getMyAssignedQueue().subscribe({
+    this.aitService.getMyQueue().subscribe({
       next: (records) => {
         this.allRecords = records;
         this.calculateKPIs();
@@ -82,7 +89,7 @@ export class OfficerDashboardComponent implements OnInit {
         console.error('Failed to load queue:', err);
         this.loadError = 'Failed to load queue data. Please try again.';
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -93,50 +100,56 @@ export class OfficerDashboardComponent implements OnInit {
     weekAgo.setDate(weekAgo.getDate() - 7);
 
     this.kpis.myQueue = this.allRecords.filter(
-      r => r.status === 'UNDER_REVIEW'
+      (r) => r.status === 'UNDER_REVIEW',
     ).length;
 
-    this.kpis.reviewedToday = this.allRecords.filter(r => {
+    this.kpis.reviewedToday = this.allRecords.filter((r) => {
       const updated = new Date(r.updatedAt || '');
       updated.setHours(0, 0, 0, 0);
       return updated.getTime() === today.getTime();
     }).length;
 
-    this.kpis.approvedWeek = this.allRecords.filter(r => {
+    this.kpis.approvedWeek = this.allRecords.filter((r) => {
       const updated = new Date(r.updatedAt || '');
       return updated >= weekAgo && r.status === 'APPROVED';
     }).length;
 
-    const overdue = this.allRecords.filter(r => this.getSlaHours(r) < 0).length;
-    this.kpis.slaRiskPercent = this.allRecords.length > 0
-      ? Math.round((overdue / this.allRecords.length) * 100)
-      : 0;
+    const overdue = this.allRecords.filter(
+      (r) => this.getSlaHours(r) < 0,
+    ).length;
+    this.kpis.slaRiskPercent =
+      this.allRecords.length > 0
+        ? Math.round((overdue / this.allRecords.length) * 100)
+        : 0;
   }
 
   applyFilters(): void {
     let filtered = [...this.allRecords];
 
     if (this.activeTab !== 'ALL') {
-      filtered = filtered.filter(r => r.status === this.activeTab);
+      filtered = filtered.filter((r) => r.status === this.activeTab);
     }
 
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(r =>
-        r.aitReferenceNo?.toLowerCase().includes(q) ||
-        r.taxpayerName?.toLowerCase().includes(q) ||
-        r.importDutyRefNo?.toLowerCase().includes(q)
+      filtered = filtered.filter(
+        (r) =>
+          r.aitReferenceNo?.toLowerCase().includes(q) ||
+          r.taxpayerName?.toLowerCase().includes(q) ||
+          r.aitReferenceNo?.toLowerCase().includes(q),
       );
     }
 
     if (this.dateFilterFrom) {
       const fromDate = new Date(this.dateFilterFrom);
-      filtered = filtered.filter(r => new Date(r.createdAt || '') >= fromDate);
+      filtered = filtered.filter(
+        (r) => new Date(r.createdAt || '') >= fromDate,
+      );
     }
     if (this.dateFilterTo) {
       const toDate = new Date(this.dateFilterTo);
       toDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(r => new Date(r.createdAt || '') <= toDate);
+      filtered = filtered.filter((r) => new Date(r.createdAt || '') <= toDate);
     }
 
     filtered.sort((a, b) => {
@@ -169,12 +182,18 @@ export class OfficerDashboardComponent implements OnInit {
     this.applyFilters();
   }
 
-  onSearchChange(): void { this.applyFilters(); }
-  onDateChange(): void   { this.applyFilters(); }
+  onSearchChange(): void {
+    this.applyFilters();
+  }
+  onDateChange(): void {
+    this.applyFilters();
+  }
 
   setSortBy(field: 'date' | 'amount' | 'ref_no'): void {
-    this.sortBy = this.sortBy === field && this.sortOrder === 'desc' ? field : field;
-    this.sortOrder = this.sortBy === field && this.sortOrder === 'desc' ? 'asc' : 'desc';
+    this.sortBy =
+      this.sortBy === field && this.sortOrder === 'desc' ? field : field;
+    this.sortOrder =
+      this.sortBy === field && this.sortOrder === 'desc' ? 'asc' : 'desc';
     this.applyFilters();
   }
 
@@ -201,25 +220,33 @@ export class OfficerDashboardComponent implements OnInit {
     }
   }
 
-  nextPage(): void { if (this.currentPage < this.getTotalPages()) this.currentPage++; }
-  prevPage(): void { if (this.currentPage > 1) this.currentPage--; }
+  nextPage(): void {
+    if (this.currentPage < this.getTotalPages()) this.currentPage++;
+  }
+  prevPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
 
   // ── Bulk Select ───────────────────────────────────────
   toggleSelect(id: number): void {
-    this.selectedIds.has(id) ? this.selectedIds.delete(id) : this.selectedIds.add(id);
+    this.selectedIds.has(id)
+      ? this.selectedIds.delete(id)
+      : this.selectedIds.add(id);
   }
 
   isAllSelected(): boolean {
     const page = this.getPaginatedRecords();
-    return page.length > 0 && page.every(r => this.selectedIds.has(r.id || 0));
+    return (
+      page.length > 0 && page.every((r) => this.selectedIds.has(r.id || 0))
+    );
   }
 
   toggleSelectAll(): void {
     const page = this.getPaginatedRecords();
     if (this.isAllSelected()) {
-      page.forEach(r => this.selectedIds.delete(r.id || 0));
+      page.forEach((r) => this.selectedIds.delete(r.id || 0));
     } else {
-      page.forEach(r => this.selectedIds.add(r.id || 0));
+      page.forEach((r) => this.selectedIds.add(r.id || 0));
     }
   }
 
@@ -285,7 +312,9 @@ export class OfficerDashboardComponent implements OnInit {
   formatDate(dateStr: string): string {
     if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleDateString('en-GB', {
-      day: '2-digit', month: 'short', year: 'numeric'
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
     });
   }
 }

@@ -1,70 +1,90 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+// officer-review.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, timer } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
 import { AitService } from '../../services/ait.service';
-import { AitDetailResponse, AitDocument, DocumentRequest, DocumentRequestType } from '../../models/ait.model';
+
+import {
+  AitDetailResponse,
+  AitSourceType,
+  AitStatus,
+  AIT_STATUS_LABELS,
+  AIT_STATUS_CLASSES,
+  AIT_SOURCE_LABELS,
+} from '../../models/ait.model';
+import { Role } from 'src/app/core/constants/roles.constants';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+
+interface WorkflowStep {
+  status: AitStatus | string;
+  label: string;
+  icon: string;
+}
 
 @Component({
   selector: 'app-officer-review',
   templateUrl: './officer-review.component.html',
-  styleUrls: ['./officer-review.component.css']
+  styleUrls: ['./officer-review.component.css'],
 })
 export class OfficerReviewComponent implements OnInit, OnDestroy {
   ait: AitDetailResponse | null = null;
-  documents: AitDocument[] = [];
-  pendingRequests: DocumentRequest[] = [];
+  isLoading = false;
+  isActioning = false;
+  isOfficerRole = false;
+  isTaxpayerRole = false;
+
+  showRejectPanel = false;
+
+  // Reactive forms (replacing old component-state approach)
+  challanForm!: FormGroup;
+  reviewForm!: FormGroup;
+  rejectForm!: FormGroup;
+
+  // Workflow progress steps
+  workflowSteps: WorkflowStep[] = [
+    { status: 'DRAFT', label: 'Draft', icon: 'bi-file-earmark' },
+    { status: 'SUBMITTED', label: 'Submitted', icon: 'bi-send' },
+    { status: 'PENDING', label: 'Pending', icon: 'bi-clock' },
+    { status: 'UNDER_REVIEW', label: 'In Review', icon: 'bi-search' },
+    { status: 'APPROVED', label: 'Approved', icon: 'bi-check-circle' },
+    { status: 'CREDITED', label: 'Credited', icon: 'bi-cash-coin' },
+  ];
+
+  private statusOrder = [
+    'DRAFT',
+    'SUBMITTED',
+    'PENDING',
+    'UNDER_REVIEW',
+    'APPROVED',
+    'CREDITED',
+  ];
 
   private destroy$ = new Subject<void>();
 
-  activeDocTabId: number | null = null;
-  selectedDocument: AitDocument | null = null;
-
-  // Actions state
-  actionInProgress: string | null = null;
-  actionError: string | null = null;
-  actionSuccess: string | null = null;
-
-  // Modals
-  showApproveModal: boolean = false;
-  showRejectModal: boolean = false;
-  showRequestModal: boolean = false;
-
-  // Form data
-  approveForm = {
-    approvedAmount: 0,
-    approvalNotes: ''
-  };
-
-  rejectForm = {
-    rejectionReason: ''
-  };
-
-  requestForm = {
-    requestType: 'INFO',
-    requestedDocuments: '',
-    requestReason: '',
-    deadline: ''
-  };
-
-  isLoading: boolean = true;
-  loadError: string | null = null;
-
-  aitId: number | null = null;
-
   constructor(
+    private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private aitService: AitService
+    private aitService: AitService,
+    private toast: ToastService,
+    private auth: AuthService,
   ) {}
 
   ngOnInit(): void {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      this.aitId = params['id'];
-      if (this.aitId) {
-        this.loadAitDetails();
-      }
-    });
+    this.isOfficerRole =
+      this.auth.hasRole(Role.TAX_OFFICER) ||
+      this.auth.hasRole(Role.TAX_COMMISSIONER) ||
+      this.auth.hasRole(Role.SUPER_ADMIN);
+    this.isTaxpayerRole = this.auth.hasRole(Role.TAXPAYER);
+
+    this.buildForms();
+
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadRecord(id);
   }
 
   ngOnDestroy(): void {
@@ -72,207 +92,240 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadAitDetails(): void {
-    if (!this.aitId) return;
+  // ── Form construction ──────────────────────────────────────────────────────
 
+  buildForms(): void {
+    this.challanForm = this.fb.group({
+      challanNumber: ['', [Validators.required, Validators.maxLength(50)]],
+      bankName: ['', [Validators.required, Validators.maxLength(100)]],
+    });
+
+    this.reviewForm = this.fb.group({
+      approvedAmount: [null],
+      approvalNotes: [''],
+    });
+
+    this.rejectForm = this.fb.group({
+      rejectionReason: ['', [Validators.required, Validators.minLength(10)]],
+      feedbackForTaxpayer: [''],
+    });
+  }
+
+  // ── Data ───────────────────────────────────────────────────────────────────
+
+  loadRecord(id: number): void {
     this.isLoading = true;
-    this.loadError = null;
-
-    this.aitService.getById(this.aitId).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (detail) => {
-        this.ait = detail;
-        this.documents = detail.documents || [];
-        this.pendingRequests = detail.pendingRequests || [];
-        this.approveForm.approvedAmount = detail.approvedAitAmount || detail.calculatedAitAmount;
-        if (this.documents.length > 0) {
-          this.selectDocument(this.documents[0]);
-        }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load AIT details:', err);
-        this.loadError = 'Failed to load AIT record. Please try again.';
-        this.isLoading = false;
-      }
-    });
+    this.aitService
+      .getById(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.ait = data;
+          this.isLoading = false;
+          // Pre-fill approved amount with calculated amount
+          this.reviewForm.patchValue({
+            approvedAmount: data.calculatedAitAmount,
+          });
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Failed to load AIT record.');
+          this.isLoading = false;
+          this.router.navigate(['/ait']);
+        },
+      });
   }
 
-  selectDocument(doc: AitDocument): void {
-    this.selectedDocument = doc;
-    this.activeDocTabId = doc.id;
+  // ── Actions ────────────────────────────────────────────────────────────────
+
+  onVerifyChallan(): void {
+    if (!this.ait || this.challanForm.invalid) return;
+    this.isActioning = true;
+    this.aitService
+      .verifyChallan(this.ait.id!, this.challanForm.value)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('Challan verified. Record moved to review queue.');
+          this.loadRecord(this.ait!.id!);
+          this.isActioning = false;
+        },
+        error: (err) => {
+          this.toast.error(
+            err?.error?.message ?? 'Challan verification failed.',
+          );
+          this.isActioning = false;
+        },
+      });
   }
 
-  // Approve Action
-  openApproveModal(): void {
-    this.showApproveModal = true;
-    this.approveForm.approvedAmount = this.ait?.approvedAitAmount || this.ait?.calculatedAitAmount || 0;
+  onAssign(): void {
+    if (!this.ait) return;
+    this.isActioning = true;
+    this.aitService
+      .assignToMe(this.ait.id!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('Record assigned to you. Status: Under Review.');
+          this.loadRecord(this.ait!.id!);
+          this.isActioning = false;
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Assignment failed.');
+          this.isActioning = false;
+        },
+      });
   }
 
-  closeApproveModal(): void {
-    this.showApproveModal = false;
-    this.actionError = null;
-  }
-
-  submitApprove(): void {
-    if (!this.ait?.id) return;
-
-    this.actionInProgress = 'approve';
-    this.actionError = null;
-
-    this.aitService.approve(this.ait.id, {
-      approvedAmount: this.approveForm.approvedAmount,
-      approvalNotes: this.approveForm.approvalNotes
-    }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (result) => {
-        this.actionSuccess = 'AIT record approved successfully!';
-        this.actionInProgress = null;
-        this.showApproveModal = false;
-        timer(2000).pipe(takeUntil(this.destroy$))
-          .subscribe(() => this.router.navigate(['/aits/officer-dashboard']));
-      },
-      error: (err) => {
-        this.actionError = err?.message || 'Failed to approve AIT. Please try again.';
-        this.actionInProgress = null;
-      }
-    });
-  }
-
-  // Reject Action
-  openRejectModal(): void {
-    this.showRejectModal = true;
-  }
-
-  closeRejectModal(): void {
-    this.showRejectModal = false;
-    this.actionError = null;
-  }
-
-  submitReject(): void {
-    if (!this.ait?.id || !this.rejectForm.rejectionReason.trim()) {
-      this.actionError = 'Please provide a rejection reason.';
-      return;
-    }
-
-    this.actionInProgress = 'reject';
-    this.actionError = null;
-
-    this.aitService.reject(this.ait.id, {
-      rejectionReason: this.rejectForm.rejectionReason.trim()
-    }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (result) => {
-        this.actionSuccess = 'AIT record rejected successfully!';
-        this.actionInProgress = null;
-        this.showRejectModal = false;
-        timer(2000).pipe(takeUntil(this.destroy$))
-          .subscribe(() => this.router.navigate(['/aits/officer-dashboard']));
-      },
-      error: (err) => {
-        this.actionError = err?.message || 'Failed to reject AIT. Please try again.';
-        this.actionInProgress = null;
-      }
-    });
-  }
-
-  // Request Correction Action
-  openRequestModal(): void {
-    this.showRequestModal = true;
-  }
-
-  closeRequestModal(): void {
-    this.showRequestModal = false;
-    this.actionError = null;
-  }
-
-  submitRequest(): void {
-    if (!this.ait?.id || !this.requestForm.requestedDocuments.trim()) {
-      this.actionError = 'Please specify which documents are required.';
-      return;
-    }
-
-    this.actionInProgress = 'request';
-    this.actionError = null;
-
-    const request: Partial<DocumentRequest> = {
-      requestType: this.requestForm.requestType as DocumentRequestType,
-      requestedDocuments: this.requestForm.requestedDocuments,
-      requestReason: this.requestForm.requestReason,
-      deadline: this.requestForm.deadline
+  onApprove(): void {
+    if (!this.ait) return;
+    this.isActioning = true;
+    const payload = {
+      approvedAmount: this.reviewForm.value.approvedAmount || undefined,
+      approvalNotes: this.reviewForm.value.approvalNotes || undefined,
     };
-
-    this.aitService.createDocumentRequest(this.ait.id, request).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (result) => {
-        this.actionSuccess = 'Document request sent successfully!';
-        this.actionInProgress = null;
-        this.showRequestModal = false;
-        this.pendingRequests.push(result);
-        timer(1500).pipe(takeUntil(this.destroy$))
-          .subscribe(() => this.loadAitDetails());
-      },
-      error: (err) => {
-        this.actionError = err?.message || 'Failed to send document request. Please try again.';
-        this.actionInProgress = null;
-      }
-    });
+    this.aitService
+      .approve(this.ait.id!, payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('AIT record approved successfully.');
+          this.loadRecord(this.ait!.id!);
+          this.isActioning = false;
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Approval failed.');
+          this.isActioning = false;
+        },
+      });
   }
 
-  // Helpers
-  getStatusColor(status: string): string {
-    const colors: Record<string, string> = {
-      'DRAFT': 'status-draft',
-      'SUBMITTED': 'status-submitted',
-      'PENDING': 'status-pending',
-      'PAID': 'status-paid',
-      'UNDER_REVIEW': 'status-review',
-      'APPROVED': 'status-approved',
-      'REJECTED': 'status-rejected',
-      'CREDITED': 'status-credited',
-      'CANCELLED': 'status-cancelled',
+  onReject(): void {
+    if (!this.ait || this.rejectForm.invalid) return;
+    this.isActioning = true;
+    this.aitService
+      .reject(this.ait.id!, this.rejectForm.value)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('AIT record rejected. Taxpayer notified.');
+          this.showRejectPanel = false;
+          this.loadRecord(this.ait!.id!);
+          this.isActioning = false;
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Rejection failed.');
+          this.isActioning = false;
+        },
+      });
+  }
+
+  onCredit(): void {
+    if (!this.ait) return;
+    this.isActioning = true;
+    this.aitService
+      .credit(this.ait.id!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('AIT credit posted to taxpayer ITR ledger.');
+          this.loadRecord(this.ait!.id!);
+          this.isActioning = false;
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Credit posting failed.');
+          this.isActioning = false;
+        },
+      });
+  }
+
+  onDownloadCertificate(): void {
+    if (!this.ait) return;
+    this.aitService.downloadCertificate(this.ait.id!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a   = document.createElement('a');
+          a.href     = url;
+          a.download = `AIT-Certificate-${this.ait!.aitReferenceNo}.pdf`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+          this.toast.success('Certificate downloaded.');
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Certificate download failed.');
+        },
+      });
+  }
+
+  // ── UI helpers ─────────────────────────────────────────────────────────────
+
+  canAct(): boolean {
+    if (!this.ait) return false;
+    return ['SUBMITTED', 'PENDING', 'UNDER_REVIEW', 'APPROVED'].includes(
+      this.ait.status,
+    );
+  }
+
+  isStepDone(stepStatus: string): boolean {
+    if (!this.ait) return false;
+    if (this.ait.status === 'REJECTED') return false;
+    const current = this.statusOrder.indexOf(this.ait.status);
+    const step = this.statusOrder.indexOf(stepStatus);
+    return step < current;
+  }
+
+  isStepActive(stepStatus: string): boolean {
+    return this.ait?.status === stepStatus;
+  }
+
+  getStatusLabel(status: AitStatus): string {
+    return AIT_STATUS_LABELS[status] ?? status;
+  }
+
+  getStatusClass(status: AitStatus): string {
+    return AIT_STATUS_CLASSES[status] ?? '';
+  }
+
+  getSourceLabel(source: AitSourceType): string {
+    return AIT_SOURCE_LABELS[source] ?? source;
+  }
+
+  getSourceClass(source: AitSourceType): string {
+    const map: Record<AitSourceType, string> = {
+      IMPORT: 'cat-import',
+      SUPPLIER: 'cat-supplier',
+      SALARY: 'cat-salary',
+      CONTRACTOR: 'cat-contractor',
+      RENT: 'cat-rent',
     };
-    return colors[status] || 'status-default';
+    return map[source] ?? '';
   }
 
-  getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      'DRAFT': 'Draft',
-      'SUBMITTED': 'Submitted',
-      'PENDING': 'Pending',
-      'PAID': 'Paid',
-      'UNDER_REVIEW': 'Under Review',
-      'APPROVED': 'Approved',
-      'REJECTED': 'Rejected',
-      'CREDITED': 'Credited',
-      'CANCELLED': 'Cancelled',
+  getSourceIcon(source: AitSourceType): string {
+    const map: Record<AitSourceType, string> = {
+      IMPORT: 'bi-box-seam',
+      SUPPLIER: 'bi-truck',
+      SALARY: 'bi-person-badge',
+      CONTRACTOR: 'bi-tools',
+      RENT: 'bi-building',
     };
-    return labels[status] || 'Unknown';
+    return map[source] ?? 'bi-receipt';
   }
 
-  formatDate(dateStr: string): string {
-    if (!dateStr) return 'N/A';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  getDocUrl(docId: number): string {
+    return `/api/ait-records/${this.ait?.id}/documents/${docId}`;
   }
 
-  formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-  }
-
-  goBack(): void {
-    this.router.navigate(['/aits/officer-dashboard']);
-  }
-
-  canApprove(): boolean {
-    return this.ait?.status === 'PAID' || this.ait?.status === 'UNDER_REVIEW';
-  }
-
-  canReject(): boolean {
-    return this.ait?.status === 'PAID' || this.ait?.status === 'UNDER_REVIEW';
-  }
-
-  canRequestCorrection(): boolean {
-    return this.ait?.status === 'UNDER_REVIEW';
+  formatCurrency(value: number | undefined): string {
+    if (value == null) return '৳0';
+    return (
+      '৳' +
+      value.toLocaleString('en-BD', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    );
   }
 }

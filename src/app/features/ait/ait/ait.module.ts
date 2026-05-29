@@ -14,6 +14,7 @@ import { DocumentViewerComponent } from '../components/document-viewer/document-
 import { KPICardsComponent } from '../components/kpi-cards/kpi-cards.component';
 import { RecordsTableComponent } from '../components/records-table/records-table.component';
 import { StatusBadgeComponent } from '../components/status-badge/status-badge.component';
+import { AitCreditLedgerComponent } from '../pages/ait-credit-ledger/ait-credit-ledger.component';
 
 
 
@@ -31,7 +32,8 @@ import { StatusBadgeComponent } from '../components/status-badge/status-badge.co
     DocumentViewerComponent,
     KPICardsComponent,
     RecordsTableComponent,
-    StatusBadgeComponent
+    StatusBadgeComponent,
+    AitCreditLedgerComponent
     
 
   ],

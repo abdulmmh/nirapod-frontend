@@ -1,0 +1,20 @@
+<div class="audit-section">
+      <h3><i class="ti ti-history"></i> Status History</h3>
+      <div class="audit-trail" *ngIf="events && events.length > 0">
+        <div *ngFor="let event of events; let i = last" class="audit-item" [class.last]="i">
+          <div class="audit-dot"></div>
+          <div class="audit-content">
+            <p class="audit-transition">
+              <strong>{{ event.fromStatus }}</strong> → <strong>{{ event.toStatus }}</strong>
+            </p>
+            <p class="audit-meta">
+              by {{ event.changedBy }} on {{ formatDate(event.changedAt) }}
+            </p>
+            <p class="audit-reason" *ngIf="event.changeReason">{{ event.changeReason }}</p>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!events || events.length === 0" class="empty">
+        No status changes recorded yet.
+      </div>
+    </div>

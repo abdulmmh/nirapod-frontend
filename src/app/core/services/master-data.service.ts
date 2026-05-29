@@ -3,96 +3,103 @@ import { BaseApiService } from './base-api.service';
 import { API_ENDPOINTS } from '../constants/api.constants';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AitSourceType, AitStatus } from 'src/app/models/ait.model';
+import {
+  AitSourceType,
+  AitStatus,
+} from 'src/app/features/ait/models/ait.model';
 import { FiscalYear } from 'src/app/models/fiscal-year.model';
-import { BusinessCategory, BusinessType, TaxCircle, TaxpayerType, TaxZone } from 'src/app/models/master-data.model';
+import {
+  BusinessCategory,
+  BusinessType,
+  TaxCircle,
+  TaxpayerType,
+  TaxZone,
+} from 'src/app/models/master-data.model';
 import { District, Division } from 'src/app/models/master-data.model';
-
 
 @Injectable({ providedIn: 'root' })
 export class MasterDataService extends BaseApiService {
-
   getDivisions(): Observable<Division[]> {
     return this.get<Division[]>(API_ENDPOINTS.MASTER_DATA.DIVISIONS).pipe(
-      catchError(() => of([]))
+      catchError(() => of([])),
     );
   }
 
   getDistrictsByDivision(divisionId: number): Observable<District[]> {
     return this.get<District[]>(
-      API_ENDPOINTS.MASTER_DATA.DISTRICTS_BY_DIVISION(divisionId)
+      API_ENDPOINTS.MASTER_DATA.DISTRICTS_BY_DIVISION(divisionId),
     ).pipe(catchError(() => of([])));
   }
 
   getTaxpayerTypes(): Observable<TaxpayerType[]> {
     return this.get<TaxpayerType[]>(
-      API_ENDPOINTS.MASTER_DATA.TAXPAYER_TYPES
+      API_ENDPOINTS.MASTER_DATA.TAXPAYER_TYPES,
     ).pipe(catchError(() => of([])));
   }
 
   getActiveTaxpayers(): Observable<any[]> {
-    return this.get<any[]>(`${API_ENDPOINTS.TAXPAYERS.LIST}?status=Active`).pipe(
-      catchError(() => of([]))
-    );
+    return this.get<any[]>(
+      `${API_ENDPOINTS.TAXPAYERS.LIST}?status=Active`,
+    ).pipe(catchError(() => of([])));
   }
 
   getBusinessTypes(): Observable<BusinessType[]> {
-    return this.get<BusinessType[]>(API_ENDPOINTS.MASTER_DATA.BUSINESS_TYPES).pipe(
-      catchError(() => of([]))
-    );
+    return this.get<BusinessType[]>(
+      API_ENDPOINTS.MASTER_DATA.BUSINESS_TYPES,
+    ).pipe(catchError(() => of([])));
   }
 
   getBusinessCategories(): Observable<BusinessCategory[]> {
-    return this.get<BusinessCategory[]>(API_ENDPOINTS.MASTER_DATA.BUSINESS_CATEGORIES).pipe(
-      catchError(() => of([]))
-    );
+    return this.get<BusinessCategory[]>(
+      API_ENDPOINTS.MASTER_DATA.BUSINESS_CATEGORIES,
+    ).pipe(catchError(() => of([])));
   }
 
   getAitSourceTypes(): Observable<AitSourceType[]> {
-    return this.get<AitSourceType[]>(API_ENDPOINTS.MASTER_DATA.AIT_SOURCE_TYPES).pipe(
-      catchError(() => of([]))
-    );
+    return this.get<AitSourceType[]>(
+      API_ENDPOINTS.MASTER_DATA.AIT_SOURCE_TYPES,
+    ).pipe(catchError(() => of([])));
   }
 
   getAitStatuses(): Observable<AitStatus[]> {
     return this.get<AitStatus[]>(API_ENDPOINTS.MASTER_DATA.AIT_STATUSES).pipe(
-      catchError(() => of([]))
+      catchError(() => of([])),
     );
   }
 
   getFiscalYears(): Observable<FiscalYear[]> {
     return this.get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST).pipe(
-      catchError(() => of([]))
+      catchError(() => of([])),
     );
   }
 
   getImportPorts(): Observable<any[]> {
     return this.get<any[]>(API_ENDPOINTS.MASTER_DATA.IMPORT_PORTS).pipe(
-      catchError(() => of([]))
+      catchError(() => of([])),
     );
   }
 
   getImportCountries(): Observable<any[]> {
     return this.get<any[]>(API_ENDPOINTS.MASTER_DATA.IMPORT_COUNTRIES).pipe(
-      catchError(() => of([]))
+      catchError(() => of([])),
     );
   }
 
   getImportDutyStatuses(): Observable<any[]> {
     return this.get<any[]>(API_ENDPOINTS.MASTER_DATA.IMPORT_DUTY_STATUSES).pipe(
-      catchError(() => of([]))
+      catchError(() => of([])),
     );
   }
 
   getTaxZonesByDistrict(districtId: number): Observable<any[]> {
     return this.get<any[]>(
-      API_ENDPOINTS.MASTER_DATA.TAX_ZONES_BY_DISTRICT(districtId)
+      API_ENDPOINTS.MASTER_DATA.TAX_ZONES_BY_DISTRICT(districtId),
     ).pipe(catchError(() => of([])));
   }
 
   getTaxCirclesByZone(zoneId: number): Observable<any[]> {
     return this.get<any[]>(
-      API_ENDPOINTS.MASTER_DATA.TAX_CIRCLES_BY_ZONE(zoneId)
+      API_ENDPOINTS.MASTER_DATA.TAX_CIRCLES_BY_ZONE(zoneId),
     ).pipe(catchError(() => of([])));
   }
 }

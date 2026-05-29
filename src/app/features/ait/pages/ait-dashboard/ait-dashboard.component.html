@@ -1,229 +1,266 @@
-<div class="ait-db">
-  <h2 class="sr-only">Taxpayer AIT Dashboard</h2>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Advance Income Tax (AIT)</h4>
+    <p>Manage and track all AIT submissions and credits.</p>
+  </div>
+  <a *canDo="'create'" routerLink="/ait/create" class="btn-add-primary desktop-add-btn">
+    <i class="bi bi-plus-lg"></i> New AIT Record
+  </a>
+</div>
 
-  <!-- ── Page Header ──────────────────────────────────────── -->
-  <div class="ait-db__header">
-    <div>
-      <div class="ait-db__title">Advance Income Tax (AIT)</div>
-      <div class="ait-db__subtitle">
-        Fiscal Year {{ taxpayerInfo.fiscalYear }} &nbsp;·&nbsp; TIN: {{ taxpayerInfo.tin }}
-      </div>
-    </div>
-    <button class="ait-btn ait-btn--primary" (click)="createNewAit()">
-      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-        <path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="1.8"
-              stroke-linecap="round"/>
-      </svg>
-      Create New AIT
+<div class="page-wrapper">
+
+  <!-- Status Filter Tabs -->
+  <div class="status-tabs">
+    <button class="stab" [class.active]="filterStatus === ''" (click)="setFilter('')">
+      All <span class="stab-count">{{ countByStatus('') }}</span>
+    </button>
+    <button class="stab draft" [class.active]="filterStatus === 'DRAFT'" (click)="setFilter('DRAFT')">
+      Draft <span class="stab-count">{{ countByStatus('DRAFT') }}</span>
+    </button>
+    <button class="stab submitted" [class.active]="filterStatus === 'SUBMITTED'" (click)="setFilter('SUBMITTED')">
+      Submitted <span class="stab-count">{{ countByStatus('SUBMITTED') }}</span>
+    </button>
+    <button class="stab pending" [class.active]="filterStatus === 'PENDING'" (click)="setFilter('PENDING')">
+      Pending <span class="stab-count">{{ countByStatus('PENDING') }}</span>
+    </button>
+    <button class="stab review" [class.active]="filterStatus === 'UNDER_REVIEW'" (click)="setFilter('UNDER_REVIEW')">
+      Under Review <span class="stab-count">{{ countByStatus('UNDER_REVIEW') }}</span>
+    </button>
+    <button class="stab approved" [class.active]="filterStatus === 'APPROVED'" (click)="setFilter('APPROVED')">
+      Approved <span class="stab-count">{{ countByStatus('APPROVED') }}</span>
+    </button>
+    <button class="stab rejected" [class.active]="filterStatus === 'REJECTED'" (click)="setFilter('REJECTED')">
+      Rejected <span class="stab-count">{{ countByStatus('REJECTED') }}</span>
+    </button>
+    <button class="stab credited" [class.active]="filterStatus === 'CREDITED'" (click)="setFilter('CREDITED')">
+      Credited <span class="stab-count">{{ countByStatus('CREDITED') }}</span>
     </button>
   </div>
 
-  <!-- ── Error Banner ──────────────────────────────────────── -->
-  <div *ngIf="error" class="ait-alert ait-alert--warn">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="8" r="7" stroke="#BA7517" stroke-width="1.5"/>
-      <path d="M8 5v4M8 10.5v.5" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>
-    {{ error }}
-  </div>
-
-  <!-- ── Loading ────────────────────────────────────────────── -->
-  <div *ngIf="loading" class="ait-loading">
-    <div class="ait-spinner"></div>
-    <p>Loading AIT records…</p>
-  </div>
-
-  <!-- ── Content ───────────────────────────────────────────── -->
-  <div *ngIf="!loading" class="ait-db__body">
-
-    <!-- KPI Cards -->
-    <div class="ait-kpis">
-      <div class="ait-kpi">
-        <div class="ait-kpi__label">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
-            <path d="M3 5h7M3 8h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-          Total AITs
-        </div>
-        <div class="ait-kpi__value">{{ kpis.totalCount }}</div>
-        <div class="ait-kpi__sub">This fiscal year</div>
-      </div>
-
-      <div class="ait-kpi">
-        <div class="ait-kpi__label">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <circle cx="6.5" cy="6.5" r="5.5" stroke="#BA7517" stroke-width="1.3"/>
-            <path d="M6.5 4v3.5M6.5 9v.5" stroke="#BA7517" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-          Needs Action
-        </div>
-        <div class="ait-kpi__value" style="color:#BA7517">{{ kpis.needsActionCount }}</div>
-        <div class="ait-kpi__sub">Pending payment / docs</div>
-      </div>
-
-      <div class="ait-kpi">
-        <div class="ait-kpi__label">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <circle cx="6.5" cy="6.5" r="5.5" stroke="#3B6D11" stroke-width="1.3"/>
-            <path d="M4 6.5l2 2 3.5-3.5" stroke="#3B6D11" stroke-width="1.3" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-          </svg>
-          Approved
-        </div>
-        <div class="ait-kpi__value" style="color:#3B6D11">{{ kpis.approvedCount }}</div>
-        <div class="ait-kpi__sub">This fiscal year</div>
-      </div>
-
-      <div class="ait-kpi">
-        <div class="ait-kpi__label">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <rect x="1" y="3" width="11" height="8" rx="1.5" stroke="#0F6E56" stroke-width="1.3"/>
-            <path d="M4 1v2M9 1v2M1 6.5h11" stroke="#0F6E56" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-          Credited to ITR
-        </div>
-        <div class="ait-kpi__value" style="color:#0F6E56">
-          ৳ {{ kpis.creditedAmount | number:'1.0-0' }}
-        </div>
-        <div class="ait-kpi__sub">Successfully credited</div>
+  <!-- Search Bar -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by reference no, TIN, taxpayer, source type..."
+          [formControl]="searchControl" />
       </div>
     </div>
+  </div>
 
-    <!-- Filters -->
-    <div class="ait-filters">
-      <select class="ait-fsel" (change)="onStatusFilterChange($any($event.target).value)">
-        <option value="">All Statuses</option>
-        <option value="DRAFT">Draft</option>
-        <option value="SUBMITTED">Submitted</option>
-        <option value="PENDING">Payment Pending</option>
-        <option value="UNDER_REVIEW">Under Review</option>
-        <option value="APPROVED">Approved</option>
-        <option value="CREDITED">Credited to ITR</option>
-        <option value="REJECTED">Rejected</option>
-      </select>
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm" style="color:#7c3aed"></div>
+    <span>Loading AIT records...</span>
+  </div>
 
-      <select class="ait-fsel" (change)="onFiscalYearChange($any($event.target).value)">
-        <option value="FY 2024-2025">FY 2024–2025</option>
-        <option value="FY 2023-2024">FY 2023–2024</option>
-      </select>
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Reference No</th>
+          <th>Taxpayer</th>
+          <th>Source Type</th>
+          <th>Fiscal Year</th>
+          <th>Taxable Value</th>
+          <th>AIT Rate</th>
+          <th>AIT Amount</th>
+          <th>Challan</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
 
-      <input type="text" class="ait-search"
-             placeholder="Search reference or HS code…"
-             (input)="onSearchChange($any($event.target).value)" />
+          <td>
+            <span class="return-code">{{ r.aitReferenceNo }}</span>
+          </td>
 
-      <button class="ait-fsel" style="cursor:pointer;display:flex;align-items:center;gap:5px">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M1 3h11M3 6.5h7M5 10h3" stroke="currentColor" stroke-width="1.3"
-                stroke-linecap="round"/>
-        </svg>
-        Filters
+          <td>
+            <div class="td-name">
+              <div class="td-avatar ait-avatar">
+                <i class="bi bi-receipt"></i>
+              </div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName }}</span>
+                <span class="td-sub">{{ r.taxpayerTin }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="cat-badge" [ngClass]="getSourceClass(r.sourceType)">
+              <i class="bi" [ngClass]="getSourceIcon(r.sourceType)"></i>
+              {{ getSourceLabel(r.sourceType) }}
+            </span>
+          </td>
+
+          <td>
+            <span class="year-badge">{{ r.fiscalYearName || '—' }}</span>
+          </td>
+
+          <td class="amt-cell">{{ formatCurrency(r.taxableValue) }}</td>
+          <td class="amt-cell">{{ r.aitRate }}%</td>
+          <td class="amt-cell net">{{ formatCurrency(r.calculatedAitAmount) }}</td>
+
+          <td>
+            <span *ngIf="r.challanVerified" class="challan-verified">
+              <i class="bi bi-patch-check-fill"></i> Verified
+            </span>
+            <span *ngIf="!r.challanVerified && r.challanNumber" class="challan-pending">
+              <i class="bi bi-clock"></i> Pending
+            </span>
+            <span *ngIf="!r.challanNumber" class="text-muted">—</span>
+          </td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ getStatusLabel(r.status) }}
+            </span>
+          </td>
+
+          <td>{{ r.createdAt | date:'dd MMM yyyy' }}</td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="view(r.id!)">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *canDo="'edit'" class="btn-edit" [disabled]="r.status !== 'DRAFT'" (click)="edit(r.id!)">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <!-- Taxpayer: resubmit after rejection -->
+              <button *ngIf="r.status === 'REJECTED' && isTaxpayerRole" class="btn-amend" (click)="onResubmit(r.id!)">
+                <i class="bi bi-arrow-repeat"></i> Correct
+              </button>
+              <button *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']" class="btn-delete"
+                [disabled]="r.status !== 'DRAFT' && r.status !== 'REJECTED'" (click)="confirmDelete(r.id!)">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+              <button *ngIf="r.status === 'CREDITED'" class="btn-cert" (click)="downloadCertificate(r.id!)"
+                title="Download AIT Certificate">
+                <i class="bi bi-file-earmark-arrow-down-fill"></i> Cert
+              </button>
+
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="12">
+            <div class="empty-state">
+              <i class="bi bi-receipt"></i>
+              <p>No AIT records found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filtered">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar ait-avatar">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName }}</div>
+            <div class="mobile-sub">{{ r.aitReferenceNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+          {{ getStatusLabel(r.status) }}
+        </span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>TIN</label>
+          <span>{{ r.taxpayerTin }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Source</label>
+          <span class="cat-badge" [ngClass]="getSourceClass(r.sourceType)">
+            {{ getSourceLabel(r.sourceType) }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Fiscal Year</label>
+          <span>{{ r.fiscalYearName || '—' }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Taxable Value</label>
+          <span>{{ formatCurrency(r.taxableValue) }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>AIT Amount</label>
+          <span class="net">{{ formatCurrency(r.calculatedAitAmount) }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="r.challanNumber">
+          <label>Challan</label>
+          <span *ngIf="r.challanVerified" class="challan-verified">
+            <i class="bi bi-patch-check-fill"></i> {{ r.challanNumber }}
+          </span>
+          <span *ngIf="!r.challanVerified" class="challan-pending">{{ r.challanNumber }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Date</label>
+          <span>{{ r.createdAt | date:'dd MMM yyyy' }}</span>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="view(r.id!)">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+        <button *ngIf="r.status === 'DRAFT'" class="btn-edit" (click)="edit(r.id!)">
+          <i class="bi bi-pencil-fill"></i> <span *canDo="'edit'">Edit</span>
+        </button>
+        <button *ngIf="r.status === 'REJECTED' && isTaxpayerRole" class="btn-amend" (click)="onResubmit(r.id!)">
+          <i class="bi bi-arrow-repeat"></i> Correct
+        </button>
+        <button *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']" class="btn-delete"
+          [disabled]="r.status !== 'DRAFT' && r.status !== 'REJECTED'" (click)="confirmDelete(r.id!)">
+          <i class="bi bi-trash-fill"></i>
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-receipt"></i>
+      <p>No AIT records found.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button *canDo="'create'" class="fab-btn" routerLink="/ait/create">
+  <i class="bi bi-plus-lg"></i>
+</button>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteModal">
+  <div class="modal-card">
+    <div class="modal-accent error"></div>
+    <div class="modal-icon-wrap error">
+      <i class="bi bi-trash-fill" style="color:#A32D2D; font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Delete AIT Record?</p>
+    <p class="modal-msg">
+      This action cannot be undone. The record will be permanently removed.
+    </p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-modal-confirm error" (click)="executeDelete()">
+        <i class="bi bi-trash-fill"></i> Delete
       </button>
     </div>
-
-    <!-- Table -->
-    <div class="ait-table-wrap">
-      <table class="ait-table">
-        <thead>
-          <tr>
-            <th>Reference No.</th>
-            <th>Import Date</th>
-            <th>Product / HS Code</th>
-            <th class="text-right">Taxable Value</th>
-            <th class="text-right">AIT Amount</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let r of getPaginatedRecords()"
-              [class.row-warn]="r.status === 'PENDING'"
-              [class.row-danger]="r.status === 'REJECTED'">
-
-            <td>
-              <a class="ait-ref-link" (click)="viewRecord(r.id)" title="View details">
-                {{ r.aitReferenceNo || 'N/A' }}
-              </a>
-            </td>
-
-            <td class="ait-date">{{ r.createdAt | date:'dd MMM yyyy' }}</td>
-
-            <td>
-              <div class="ait-product-name">{{ r.hsCode || '—' }}</div>
-              <div class="ait-product-code">{{ r.hsCode }}</div>
-            </td>
-
-            <td class="ait-amt">৳ {{ r.taxableValue | number:'1.0-0' }}</td>
-
-            <td class="ait-amt" style="color:#3B6D11">
-              ৳ {{ r.calculatedAitAmount | number:'1.0-0' }}
-            </td>
-
-            <td>
-              <span class="ait-badge" [ngClass]="getStatusBadgeClass(r.status)">
-                {{ getStatusLabel(r.status) }}
-              </span>
-            </td>
-
-            <td class="ait-actions">
-              <button *ngIf="r.status === 'DRAFT'"
-                      class="ait-btn ait-btn--primary ait-btn--sm"
-                      (click)="continueEditingDraft(r.id)">
-                Continue
-              </button>
-              <button *ngIf="r.status === 'PENDING'"
-                      class="ait-btn ait-btn--primary ait-btn--sm"
-                      (click)="uploadDocuments(r.id)">
-                Pay Now
-              </button>
-              <button *ngIf="r.status === 'UNDER_REVIEW'"
-                      class="ait-btn ait-btn--warn ait-btn--sm"
-                      (click)="uploadDocuments(r.id)">
-                Upload Docs
-              </button>
-              <button class="ait-btn ait-btn--ghost ait-btn--sm"
-                      (click)="viewRecord(r.id)">
-                View
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Empty State -->
-      <div *ngIf="getPaginatedRecords().length === 0" class="ait-empty">
-        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-          <rect x="8" y="6" width="28" height="32" rx="4"
-                stroke="#CBD5E1" stroke-width="1.5"/>
-          <path d="M14 16h16M14 22h10M14 28h8"
-                stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <p class="ait-empty__title">No AIT records found</p>
-        <p class="ait-empty__hint">Try changing filters or create a new AIT</p>
-        <button class="ait-btn ait-btn--primary" (click)="createNewAit()">
-          Create New AIT
-        </button>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div class="ait-pagination">
-      <span class="ait-pagination__info">
-        Showing {{ getPaginationStart() }}–{{ getPaginationEnd() }}
-        of {{ filteredRecords.length }} records
-      </span>
-      <div class="ait-pagination__controls">
-        <button class="ait-btn ait-btn--ghost ait-btn--sm"
-                (click)="prevPage()" [disabled]="currentPage === 1">
-          ← Prev
-        </button>
-        <span class="ait-pagination__num">{{ currentPage }}</span>
-        <button class="ait-btn ait-btn--ghost ait-btn--sm"
-                (click)="nextPage()" [disabled]="currentPage >= getTotalPages()">
-          Next →
-        </button>
-      </div>
-    </div>
-
   </div>
 </div>

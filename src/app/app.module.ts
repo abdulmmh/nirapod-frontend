@@ -27,7 +27,6 @@ import { BreadcrumbsComponent } from './layout/breadcrumbs/breadcrumbs.component
 import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home/dashboard-home.component';
 
 // Other Features
-import { ReportsHomeComponent } from './features/reports-analytics/pages/reports-home/reports-home.component';
 import { SettingsHomeComponent } from './features/system-settings/pages/settings-home/settings-home.component';
 import { ResetPasswordComponent } from './features/auth/pages/reset-password/reset-password.component';
 import { VerifyEmailComponent } from './features/auth/pages/verify-email/verify-email.component';
@@ -53,7 +52,6 @@ import { VerifyOtpComponent } from './features/auth/pages/verify-otp/verify-otp.
     DashboardHomeComponent,
 
     // Other Features
-    ReportsHomeComponent,
     SettingsHomeComponent,
     ResetPasswordComponent,
     VerifyEmailComponent,

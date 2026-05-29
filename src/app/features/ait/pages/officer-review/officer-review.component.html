@@ -1,370 +1,356 @@
-<div class="review-container">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading AIT record...</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>AIT Review</h4>
+    <p>Review, verify, and process this advance income tax record.</p>
   </div>
+  <button class="btn-back" routerLink="/ait/officer-dashboard">
+    <i class="bi bi-arrow-left"></i> Back to Queue
+  </button>
+</div>
 
-  <!-- Error State -->
-  <div *ngIf="loadError && !isLoading" class="alert alert-danger">
-    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
-    {{ loadError }}
-    <button class="btn-retry" (click)="loadAitDetails()">Retry</button>
-  </div>
+<div class="page-wrapper" *ngIf="ait; else loading">
 
-  <!-- Success Message -->
-  <div *ngIf="actionSuccess" class="alert alert-success alert-dismissible">
-    <strong><i class="ti ti-circle-check"></i> Success!</strong>
-    {{ actionSuccess }}
-  </div>
-
-  <!-- Content -->
-  <div *ngIf="!isLoading && ait" class="review-content">
-    <!-- Header -->
-    <div class="review-header">
-      <div class="header-left">
-        <button class="btn-back" (click)="goBack()">
-          <i class="ti ti-chevron-left"></i> Back to Queue
-        </button>
-        <h1>{{ ait.aitReferenceNo }}</h1>
-        <span class="status-badge" [ngClass]="getStatusColor(ait.status)">
-          {{ getStatusLabel(ait.status) }}
-        </span>
+  <!-- ── Status Progress Tracker ─────────────────────────────────────────── -->
+  <div class="workflow-tracker">
+    <ng-container *ngFor="let step of workflowSteps; let i = index; let last = last">
+      <div class="wf-step" [class.done]="isStepDone(step.status)" [class.active]="isStepActive(step.status)"
+        [class.rejected]="step.status === 'REJECTED' && ait.status === 'REJECTED'">
+        <div class="wf-dot">
+          <i class="bi" [ngClass]="isStepDone(step.status) ? 'bi-check-lg' : step.icon"></i>
+        </div>
+        <div class="wf-label">{{ step.label }}</div>
       </div>
-      <div class="header-right">
-        <p class="header-date">{{ formatDate(ait.createdAt || '') }}</p>
+      <div *ngIf="!last" class="wf-line" [class.done]="isStepDone(step.status)"></div>
+    </ng-container>
+  </div>
+
+  <!-- ── Two-column layout ─────────────────────────────────────────────── -->
+  <div class="review-layout">
+
+    <!-- LEFT: Record details ──────────────────────────────────────────── -->
+    <div class="review-main">
+
+      <!-- Taxpayer card -->
+      <div class="form-card">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <div>
+            <div class="section-title">Taxpayer Information</div>
+            <div class="section-sub">Verified taxpayer profile</div>
+          </div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-row">
+            <span class="detail-label">Name</span>
+            <span class="detail-val">{{ ait.taxpayerName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">TIN</span>
+            <span class="detail-val detail-mono">{{ ait.taxpayerTin }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Fiscal Year</span>
+            <span class="detail-val">{{ ait.fiscalYearName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Submitted</span>
+            <span class="detail-val">{{ ait.createdAt | date:'dd MMM yyyy, HH:mm' }}</span>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Split Screen Layout -->
-    <div class="split-screen">
-      <!-- LEFT PANEL: Details -->
-      <div class="panel panel-details">
-        <div class="panel-header">
-          <h2><i class="ti ti-receipt-2"></i> AIT Details</h2>
+      <!-- AIT Details card -->
+      <div class="form-card">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <div>
+            <div class="section-title">AIT Record — {{ ait.aitReferenceNo }}</div>
+            <div class="section-sub">Source: {{ getSourceLabel(ait!.sourceType) }}</div>
+          </div>
+          <span class="status-badge ms-auto" [ngClass]="getStatusClass(ait!.status)">
+            {{ getStatusLabel(ait!.status) }}
+          </span>
         </div>
-
-        <!-- Taxpayer Section -->
-        <div class="detail-section">
-          <h3>Taxpayer Information</h3>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>Name:</label>
-              <p>{{ ait.taxpayerName }}</p>
-            </div>
-            <div class="detail-item">
-              <label>TIN:</label>
-              <p>{{ ait.taxpayerId }}</p>
-            </div>
-            <div class="detail-item">
-              <label>Officer Assigned:</label>
-              <p>{{ ait.assignedOfficerName || 'Not assigned' }}</p>
-            </div>
+        <div class="detail-grid">
+          <div class="detail-row">
+            <span class="detail-label">Source Type</span>
+            <span class="detail-val">
+              <span class="cat-badge" [ngClass]="getSourceClass(ait!.sourceType)">
+                <i class="bi" [ngClass]="getSourceIcon(ait!.sourceType)"></i>
+                {{ getSourceLabel(ait!.sourceType) }}
+              </span>
+            </span>
+          </div>
+          <div class="detail-row" *ngIf="ait.importDutyRecordId">
+            <span class="detail-label">Import Duty Record</span>
+            <span class="detail-val detail-mono">{{ ait.importDutyRecordId }}</span>
+          </div>
+          <div class="detail-row" *ngIf="ait.hsCode">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-val detail-mono">{{ ait.hsCode }}</span>
+          </div>
+          <div class="detail-row" *ngIf="ait.deductorName">
+            <span class="detail-label">Deductor</span>
+            <span class="detail-val">{{ ait.deductorName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Taxable Value</span>
+            <span class="detail-val">{{ formatCurrency(ait.taxableValue) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">AIT Rate</span>
+            <span class="detail-val">{{ ait.aitRate }}%</span>
+          </div>
+          <div class="detail-row highlight">
+            <span class="detail-label">Calculated AIT</span>
+            <span class="detail-val detail-amount">{{ formatCurrency(ait.calculatedAitAmount) }}</span>
+          </div>
+          <div class="detail-row" *ngIf="ait.approvedAitAmount">
+            <span class="detail-label">Approved AIT</span>
+            <span class="detail-val detail-amount approved">{{ formatCurrency(ait.approvedAitAmount) }}</span>
           </div>
         </div>
+      </div>
 
-        <!-- Transaction Section -->
-        <div class="detail-section">
-          <h3>Import Duty Transaction</h3>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>Duty Reference No:</label>
-              <p class="ref-no">{{ ait.importDutyRefNo }}</p>
-            </div>
-            <div class="detail-item">
-              <label>HS Code:</label>
-              <p class="code">{{ ait.hsCode }}</p>
-            </div>
-            <div class="detail-item">
-              <label>Taxable Value:</label>
-              <p class="amount">৳ {{ ait.taxableValue | number:'1.2-2' }}</p>
-            </div>
+      <!-- Challan card -->
+      <div class="form-card" *ngIf="ait.challanNumber || ait.status === 'SUBMITTED'">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="bi bi-bank"></i>
           </div>
+          <div>
+            <div class="section-title">Challan Verification</div>
+            <div class="section-sub">Treasury payment proof</div>
+          </div>
+          <span class="challan-verified ms-auto" *ngIf="ait.challanVerified">
+            <i class="bi bi-patch-check-fill"></i> Verified
+          </span>
         </div>
 
-        <!-- Calculation Section -->
-        <div class="detail-section calc-section">
-          <h3>AIT Calculation</h3>
-          <div class="calc-display">
-            <div class="calc-row">
-              <span>Taxable Value:</span>
-              <span class="value">৳ {{ ait.taxableValue | number:'1.2-2' }}</span>
-            </div>
-            <div class="calc-row">
-              <span>Rate:</span>
-              <span class="value">{{ ait.aitRate }}%</span>
-            </div>
-            <div class="calc-divider"></div>
-            <div class="calc-row result">
-              <span>Calculated AIT:</span>
-              <span class="value">৳ {{ ait.calculatedAitAmount | number:'1.2-2' }}</span>
-            </div>
-            <div *ngIf="ait.approvedAitAmount" class="calc-row approved">
-              <span>Approved Amount:</span>
-              <span class="value">৳ {{ ait.approvedAitAmount | number:'1.2-2' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Audit Trail Section -->
-        <div class="detail-section audit-section">
-          <h3>Status History</h3>
-          <div class="audit-trail">
-            <div *ngFor="let event of ait.statusHistory; let i = last" class="audit-item" [class.last]="i">
-              <div class="audit-dot"></div>
-              <div class="audit-content">
-                <p class="audit-transition">
-                  <strong>{{ event.fromStatus }}</strong> → <strong>{{ event.toStatus }}</strong>
-                </p>
-                <p class="audit-meta">
-                  by {{ event.changedBy }} on {{ formatDate(event.changedAt) }}
-                </p>
-                <p class="audit-reason" *ngIf="event.changeReason">{{ event.changeReason }}</p>
+        <!-- Verify challan form (officer only, SUBMITTED records) -->
+        <div class="card-p" *ngIf="!ait.challanVerified && ait.status === 'SUBMITTED' && isOfficerRole">
+          <form [formGroup]="challanForm" (ngSubmit)="onVerifyChallan()">
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label class="field-label required">Challan Number</label>
+                <input type="text" class="field-input" formControlName="challanNumber"
+                  placeholder="e.g. CH-2024-00123" />
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Bank Name</label>
+                <input type="text" class="field-input" formControlName="bankName" placeholder="e.g. Sonali Bank" />
               </div>
             </div>
-          </div>
+            <div class="form-action-row">
+              <button type="submit" class="btn btn-primary" [disabled]="challanForm.invalid || isActioning">
+                <i class="bi bi-check-circle"></i> Verify &amp; Move to Review Queue
+              </button>
+            </div>
+          </form>
         </div>
 
-        <!-- Pending Requests Section -->
-        <div *ngIf="pendingRequests.length > 0" class="detail-section requests-section">
-          <h3>Pending Document Requests</h3>
-          <div class="requests-list">
-            <div *ngFor="let req of pendingRequests" class="request-item">
-              <p class="request-type"><strong>{{ req.requestType }}</strong></p>
-              <p class="request-docs">Documents: {{ req.requestedDocuments }}</p>
-              <p class="request-meta">Deadline: {{ formatDate(req.deadline) }}</p>
-              <p class="request-status" [ngClass]="'status-' + req.status.toLowerCase()">
-                {{ req.status }}
-              </p>
+        <!-- Challan details (already verified) -->
+        <div class="detail-grid" *ngIf="ait.challanNumber">
+          <div class="detail-row">
+            <span class="detail-label">Challan No.</span>
+            <span class="detail-val detail-mono">{{ ait.challanNumber }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Bank</span>
+            <span class="detail-val">{{ ait.bankName }}</span>
+          </div>
+          <div class="detail-row" *ngIf="ait.challanVerifiedBy">
+            <span class="detail-label">Verified By</span>
+            <span class="detail-val">{{ ait.challanVerifiedBy }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents -->
+      <div class="form-card" *ngIf="ait.documents.length">
+        <div class="section-header">
+          <div class="section-icon"><i class="bi bi-paperclip"></i></div>
+          <div>
+            <div class="section-title">Supporting Documents</div>
+            <div class="section-sub">{{ ait.documents.length }} file(s) attached</div>
+          </div>
+        </div>
+        <div class="card-p">
+          <div class="doc-list">
+            <a class="doc-item" *ngFor="let doc of ait.documents" [href]="getDocUrl(doc.id)" target="_blank">
+              <i class="bi bi-file-earmark-fill"></i>
+              <span class="doc-name">{{ doc.fileName }}</span>
+              <span class="doc-size">{{ (doc.fileSize / 1024).toFixed(1) }} KB</span>
+              <i class="bi bi-download ms-auto"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Officer actions + audit trail ─────────────────────────── -->
+    <div class="review-sidebar">
+
+      <!-- Officer actions -->
+      <div class="form-card" *ngIf="isOfficerRole && canAct()">
+        <div class="section-header">
+          <div class="section-icon"><i class="bi bi-shield-check"></i></div>
+          <div>
+            <div class="section-title">Officer Actions</div>
+            <div class="section-sub">Review and process this record</div>
+          </div>
+        </div>
+        <div class="card-p">
+
+          <!-- Assign to myself (PENDING) -->
+          <ng-container *ngIf="ait.status === 'PENDING'">
+            <button class="btn btn-primary w-full" (click)="onAssign()" [disabled]="isActioning">
+              <i class="bi bi-person-check"></i> Take Assignment
+            </button>
+          </ng-container>
+
+          <!-- Approve / Reject form (UNDER_REVIEW) -->
+          <ng-container *ngIf="ait.status === 'UNDER_REVIEW'">
+            <form [formGroup]="reviewForm">
+              <div class="field-group mb-12">
+                <label class="field-label">Approved Amount (৳)</label>
+                <input type="number" class="field-input" formControlName="approvedAmount"
+                  [placeholder]="'Default: ' + ait.calculatedAitAmount" />
+                <small class="field-hint">Leave blank to use calculated amount</small>
+              </div>
+              <div class="field-group mb-12">
+                <label class="field-label">Approval Notes</label>
+                <textarea class="field-input" formControlName="approvalNotes" rows="3"
+                  placeholder="Optional notes for taxpayer…"></textarea>
+              </div>
+              <div class="action-btn-group">
+                <button type="button" class="btn btn-success" (click)="onApprove()" [disabled]="isActioning">
+                  <i class="bi bi-check-circle-fill"></i> Approve
+                </button>
+                <button type="button" class="btn btn-danger" (click)="showRejectPanel = !showRejectPanel"
+                  [disabled]="isActioning">
+                  <i class="bi bi-x-circle-fill"></i> Reject
+                </button>
+              </div>
+            </form>
+
+            <!-- Reject panel -->
+            <div class="reject-panel" *ngIf="showRejectPanel">
+              <form [formGroup]="rejectForm" (ngSubmit)="onReject()">
+                <div class="field-group">
+                  <label class="field-label required">Rejection Reason</label>
+                  <textarea class="field-input" formControlName="rejectionReason" rows="3"
+                    placeholder="Explain why this record is rejected…"></textarea>
+                  <div class="field-error"
+                    *ngIf="rejectForm.get('rejectionReason')?.invalid && rejectForm.get('rejectionReason')?.touched">
+                    Rejection reason is required.
+                  </div>
+                </div>
+                <div class="action-btn-group mt-10">
+                  <button type="button" class="btn btn-outline" (click)="showRejectPanel = false">Cancel</button>
+                  <button type="submit" class="btn btn-danger" [disabled]="rejectForm.invalid || isActioning">
+                    <i class="bi bi-x-circle-fill"></i> Confirm Reject
+                  </button>
+                </div>
+              </form>
+            </div>
+          </ng-container>
+
+          <!-- Credit (APPROVED) -->
+          <ng-container *ngIf="ait.status === 'APPROVED'">
+            <div class="credit-summary">
+              <div class="credit-amount">{{ formatCurrency(ait.approvedAitAmount || ait.calculatedAitAmount) }}</div>
+              <div class="credit-label">Ready to be credited to taxpayer ITR</div>
+            </div>
+            <button class="btn btn-success w-full" (click)="onCredit()" [disabled]="isActioning">
+              <i class="bi bi-currency-exchange"></i> Post Credit to ITR Ledger
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="ait.status === 'CREDITED'">
+            <div class="credit-summary">
+              <div class="credit-amount">
+                {{ formatCurrency(ait.approvedAitAmount || ait.calculatedAitAmount) }}
+              </div>
+              <div class="credit-label">AIT credit has been posted to taxpayer ledger</div>
+            </div>
+            <button class="btn btn-success w-full" (click)="onDownloadCertificate()">
+              <i class="bi bi-file-earmark-arrow-down-fill"></i>
+              Download AIT Certificate (PDF)
+            </button>
+          </ng-container>
+          
+        </div>
+      </div>
+
+      <!-- Rejection reason (visible to taxpayer) -->
+      <div class="form-card rejection-card" *ngIf="ait.status === 'REJECTED' && ait.rejectionReason">
+        <div class="section-header">
+          <div class="section-icon rejection-icon"><i class="bi bi-x-circle-fill"></i></div>
+          <div>
+            <div class="section-title">Rejection Reason</div>
+          </div>
+        </div>
+        <div class="card-p">
+          <p class="rejection-text">{{ ait.rejectionReason }}</p>
+          <button class="btn btn-outline w-full mt-10" *ngIf="isTaxpayerRole" routerLink="/ait/{{ ait.id }}/edit">
+            <i class="bi bi-pencil-fill"></i> Correct &amp; Resubmit
+          </button>
+        </div>
+      </div>
+
+      <!-- Status Audit Trail -->
+      <div class="form-card">
+        <div class="section-header">
+          <div class="section-icon"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <div class="section-title">Audit Trail</div>
+            <div class="section-sub">{{ ait.statusHistory.length || 0 }} events</div>
+          </div>
+        </div>
+        <div class="card-p">
+          <div class="audit-timeline">
+            <div class="audit-event" *ngFor="let event of ait.statusHistory"
+              [class.event-rejected]="event.toStatus === 'REJECTED'">
+              <div class="audit-dot">
+                <i class="bi bi-circle-fill"></i>
+              </div>
+              <div class="audit-body">
+                <div class="audit-transition">
+                  <span class="audit-from" *ngIf="event.fromStatus">{{ event.fromStatus }}</span>
+                  <i class="bi bi-arrow-right" *ngIf="event.fromStatus"></i>
+                  <span class="audit-to">{{ event.toStatus }}</span>
+                </div>
+                <div class="audit-meta">
+                  <span>{{ event.changedBy }}</span>
+                  <span>·</span>
+                  <span>{{ event.changedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+                </div>
+                <div class="audit-reason" *ngIf="event.changeReason">
+                  {{ event.changeReason }}
+                </div>
+              </div>
+            </div>
+            <div class="empty-state" *ngIf="!ait.statusHistory.length">
+              <i class="bi bi-clock-history"></i>
+              <p>No history yet.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT PANEL: Documents & Actions -->
-      <div class="panel panel-documents">
-        <div class="panel-header">
-          <h2><i class="ti ti-paperclip"></i> Documents ({{ documents.length }})</h2>
-        </div>
-
-        <!-- Document Tabs -->
-        <div *ngIf="documents.length > 0" class="document-tabs">
-          <div class="tabs-container">
-            <button
-              *ngFor="let doc of documents"
-              class="tab-btn"
-              [class.active]="activeDocTabId === doc.id"
-              (click)="selectDocument(doc)"
-              title="{{ doc.fileName }}">
-              <i class="ti ti-file"></i>
-              <span class="tab-label">{{ doc.fileName | slice:0:20 }}{{ doc.fileName.length > 20 ? '...' : '' }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Document Viewer -->
-        <div *ngIf="selectedDocument" class="document-viewer">
-          <div class="viewer-header">
-            <h4>{{ selectedDocument.fileName }}</h4>
-            <p class="viewer-meta">
-              {{ formatFileSize(selectedDocument.fileSize) }} • {{ selectedDocument.fileType }} • {{ formatDate(selectedDocument.uploadedAt) }}
-            </p>
-          </div>
-
-          <div class="viewer-placeholder">
-            <i class="ti ti-file"></i>
-            <p>Document preview not available in browser</p>
-            <p class="hint">{{ selectedDocument.fileName }}</p>
-            <button class="btn-download" title="Download document">
-              <i class="ti ti-download"></i> Download
-            </button>
-          </div>
-        </div>
-
-        <!-- Empty Documents -->
-        <div *ngIf="documents.length === 0" class="empty-docs">
-          <i class="ti ti-inbox"></i>
-          <p>No documents uploaded</p>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="actions-panel">
-          <div class="action-buttons">
-            <button
-              class="btn btn-approve"
-              (click)="openApproveModal()"
-              [disabled]="!canApprove() || actionInProgress !== null">
-              <i class="ti ti-circle-check"></i> Approve
-            </button>
-
-            <button
-              class="btn btn-reject"
-              (click)="openRejectModal()"
-              [disabled]="!canReject() || actionInProgress !== null">
-              <i class="ti ti-circle-x"></i> Reject
-            </button>
-
-            <button
-              class="btn btn-request"
-              (click)="openRequestModal()"
-              [disabled]="!canRequestCorrection() || actionInProgress !== null">
-              <i class="ti ti-send"></i> Request Correction
-            </button>
-          </div>
-
-          <p *ngIf="actionError" class="action-error">
-            <i class="ti ti-alert-circle"></i> {{ actionError }}
-          </p>
-        </div>
-      </div>
     </div>
-
-    <!-- Modals -->
-
-    <!-- APPROVE MODAL -->
-    <div *ngIf="showApproveModal" class="modal-overlay" (click)="closeApproveModal()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Approve AIT Record</h3>
-          <button class="btn-close" (click)="closeApproveModal()">
-            <i class="ti ti-x"></i>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Approved AIT Amount (৳)</label>
-            <input
-              type="number"
-              class="form-control"
-              [(ngModel)]="approveForm.approvedAmount"
-              step="0.01"
-              min="0">
-            <p class="form-hint">Current calculated amount: ৳ {{ ait.calculatedAitAmount | number:'1.2-2' }}</p>
-          </div>
-
-          <div class="form-group">
-            <label>Approval Notes</label>
-            <textarea
-              class="form-control"
-              [(ngModel)]="approveForm.approvalNotes"
-              rows="3"
-              placeholder="Optional notes about this approval"></textarea>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn btn-secondary" (click)="closeApproveModal()" [disabled]="actionInProgress !== null">
-            Cancel
-          </button>
-          <button
-            class="btn btn-approve"
-            (click)="submitApprove()"
-            [disabled]="actionInProgress !== null">
-            {{ actionInProgress === 'approve' ? 'Approving...' : 'Approve' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- REJECT MODAL -->
-    <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeRejectModal()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Reject AIT Record</h3>
-          <button class="btn-close" (click)="closeRejectModal()">
-            <i class="ti ti-x"></i>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Rejection Reason *</label>
-            <textarea
-              class="form-control"
-              [(ngModel)]="rejectForm.rejectionReason"
-              rows="4"
-              placeholder="Please explain why this AIT record is being rejected"
-              required></textarea>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn btn-secondary" (click)="closeRejectModal()" [disabled]="actionInProgress !== null">
-            Cancel
-          </button>
-          <button
-            class="btn btn-reject"
-            (click)="submitReject()"
-            [disabled]="actionInProgress !== null || !rejectForm.rejectionReason.trim()">
-            {{ actionInProgress === 'reject' ? 'Rejecting...' : 'Reject' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- REQUEST CORRECTION MODAL -->
-    <div *ngIf="showRequestModal" class="modal-overlay" (click)="closeRequestModal()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Request Document Correction</h3>
-          <button class="btn-close" (click)="closeRequestModal()">
-            <i class="ti ti-x"></i>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Request Type</label>
-            <select class="form-control" [(ngModel)]="requestForm.requestType">
-              <option value="INFO">Information Request</option>
-              <option value="MODIFICATION">Modification Request</option>
-              <option value="CLARIFICATION">Clarification Request</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Documents Required *</label>
-            <textarea
-              class="form-control"
-              [(ngModel)]="requestForm.requestedDocuments"
-              rows="2"
-              placeholder="List the documents or information needed"
-              required></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Reason for Request</label>
-            <textarea
-              class="form-control"
-              [(ngModel)]="requestForm.requestReason"
-              rows="2"
-              placeholder="Explain why this information is needed"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Deadline</label>
-            <input
-              type="date"
-              class="form-control"
-              [(ngModel)]="requestForm.deadline">
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn btn-secondary" (click)="closeRequestModal()" [disabled]="actionInProgress !== null">
-            Cancel
-          </button>
-          <button
-            class="btn btn-request"
-            (click)="submitRequest()"
-            [disabled]="actionInProgress !== null || !requestForm.requestedDocuments.trim()">
-            {{ actionInProgress === 'request' ? 'Sending...' : 'Send Request' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
   </div>
-
 </div>
+
+<ng-template #loading>
+  <div class="loading-row">
+    <div class="spinner-border spinner-border-sm" style="color:#7c3aed"></div>
+    <span>Loading AIT record…</span>
+  </div>
+</ng-template>

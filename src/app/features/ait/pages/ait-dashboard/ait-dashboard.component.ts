@@ -1,210 +1,236 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AitService } from '../../services/ait.service';
-import { AitRecord, AitStatus } from '../../models/ait.model';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
-interface KPIMetrics {
-  totalCount: number;
-  needsActionCount: number;
-  approvedCount: number;
-  creditedAmount: number;
-}
+import { AitService } from '../../services/ait.service';
+
+import {
+  AitRecord,
+  AitStatus,
+  AitSourceType,
+  AIT_STATUS_LABELS,
+  AIT_STATUS_CLASSES,
+  AIT_SOURCE_LABELS,
+} from '../../models/ait.model';
+import { Role } from 'src/app/core/constants/roles.constants';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
   selector: 'app-ait-dashboard',
   templateUrl: './ait-dashboard.component.html',
-  styleUrls: ['./ait-dashboard.component.css']
+  styleUrls: ['./ait-dashboard.component.css'],
 })
-export class AitDashboardComponent implements OnInit {
+export class AitDashboardComponent implements OnInit, OnDestroy {
   records: AitRecord[] = [];
-  filteredRecords: AitRecord[] = [];
-  loading = true;
-  error: string | null = null;
+  filtered: AitRecord[] = [];
 
-  // Filter state
-  selectedStatus: string = '';
-  selectedFiscalYear: string = 'FY 2024-2025';
-  searchQuery: string = '';
-  currentPage = 1;
-  pageSize = 7;
+  filterStatus = '';
+  searchControl = new FormControl('');
+  isLoading = false;
 
-  // KPI metrics
-  kpis: KPIMetrics = {
-    totalCount: 0,
-    needsActionCount: 0,
-    approvedCount: 0,
-    creditedAmount: 0
-  };
+  showDeleteModal = false;
+  pendingDeleteId: number | null = null;
 
-  taxpayerInfo = {
-    fiscalYear: '2024-2025',
-    tin: '123456789012'
-  };
+  isTaxpayerRole = false;
 
-  statusColors: { [key in AitStatus]?: string } = {
-    'DRAFT': 'b-draft',
-    'SUBMITTED': 'b-submitted',
-    'PENDING': 'b-pending',
-    'PAID': 'b-paid',
-    'UNDER_REVIEW': 'b-review',
-    'APPROVED': 'b-approved',
-    'REJECTED': 'b-rejected',
-    'CREDITED': 'b-credited',
-    'CANCELLED': 'b-cancelled'
-  };
-
-  statusLabels: { [key in AitStatus]?: string } = {
-    'DRAFT': 'Draft',
-    'SUBMITTED': 'Submitted',
-    'PENDING': 'Payment Pending',
-    'PAID': 'Paid',
-    'UNDER_REVIEW': 'Under Review',
-    'APPROVED': 'Approved',
-    'REJECTED': 'Rejected',
-    'CREDITED': '✓ Credited to ITR',
-    'CANCELLED': 'Cancelled'
-  };
+  private destroy$ = new Subject<void>();
 
   constructor(
     private aitService: AitService,
-    private router: Router
+    private toast: ToastService,
+    private auth: AuthService,
+    private router: Router,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.isTaxpayerRole = this.auth.hasRole(Role.TAXPAYER);
     this.loadRecords();
+
+    // Reactive search — debounced
+    this.searchControl.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => this.applyFilter());
   }
 
-  private loadRecords() {
-    this.loading = true;
-    this.error = null;
-    this.aitService.getAll().subscribe({
-      next: (data) => {
-        this.records = data;
-        this.calculateKPIs();
-        this.applyFilters();
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to load AIT records. Showing offline data.';
-        this.loading = false;
-      }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ── Data ────────────────────────────────────────────────────────────────────
+
+  loadRecords(): void {
+    this.isLoading = true;
+    this.aitService
+      .getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.records = data;
+          this.applyFilter();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          // Real errors surface here — no mock fallback
+          const msg = err?.error?.message ?? 'Failed to load AIT records.';
+          this.toast.error(msg);
+          this.isLoading = false;
+        },
+      });
+  }
+
+  // ── Filter / search ─────────────────────────────────────────────────────────
+
+  setFilter(status: string): void {
+    this.filterStatus = status;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    const term = (this.searchControl.value ?? '').toLowerCase().trim();
+    this.filtered = this.records.filter((r) => {
+      const matchesStatus =
+        !this.filterStatus || r.status === this.filterStatus;
+      const matchesSearch =
+        !term ||
+        r.aitReferenceNo?.toLowerCase().includes(term) ||
+        r.taxpayerName?.toLowerCase().includes(term) ||
+        r.taxpayerTin?.toLowerCase().includes(term) ||
+        this.getSourceLabel(r.sourceType).toLowerCase().includes(term) ||
+        r.fiscalYearName?.toLowerCase().includes(term);
+      return matchesStatus && matchesSearch;
     });
   }
 
-  private calculateKPIs() {
-    this.kpis.totalCount = this.records.length;
-    this.kpis.needsActionCount = this.records.filter(
-      r => ['DRAFT', 'PENDING', 'SUBMITTED'].includes(r.status)
-    ).length;
-    this.kpis.approvedCount = this.records.filter(r => r.status === 'APPROVED').length;
-    this.kpis.creditedAmount = this.records
-      .filter(r => r.status === 'CREDITED')
-      .reduce((sum, r) => sum + (r.calculatedAitAmount || 0), 0);
+  countByStatus(status: string): number {
+    if (!status) return this.records.length;
+    return this.records.filter((r) => r.status === status).length;
   }
 
-  applyFilters() {
-    let filtered = [...this.records];
+  // ── Navigation ──────────────────────────────────────────────────────────────
 
-    if (this.selectedStatus) {
-      filtered = filtered.filter(r => r.status === this.selectedStatus);
-    }
-
-    if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(r =>
-        (r.aitReferenceNo?.toLowerCase().includes(query)) ||
-        (r.hsCode?.toLowerCase().includes(query))
-      );
-    }
-
-    this.filteredRecords = filtered;
-    this.currentPage = 1;
+  view(id: number): void {
+    this.router.navigate(['/ait', id]);
   }
 
-  onStatusFilterChange(status: string) {
-    this.selectedStatus = status;
-    this.applyFilters();
+  edit(id: number): void {
+    this.router.navigate(['/ait', id, 'edit']);
   }
 
-  onSearchChange(query: string) {
-    this.searchQuery = query;
-    this.applyFilters();
+  // ── Workflow actions ────────────────────────────────────────────────────────
+
+  onResubmit(id: number): void {
+    this.aitService
+      .resubmit(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('Record reopened for correction.');
+          this.loadRecords();
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Failed to resubmit.');
+        },
+      });
   }
 
-  onFiscalYearChange(year: string) {
-    this.selectedFiscalYear = year;
-    this.applyFilters();
+  downloadCertificate(id: number): void {
+    this.aitService.downloadCertificate(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a   = document.createElement('a');
+          a.href     = url;
+          a.download = `AIT-Certificate-${id}.pdf`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+          this.toast.success('Certificate downloaded.');
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Download failed.');
+        },
+      });
   }
 
-  getPaginatedRecords(): AitRecord[] {
-    const startIdx = (this.currentPage - 1) * this.pageSize;
-    return this.filteredRecords.slice(startIdx, startIdx + this.pageSize);
+  // ── Delete ──────────────────────────────────────────────────────────────────
+
+  confirmDelete(id: number): void {
+    this.pendingDeleteId = id;
+    this.showDeleteModal = true;
   }
 
-  getTotalPages(): number {
-    return Math.ceil(this.filteredRecords.length / this.pageSize);
+  cancelDelete(): void {
+    this.pendingDeleteId = null;
+    this.showDeleteModal = false;
   }
 
-  getPaginationStart(): number {
-    return (this.currentPage - 1) * this.pageSize + 1;
+  executeDelete(): void {
+    if (!this.pendingDeleteId) return;
+    this.aitService
+      .deleteAIT(this.pendingDeleteId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('AIT record deleted.');
+          this.showDeleteModal = false;
+          this.pendingDeleteId = null;
+          this.loadRecords();
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Failed to delete record.');
+          this.showDeleteModal = false;
+        },
+      });
   }
 
-  getPaginationEnd(): number {
-    const end = this.currentPage * this.pageSize;
-    return Math.min(end, this.filteredRecords.length);
-  }
-
-  goToPage(page: number) {
-    if (page >= 1 && page <= this.getTotalPages()) {
-      this.currentPage = page;
-    }
-  }
-
-  nextPage() {
-    if (this.currentPage < this.getTotalPages()) {
-      this.currentPage++;
-    }
-  }
-
-  prevPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
-  }
-
-  getStatusBadgeClass(status: AitStatus): string {
-    return this.statusColors[status] || 'b-draft';
-  }
+  // ── Display helpers ─────────────────────────────────────────────────────────
 
   getStatusLabel(status: AitStatus): string {
-    return this.statusLabels[status] || status;
+    return AIT_STATUS_LABELS[status] ?? status;
   }
 
-  viewRecord(id: number | undefined) {
-    if (id) {
-      this.router.navigate(['/ait/view', id]);
-    }
+  getStatusClass(status: AitStatus): string {
+    return AIT_STATUS_CLASSES[status] ?? '';
   }
 
-  continueEditingDraft(id: number | undefined) {
-    if (id) {
-      this.router.navigate(['/ait/edit', id]);
-    }
+  getSourceLabel(source: AitSourceType): string {
+    return AIT_SOURCE_LABELS[source] ?? source;
   }
 
-  createNewAit() {
-    this.router.navigate(['/ait/create']);
+  getSourceClass(source: AitSourceType): string {
+    const map: Record<AitSourceType, string> = {
+      IMPORT: 'cat-import',
+      SUPPLIER: 'cat-supplier',
+      SALARY: 'cat-salary',
+      CONTRACTOR: 'cat-contractor',
+      RENT: 'cat-rent',
+    };
+    return map[source] ?? '';
   }
 
-  uploadDocuments(id: number | undefined) {
-    if (id) {
-      this.router.navigate(['/ait/upload-docs', id]);
-    }
+  getSourceIcon(source: AitSourceType): string {
+    const map: Record<AitSourceType, string> = {
+      IMPORT: 'bi-box-seam',
+      SUPPLIER: 'bi-truck',
+      SALARY: 'bi-person-badge',
+      CONTRACTOR: 'bi-tools',
+      RENT: 'bi-building',
+    };
+    return map[source] ?? 'bi-receipt';
   }
 
-  getRowHighlight(status: AitStatus): string {
-    if (status === 'PENDING') return 'row-highlight-warning';
-    if (status === 'REJECTED') return 'row-highlight-danger';
-    return '';
+  formatCurrency(value: number | undefined): string {
+    if (value == null) return '৳0';
+    return (
+      '৳' +
+      value.toLocaleString('en-BD', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    );
   }
 }

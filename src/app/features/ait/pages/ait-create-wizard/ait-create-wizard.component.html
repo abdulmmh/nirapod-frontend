@@ -1,327 +1,438 @@
-<div class="wizard-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1>Create AIT Record</h1>
-      <p class="subtitle">Guided wizard to create and submit an Advance Income Tax record</p>
+<!-- ait-create.component.html -->
+<!-- Pattern: matches income-tax-return-create.component.html structure exactly -->
+
+<!-- ── Topbar ──────────────────────────────────────────────────────────────── -->
+<div class="itr-topbar">
+  <div>
+    <div class="topbar-title">
+      Advance Income Tax (AIT) — {{ fiscalYearName || '—' }}
     </div>
-    <button class="btn-close-wizard" (click)="discardDraft()" title="Close wizard">
-      <i class="ti ti-x"></i>
-    </button>
-  </div>
-
-  <!-- Success Message -->
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissible" role="alert">
-    <strong><i class="ti ti-circle-check"></i> Success!</strong>
-    {{ successMessage }}
-    <p class="mt-2 mb-0" *ngIf="newAitRefNo"><strong>Reference No:</strong> {{ newAitRefNo }}</p>
-  </div>
-
-  <!-- Error Message -->
-  <div *ngIf="submitError" class="alert alert-danger alert-dismissible" role="alert">
-    <strong><i class="ti ti-alert-circle"></i> Error:</strong>
-    {{ submitError }}
-  </div>
-
-  <!-- Stepper Indicator -->
-  <div class="stepper-container">
-    <div class="stepper">
-      <div *ngFor="let i of [1, 2, 3, 4]" class="step" [ngClass]="getStepStatus(i)">
-        <button
-          class="step-circle"
-          (click)="goToStep(i)"
-          [disabled]="i > state.step && !isStepComplete(i - 1)"
-          [attr.aria-label]="'Step ' + i">
-          <span class="step-number">{{ i }}</span>
-          <i *ngIf="getStepStatus(i) === 'done'" class="ti ti-check"></i>
-        </button>
-        <div class="step-label">
-          {{ getStepLabel(i) }}
-        </div>
-        <div *ngIf="i < 4" class="step-connector" [ngClass]="i < state.step ? 'done' : ''"></div>
-      </div>
+    <div class="topbar-meta">
+      <ng-container *ngIf="step1Form.get('taxpayerName')?.value; else noProfile">
+        {{ step1Form.get('taxpayerName')?.value }}
+        &nbsp;·&nbsp; TIN: {{ step1Form.get('taxpayerTin')?.value || '—' }}
+        &nbsp;·&nbsp; Source: {{ getSourceLabel(step2Form.get('sourceType')?.value) }}
+      </ng-container>
+      <ng-template #noProfile>Select a taxpayer to begin</ng-template>
     </div>
   </div>
+  <div class="topbar-right">
+    <span class="badge b-draft">Draft</span>
+    <button class="btn btn-sm" (click)="onCancel()">✕ Cancel</button>
+  </div>
+</div>
 
-  <!-- Content Area -->
-  <div class="wizard-content">
-
-    <!-- STEP 1: Select Transaction -->
-    <div class="step-panel" *ngIf="state.step === 1">
-      <h2>Step 1: Select Import Duty Transaction</h2>
-      <p class="step-description">Choose a Bill of Entry record to create an AIT for.</p>
-
-      <div class="search-box">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Search by Reference, Importer Name, or HS Code..."
-          [(ngModel)]="searchQuery"
-          (input)="searchTransactions()">
-        <i class="ti ti-search"></i>
+<!-- ── Step Rail ───────────────────────────────────────────────────────────── -->
+<div class="step-rail">
+  <ng-container *ngFor="let s of [1, 2, 3]; let i = index">
+    <div class="step-item" [ngClass]="'s-' + getStepState(s)" (click)="goToStep(s)">
+      <div class="step-circle">
+        <span *ngIf="getStepState(s) === 'done'">✓</span>
+        <span *ngIf="getStepState(s) !== 'done'">{{ s }}</span>
       </div>
-
-      <div class="transaction-table-container">
-        <table class="transaction-table">
-          <thead>
-            <tr>
-              <th width="5%"></th>
-              <th>Reference No</th>
-              <th>Date</th>
-              <th>Importer</th>
-              <th>HS Code</th>
-              <th>Description</th>
-              <th>Taxable Value</th>
-              <th>Port of Entry</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let tx of filteredTransactions"
-                class="transaction-row"
-                [class.selected]="state.selectedTransaction?.id === tx.id">
-              <td class="select-col">
-                <input type="radio"
-                       [checked]="state.selectedTransaction?.id === tx.id"
-                       (change)="selectTransaction(tx)">
-              </td>
-              <td class="ref-no">{{ tx.referenceNo }}</td>
-              <td>{{ tx.date | date:'MMM d, y' }}</td>
-              <td>{{ tx.importerName }}</td>
-              <td class="code">{{ tx.hsCode }}</td>
-              <td>{{ tx.description }}</td>
-              <td class="amount">৳ {{ tx.taxableValue | number:'1.2-2' }}</td>
-              <td>{{ tx.portOfEntry }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="filteredTransactions.length === 0" class="empty-state">
-          <i class="ti ti-inbox"></i>
-          <p>No transactions found. Try adjusting your search.</p>
-        </div>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn btn-secondary" (click)="discardDraft()">Cancel</button>
-        <button
-          class="btn btn-primary"
-          (click)="nextStep()"
-          [disabled]="!state.selectedTransaction">
-          Next: Calculate AIT
-        </button>
+      <div class="step-label">
+        <ng-container [ngSwitch]="s">
+          <ng-container *ngSwitchCase="1">Taxpayer<br/>Info</ng-container>
+          <ng-container *ngSwitchCase="2">AIT<br/>Details</ng-container>
+          <ng-container *ngSwitchCase="3">Review &amp;<br/>Submit</ng-container>
+        </ng-container>
       </div>
     </div>
+    <div class="step-line" *ngIf="i < 2" [class.done]="currentStep > s"></div>
+  </ng-container>
+</div>
 
-    <!-- STEP 2: Calculate AIT -->
-    <div class="step-panel" *ngIf="state.step === 2">
-      <h2>Step 2: Calculate AIT</h2>
-      <p class="step-description">Review the calculation of Advance Income Tax on the selected transaction.</p>
+<!-- ══════════════════════════════════════════════════════════════
+     STEP 1 — Taxpayer Info
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 1" [formGroup]="step1Form">
 
-      <div class="calculation-grid">
-        <!-- Transaction Details -->
-        <div class="calc-card">
-          <h3>Transaction Details</h3>
-          <div class="detail-row">
-            <label>Reference No:</label>
-            <span class="ref-no">{{ state.selectedTransaction?.referenceNo }}</span>
+  <!-- Officer: taxpayer search -->
+  <ng-container *ngIf="!isTaxpayerRole">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-hdr-left">
+          <div class="hdr-icon ic-blue">
+            <i class="bi bi-search" style="font-size:12px;color:#185FA5"></i>
           </div>
-          <div class="detail-row">
-            <label>Importer:</label>
-            <span>{{ state.selectedTransaction?.importerName }}</span>
-          </div>
-          <div class="detail-row">
-            <label>HS Code:</label>
-            <span class="code">{{ state.selectedTransaction?.hsCode }}</span>
-          </div>
-          <div class="detail-row">
-            <label>Description:</label>
-            <span>{{ state.selectedTransaction?.description }}</span>
-          </div>
-          <div class="detail-row">
-            <label>Port of Entry:</label>
-            <span>{{ state.selectedTransaction?.portOfEntry }}</span>
-          </div>
-          <div class="detail-row">
-            <label>Origin Country:</label>
-            <span>{{ state.selectedTransaction?.origin }}</span>
+          <div>
+            <div class="card-title">Search taxpayer</div>
+            <div class="card-sub">Search by TIN, NID, or name — then select to auto-fill</div>
           </div>
         </div>
-
-        <!-- Calculation -->
-        <div class="calc-card calculation-box">
-          <h3>AIT Calculation</h3>
-
-          <div class="calc-row">
-            <label>Taxable Value:</label>
-            <input type="number"
-                   class="form-control form-control-sm"
-                   [(ngModel)]="state.formData.taxableValue"
-                   readonly>
-            <span class="currency">৳</span>
-          </div>
-
-          <div class="calc-row">
-            <label>AIT Rate:</label>
-            <div class="rate-input-group">
-              <input type="number"
-                     class="form-control form-control-sm"
-                     [(ngModel)]="state.formData.aitRate"
-                     (change)="onRateChange(state.formData.aitRate || 0)"
-                     min="0"
-                     max="100">
-              <span class="unit">%</span>
-            </div>
-          </div>
-
-          <div class="calc-divider"></div>
-
-          <div class="calc-row result">
-            <label>Calculated AIT Amount:</label>
-            <div class="amount-display">
-              <span class="amount">৳ {{ state.calculatedAit | number:'1.2-2' }}</span>
-            </div>
-          </div>
-
-          <p class="calc-formula">
-            Calculation: {{ state.formData.taxableValue | number:'1.2-2' }} × {{ state.formData.aitRate }}% = {{ state.calculatedAit | number:'1.2-2' }}
-          </p>
-        </div>
+        <span class="badge b-info" *ngIf="isAutoFilled">
+          <i class="bi bi-lightning-charge-fill"></i> Auto-filled
+        </span>
       </div>
-
-      <div class="step-actions">
-        <button class="btn btn-secondary" (click)="prevStep()">Back</button>
-        <button class="btn btn-primary" (click)="nextStep()">Next: Upload Documents</button>
-      </div>
-    </div>
-
-    <!-- STEP 3: Upload Documents -->
-    <div class="step-panel" *ngIf="state.step === 3">
-      <h2>Step 3: Upload Supporting Documents</h2>
-      <p class="step-description">Upload documents related to this AIT record (invoices, receipts, etc.)</p>
-
-      <div class="upload-zone">
-        <input
-          type="file"
-          #fileInput
-          hidden
-          multiple
-          (change)="onFilesSelected($any($event.target).files)">
-
-        <div class="drop-area" (click)="fileInput.click()">
-          <i class="ti ti-cloud-upload"></i>
-          <h4>Drag and drop files here</h4>
-          <p>or click to select files</p>
-          <span class="file-hint">Supported: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 10 MB each)</span>
-        </div>
-      </div>
-
-      <div *ngIf="state.uploadedDocuments.length > 0" class="document-list">
-        <h4>Uploaded Documents ({{ state.uploadedDocuments.length }})</h4>
-        <div class="doc-item" *ngFor="let doc of state.uploadedDocuments; let i = index">
-          <div class="doc-icon">
-            <i class="ti ti-file"></i>
+      <div class="card-p">
+        <div class="search-row">
+          <div class="search-field-wrap">
+            <i class="bi bi-upc-scan search-icon"></i>
+            <input type="text" class="search-input"
+              placeholder="Enter TIN, NID or taxpayer name…"
+              [formControl]="searchControl"
+              (keyup.enter)="searchTaxpayer()"
+              [disabled]="isAutoFilled" />
+            <button class="clear-btn" *ngIf="isAutoFilled" (click)="clearSelectedTaxpayer()">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
-          <div class="doc-info">
-            <p class="doc-name">{{ doc.name }}</p>
-            <p class="doc-size">{{ formatFileSize(doc.size) }}</p>
-          </div>
-          <button class="btn-remove" (click)="removeDocument(i)" title="Remove">
-            <i class="ti ti-trash"></i>
+          <button class="btn btn-primary" (click)="searchTaxpayer()"
+            [disabled]="isSearching || isAutoFilled">
+            <span *ngIf="isSearching" class="spinner-border spinner-border-sm"></span>
+            <i *ngIf="!isSearching" class="bi bi-search"></i>
+            {{ isSearching ? 'Searching…' : 'Search' }}
           </button>
         </div>
-      </div>
 
-      <div *ngIf="state.uploadedDocuments.length === 0" class="empty-docs">
-        <p>No documents uploaded yet. Upload at least one supporting document.</p>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn btn-secondary" (click)="prevStep()">Back</button>
-        <button
-          class="btn btn-primary"
-          (click)="nextStep()"
-          [disabled]="state.uploadedDocuments.length === 0">
-          Next: Review & Submit
-        </button>
+        <!-- Search results -->
+        <div class="search-results" *ngIf="searchResults.length > 0 && !isAutoFilled">
+          <div class="search-result-item"
+            *ngFor="let t of searchResults"
+            (click)="selectTaxpayer(t)">
+            <div class="result-icon"><i class="bi bi-person-circle"></i></div>
+            <div>
+              <div class="result-name">{{ t.fullName || t.companyName }}</div>
+              <div class="result-meta">TIN: {{ t.tinNumber }} · {{ t.taxpayerType }}</div>
+            </div>
+            <i class="bi bi-chevron-right ms-auto"></i>
+          </div>
+        </div>
       </div>
     </div>
+  </ng-container>
 
-    <!-- STEP 4: Review & Submit -->
-    <div class="step-panel" *ngIf="state.step === 4">
-      <h2>Step 4: Review & Submit</h2>
-      <p class="step-description">Review your AIT record details before final submission.</p>
-
-      <div class="review-summary">
-        <div class="review-card">
-          <h3><i class="ti ti-receipt-2"></i> Transaction Details</h3>
-          <div class="summary-row">
-            <span class="label">Reference No:</span>
-            <span class="value">{{ state.selectedTransaction?.referenceNo }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="label">Importer:</span>
-            <span class="value">{{ state.selectedTransaction?.importerName }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="label">HS Code:</span>
-            <span class="value">{{ state.selectedTransaction?.hsCode }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="label">Description:</span>
-            <span class="value">{{ state.selectedTransaction?.description }}</span>
-          </div>
+  <!-- Taxpayer profile card (auto-filled or taxpayer role) -->
+  <div class="card" *ngIf="isAutoFilled || isTaxpayerRole">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-green">
+          <i class="bi bi-person-check" style="font-size:12px;color:#0e7c60"></i>
         </div>
-
-        <div class="review-card">
-          <h3><i class="ti ti-calculator"></i> Calculation Summary</h3>
-          <div class="summary-row">
-            <span class="label">Taxable Value:</span>
-            <span class="value">৳ {{ state.formData.taxableValue | number:'1.2-2' }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="label">AIT Rate:</span>
-            <span class="value">{{ state.formData.aitRate }}%</span>
-          </div>
-          <div class="summary-row highlight">
-            <span class="label">Calculated AIT Amount:</span>
-            <span class="value amount">৳ {{ state.calculatedAit | number:'1.2-2' }}</span>
-          </div>
-        </div>
-
-        <div class="review-card">
-          <h3><i class="ti ti-paperclip"></i> Documents</h3>
-          <p class="doc-count">{{ state.uploadedDocuments.length }} file(s) to be uploaded</p>
-          <ul class="doc-list">
-            <li *ngFor="let doc of state.uploadedDocuments">
-              <i class="ti ti-file"></i> {{ doc.name }} ({{ formatFileSize(doc.size) }})
-            </li>
-          </ul>
+        <div>
+          <div class="card-title">Taxpayer Profile</div>
+          <div class="card-sub">Verified from registry</div>
         </div>
       </div>
-
-      <div class="confirmation-box">
-        <div class="form-check">
-          <input type="checkbox" class="form-check-input" id="confirmAit" required>
-          <label class="form-check-label" for="confirmAit">
-            I confirm the above details are correct and authorize submission of this AIT record.
-          </label>
-        </div>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn btn-secondary" (click)="prevStep()" [disabled]="isSubmitting">Back</button>
-        <button class="btn btn-success"
-                (click)="submitAit()"
-                [disabled]="isSubmitting">
-          <i class="ti ti-check"></i>
-          {{ isSubmitting ? 'Submitting...' : 'Submit AIT Record' }}
-        </button>
-      </div>
-
-      <button class="btn-save-draft" (click)="saveDraft()">
-        <i class="ti ti-bookmark"></i> Save as Draft
-      </button>
     </div>
-
+    <div class="card-p">
+      <div class="form-grid-2">
+        <div class="field-group">
+          <label class="field-label">Full Name / Company</label>
+          <input class="field-input" formControlName="taxpayerName" readonly />
+        </div>
+        <div class="field-group">
+          <label class="field-label">TIN Number</label>
+          <input class="field-input" formControlName="taxpayerTin" readonly />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Taxpayer Type</label>
+          <input class="field-input" formControlName="taxpayerType" readonly />
+        </div>
+      </div>
+    </div>
   </div>
 
+  <div class="step-nav">
+    <span></span>
+    <button class="btn btn-primary" (click)="nextStep()"
+      [disabled]="!step1Form.get('taxpayerId')?.value">
+      Next: AIT Details <i class="bi bi-arrow-right"></i>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     STEP 2 — AIT Details
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 2" [formGroup]="step2Form">
+
+  <!-- Source Type -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-purple">
+          <i class="bi bi-diagram-3" style="font-size:12px;color:#5b21b6"></i>
+        </div>
+        <div>
+          <div class="card-title">AIT Source Type</div>
+          <div class="card-sub">Select the source of this advance income tax</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+      <div class="source-type-grid">
+        <button type="button"
+          *ngFor="let src of sourceTypes"
+          class="source-type-btn"
+          [class.selected]="step2Form.get('sourceType')?.value === src.value"
+          (click)="selectSourceType(src.value)">
+          <i class="bi" [ngClass]="src.icon"></i>
+          <span>{{ src.label }}</span>
+        </button>
+      </div>
+      <div class="field-error"
+        *ngIf="step2Form.get('sourceType')?.invalid && step2Form.get('sourceType')?.touched">
+        Source type is required.
+      </div>
+    </div>
+  </div>
+
+  <!-- Import-specific fields -->
+  <div class="card" *ngIf="step2Form.get('sourceType')?.value === 'IMPORT'">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-blue">
+          <i class="bi bi-box-seam" style="font-size:12px;color:#185FA5"></i>
+        </div>
+        <div>
+          <div class="card-title">Import Details</div>
+          <div class="card-sub">Link import duty record and HS code</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+      <div class="form-grid-2">
+        <div class="field-group">
+          <label class="field-label required">Import Duty Record ID</label>
+          <input type="number" class="field-input" formControlName="importDutyRecordId"
+            placeholder="e.g. 1042" />
+          <div class="field-error"
+            *ngIf="step2Form.get('importDutyRecordId')?.invalid && step2Form.get('importDutyRecordId')?.touched">
+            Import duty record ID is required for IMPORT source.
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">HS Code</label>
+          <input type="text" class="field-input" formControlName="hsCode"
+            placeholder="e.g. 8471.30" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deductor fields (Supplier / Salary / Contractor / Rent) -->
+  <div class="card"
+    *ngIf="['SUPPLIER','SALARY','CONTRACTOR','RENT'].includes(step2Form.get('sourceType')?.value)">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-amber">
+          <i class="bi bi-building" style="font-size:12px;color:#b45309"></i>
+        </div>
+        <div>
+          <div class="card-title">Deductor Information</div>
+          <div class="card-sub">Who deducted this tax at source?</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+      <div class="form-grid-2">
+        <div class="field-group">
+          <label class="field-label required">Deductor Name</label>
+          <input type="text" class="field-input" formControlName="deductorName"
+            placeholder="Company or individual name" />
+          <div class="field-error"
+            *ngIf="step2Form.get('deductorName')?.invalid && step2Form.get('deductorName')?.touched">
+            Deductor name is required.
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Deductor TIN</label>
+          <input type="text" class="field-input" formControlName="deductorTin"
+            placeholder="Optional" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial Details -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-green">
+          <i class="bi bi-calculator" style="font-size:12px;color:#0e7c60"></i>
+        </div>
+        <div>
+          <div class="card-title">Financial Details</div>
+          <div class="card-sub">AIT is calculated automatically from taxable value and rate</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+      <div class="form-grid-2">
+        <div class="field-group">
+          <label class="field-label required">Taxable Value (৳)</label>
+          <input type="number" class="field-input" formControlName="taxableValue"
+            placeholder="0.00" min="0.01" step="0.01"
+            (input)="recalculate()" />
+          <div class="field-error"
+            *ngIf="step2Form.get('taxableValue')?.invalid && step2Form.get('taxableValue')?.touched">
+            Taxable value must be greater than zero.
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label required">AIT Rate (%)</label>
+          <input type="number" class="field-input" formControlName="aitRate"
+            placeholder="e.g. 5" min="0.01" max="100" step="0.01"
+            (input)="recalculate()" />
+          <div class="field-error"
+            *ngIf="step2Form.get('aitRate')?.invalid && step2Form.get('aitRate')?.touched">
+            AIT rate must be between 0.01 and 100.
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculated amount (read-only) -->
+      <div class="ait-calc-panel" *ngIf="calculatedAitAmount > 0">
+        <div class="calc-row">
+          <span class="calc-label">Taxable Value</span>
+          <span class="calc-val">{{ formatCurrency(step2Form.get('taxableValue')?.value) }}</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">AIT Rate</span>
+          <span class="calc-val">{{ step2Form.get('aitRate')?.value }}%</span>
+        </div>
+        <div class="calc-divider"></div>
+        <div class="calc-row total">
+          <span class="calc-label">AIT Amount</span>
+          <span class="calc-total">{{ formatCurrency(calculatedAitAmount) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-nav">
+    <button class="btn btn-outline" (click)="prevStep()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button class="btn btn-primary" (click)="nextStep()"
+      [disabled]="step2Form.invalid">
+      Next: Review <i class="bi bi-arrow-right"></i>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     STEP 3 — Review & Submit
+════════════════════════════════════════════════════════════════ -->
+<div [hidden]="currentStep !== 3">
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left">
+        <div class="hdr-icon ic-purple">
+          <i class="bi bi-clipboard-check" style="font-size:12px;color:#5b21b6"></i>
+        </div>
+        <div>
+          <div class="card-title">Review &amp; Submit</div>
+          <div class="card-sub">Confirm all details before submission</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-p">
+
+      <!-- Taxpayer summary -->
+      <div class="review-section">
+        <div class="review-section-title">
+          <i class="bi bi-person-circle"></i> Taxpayer
+        </div>
+        <div class="review-grid">
+          <div class="review-row">
+            <span class="rv-label">Name</span>
+            <span class="rv-val">{{ step1Form.get('taxpayerName')?.value }}</span>
+          </div>
+          <div class="review-row">
+            <span class="rv-label">TIN</span>
+            <span class="rv-val rv-mono">{{ step1Form.get('taxpayerTin')?.value }}</span>
+          </div>
+          <div class="review-row">
+            <span class="rv-label">Fiscal Year</span>
+            <span class="rv-val">{{ fiscalYearName }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AIT details summary -->
+      <div class="review-section">
+        <div class="review-section-title">
+          <i class="bi bi-receipt"></i> AIT Details
+        </div>
+        <div class="review-grid">
+          <div class="review-row">
+            <span class="rv-label">Source Type</span>
+            <span class="rv-val">
+              <span class="cat-badge" [ngClass]="getSourceClass(step2Form.get('sourceType')?.value)">
+                {{ getSourceLabel(step2Form.get('sourceType')?.value) }}
+              </span>
+            </span>
+          </div>
+          <div class="review-row" *ngIf="step2Form.get('importDutyRecordId')?.value">
+            <span class="rv-label">Import Duty Record</span>
+            <span class="rv-val rv-mono">{{ step2Form.get('importDutyRecordId')?.value }}</span>
+          </div>
+          <div class="review-row" *ngIf="step2Form.get('hsCode')?.value">
+            <span class="rv-label">HS Code</span>
+            <span class="rv-val rv-mono">{{ step2Form.get('hsCode')?.value }}</span>
+          </div>
+          <div class="review-row" *ngIf="step2Form.get('deductorName')?.value">
+            <span class="rv-label">Deductor</span>
+            <span class="rv-val">{{ step2Form.get('deductorName')?.value }}</span>
+          </div>
+          <div class="review-row">
+            <span class="rv-label">Taxable Value</span>
+            <span class="rv-val">{{ formatCurrency(step2Form.get('taxableValue')?.value) }}</span>
+          </div>
+          <div class="review-row">
+            <span class="rv-label">AIT Rate</span>
+            <span class="rv-val">{{ step2Form.get('aitRate')?.value }}%</span>
+          </div>
+          <div class="review-row highlight">
+            <span class="rv-label">AIT Amount</span>
+            <span class="rv-val rv-total">{{ formatCurrency(calculatedAitAmount) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents upload -->
+      <div class="review-section">
+        <div class="review-section-title">
+          <i class="bi bi-paperclip"></i> Supporting Documents
+          <span class="badge b-warning ms-2">Required before submission</span>
+        </div>
+        <div class="doc-upload-area" (click)="fileInput.click()"
+          [class.has-files]="uploadedFiles.length > 0">
+          <input #fileInput type="file" multiple hidden
+            accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelected($event)" />
+          <i class="bi bi-cloud-upload" style="font-size:24px;color:#7c3aed"></i>
+          <p>Click to upload documents (PDF, JPG, PNG)</p>
+          <p class="doc-hint">Challan copy, import documents, or any supporting evidence</p>
+        </div>
+        <div class="file-list" *ngIf="uploadedFiles.length > 0">
+          <div class="file-item" *ngFor="let f of uploadedFiles; let i = index">
+            <i class="bi bi-file-earmark-fill"></i>
+            <span>{{ f.name }}</span>
+            <span class="file-size">({{ (f.size / 1024).toFixed(1) }} KB)</span>
+            <button class="remove-file-btn" (click)="removeFile(i)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="step-nav">
+    <button class="btn btn-outline" (click)="prevStep()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button class="btn btn-primary"
+      (click)="onSubmit()"
+      [disabled]="isSaving || uploadedFiles.length === 0">
+      <span *ngIf="isSaving" class="spinner-border spinner-border-sm"></span>
+      <i *ngIf="!isSaving" class="bi bi-send-fill"></i>
+      {{ isSaving ? 'Saving...' : 'Submit AIT Record' }}
+    </button>
+  </div>
 </div>

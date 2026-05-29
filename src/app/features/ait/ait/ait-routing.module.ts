@@ -5,6 +5,7 @@ import { AitDashboardComponent } from '../pages/ait-dashboard/ait-dashboard.comp
 import { AitCreateWizardComponent } from '../pages/ait-create-wizard/ait-create-wizard.component';
 import { OfficerDashboardComponent } from '../pages/officer-dashboard/officer-dashboard.component';
 import { OfficerReviewComponent } from '../pages/officer-review/officer-review.component';
+import { AitCreditLedgerComponent } from '../pages/ait-credit-ledger/ait-credit-ledger.component';
 
 const routes: Routes = [
   { path: '', component: AitDashboardComponent, canActivate: [AuthGuard] },
@@ -25,6 +26,10 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['TAX_OFFICER', 'TAX_COMMISSIONER'] },
   },
+  {
+    path: 'credits',
+    component: AitCreditLedgerComponent
+  }
 ];
 
 @NgModule({

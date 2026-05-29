@@ -1,0 +1,267 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>AIT Credit Ledger</h4>
+    <p>View your advance income tax credits available for ITR adjustment.</p>
+  </div>
+  <button class="btn-back" routerLink="/ait">
+    <i class="bi bi-arrow-left"></i> Back to AIT
+  </button>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Summary KPI cards -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-green"><i class="bi bi-cash-coin"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-label">Total Credited</div>
+        <div class="kpi-value">{{ formatCurrency(totalCredited) }}</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-blue"><i class="bi bi-check2-circle"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-label">Available Credit</div>
+        <div class="kpi-value available">{{ formatCurrency(totalAvailable) }}</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-purple"><i class="bi bi-receipt-cutoff"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-label">Used Against ITR</div>
+        <div class="kpi-value">{{ formatCurrency(totalUsed) }}</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-amber"><i class="bi bi-layers"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-label">Total Entries</div>
+        <div class="kpi-value">{{ credits.length }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Filter Tabs -->
+  <div class="status-tabs">
+    <button class="stab" [class.active]="filterStatus === ''" (click)="filterStatus = ''; applyFilter()">
+      All <span class="stab-count">{{ credits.length }}</span>
+    </button>
+    <button class="stab approved" [class.active]="filterStatus === 'AVAILABLE'" (click)="filterStatus = 'AVAILABLE'; applyFilter()">
+      Available <span class="stab-count">{{ countByStatus('AVAILABLE') }}</span>
+    </button>
+    <button class="stab pending" [class.active]="filterStatus === 'PARTIALLY_USED'" (click)="filterStatus = 'PARTIALLY_USED'; applyFilter()">
+      Partial <span class="stab-count">{{ countByStatus('PARTIALLY_USED') }}</span>
+    </button>
+    <button class="stab credited" [class.active]="filterStatus === 'FULLY_USED'" (click)="filterStatus = 'FULLY_USED'; applyFilter()">
+      Fully Used <span class="stab-count">{{ countByStatus('FULLY_USED') }}</span>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm" style="color:#7c3aed"></div>
+    <span>Loading credit ledger...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>AIT Reference</th>
+          <th>Source Type</th>
+          <th>Fiscal Year</th>
+          <th>Credited Amount</th>
+          <th>Used</th>
+          <th>Remaining</th>
+          <th>Status</th>
+          <th>Credited On</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td><span class="return-code">{{ c.aitReferenceNo }}</span></td>
+
+          <td>
+            <span class="cat-badge" [ngClass]="getSourceClass(c.sourceType)">
+              <i class="bi" [ngClass]="getSourceIcon(c.sourceType)"></i>
+              {{ getSourceLabel(c.sourceType) }}
+            </span>
+          </td>
+
+          <td><span class="year-badge">{{ c.fiscalYearName || '—' }}</span></td>
+
+          <td class="amt-cell">{{ formatCurrency(c.creditedAmount) }}</td>
+          <td class="amt-cell used">{{ formatCurrency(c.usedAmount) }}</td>
+          <td class="amt-cell remaining">{{ formatCurrency(c.remainingAmount) }}</td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(c.status)">
+              {{ getStatusLabel(c.status) }}
+            </span>
+          </td>
+
+          <td>{{ c.creditedAt | date:'dd MMM yyyy' }}</td>
+
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="viewDetail(c.id)">
+                <i class="bi bi-eye-fill"></i> Detail
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="10">
+            <div class="empty-state">
+              <i class="bi bi-cash-coin"></i>
+              <p>No AIT credits found.</p>
+              <small>Credits appear here after your AIT records are approved and credited by an officer.</small>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let c of filtered">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar credit-avatar">
+            <i class="bi bi-cash-coin"></i>
+          </div>
+          <div>
+            <div class="mobile-name">{{ c.aitReferenceNo }}</div>
+            <div class="mobile-sub">{{ c.fiscalYearName }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(c.status)">
+          {{ getStatusLabel(c.status) }}
+        </span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>Source</label>
+          <span class="cat-badge" [ngClass]="getSourceClass(c.sourceType)">
+            {{ getSourceLabel(c.sourceType) }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Credited Amount</label>
+          <span>{{ formatCurrency(c.creditedAmount) }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Remaining</label>
+          <span class="remaining">{{ formatCurrency(c.remainingAmount) }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Credited On</label>
+          <span>{{ c.creditedAt | date:'dd MMM yyyy' }}</span>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="viewDetail(c.id)">
+          <i class="bi bi-eye-fill"></i> Detail
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="bi bi-cash-coin"></i>
+      <p>No AIT credits found.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Detail Drawer / Modal -->
+<div class="modal-overlay" *ngIf="selectedCredit" (click)="closeDetail()">
+  <div class="detail-modal" (click)="$event.stopPropagation()">
+    <div class="detail-modal-header">
+      <div>
+        <div class="detail-modal-title">Credit Detail</div>
+        <div class="detail-modal-sub">{{ selectedCredit.aitReferenceNo }}</div>
+      </div>
+      <button class="close-btn" (click)="closeDetail()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="detail-modal-body">
+      <!-- Amounts summary -->
+      <div class="credit-amounts-grid">
+        <div class="credit-amount-box credited">
+          <div class="ca-label">Total Credited</div>
+          <div class="ca-val">{{ formatCurrency(selectedCredit.creditedAmount) }}</div>
+        </div>
+        <div class="credit-amount-box used">
+          <div class="ca-label">Used</div>
+          <div class="ca-val">{{ formatCurrency(selectedCredit.usedAmount) }}</div>
+        </div>
+        <div class="credit-amount-box remaining">
+          <div class="ca-label">Remaining</div>
+          <div class="ca-val">{{ formatCurrency(selectedCredit.remainingAmount) }}</div>
+        </div>
+      </div>
+
+      <!-- Applications history -->
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <i class="bi bi-receipt-cutoff"></i> Applied Against ITRs
+        </div>
+        <div *ngIf="!selectedCredit.applications?.length" class="empty-state-sm">
+          <i class="bi bi-inbox"></i> Not yet applied to any ITR.
+        </div>
+        <div class="application-list" *ngIf="selectedCredit.applications?.length">
+          <div class="app-item" *ngFor="let app of selectedCredit.applications">
+            <div class="app-header">
+              <span class="return-code">{{ app.itrReturnNo }}</span>
+              <span class="status-badge"
+                [ngClass]="app.status === 'APPLIED' ? 'status-approved' : 'status-rejected'">
+                {{ app.status }}
+              </span>
+            </div>
+            <div class="app-detail">
+              <span>Applied: <strong>{{ formatCurrency(app.appliedAmount) }}</strong></span>
+              <span>·</span>
+              <span>{{ app.appliedAt | date:'dd MMM yyyy' }}</span>
+              <span>·</span>
+              <span>{{ app.appliedBy }}</span>
+            </div>
+            <div class="app-reversal" *ngIf="app.reversalReason">
+              Reversal: {{ app.reversalReason }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meta -->
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <i class="bi bi-info-circle"></i> Credit Info
+        </div>
+        <div class="detail-meta-grid">
+          <div class="meta-row">
+            <span class="meta-label">Credited By</span>
+            <span class="meta-val">{{ selectedCredit.creditedBy }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Credited At</span>
+            <span class="meta-val">{{ selectedCredit.creditedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+          </div>
+          <div class="meta-row" *ngIf="selectedCredit.notes">
+            <span class="meta-label">Notes</span>
+            <span class="meta-val">{{ selectedCredit.notes }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="records-table-container">
+  <table class="records-table" *ngIf="records && records.length > 0">
+    <thead>
+      <tr>
+        <th *ngIf="showRefNo">Reference No</th>
+        <th *ngIf="showTaxpayer">Taxpayer</th>
+        <th *ngIf="showDutyRef">Duty Ref</th>
+        <th *ngIf="showAmount">Amount</th>
+        <th *ngIf="showStatus">Status</th>
+        <th *ngIf="showDate">Date</th>
+        <th *ngIf="showActions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let record of records" class="record-row">
+        <td *ngIf="showRefNo" class="ref-no">
+          <strong>{{ record.aitReferenceNo }}</strong>
+        </td>
+        <td *ngIf="showTaxpayer">{{ record.taxpayerName }}</td>
+        <td *ngIf="showDutyRef" class="duty-ref">{{ record.aitReferenceNo }}</td>
+        <td *ngIf="showAmount" class="amount">৳ {{ record.calculatedAitAmount | number:'1.2-2' }}</td>
+        <td *ngIf="showStatus">
+          <span class="badge" [ngClass]="getStatusClass(record.status)">
+            {{ getStatusLabel(record.status) }}
+          </span>
+        </td>
+        <td *ngIf="showDate" class="date">{{ formatDate(record.createdAt || '') }}</td>
+        <td *ngIf="showActions" class="actions">
+          <button class="btn-action" (click)="onView.emit(record.id || 0)" title="View">
+            <i class="ti ti-eye"></i>
+          </button>
+          <button class="btn-action" (click)="onEdit.emit(record.id || 0)" title="Edit" *ngIf="editable">
+            <i class="ti ti-edit"></i>
+          </button>
+          <button class="btn-action" (click)="onDelete.emit(record.id || 0)" title="Delete" *ngIf="editable">
+            <i class="ti ti-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!records || records.length === 0" class="empty-state">
+    <i class="ti ti-inbox"></i>
+    <p>{{ emptyMessage }}</p>
+  </div>
+</div>
