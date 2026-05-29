@@ -61,6 +61,7 @@ export class MasterDataService extends BaseApiService {
     ).pipe(catchError(() => of([])));
   }
 
+
   getAitStatuses(): Observable<AitStatus[]> {
     return this.get<AitStatus[]>(API_ENDPOINTS.MASTER_DATA.AIT_STATUSES).pipe(
       catchError(() => of([])),
@@ -88,6 +89,12 @@ export class MasterDataService extends BaseApiService {
   getImportDutyStatuses(): Observable<any[]> {
     return this.get<any[]>(API_ENDPOINTS.MASTER_DATA.IMPORT_DUTY_STATUSES).pipe(
       catchError(() => of([])),
+    );
+  }
+
+  getTaxZones(): Observable<TaxZone[]> {
+    return this.get<TaxZone[]>(API_ENDPOINTS.MASTER_DATA.TAX_ZONES).pipe(
+      catchError(() => of([]))
     );
   }
 

@@ -118,8 +118,8 @@ export const API_ENDPOINTS = {
     QUEUE_MINE: `${API_BASE_URL}/ait-records/queue/mine`,
 
     BY_ID: (id: number) => `${API_BASE_URL}/ait-records/${id}`,
-    CERTIFICATE: (id: number) => `${API_BASE_URL}/ait-records/${id}/certificate`,
-
+    CERTIFICATE: (id: number) =>
+      `${API_BASE_URL}/ait-records/${id}/certificate`,
 
     // Workflow
     SUBMIT: (id: number) => `${API_BASE_URL}/ait-records/${id}/submit`,
@@ -130,7 +130,6 @@ export const API_ENDPOINTS = {
     REJECT: (id: number) => `${API_BASE_URL}/ait-records/${id}/reject`,
     RESUBMIT: (id: number) => `${API_BASE_URL}/ait-records/${id}/resubmit`,
     CREDIT: (id: number) => `${API_BASE_URL}/ait-records/${id}/credit`,
- 
   },
 
   AIT_CREDIT: {
@@ -359,6 +358,8 @@ export const API_ENDPOINTS = {
     IMPORT_PORTS: `${API_BASE_URL}/master/import-duty/ports`,
     IMPORT_COUNTRIES: `${API_BASE_URL}/master/import-duty/countries`,
     IMPORT_DUTY_STATUSES: `${API_BASE_URL}/master/import-duty/statuses`,
+    
+    TAX_ZONES: `${API_BASE_URL}/master/tax-zones`, 
     DISTRICTS_BY_DIVISION: (divisionId: number) =>
       `${API_BASE_URL}/master/divisions/${divisionId}/districts`,
     TAX_ZONES_BY_DISTRICT: (districtId: number) =>

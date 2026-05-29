@@ -10,6 +10,9 @@ import { Taxpayer }        from '../../../../models/taxpayer.model';
 import { ToastService }    from 'src/app/shared/toast/toast.service';
 import { AuthService }     from '../../../../core/services/auth.service';
 import { Role }            from '../../../../core/constants/roles.constants';
+import { AitCreditService } from '../../../ait/services/ait-credit.service';
+import { ApplyAitCreditPayload, AvailableCreditSummary } from 'src/app/features/ait/models/ait-credit.model';
+import { AIT_SOURCE_LABELS } from 'src/app/features/ait/models/ait.model';
 
 interface TaxBracket {
   label:        string;
@@ -62,6 +65,14 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   dueDate    = '';
   filingYear = '';
 
+  // ── AIT credit state ──────────────────────────────────────────────────────
+  
+  availableCredits: AvailableCreditSummary[] = [];
+  totalAvailableCredit = 0;
+  selectedAmounts: Record<number, number> = {};   // ledgerId → amount
+  totalSelectedAitCredit = 0;
+  netPayableAfterAit = 0;
+
   private destroy$ = new Subject<void>();
 
   // BD individual tax slabs (FY 2024-25)
@@ -80,7 +91,8 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
     private route:       ActivatedRoute,
     private router:      Router,
     private toast:       ToastService,
-    public  authService: AuthService
+    public  authService: AuthService,
+    private aitCreditService: AitCreditService,
   ) {}
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -89,6 +101,7 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
     this.buildForms();
     this.loadActiveFiscalYear();
     this.prefillForTaxpayerRole();
+    this.loadAvailableAitCredits();
   }
 
   ngOnDestroy(): void {
@@ -351,6 +364,51 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
       });
   }
 
+  // ── AIT credit loader ────────────────────────────────────────────────────
+  private  loadAvailableAitCredits(): void {
+    this.aitCreditService.getAvailableCredits()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (credits) => {
+          this.availableCredits     = credits;
+          this.totalAvailableCredit = credits.reduce(
+            (s, c) => s + c.remainingAmount, 0);
+        },
+        error: () => {
+          // Non-fatal — ITR can still be filed without AIT credit
+          this.availableCredits = [];
+        },
+      });
+  }
+
+  isSelected(ledgerId: number): boolean {
+    return ledgerId in this.selectedAmounts;
+  }
+
+  toggleCredit(credit: AvailableCreditSummary): void {
+    if (this.isSelected(credit.ledgerId)) {
+      delete this.selectedAmounts[credit.ledgerId];
+    } else {
+      // Default: apply full remaining amount
+      this.selectedAmounts[credit.ledgerId] = credit.remainingAmount;
+    }
+    this.recalcWithAitCredit();
+  }
+
+  recalcWithAitCredit(): void {
+    this.totalSelectedAitCredit = Object.values(this.selectedAmounts)
+      .reduce((s, v) => s + (v || 0), 0);
+
+    // netPayable is already computed in your existing taxCalculation
+    // Subtract AIT credit from it
+    const baseNetPayable = this.balanceDue ?? 0;  // use your existing computed value
+    this.netPayableAfterAit = Math.max(0, baseNetPayable - this.totalSelectedAitCredit);
+  }
+
+  getSourceLabel(source: string): string {
+    return (AIT_SOURCE_LABELS as any)[source] ?? source;
+  }
+  
   // ── Role-aware prefill ────────────────────────────────────────────────────
 
   private prefillForTaxpayerRole(): void {
@@ -538,6 +596,8 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
           } else {
             this.currentStep = 7;
           }
+          // Apply AIT credits if any are selected
+          this.applySelectedAitCredits(itr.id);
         },
         error: (err) => {
           if (err.status === 409)
@@ -545,6 +605,33 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
           else
             this.toast.error('Submission failed. Please try again.');
         }
+      });
+  }
+
+  private applySelectedAitCredits(itrId: number): void {
+    const credits = Object.entries(this.selectedAmounts)
+      .filter(([, amt]) => amt > 0)
+      .map(([ledgerId, amountToApply]) => ({
+        ledgerId: Number(ledgerId),
+        amountToApply,
+      }));
+
+    if (credits.length === 0) return;
+
+    const payload: ApplyAitCreditPayload = { itrId, credits };
+
+    this.aitCreditService.applyCredits(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('AIT credits applied successfully.');
+        },
+        error: (err) => {
+          // Non-fatal: ITR was created, but credit application failed
+          this.toast.warning(
+            'ITR submitted, but AIT credit could not be applied: ' +
+            (err?.error?.message ?? 'Unknown error'));
+        },
       });
   }
 

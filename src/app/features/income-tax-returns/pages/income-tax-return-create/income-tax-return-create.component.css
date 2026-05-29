@@ -893,3 +893,52 @@
   .deduction-row { flex-direction: column; align-items: flex-start; gap: 8px; }
   .ded-input     { width: 100%; text-align: left; }
 }
+
+/* ── AIT Credit list ─────────────────────────────────────────────────────── */
+.ait-credit-list { display: flex; flex-direction: column; gap: 10px; }
+
+.ait-credit-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px;
+  border: 2px solid #e5e7eb; border-radius: 10px;
+  background: #f9fafb;
+  transition: all 0.2s;
+}
+.ait-credit-item.selected {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+.ait-credit-left { display: flex; align-items: center; gap: 12px; }
+.ait-credit-checkbox input { width: 16px; height: 16px; cursor: pointer; accent-color: #16a34a; }
+.ait-ref  { font-size: 13px; font-weight: 700; color: #111827; font-family: monospace; }
+.ait-meta { font-size: 11px; color: #6b7280; margin-top: 2px; }
+
+.ait-credit-right { text-align: right; }
+.ait-available-label { font-size: 11px; color: #6b7280; }
+.ait-available-amt   { font-size: 14px; font-weight: 800; color: #16a34a; }
+.ait-apply-input {
+  margin-top: 6px; padding: 6px 10px;
+  border: 1px solid #bbf7d0; border-radius: 6px;
+  font-size: 13px; font-weight: 600; color: #16a34a;
+  width: 140px; text-align: right;
+  outline: none;
+}
+.ait-apply-input:focus { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,.1); }
+
+/* ── Credit summary ──────────────────────────────────────────────────────── */
+.ait-credit-summary {
+  margin-top: 14px; padding: 12px 16px;
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  border-radius: 10px;
+}
+.credit-summary-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: #374151; margin-bottom: 6px;
+}
+.credit-summary-row:last-child { margin-bottom: 0; }
+.credit-summary-row.total {
+  font-weight: 700; font-size: 14px; color: #111827;
+  padding-top: 8px; border-top: 1px solid #bbf7d0;
+  margin-top: 6px;
+}
+.credit-deduction { color: #16a34a; font-weight: 700; }

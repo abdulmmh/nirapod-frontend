@@ -1082,6 +1082,14 @@
   }
 }
 
+@media print {
+  app-sidebar, .topbar, .page-header,
+  .audit-action-row, .detail-tabs,
+  .btn-download, .btn-appeal, .btn-pay-now,
+  .btn-back, .header-actions { display: none !important; }
+
+  .audit-tabs-wrapper { box-shadow: none; border: none; }
+}
 
 
 

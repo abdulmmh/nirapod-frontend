@@ -1,47 +1,276 @@
+<!-- ─── Page Header ─────────────────────────────────────── -->
 <div class="page-header">
   <div class="page-header-left">
-    <h4>Reports & Analytics</h4>
-    <p>Generate and download tax collection reports.</p>
+    <h4>Reports &amp; Analytics</h4>
+    <p>Generate, download and analyze government tax collection reports.</p>
   </div>
-  <div class="header-filters">
-    <select class="filter-select" [(ngModel)]="selectedYear">
-      <option *ngFor="let y of years" [value]="y">FY {{ y }}</option>
+  <div class="page-header-right d-flex align-items-center gap-2">
+    <button class="btn-export-all" (click)="exportAll()" [disabled]="isExportingAll">
+      <span *ngIf="!isExportingAll">
+        <i class="bi bi-download"></i> Export All
+      </span>
+      <span *ngIf="isExportingAll">
+        <span class="spinner-border spinner-border-sm me-1"></span> Exporting...
+      </span>
+    </button>
+  </div>
+</div>
+
+<!-- ─── Error Banner ─────────────────────────────────────── -->
+<div class="error-banner" *ngIf="errorMsg">
+  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+  <button class="ms-auto btn-cancel" style="font-size:12px;padding:3px 10px" (click)="loadData()">Retry</button>
+</div>
+
+<!-- ─── Filter Bar ─────────────────────────────────────── -->
+<div class="filter-bar">
+  <div class="input-wrap">
+    <i class="bi bi-calendar3 input-icon"></i>
+    <select class="form-input form-select" [(ngModel)]="filters.fiscalYear" (change)="loadData()">
+      <option *ngFor="let fy of fiscalYears" [value]="fy.yearName">FY {{ fy.yearName }}</option>
     </select>
   </div>
+
+  <div class="input-wrap">
+    <i class="bi bi-grid-fill input-icon"></i>
+    <select class="form-input form-select" [(ngModel)]="filters.zone" (change)="onZoneChange()">
+      <option value="">All Zones</option>
+      <option *ngFor="let z of zones" [value]="z.id">{{ z.name }}</option>
+    </select>
+  </div>
+
+  <div class="input-wrap">
+    <i class="bi bi-circle-fill input-icon"></i>
+    <select class="form-input form-select" [(ngModel)]="filters.circle" (change)="loadData()"
+      [attr.disabled]="!filters.zone ? true : null">
+      <option value="">All Circles</option>
+      <option *ngFor="let c of circles" [value]="c.id">{{ c.name }}</option>
+    </select>
+  </div>
+
+  <div class="input-wrap">
+    <i class="bi bi-funnel-fill input-icon"></i>
+    <select class="form-input form-select" [(ngModel)]="filters.taxType" (change)="loadData()">
+      <option value="">All Tax Types</option>
+      <option value="VAT">VAT</option>
+      <option value="IT">Income Tax</option>
+      <option value="IMPORT">Import Duty</option>
+      <option value="AIT">AIT</option>
+    </select>
+  </div>
+
+  <button class="btn-reset-filters" (click)="resetFilters()" *ngIf="hasActiveFilters">
+    <i class="bi bi-x-circle"></i> Reset
+  </button>
 </div>
 
-<!-- Summary Stats -->
-<div class="summary-stats">
-  <div class="ss-card" *ngFor="let s of summaryStats">
-    <div class="ssc-icon" [ngClass]="'ssc-' + s.color">
-      <i [class]="s.icon"></i>
+<!-- ─── KPI Summary Strip ──────────────────────────────── -->
+<div class="kpi-strip">
+  <ng-container *ngIf="!kpiLoading && kpi; else kpiSkeleton">
+
+    <div class="kpi-card" (click)="drillDown('vat-collection')" title="Click to view VAT collection report">
+      <div class="kpi-icon teal"><i class="bi bi-receipt-cutoff"></i></div>
+      <div class="kpi-body">
+        <span class="kpi-label">VAT Collected</span>
+        <span class="kpi-value">৳{{ formatCrore(kpi.vatCollected) }} Cr</span>
+        <span class="kpi-change" [ngClass]="kpi.vatGrowthPct >= 0 ? 'positive' : 'negative'">
+          <i [class]="kpi.vatGrowthPct >= 0 ? 'bi bi-arrow-up-right' : 'bi bi-arrow-down-right'"></i>
+          {{ kpi.vatGrowthPct | number:'1.1-1' }}% vs last year
+        </span>
+        <span class="kpi-drill-hint">Click to drill down →</span>
+      </div>
     </div>
-    <div class="ssc-body">
-      <span class="ssc-label">{{ s.label }}</span>
-      <span class="ssc-value">{{ s.value }}</span>
-      <span class="ssc-change positive">{{ s.change }} vs last year</span>
+
+    <div class="kpi-card" (click)="drillDown('income-tax')" title="Click to view income tax report">
+      <div class="kpi-icon purple"><i class="bi bi-file-earmark-text-fill"></i></div>
+      <div class="kpi-body">
+        <span class="kpi-label">Income Tax Collected</span>
+        <span class="kpi-value">৳{{ formatCrore(kpi.incomeTaxCollected) }} Cr</span>
+        <span class="kpi-change" [ngClass]="kpi.itGrowthPct >= 0 ? 'positive' : 'negative'">
+          <i [class]="kpi.itGrowthPct >= 0 ? 'bi bi-arrow-up-right' : 'bi bi-arrow-down-right'"></i>
+          {{ kpi.itGrowthPct | number:'1.1-1' }}% vs last year
+        </span>
+        <span class="kpi-drill-hint">Click to drill down →</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" (click)="drillDown('import-duty')" title="Click to view import duty report">
+      <div class="kpi-icon red"><i class="bi bi-truck-front-fill"></i></div>
+      <div class="kpi-body">
+        <span class="kpi-label">Import Duty Collected</span>
+        <span class="kpi-value">৳{{ formatCrore(kpi.importDutyCollected) }} Cr</span>
+        <span class="kpi-change" [ngClass]="kpi.importDutyGrowthPct >= 0 ? 'positive' : 'negative'">
+          <i [class]="kpi.importDutyGrowthPct >= 0 ? 'bi bi-arrow-up-right' : 'bi bi-arrow-down-right'"></i>
+          {{ kpi.importDutyGrowthPct | number:'1.1-1' }}% vs last year
+        </span>
+        <span class="kpi-drill-hint">Click to drill down →</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" (click)="drillDown('penalty-collection')" title="Click to view penalty report">
+      <div class="kpi-icon orange"><i class="bi bi-exclamation-triangle-fill"></i></div>
+      <div class="kpi-body">
+        <span class="kpi-label">Penalty Collected</span>
+        <span class="kpi-value">৳{{ formatCrore(kpi.penaltyCollected) }} Cr</span>
+        <span class="kpi-change neutral">
+          <i class="bi bi-dash"></i> FY {{ filters.fiscalYear }}
+        </span>
+        <span class="kpi-drill-hint">Click to drill down →</span>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <ng-template #kpiSkeleton>
+    <div class="kpi-card" *ngFor="let i of [1,2,3,4]">
+      <div class="kpi-icon" style="background:#f0f4f8;width:46px;height:46px"></div>
+      <div class="kpi-body">
+        <div class="kpi-skeleton" style="width:80%;height:11px;margin-bottom:8px"></div>
+        <div class="kpi-skeleton" style="width:60%;height:20px;margin-bottom:6px"></div>
+        <div class="kpi-skeleton" style="width:50%;height:11px"></div>
+      </div>
+    </div>
+  </ng-template>
+</div>
+
+<!-- ─── Secondary KPI Row ─────────────────────────────── -->
+<div class="kpi-strip" *ngIf="kpi && !kpiLoading" style="grid-template-columns:repeat(4,1fr)">
+  <div class="kpi-card">
+    <div class="kpi-icon green"><i class="bi bi-people-fill"></i></div>
+    <div class="kpi-body">
+      <span class="kpi-label">Active Taxpayers</span>
+      <span class="kpi-value">{{ kpi.activeTaxpayers | number }}</span>
+      <span class="kpi-change neutral">Registered &amp; active</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon blue"><i class="bi bi-file-check-fill"></i></div>
+    <div class="kpi-body">
+      <span class="kpi-label">Returns Filed</span>
+      <span class="kpi-value">{{ kpi.filedReturns | number }}</span>
+      <span class="kpi-change neutral">FY {{ filters.fiscalYear }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon teal"><i class="bi bi-percent"></i></div>
+    <div class="kpi-body">
+      <span class="kpi-label">Filing Compliance Rate</span>
+      <span class="kpi-value">{{ kpi.complianceRate | number:'1.1-1' }}%</span>
+      <span class="kpi-change" [ngClass]="kpi.complianceRate >= 80 ? 'positive' : 'negative'">
+        {{ kpi.complianceRate >= 80 ? 'On target' : 'Below target (80%)' }}
+      </span>
+    </div>
+  </div>
+  <div class="kpi-card" (click)="drillDown('refund-status')">
+    <div class="kpi-icon purple"><i class="bi bi-arrow-return-left"></i></div>
+    <div class="kpi-body">
+      <span class="kpi-label">Refund Paid Out</span>
+      <span class="kpi-value">৳{{ formatCrore(kpi.refundPaid) }} Cr</span>
+      <span class="kpi-drill-hint">Click to drill down →</span>
     </div>
   </div>
 </div>
 
-<!-- Report Cards -->
-<div class="reports-section-title">Available Reports</div>
-<div class="report-cards-grid">
+<!-- ─── Charts Row ─────────────────────────────────────── -->
+<div class="charts-row">
+
+  <!-- Revenue Trend Chart -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <span class="chart-card-title">
+        <i class="bi bi-graph-up-arrow"></i> Revenue Trend — FY {{ filters.fiscalYear }}
+      </span>
+      <select class="form-input form-select" style="max-width:140px;font-size:12px;padding:5px 10px"
+        [(ngModel)]="trendMonths" (change)="loadTrendData()">
+        <option [value]="6">Last 6 months</option>
+        <option [value]="12">Last 12 months</option>
+      </select>
+    </div>
+    <div *ngIf="trendLoading" style="height:200px;display:flex;align-items:center;justify-content:center">
+      <div class="spinner-border text-primary"></div>
+    </div>
+    <div *ngIf="!trendLoading && trendData.length === 0" class="chart-placeholder">
+      <i class="bi bi-graph-up"></i>
+      <span>No trend data available for selected filters</span>
+    </div>
+    <!-- Chart.js canvas — install ng2-charts and replace placeholder -->
+    <div *ngIf="!trendLoading && trendData.length > 0">
+      <canvas baseChart [data]="breakdownChartData" [options]="breakdownChartOptions" type="doughnut"
+        style="max-height: 200px">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Tax Type Breakdown Chart -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <span class="chart-card-title">
+        <i class="bi bi-pie-chart-fill"></i> Tax Breakdown
+      </span>
+    </div>
+    <div *ngIf="kpiLoading" style="height:200px;display:flex;align-items:center;justify-content:center">
+      <div class="spinner-border text-primary"></div>
+    </div>
+    <div *ngIf="!kpiLoading && kpi" style="padding: 0 10px">
+      <div *ngFor="let item of taxBreakdownItems" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="font-weight:600;color:#1a2340">{{ item.label }}</span>
+          <span style="color:#888;font-weight:600">{{ item.pct | number:'1.0-0' }}%</span>
+        </div>
+        <div style="height:7px;background:#f0f4f8;border-radius:4px;overflow:hidden">
+          <div [style.width.%]="item.pct" [style.background]="item.color"
+            style="height:100%;border-radius:4px;transition:width 0.8s ease"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Compliance Rate by Zone ────────────────────────── -->
+<ng-container *ngIf="complianceData.length > 0">
+  <div class="section-header-row">
+    <span class="section-title-text">
+      <i class="bi bi-shield-check me-2 text-success"></i>Filing Compliance by Zone
+    </span>
+  </div>
+  <div class="compliance-row" style="margin-bottom:22px">
+    <div class="compliance-card" *ngFor="let c of complianceData">
+      <div class="compliance-zone">{{ c.zoneName }}</div>
+      <div class="compliance-bar-track">
+        <div class="compliance-bar-fill" [class.warn]="c.complianceRate < 70" [style.width.%]="c.complianceRate"></div>
+      </div>
+      <span class="compliance-rate-text" [class.warn]="c.complianceRate < 70">
+        {{ c.complianceRate | number:'1.0-0' }}% ({{ c.filedCount }}/{{ c.totalRegistered }})
+      </span>
+    </div>
+  </div>
+</ng-container>
+
+<!-- ─── Available Reports Grid ─────────────────────────── -->
+<div class="section-header-row">
+  <span class="section-title-text">Available Reports</span>
+  <span style="font-size:12px;color:#888">FY {{ filters.fiscalYear }}</span>
+</div>
+
+<div class="reports-grid">
   <div class="report-card" *ngFor="let r of reportCards">
     <div class="rc-header">
-      <div class="rc-icon" [ngClass]="'rc-' + r.color">
+      <div class="rc-icon" [ngClass]="'rc-icon ' + r.color">
         <i [class]="r.icon"></i>
       </div>
       <div class="rc-count">{{ r.count }}</div>
     </div>
     <div class="rc-title">{{ r.title }}</div>
     <div class="rc-desc">{{ r.desc }}</div>
-    <div class="rc-actions">
-      <button class="btn-view-report">
+    <div class="rc-actions" style="position:relative">
+      <button class="btn-view-report" (click)="viewReport(r.route)">
         <i class="bi bi-eye-fill"></i> View
       </button>
-      <button class="btn-download-report" (click)="downloadReport(r.title)">
-        <i class="bi bi-download"></i> Download
+      <button class="btn-download-report" (click)="downloadReport(r.reportType, $event)" [disabled]="r.downloading">
+        <span *ngIf="!r.downloading"><i class="bi bi-download"></i> Download</span>
+        <span *ngIf="r.downloading">
+          <span class="spinner-border spinner-border-sm me-1"></span> Exporting...
+        </span>
       </button>
     </div>
   </div>
