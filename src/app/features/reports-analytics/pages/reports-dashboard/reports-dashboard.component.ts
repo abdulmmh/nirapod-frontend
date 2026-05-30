@@ -1,9 +1,7 @@
 import {
   Component,
   OnInit,
-  OnDestroy,
-  ElementRef,
-  ViewChild,
+  OnDestroy
 } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { Router } from '@angular/router';
@@ -44,8 +42,6 @@ interface BreakdownItem {
   styleUrls: ['./reports-dashboard.component.css'],
 })
 export class ReportsDashboardComponent implements OnInit, OnDestroy {
-  @ViewChild('trendCanvas') trendCanvas!: ElementRef<HTMLCanvasElement>;
-
   // ─── State ────────────────────────────────────────────────────────────────
   kpi: KpiSummary | null = null;
   kpiLoading = true;

@@ -175,31 +175,39 @@
 <div class="charts-row">
 
   <!-- Revenue Trend Chart -->
-  <div class="chart-card">
-    <div class="chart-card-header">
-      <span class="chart-card-title">
-        <i class="bi bi-graph-up-arrow"></i> Revenue Trend — FY {{ filters.fiscalYear }}
-      </span>
-      <select class="form-input form-select" style="max-width:140px;font-size:12px;padding:5px 10px"
-        [(ngModel)]="trendMonths" (change)="loadTrendData()">
-        <option [value]="6">Last 6 months</option>
-        <option [value]="12">Last 12 months</option>
-      </select>
-    </div>
-    <div *ngIf="trendLoading" style="height:200px;display:flex;align-items:center;justify-content:center">
-      <div class="spinner-border text-primary"></div>
-    </div>
-    <div *ngIf="!trendLoading && trendData.length === 0" class="chart-placeholder">
-      <i class="bi bi-graph-up"></i>
-      <span>No trend data available for selected filters</span>
-    </div>
-    <!-- Chart.js canvas — install ng2-charts and replace placeholder -->
-    <div *ngIf="!trendLoading && trendData.length > 0">
-      <canvas baseChart [data]="breakdownChartData" [options]="breakdownChartOptions" type="doughnut"
-        style="max-height: 200px">
-      </canvas>
-    </div>
+<div class="chart-card">
+  <div class="chart-card-header">
+    <span class="chart-card-title">
+      <i class="bi bi-graph-up-arrow"></i> Revenue Trend — FY {{ filters.fiscalYear }}
+    </span>
+    <select class="form-input form-select"
+      style="max-width:140px;font-size:12px;padding:5px 10px"
+      [(ngModel)]="trendMonths" (change)="loadTrendData()">
+      <option [value]="6">Last 6 months</option>
+      <option [value]="12">Last 12 months</option>
+    </select>
   </div>
+
+  <div *ngIf="trendLoading"
+    style="height:200px;display:flex;align-items:center;justify-content:center">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+  <div *ngIf="!trendLoading && trendData.length === 0" class="chart-placeholder">
+    <i class="bi bi-graph-up"></i>
+    <span>No trend data available for selected filters</span>
+  </div>
+
+  <!-- ✅ FIXED: trendChartData + trendChartOptions + type="line" -->
+  <div *ngIf="!trendLoading && trendData.length > 0" style="height:200px">
+    <canvas baseChart
+      [data]="trendChartData"
+      [options]="trendChartOptions"
+      type="line"
+      style="width:100%;height:200px">
+    </canvas>
+  </div>
+</div>
 
   <!-- Tax Type Breakdown Chart -->
   <div class="chart-card">

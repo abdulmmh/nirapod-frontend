@@ -229,8 +229,12 @@ export class PortalAuditDetailComponent implements OnInit {
   }
 
   goToAppeal(): void {
-    this.router.navigate(['/appeals/new'], {
-      queryParams: { auditCaseId: this.caseId },
+    this.router.navigate(['/my-portal/appeals/new'], {
+      queryParams: { 
+        auditCaseId: this.caseId,
+        assessmentNo: this.assessment?.assessmentNo,
+        demandNo: this.demandNotice?.demandNo
+      }
     });
   }
 
