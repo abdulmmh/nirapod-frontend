@@ -171,7 +171,7 @@
       </div>
 
       <!-- Documents -->
-      <div class="form-card" *ngIf="ait.documents.length">
+      <div class="form-card">
         <div class="section-header">
           <div class="section-icon"><i class="bi bi-paperclip"></i></div>
           <div>
@@ -187,6 +187,11 @@
               <span class="doc-size">{{ (doc.fileSize / 1024).toFixed(1) }} KB</span>
               <i class="bi bi-download ms-auto"></i>
             </a>
+          </div>
+          <!-- Empty state -->
+          <div class="empty-state-sm" *ngIf="!ait.documents.length">
+            <i class="bi bi-paperclip"></i>
+            <span>No documents attached.</span>
           </div>
         </div>
       </div>
@@ -284,7 +289,7 @@
               Download AIT Certificate (PDF)
             </button>
           </ng-container>
-          
+
         </div>
       </div>
 

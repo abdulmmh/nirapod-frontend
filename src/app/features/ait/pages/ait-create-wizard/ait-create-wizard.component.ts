@@ -5,7 +5,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import {
@@ -52,6 +52,10 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   // Step 3 — Documents
   uploadedFiles: File[] = [];
 
+  // Edit mode
+  isEditMode = false;
+  editRecordId: number | null = null;
+
   sourceTypes: SourceTypeOption[] = [
     { value: 'IMPORT', label: 'Import Duty', icon: 'bi-box-seam' },
     { value: 'SUPPLIER', label: 'Supplier Payment', icon: 'bi-truck' },
@@ -68,9 +72,18 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
     private toast: ToastService,
     private auth: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
+    const editId = this.route.snapshot.paramMap.get('id');
+    
+    if (editId) {
+      this.isEditMode = true;
+      this.editRecordId = Number(editId);
+      this.loadForEdit(this.editRecordId);
+    }
+
     this.isTaxpayerRole = this.auth.hasRole(Role.TAXPAYER);
     this.buildForms();
 
@@ -99,7 +112,11 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
       taxpayerId: [null, Validators.required],
       taxpayerName: [''],
       taxpayerTin: [''],
-      taxpayerType: [''],
+      taxpayerType: this.fb.group({
+          id: [''],
+          category: [''],
+          typeName: ['']
+        }),
     });
 
     this.step2Form = this.fb.group({
@@ -142,11 +159,41 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
     deductorCtrl.updateValueAndValidity();
   }
 
+  // ── Edit mode loading ─────────────────────────────────────────────────────
+  
+  loadForEdit(id: number): void {
+    this.aitService.getById(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.step1Form.patchValue({
+            taxpayerId:   data.taxpayerId,
+            taxpayerName: data.taxpayerName,
+            taxpayerTin:  data.taxpayerTin,
+          });
+          this.step2Form.patchValue({
+            sourceType:         data.sourceType,
+            importDutyRecordId: data.importDutyRecordId,
+            hsCode:             data.hsCode,
+            deductorName:       data.deductorName,
+            deductorTin:        data.deductorTin,
+            taxableValue:       data.taxableValue,
+            aitRate:            data.aitRate,
+          });
+          this.isAutoFilled = true;
+          this.recalculate();
+        },
+        error: (err) => {
+          this.toast.error('Failed to load record for editing.', err?.error?.message);
+        }
+      });
+  }
   // ── Taxpayer search ────────────────────────────────────────────────────────
 
   searchTaxpayer(): void {
     const term = this.searchControl.value?.trim();
     if (!term) return;
+    
 
     this.isSearching = true;
     this.aitService
@@ -173,6 +220,8 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
     });
     this.searchResults = [];
     this.isAutoFilled = true;
+    console.log(this.step1Form.value);
+    
   }
 
   clearSelectedTaxpayer(): void {
@@ -193,6 +242,7 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
       });
       this.isAutoFilled = true;
     }
+    console.log(user?.taxpayerType);
   }
 
   // ── Source type ────────────────────────────────────────────────────────────

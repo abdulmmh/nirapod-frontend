@@ -267,11 +267,11 @@ export class OfficerDashboardComponent implements OnInit {
 
   // ── Actions ───────────────────────────────────────────
   reviewRecord(aitId: number): void {
-    this.router.navigate(['/aits/review', aitId]);
+    this.router.navigate(['/ait/review', aitId]);
   }
 
   viewDetails(aitId: number): void {
-    this.router.navigate(['/aits/review', aitId]);
+    this.router.navigate(['/ait/review', aitId]);
   }
 
   refreshQueue(): void {

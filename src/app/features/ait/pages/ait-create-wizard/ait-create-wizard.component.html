@@ -32,9 +32,9 @@
       </div>
       <div class="step-label">
         <ng-container [ngSwitch]="s">
-          <ng-container *ngSwitchCase="1">Taxpayer<br/>Info</ng-container>
-          <ng-container *ngSwitchCase="2">AIT<br/>Details</ng-container>
-          <ng-container *ngSwitchCase="3">Review &amp;<br/>Submit</ng-container>
+          <ng-container *ngSwitchCase="1">Taxpayer<br />Info</ng-container>
+          <ng-container *ngSwitchCase="2">AIT<br />Details</ng-container>
+          <ng-container *ngSwitchCase="3">Review &amp;<br />Submit</ng-container>
         </ng-container>
       </div>
     </div>
@@ -68,17 +68,13 @@
         <div class="search-row">
           <div class="search-field-wrap">
             <i class="bi bi-upc-scan search-icon"></i>
-            <input type="text" class="search-input"
-              placeholder="Enter TIN, NID or taxpayer name…"
-              [formControl]="searchControl"
-              (keyup.enter)="searchTaxpayer()"
-              [disabled]="isAutoFilled" />
+            <input type="text" class="search-input" placeholder="Enter TIN, NID or taxpayer name…"
+              [formControl]="searchControl" (keyup.enter)="searchTaxpayer()" [disabled]="isAutoFilled" />
             <button class="clear-btn" *ngIf="isAutoFilled" (click)="clearSelectedTaxpayer()">
               <i class="bi bi-x-lg"></i>
             </button>
           </div>
-          <button class="btn btn-primary" (click)="searchTaxpayer()"
-            [disabled]="isSearching || isAutoFilled">
+          <button class="btn btn-primary" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
             <span *ngIf="isSearching" class="spinner-border spinner-border-sm"></span>
             <i *ngIf="!isSearching" class="bi bi-search"></i>
             {{ isSearching ? 'Searching…' : 'Search' }}
@@ -87,13 +83,11 @@
 
         <!-- Search results -->
         <div class="search-results" *ngIf="searchResults.length > 0 && !isAutoFilled">
-          <div class="search-result-item"
-            *ngFor="let t of searchResults"
-            (click)="selectTaxpayer(t)">
+          <div class="search-result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
             <div class="result-icon"><i class="bi bi-person-circle"></i></div>
             <div>
               <div class="result-name">{{ t.fullName || t.companyName }}</div>
-              <div class="result-meta">TIN: {{ t.tinNumber }} · {{ t.taxpayerType }}</div>
+              <div class="result-meta">TIN: {{ t.tinNumber }} · {{ t.taxpayerType.typeName }}</div>
             </div>
             <i class="bi bi-chevron-right ms-auto"></i>
           </div>
@@ -127,7 +121,7 @@
         </div>
         <div class="field-group">
           <label class="field-label">Taxpayer Type</label>
-          <input class="field-input" formControlName="taxpayerType" readonly />
+          <input class="field-input" [value]="step1Form.get('taxpayerType.typeName')?.value" readonly />
         </div>
       </div>
     </div>
@@ -135,8 +129,7 @@
 
   <div class="step-nav">
     <span></span>
-    <button class="btn btn-primary" (click)="nextStep()"
-      [disabled]="!step1Form.get('taxpayerId')?.value">
+    <button class="btn btn-primary" (click)="nextStep()" [disabled]="!step1Form.get('taxpayerId')?.value">
       Next: AIT Details <i class="bi bi-arrow-right"></i>
     </button>
   </div>
@@ -162,17 +155,13 @@
     </div>
     <div class="card-p">
       <div class="source-type-grid">
-        <button type="button"
-          *ngFor="let src of sourceTypes"
-          class="source-type-btn"
-          [class.selected]="step2Form.get('sourceType')?.value === src.value"
-          (click)="selectSourceType(src.value)">
+        <button type="button" *ngFor="let src of sourceTypes" class="source-type-btn"
+          [class.selected]="step2Form.get('sourceType')?.value === src.value" (click)="selectSourceType(src.value)">
           <i class="bi" [ngClass]="src.icon"></i>
           <span>{{ src.label }}</span>
         </button>
       </div>
-      <div class="field-error"
-        *ngIf="step2Form.get('sourceType')?.invalid && step2Form.get('sourceType')?.touched">
+      <div class="field-error" *ngIf="step2Form.get('sourceType')?.invalid && step2Form.get('sourceType')?.touched">
         Source type is required.
       </div>
     </div>
@@ -195,8 +184,7 @@
       <div class="form-grid-2">
         <div class="field-group">
           <label class="field-label required">Import Duty Record ID</label>
-          <input type="number" class="field-input" formControlName="importDutyRecordId"
-            placeholder="e.g. 1042" />
+          <input type="number" class="field-input" formControlName="importDutyRecordId" placeholder="e.g. 1042" />
           <div class="field-error"
             *ngIf="step2Form.get('importDutyRecordId')?.invalid && step2Form.get('importDutyRecordId')?.touched">
             Import duty record ID is required for IMPORT source.
@@ -204,16 +192,14 @@
         </div>
         <div class="field-group">
           <label class="field-label">HS Code</label>
-          <input type="text" class="field-input" formControlName="hsCode"
-            placeholder="e.g. 8471.30" />
+          <input type="text" class="field-input" formControlName="hsCode" placeholder="e.g. 8471.30" />
         </div>
       </div>
     </div>
   </div>
 
   <!-- Deductor fields (Supplier / Salary / Contractor / Rent) -->
-  <div class="card"
-    *ngIf="['SUPPLIER','SALARY','CONTRACTOR','RENT'].includes(step2Form.get('sourceType')?.value)">
+  <div class="card" *ngIf="['SUPPLIER','SALARY','CONTRACTOR','RENT'].includes(step2Form.get('sourceType')?.value)">
     <div class="card-hdr">
       <div class="card-hdr-left">
         <div class="hdr-icon ic-amber">
@@ -238,8 +224,7 @@
         </div>
         <div class="field-group">
           <label class="field-label">Deductor TIN</label>
-          <input type="text" class="field-input" formControlName="deductorTin"
-            placeholder="Optional" />
+          <input type="text" class="field-input" formControlName="deductorTin" placeholder="Optional" />
         </div>
       </div>
     </div>
@@ -262,9 +247,8 @@
       <div class="form-grid-2">
         <div class="field-group">
           <label class="field-label required">Taxable Value (৳)</label>
-          <input type="number" class="field-input" formControlName="taxableValue"
-            placeholder="0.00" min="0.01" step="0.01"
-            (input)="recalculate()" />
+          <input type="number" class="field-input" formControlName="taxableValue" placeholder="0.00" min="0.01"
+            step="0.01" (input)="recalculate()" />
           <div class="field-error"
             *ngIf="step2Form.get('taxableValue')?.invalid && step2Form.get('taxableValue')?.touched">
             Taxable value must be greater than zero.
@@ -272,11 +256,9 @@
         </div>
         <div class="field-group">
           <label class="field-label required">AIT Rate (%)</label>
-          <input type="number" class="field-input" formControlName="aitRate"
-            placeholder="e.g. 5" min="0.01" max="100" step="0.01"
-            (input)="recalculate()" />
-          <div class="field-error"
-            *ngIf="step2Form.get('aitRate')?.invalid && step2Form.get('aitRate')?.touched">
+          <input type="number" class="field-input" formControlName="aitRate" placeholder="e.g. 5" min="0.01" max="100"
+            step="0.01" (input)="recalculate()" />
+          <div class="field-error" *ngIf="step2Form.get('aitRate')?.invalid && step2Form.get('aitRate')?.touched">
             AIT rate must be between 0.01 and 100.
           </div>
         </div>
@@ -305,8 +287,7 @@
     <button class="btn btn-outline" (click)="prevStep()">
       <i class="bi bi-arrow-left"></i> Back
     </button>
-    <button class="btn btn-primary" (click)="nextStep()"
-      [disabled]="step2Form.invalid">
+    <button class="btn btn-primary" (click)="nextStep()" [disabled]="step2Form.invalid">
       Next: Review <i class="bi bi-arrow-right"></i>
     </button>
   </div>
@@ -399,10 +380,8 @@
           <i class="bi bi-paperclip"></i> Supporting Documents
           <span class="badge b-warning ms-2">Required before submission</span>
         </div>
-        <div class="doc-upload-area" (click)="fileInput.click()"
-          [class.has-files]="uploadedFiles.length > 0">
-          <input #fileInput type="file" multiple hidden
-            accept=".pdf,.jpg,.jpeg,.png"
+        <div class="doc-upload-area" (click)="fileInput.click()" [class.has-files]="uploadedFiles.length > 0">
+          <input #fileInput type="file" multiple hidden accept=".pdf,.jpg,.jpeg,.png"
             (change)="onFileSelected($event)" />
           <i class="bi bi-cloud-upload" style="font-size:24px;color:#7c3aed"></i>
           <p>Click to upload documents (PDF, JPG, PNG)</p>
@@ -427,9 +406,7 @@
     <button class="btn btn-outline" (click)="prevStep()">
       <i class="bi bi-arrow-left"></i> Back
     </button>
-    <button class="btn btn-primary"
-      (click)="onSubmit()"
-      [disabled]="isSaving || uploadedFiles.length === 0">
+    <button class="btn btn-primary" (click)="onSubmit()" [disabled]="isSaving || uploadedFiles.length === 0">
       <span *ngIf="isSaving" class="spinner-border spinner-border-sm"></span>
       <i *ngIf="!isSaving" class="bi bi-send-fill"></i>
       {{ isSaving ? 'Saving...' : 'Submit AIT Record' }}
