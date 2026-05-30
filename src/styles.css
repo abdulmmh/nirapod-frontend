@@ -1082,15 +1082,24 @@
   }
 }
 
+/* ── Print styles (Download PDF via browser) ─────────────────────────── */
 @media print {
-  app-sidebar, .topbar, .page-header,
-  .audit-action-row, .detail-tabs,
+  app-sidebar, .sidebar,
+  .topbar, .topbar-wrapper,
+  .page-header, .header-actions,
+  .audit-action-row, .audit-tabs .atab,
+  .detail-tabs, .detail-tabs-wrapper .detail-tabs,
+  .tp-action-banner, .tp-demand-banner,
   .btn-download, .btn-appeal, .btn-pay-now,
-  .btn-back, .header-actions { display: none !important; }
+  .btn-back, .btn-edit-top, .fab-btn,
+  footer, .footer { display: none !important; }
 
-  .audit-tabs-wrapper { box-shadow: none; border: none; }
+  body { background: #fff !important; }
+  .audit-tabs-wrapper,
+  .detail-tabs-wrapper { box-shadow: none !important; border: none !important; }
+  .tp-assessment-order,
+  .tp-demand-order     { max-width: 100% !important; box-shadow: none !important; }
 }
-
 
 
 

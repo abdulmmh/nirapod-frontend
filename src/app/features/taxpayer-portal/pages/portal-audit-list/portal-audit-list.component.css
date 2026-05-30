@@ -13,9 +13,9 @@
   padding: 3px 10px;
   font-size: 11px;
   font-weight: 600;
-  i {
-    font-size: 11px;
-  }
+}
+.action-required-chip i {
+  font-size: 11px;
 }
 
 .no-action {
@@ -29,30 +29,30 @@
   padding: 3px 8px;
   border-radius: 4px;
   text-transform: uppercase;
-  &.type-desk {
-    background: #e8f0fe;
-    color: #1967d2;
-  }
-  &.type-field {
-    background: #fef7e0;
-    color: #b45309;
-  }
-  &.type-comp {
-    background: #f3e8ff;
-    color: #6d28d9;
-  }
-  &.type-vat {
-    background: #ecfdf5;
-    color: #059669;
-  }
-  &.type-refund {
-    background: #fff1f2;
-    color: #be123c;
-  }
-  &.type-special {
-    background: #fff7ed;
-    color: #c2410c;
-  }
+}
+.type-badge.type-desk {
+  background: #e8f0fe;
+  color: #1967d2;
+}
+.type-badge.type-field {
+  background: #fef7e0;
+  color: #b45309;
+}
+.type-badge.type-comp {
+  background: #f3e8ff;
+  color: #6d28d9;
+}
+.type-badge.type-vat {
+  background: #ecfdf5;
+  color: #059669;
+}
+.type-badge.type-refund {
+  background: #fff1f2;
+  color: #be123c;
+}
+.type-badge.type-special {
+  background: #fff7ed;
+  color: #c2410c;
 }
 
 .case-code {

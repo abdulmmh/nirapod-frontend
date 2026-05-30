@@ -1,13 +1,16 @@
+/* assessment-review — plain CSS, no nesting */
+
 /* ── Case Info Strip ─────────────────────────────────────────────────────── */
 .case-info-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
   background: #fff;
-  border: 1px solid #E8ECF0;
-  border-radius: 10px;
+  border: 1px solid #eef2f8;
+  border-radius: 12px;
   padding: 14px 20px;
   margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .case-info-strip .cis-item {
@@ -18,47 +21,51 @@
 
 .case-info-strip .cis-item i {
   font-size: 18px;
-  color: #1A6FBF;
+  color: #1a3f8f;
 }
 
 .case-info-strip .cis-item label {
   font-size: 11px;
-  color: #8A94A6;
+  color: #888;
   display: block;
   font-weight: 500;
   text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .case-info-strip .cis-item span {
   font-size: 13px;
   font-weight: 600;
-  color: #1C2B3A;
+  color: #1a2340;
 }
 
 /* ── Comparison Grid ─────────────────────────────────────────────────────── */
-.comparison-grid { }
+.comparison-grid {
+  width: 100%;
+}
 
 .comparison-grid .cg-header {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  background: #F1F4F9;
+  grid-template-columns: 2fr 1fr 1fr;
+  background: #f1f4f9;
   padding: 8px 12px;
   border-radius: 6px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   font-size: 11px;
   font-weight: 700;
-  color: #5A6577;
+  color: #5a6577;
   text-transform: uppercase;
-  letter-spacing: .3px;
+  letter-spacing: 0.3px;
+  gap: 8px;
 }
 
 .comparison-grid .cg-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
   align-items: center;
   gap: 8px;
-  padding: 6px 4px;
-  border-bottom: 1px solid #F1F4F9;
+  padding: 8px 4px;
+  border-bottom: 1px solid #f1f4f9;
 }
 
 .comparison-grid .cg-row:last-child {
@@ -72,14 +79,14 @@
 }
 
 .comparison-grid .cg-variance {
-  background: #FEF7F0;
+  background: #fef7f0;
   border-radius: 6px;
   padding: 8px 4px;
 }
 
 .comparison-grid .assessed-input {
-  border-color: #1A6FBF !important;
-  background: #F0F7FF !important;
+  border-color: #1a3f8f !important;
+  background: #f0f4ff !important;
 }
 
 .comparison-grid .variance-display {
@@ -88,25 +95,25 @@
 
 .comparison-grid .variance-display .auto-hint {
   position: absolute;
-  right: 6px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 9px;
-  color: #8A94A6;
+  color: #8a94a6;
   pointer-events: none;
 }
 
 /* ── Demand Summary Card ─────────────────────────────────────────────────── */
 .demand-summary-card {
   background: #fff;
-  border: 1px solid #E8ECF0;
+  border: 1px solid #eef2f8;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0,0,0,.07);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .demand-summary-card .dsc-header {
-  background: linear-gradient(135deg, #1A6FBF, #1259A0);
+  background: linear-gradient(135deg, #1a3f8f, #2a5fd6);
   color: #fff;
   padding: 16px 20px;
   display: flex;
@@ -114,41 +121,67 @@
   gap: 10px;
 }
 
-.demand-summary-card .dsc-header i  { font-size: 20px; }
-.demand-summary-card .dsc-header h6 { margin: 0; font-size: 14px; font-weight: 700; }
+.demand-summary-card .dsc-header i {
+  font-size: 20px;
+}
+.demand-summary-card .dsc-header h6 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
 
-.demand-summary-card .dsc-body { padding: 16px 20px; }
+.demand-summary-card .dsc-body {
+  padding: 16px 20px;
+}
 
 .demand-summary-card .dsc-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
-  border-bottom: 1px solid #F1F4F9;
+  border-bottom: 1px solid #f1f4f9;
 }
 
-.demand-summary-card .dsc-row:last-child { border-bottom: none; }
+.demand-summary-card .dsc-row:last-child {
+  border-bottom: none;
+}
+.demand-summary-card .dsc-row label {
+  font-size: 13px;
+  color: #5a6577;
+}
+.demand-summary-card .dsc-row span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a2340;
+}
 
-.demand-summary-card .dsc-row label { font-size: 13px; color: #5A6577; }
-.demand-summary-card .dsc-row span  { font-size: 14px; font-weight: 600; color: #1C2B3A; }
-
-.demand-summary-card .dsc-row.total { border-bottom: none; }
-.demand-summary-card .dsc-row.total label { font-size: 14px; font-weight: 700; color: #1C2B3A; }
-.demand-summary-card .dsc-row.total span  { font-size: 22px; font-weight: 800; color: #C84500; }
+.demand-summary-card .dsc-row.total {
+  border-bottom: none;
+}
+.demand-summary-card .dsc-row.total label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a2340;
+}
+.demand-summary-card .dsc-row.total span {
+  font-size: 22px;
+  font-weight: 800;
+  color: #c84500;
+}
 
 .demand-summary-card .dsc-divider {
-  border-top: 2px dashed #E8ECF0;
+  border-top: 2px dashed #e8ecf0;
   margin: 8px 0;
 }
 
 .demand-summary-card .dsc-threshold-warn {
   margin: 0 16px 12px;
   padding: 10px 12px;
-  background: #FFF3E0;
-  border-left: 3px solid #E65100;
+  background: #fff3e0;
+  border-left: 3px solid #e65100;
   border-radius: 6px;
   font-size: 12px;
-  color: #C84500;
+  color: #c84500;
   font-weight: 500;
   display: flex;
   align-items: flex-start;
@@ -161,10 +194,9 @@
   margin-top: 1px;
 }
 
-/* ── Income Compare Bars ─────────────────────────────────────────────────── */
 .demand-summary-card .dsc-income-compare {
   padding: 12px 16px;
-  border-top: 1px solid #F1F4F9;
+  border-top: 1px solid #f1f4f9;
 }
 
 .demand-summary-card .dsc-income-compare .dic-bar {
@@ -173,16 +205,16 @@
 
 .demand-summary-card .dsc-income-compare .dic-label {
   font-size: 11px;
-  color: #8A94A6;
+  color: #8a94a6;
   margin-bottom: 3px;
 }
 
 .demand-summary-card .dsc-income-compare .dic-track {
   height: 8px;
-  background: #E8ECF0;
+  background: #e8ecf0;
   border-radius: 4px;
-  margin-bottom: 2px;
   overflow: hidden;
+  margin-bottom: 2px;
 }
 
 .demand-summary-card .dsc-income-compare .dic-fill {
@@ -190,8 +222,12 @@
   border-radius: 4px;
 }
 
-.demand-summary-card .dsc-income-compare .dic-fill.declared { background: #93C5FD; }
-.demand-summary-card .dsc-income-compare .dic-fill.assessed { background: #1A6FBF; }
+.demand-summary-card .dsc-income-compare .dic-fill.declared {
+  background: #93c5fd;
+}
+.demand-summary-card .dsc-income-compare .dic-fill.assessed {
+  background: #1a3f8f;
+}
 
 .demand-summary-card .dsc-income-compare .dic-amount {
   font-size: 12px;
@@ -202,16 +238,19 @@
 
 .demand-summary-card .dsc-actions {
   padding: 16px;
-  border-top: 1px solid #F1F4F9;
+  border-top: 1px solid #f1f4f9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* ── Utilities ───────────────────────────────────────────────────────────── */
 .code-val {
-  font-family: 'Courier New', monospace;
+  font-family: monospace;
   font-size: 12px;
   font-weight: 600;
-  color: #1A6FBF;
-  background: #EBF3FF;
+  color: #1a3f8f;
+  background: #e8eef9;
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -220,19 +259,37 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #EBF3FF;
-  color: #1A6FBF;
+  background: #e8eef9;
+  color: #1a3f8f;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   flex-shrink: 0;
 }
-
-.fsh-icon.warning { background: #FFF3E0; color: #E65100; }
-.fsh-icon.danger  { background: #FEEBEE; color: #C62828; }
+.fsh-icon.warning {
+  background: #fff3e0;
+  color: #e65100;
+}
+.fsh-icon.danger {
+  background: #fce4ec;
+  color: #c62828;
+}
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 992px) {
-  .demand-summary-card { position: static !important; }
+  .demand-summary-card {
+    position: static !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .comparison-grid .cg-header,
+  .comparison-grid .cg-row {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    font-size: 12px;
+  }
+  .case-info-strip {
+    gap: 10px;
+  }
 }

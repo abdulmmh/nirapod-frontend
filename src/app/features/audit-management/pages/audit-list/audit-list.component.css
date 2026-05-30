@@ -3,7 +3,7 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  padding: 0 20px 16px;
+  padding: 16px 20px;
 }
 
 .akpi-card {
@@ -16,11 +16,13 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.05);
-  transition: box-shadow .2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
 }
 
-.akpi-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.09); }
+.akpi-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.09);
+}
 
 .akpi-icon {
   width: 40px;
@@ -33,38 +35,74 @@
   flex-shrink: 0;
 }
 
-.akpi-icon.blue   { background: #e8eef9; color: #1a3f8f; }
-.akpi-icon.green  { background: #e6f7ee; color: #1a7a45; }
-.akpi-icon.orange { background: #fff3e0; color: #e65100; }
-.akpi-icon.teal   { background: #e0f7fa; color: #00695c; }
-.akpi-icon.red    { background: #fce4ec; color: #c62828; }
+.akpi-icon.blue {
+  background: #e8eef9;
+  color: #1a3f8f;
+}
+.akpi-icon.green {
+  background: #e6f7ee;
+  color: #1a7a45;
+}
+.akpi-icon.orange {
+  background: #fff3e0;
+  color: #e65100;
+}
+.akpi-icon.teal {
+  background: #e0f7fa;
+  color: #00695c;
+}
+.akpi-icon.red {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+.akpi-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
 .akpi-label {
-  display: block;
   font-size: 11px;
   color: #888;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: .4px;
+  letter-spacing: 0.4px;
 }
 
 .akpi-value {
-  display: block;
   font-size: 22px;
   font-weight: 800;
   color: #1a2340;
   line-height: 1.2;
 }
 
-/* ── Type Badges ─────────────────────────────────────────────────────────── */
-.cat-badge.type-desk    { background: #e8f0fe; color: #1967d2; }
-.cat-badge.type-field   { background: #fef7e0; color: #b45309; }
-.cat-badge.type-comp    { background: #f3e8ff; color: #6d28d9; }
-.cat-badge.type-vat     { background: #ecfdf5; color: #059669; }
-.cat-badge.type-refund  { background: #fff1f2; color: #be123c; }
-.cat-badge.type-special { background: #fff7ed; color: #c2410c; }
+/* ── Type / Priority Badges ──────────────────────────────────────────────── */
+.cat-badge.type-desk {
+  background: #e8f0fe;
+  color: #1967d2;
+}
+.cat-badge.type-field {
+  background: #fef7e0;
+  color: #b45309;
+}
+.cat-badge.type-comp {
+  background: #f3e8ff;
+  color: #6d28d9;
+}
+.cat-badge.type-vat {
+  background: #ecfdf5;
+  color: #059669;
+}
+.cat-badge.type-refund {
+  background: #fff1f2;
+  color: #be123c;
+}
+.cat-badge.type-special {
+  background: #fff7ed;
+  color: #c2410c;
+}
 
-/* ── Priority Pills ──────────────────────────────────────────────────────── */
 .priority-pill {
   font-size: 11px;
   font-weight: 600;
@@ -74,14 +112,22 @@
   align-items: center;
   gap: 4px;
 }
-
-.priority-pill.pri-low      { background: #f5f7fb; color: #546e7a; }
-.priority-pill.pri-normal   { background: #e8eef9; color: #1a3f8f; }
-.priority-pill.pri-high     { background: #fff3e0; color: #e65100; }
-.priority-pill.pri-critical { background: #fce4ec; color: #c62828; }
-
-/* ── Due Date ────────────────────────────────────────────────────────────── */
-.due-overdue { color: #c62828; font-weight: 700; font-size: 12px; }
+.priority-pill.pri-low {
+  background: #f5f7fb;
+  color: #546e7a;
+}
+.priority-pill.pri-normal {
+  background: #e8eef9;
+  color: #1a3f8f;
+}
+.priority-pill.pri-high {
+  background: #fff3e0;
+  color: #e65100;
+}
+.priority-pill.pri-critical {
+  background: #fce4ec;
+  color: #c62828;
+}
 
 /* ── Code Badge ──────────────────────────────────────────────────────────── */
 .code-badge {
@@ -94,22 +140,67 @@
   border-radius: 5px;
 }
 
-/* ── Extra status colors ─────────────────────────────────────────────────── */
-.badge-orange { background: #fff3e0; color: #e65100; border: 1px solid #fddcb5; }
-.badge-teal   { background: #e0f7fa; color: #00695c; border: 1px solid #b2ebf2; }
-.badge-purple { background: #f3e8ff; color: #6d28d9; border: 1px solid #ddd6fe; }
-.badge-indigo { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
-.badge-yellow { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
-.badge-pink   { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
-.badge-lime   { background: #f7fee7; color: #3f6212; border: 1px solid #d9f99d; }
-.badge-muted  { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+.due-overdue {
+  color: #c62828;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* ── Status Badge Extensions ─────────────────────────────────────────────── */
+.badge-orange {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #fddcb5;
+}
+.badge-teal {
+  background: #e0f7fa;
+  color: #00695c;
+  border: 1px solid #b2ebf2;
+}
+.badge-purple {
+  background: #f3e8ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+.badge-indigo {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+}
+.badge-yellow {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+.badge-pink {
+  background: #fce7f3;
+  color: #9d174d;
+  border: 1px solid #fbcfe8;
+}
+.badge-lime {
+  background: #f7fee7;
+  color: #3f6212;
+  border: 1px solid #d9f99d;
+}
+.badge-muted {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .audit-kpi-row { padding: 0 12px 12px; }
-  .akpi-card { min-width: calc(50% - 6px); flex: 0 0 calc(50% - 6px); }
+  .audit-kpi-row {
+    padding: 12px;
+  }
+  .akpi-card {
+    min-width: calc(50% - 6px);
+    flex: 0 0 calc(50% - 6px);
+  }
 }
-
 @media (max-width: 480px) {
-  .akpi-card { min-width: 100%; flex: 0 0 100%; }
+  .akpi-card {
+    min-width: 100%;
+    flex: 0 0 100%;
+  }
 }

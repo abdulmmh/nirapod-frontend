@@ -26,11 +26,8 @@ export class PortalAuditDetailComponent implements OnInit {
   docsLoading = false;
   activeTab = 'overview';
 
-  // Per-query response text
   queryResponses: Record<number, string> = {};
   respondingQueryId: number | null = null;
-
-  // Per-docRequest file maps
   selectedFiles: Record<number, File[]> = {};
   uploadDescriptions: Record<number, string> = {};
   uploadingId: number | null = null;
@@ -55,7 +52,6 @@ export class PortalAuditDetailComponent implements OnInit {
       next: (c) => {
         this.auditCase = c;
         this.isLoading = false;
-        // Auto-load demand if issued
         if (c.hasDemandNotice) this.loadDemand();
       },
       error: () => {
@@ -84,6 +80,7 @@ export class PortalAuditDetailComponent implements OnInit {
 
   loadDocRequests(): void {
     this.docsLoading = true;
+    // Use officer endpoint — taxpayer sees same doc requests
     this.auditService.getDocumentRequests(this.caseId).subscribe({
       next: (d) => {
         this.docRequests = d;
@@ -120,13 +117,15 @@ export class PortalAuditDetailComponent implements OnInit {
   }
 
   scrollToRespond(): void {
-    const el = document.getElementById('respond-section');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
     if (this.auditCase!.openQueryCount > 0) this.setTab('queries');
     else this.setTab('documents');
+    setTimeout(() => {
+      const el = document.getElementById('respond-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   }
 
-  // ── Query response ─────────────────────────────────────────────────────────
+  // ── Query Response ─────────────────────────────────────────────────────────
   respondToQuery(queryId: number): void {
     const text = this.queryResponses[queryId];
     if (!text?.trim()) return;
@@ -142,7 +141,7 @@ export class PortalAuditDetailComponent implements OnInit {
             q.status = 'RESPONDED';
           }
           delete this.queryResponses[queryId];
-          this.auditCase && this.auditCase.openQueryCount--;
+          if (this.auditCase) this.auditCase.openQueryCount--;
         },
         error: () => {
           this.respondingQueryId = null;
@@ -150,7 +149,7 @@ export class PortalAuditDetailComponent implements OnInit {
       });
   }
 
-  // ── File upload ────────────────────────────────────────────────────────────
+  // ── File Upload ────────────────────────────────────────────────────────────
   triggerFileInput(drId: number): void {
     const el = document.getElementById(
       'file-input-' + drId,
@@ -161,7 +160,11 @@ export class PortalAuditDetailComponent implements OnInit {
   onFileSelected(event: Event, drId: number): void {
     const input = event.target as HTMLInputElement;
     if (!input.files) return;
-    this.selectedFiles[drId] = Array.from(input.files);
+    // Append to existing — fixes "only last file shows" bug
+    const existing = this.selectedFiles[drId] || [];
+    this.selectedFiles[drId] = [...existing, ...Array.from(input.files)];
+    // Reset input so same file can be selected again
+    input.value = '';
   }
 
   onDragOver(event: DragEvent, drId: number): void {
@@ -173,7 +176,11 @@ export class PortalAuditDetailComponent implements OnInit {
     event.preventDefault();
     this.dragOverId = null;
     if (event.dataTransfer?.files) {
-      this.selectedFiles[drId] = Array.from(event.dataTransfer.files);
+      const existing = this.selectedFiles[drId] || [];
+      this.selectedFiles[drId] = [
+        ...existing,
+        ...Array.from(event.dataTransfer.files),
+      ];
     }
   }
 
@@ -194,7 +201,7 @@ export class PortalAuditDetailComponent implements OnInit {
           if (dr) dr.status = 'FULFILLED';
           delete this.selectedFiles[drId];
           delete this.uploadDescriptions[drId];
-          this.load(); // refresh status
+          this.load();
         },
         error: () => {
           this.uploadingId = null;
@@ -208,33 +215,49 @@ export class PortalAuditDetailComponent implements OnInit {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
+  // ── Download & Navigation ──────────────────────────────────────────────────
+
   downloadAssessment(): void {
-    window.open(
-      `/api/my-portal/audits/${this.caseId}/assessment/pdf`,
-      '_blank',
-    );
+    // Print current page as PDF — no backend PDF endpoint needed
+    const prevTab = this.activeTab;
+    this.activeTab = 'assessment';
+    setTimeout(() => {
+      window.print();
+      this.activeTab = prevTab;
+    }, 300);
   }
 
   downloadDemand(): void {
-    window.open(
-      `/api/my-portal/audits/${this.caseId}/demand-notice/pdf`,
-      '_blank',
-    );
+    const prevTab = this.activeTab;
+    this.activeTab = 'demand';
+    setTimeout(() => {
+      window.print();
+      this.activeTab = prevTab;
+    }, 300);
   }
 
   goToPay(): void {
-    this.router.navigate(['/payments/new'], {
-      queryParams: { source: 'DEMAND', refId: this.demandNotice?.id },
+    // Navigate to payments module with demand context
+    // Change route below to match your actual payments module route
+    this.router.navigate(['/my-portal/payments/new'], {
+      queryParams: {
+        source: 'DEMAND',
+        refId: this.demandNotice?.id,
+        demandNo: this.demandNotice?.demandNo,
+        amount: this.demandNotice?.amountDue,
+      },
     });
   }
 
   goToAppeal(): void {
+    // Navigate to appeals module with audit context
+    // Change route below to match your actual appeals module route
     this.router.navigate(['/my-portal/appeals/new'], {
-      queryParams: { 
+      queryParams: {
         auditCaseId: this.caseId,
         assessmentNo: this.assessment?.assessmentNo,
-        demandNo: this.demandNotice?.demandNo
-      }
+        caseNo: this.auditCase?.caseNo,
+      },
     });
   }
 
@@ -281,32 +304,29 @@ export class PortalAuditDetailComponent implements OnInit {
   }
 
   getTaxTypeLabel(t: string): string {
-    const m: Record<string, string> = {
-      INCOME_TAX: 'Income Tax',
-      VAT: 'VAT',
-      AIT: 'AIT',
-    };
-    return m[t] ?? t;
+    return { INCOME_TAX: 'Income Tax', VAT: 'VAT', AIT: 'AIT' }[t] ?? t;
   }
 
   getDocStatusClass(s: string): string {
-    const m: Record<string, string> = {
-      PENDING: 'badge-warning',
-      FULFILLED: 'badge-success',
-      PARTIALLY_FULFILLED: 'badge-lime',
-      OVERDUE: 'badge-danger',
-    };
-    return m[s] ?? 'badge-secondary';
+    return (
+      {
+        PENDING: 'badge-warning',
+        FULFILLED: 'badge-success',
+        PARTIALLY_FULFILLED: 'badge-lime',
+        OVERDUE: 'badge-danger',
+      }[s] ?? 'badge-secondary'
+    );
   }
 
   getDemandStatusClass(s: string): string {
-    const m: Record<string, string> = {
-      ISSUED: 'badge-danger',
-      PARTIALLY_PAID: 'badge-orange',
-      PAID: 'badge-success',
-      APPEALED: 'badge-pink',
-      CANCELLED: 'badge-muted',
-    };
-    return m[s] ?? 'badge-secondary';
+    return (
+      {
+        ISSUED: 'badge-danger',
+        PARTIALLY_PAID: 'badge-orange',
+        PAID: 'badge-success',
+        APPEALED: 'badge-pink',
+        CANCELLED: 'badge-muted',
+      }[s] ?? 'badge-secondary'
+    );
   }
 }
