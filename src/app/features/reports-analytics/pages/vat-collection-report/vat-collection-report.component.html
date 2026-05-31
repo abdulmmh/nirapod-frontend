@@ -1,0 +1,160 @@
+<!-- ─── Page Header ─────────────────────────────────────── -->
+<div class="page-header">
+  <div class="page-header-left">
+    <span class="report-back-link" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Reports & Analytics
+    </span>
+    <h4>VAT Collection Report</h4>
+    <p>Monthly VAT collection summary — FY {{ fiscalYear }}
+      <span *ngIf="zone"> · Zone: {{ zone }}</span>
+    </p>
+  </div>
+  <div class="page-header-right">
+    <button class="btn-export-csv" (click)="exportCsv()">
+      <i class="bi bi-filetype-csv"></i> Export CSV
+    </button>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Summary Strip -->
+  <div class="report-summary-strip">
+    <div class="rss-item">
+      <span class="rss-label">Total Records</span>
+      <span class="rss-value">{{ totalElements | number }}</span>
+    </div>
+    <div class="rss-item">
+      <span class="rss-label">Fiscal Year</span>
+      <span class="rss-value">{{ fiscalYear }}</span>
+    </div>
+  </div>
+
+  <!-- Search & Status Filter -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by BIN, business name, status..."
+          [(ngModel)]="searchTerm" />
+      </div>
+    </div>
+  </div>
+
+  <div class="status-filter-row">
+    <button *ngFor="let f of statusFilters" class="filter-pill"
+      [class.active]="activeStatus === f.value" (click)="filterByStatus(f.value)">
+      {{ f.label }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading VAT collection data...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>BIN No</th>
+          <th>Business Name</th>
+          <th>Zone</th>
+          <th>Circle</th>
+          <th>Period</th>
+          <th class="text-end">Gross Supplies</th>
+          <th class="text-end">Output Tax</th>
+          <th class="text-end">Input Tax</th>
+          <th class="text-end">Net VAT</th>
+          <th>Status</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRows; let i = index">
+          <td>{{ page * size + i + 1 }}</td>
+          <td><span class="ref-code">{{ r.binNo }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ r.businessName.charAt(0) || 'B' }}</div>
+              <div>
+                <span class="td-title">{{ r.businessName }}</span>
+                <span class="td-sub">{{ r.taxpayerName }}</span>
+              </div>
+            </div>
+          </td>
+          <td>{{ r.zone || '—' }}</td>
+          <td>{{ r.circle || '—' }}</td>
+          <td>{{ r.period }}</td>
+          <td class="amount-cell amount-neutral">{{ formatAmount(r.grossSales) }}</td>
+          <td class="amount-cell amount-neutral">{{ formatAmount(r.outputVat) }}</td>
+          <td class="amount-cell amount-positive">{{ formatAmount(r.inputVatCredit) }}</td>
+          <td class="amount-cell amount-negative">{{ formatAmount(r.netVat) }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ r.status }}
+            </span>
+          </td>
+          <td>{{ r.submittedAt || '—' }}</td>
+        </tr>
+
+        <tr *ngIf="filteredRows.length === 0">
+          <td colspan="12">
+            <div class="empty-state">
+              <i class="bi bi-receipt-cutoff"></i>
+              <p>No VAT collection records found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && totalElements > 0">
+    <span class="pagination-info">
+      Showing {{ pageRange[0] }}–{{ pageRange[1] }} of {{ totalElements | number }} records
+    </span>
+    <div class="pagination-btns">
+      <button class="btn-page" (click)="prevPage()" [disabled]="page === 0">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <button class="btn-page active">{{ page + 1 }}</button>
+      <button class="btn-page" (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filteredRows">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ r.businessName.charAt(0) || 'B' }}</div>
+          <div>
+            <div class="mobile-name">{{ r.businessName }}</div>
+            <div class="mobile-sub">{{ r.binNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Period</label><span>{{ r.period }}</span></div>
+        <div class="mobile-field"><label>Zone</label><span>{{ r.zone || '—' }}</span></div>
+        <div class="mobile-field"><label>Net VAT</label>
+          <span class="amount-cell amount-negative">{{ formatAmount(r.netVat) }}</span>
+        </div>
+        <div class="mobile-field"><label>Submitted</label><span>{{ r.submittedAt || '—' }}</span></div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filteredRows.length === 0 && !isLoading">
+      <i class="bi bi-receipt-cutoff"></i>
+      <p>No records found.</p>
+    </div>
+  </div>
+
+</div>

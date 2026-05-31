@@ -1,0 +1,162 @@
+<!-- ─── Page Header ─────────────────────────────────────── -->
+<div class="page-header">
+  <div class="page-header-left">
+    <span class="report-back-link" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Reports & Analytics
+    </span>
+    <h4>Refund Status Report</h4>
+    <p>Pending and completed refund claims analysis — FY {{ fiscalYear }}</p>
+  </div>
+  <div class="page-header-right">
+    <button class="btn-export-csv" (click)="exportCsv()">
+      <i class="bi bi-filetype-csv"></i> Export CSV
+    </button>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Summary Strip -->
+  <div class="report-summary-strip">
+    <div class="rss-item">
+      <span class="rss-label">Total Claims</span>
+      <span class="rss-value">{{ totalElements | number }}</span>
+    </div>
+    <div class="rss-item">
+      <span class="rss-label">Fiscal Year</span>
+      <span class="rss-value">{{ fiscalYear }}</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text"
+          placeholder="Search by ref no, taxpayer, TIN..."
+          [(ngModel)]="searchTerm" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Filter Pills -->
+  <div class="status-filter-row">
+    <button *ngFor="let f of statusFilters" class="filter-pill"
+      [class.active]="activeStatus === f.value"
+      (click)="filterByStatus(f.value)">{{ f.label }}</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading refund data...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Reference No</th>
+          <th>Taxpayer</th>
+          <th>Type</th>
+          <th class="text-end">Claimed</th>
+          <th class="text-end">Approved</th>
+          <th class="text-end">Paid</th>
+          <th>Risk Level</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Processed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRows; let i = index">
+          <td>{{ page * size + i + 1 }}</td>
+          <td><span class="ref-code">{{ r.refundRefNo }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ r.taxpayerName.charAt(0) || 'T' }}</div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName }}</span>
+                <span class="td-sub">{{ r.tinNumber }}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="type-badge">{{ r.refundType }}</span></td>
+          <td class="amount-cell amount-neutral">{{ formatAmount(r.claimedAmount) }}</td>
+          <td class="amount-cell amount-positive">{{ formatAmount(r.approvedAmount) }}</td>
+          <td class="amount-cell tax-paid-cell">{{ formatAmount(r.paidAmount) }}</td>
+          <td>
+            <span class="sev-badge"
+              [ngClass]="r.riskLevel === 'HIGH' ? 'sev-high' :
+                         r.riskLevel === 'MEDIUM' ? 'sev-medium' : 'sev-low'">
+              {{ r.riskLevel || 'LOW' }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ r.status }}
+            </span>
+          </td>
+          <td>{{ r.submittedAt || '—' }}</td>
+          <td>{{ r.processedAt || '—' }}</td>
+        </tr>
+
+        <tr *ngIf="filteredRows.length === 0">
+          <td colspan="11">
+            <div class="empty-state">
+              <i class="bi bi-arrow-return-left"></i>
+              <p>No refund records found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && totalElements > 0">
+    <span class="pagination-info">
+      Showing {{ pageRange[0] }}–{{ pageRange[1] }} of {{ totalElements | number }} records
+    </span>
+    <div class="pagination-btns">
+      <button class="btn-page" (click)="prevPage()" [disabled]="page === 0">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <button class="btn-page active">{{ page + 1 }}</button>
+      <button class="btn-page" (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filteredRows">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ r.taxpayerName.charAt(0) || 'T' }}</div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName }}</div>
+            <div class="mobile-sub">{{ r.refundRefNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>TIN</label><span>{{ r.tinNumber }}</span></div>
+        <div class="mobile-field"><label>Claimed</label>
+          <span class="amount-cell amount-neutral">{{ formatAmount(r.claimedAmount) }}</span></div>
+        <div class="mobile-field"><label>Approved</label>
+          <span class="amount-cell amount-positive">{{ formatAmount(r.approvedAmount) }}</span></div>
+        <div class="mobile-field"><label>Submitted</label><span>{{ r.submittedAt || '—' }}</span></div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filteredRows.length === 0 && !isLoading">
+      <i class="bi bi-arrow-return-left"></i><p>No records found.</p>
+    </div>
+  </div>
+
+</div>

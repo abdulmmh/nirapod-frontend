@@ -1,0 +1,169 @@
+<!-- ─── Page Header ─────────────────────────────────────── -->
+<div class="page-header">
+  <div class="page-header-left">
+    <span class="report-back-link" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Reports & Analytics
+    </span>
+    <h4>Penalty Collection Report</h4>
+    <p>Penalty and fine collections — FY {{ fiscalYear }}</p>
+  </div>
+  <div class="page-header-right">
+    <button class="btn-export-csv" (click)="exportCsv()">
+      <i class="bi bi-filetype-csv"></i> Export CSV
+    </button>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Summary Strip -->
+  <div class="report-summary-strip">
+    <div class="rss-item">
+      <span class="rss-label">Total Penalties</span>
+      <span class="rss-value">{{ totalElements | number }}</span>
+    </div>
+    <div class="rss-item">
+      <span class="rss-label">Fiscal Year</span>
+      <span class="rss-value">{{ fiscalYear }}</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text"
+          placeholder="Search by penalty no, taxpayer, TIN..."
+          [(ngModel)]="searchTerm" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Status + Severity Filter Pills -->
+  <div class="status-filter-row">
+    <button *ngFor="let f of statusFilters" class="filter-pill"
+      [class.active]="activeStatus === f.value"
+      (click)="filterByStatus(f.value)">{{ f.label }}</button>
+    <span style="width:1px;background:#e0e8f0;margin:0 6px"></span>
+    <button *ngFor="let s of severityFilters" class="filter-pill"
+      [class.active]="activeSeverity === s.value"
+      (click)="filterBySeverity(s.value)">{{ s.label }}</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading penalty data...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Penalty No</th>
+          <th>Taxpayer</th>
+          <th>Type</th>
+          <th>Severity</th>
+          <th class="text-end">Base Amount</th>
+          <th class="text-end">Interest</th>
+          <th class="text-end">Total</th>
+          <th>Status</th>
+          <th>Issued At</th>
+          <th>Paid At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRows; let i = index">
+          <td>{{ page * size + i + 1 }}</td>
+          <td><span class="ref-code">{{ r.penaltyRefNo }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ r.taxpayerName.charAt(0) || 'T' }}</div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName }}</span>
+                <span class="td-sub">{{ r.tinNumber }}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="type-badge">{{ r.penaltyType }}</span></td>
+          <td>
+            <span class="sev-badge" [ngClass]="getSeverityClass(r.severity)">
+              <i class="bi bi-exclamation-triangle-fill"></i> {{ r.severity }}
+            </span>
+          </td>
+          <td class="amount-cell amount-neutral">{{ formatAmount(r.baseAmount) }}</td>
+          <td class="amount-cell amount-negative">{{ formatAmount(r.penaltyAmount) }}</td>
+          <td class="amount-cell amount-negative" style="font-weight:800">
+            {{ formatAmount(r.totalAmount) }}
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ r.status }}
+            </span>
+          </td>
+          <td>{{ r.issuedAt || '—' }}</td>
+          <td>{{ r.paidAt || '—' }}</td>
+        </tr>
+
+        <tr *ngIf="filteredRows.length === 0">
+          <td colspan="11">
+            <div class="empty-state">
+              <i class="bi bi-exclamation-triangle"></i>
+              <p>No penalty records found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && totalElements > 0">
+    <span class="pagination-info">
+      Showing {{ pageRange[0] }}–{{ pageRange[1] }} of {{ totalElements | number }} records
+    </span>
+    <div class="pagination-btns">
+      <button class="btn-page" (click)="prevPage()" [disabled]="page === 0">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <button class="btn-page active">{{ page + 1 }}</button>
+      <button class="btn-page" (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filteredRows">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ r.taxpayerName.charAt(0) || 'T' }}</div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName }}</div>
+            <div class="mobile-sub">{{ r.penaltyRefNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>TIN</label><span>{{ r.tinNumber }}</span></div>
+        <div class="mobile-field"><label>Type</label>
+          <span class="type-badge">{{ r.penaltyType }}</span></div>
+        <div class="mobile-field"><label>Severity</label>
+          <span class="sev-badge" [ngClass]="getSeverityClass(r.severity)">{{ r.severity }}</span>
+        </div>
+        <div class="mobile-field"><label>Total</label>
+          <span class="amount-cell amount-negative">{{ formatAmount(r.totalAmount) }}</span></div>
+        <div class="mobile-field"><label>Issued</label><span>{{ r.issuedAt || '—' }}</span></div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filteredRows.length === 0 && !isLoading">
+      <i class="bi bi-exclamation-triangle"></i><p>No records found.</p>
+    </div>
+  </div>
+
+</div>

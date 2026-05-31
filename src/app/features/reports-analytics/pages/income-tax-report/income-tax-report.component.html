@@ -1,0 +1,164 @@
+<!-- ─── Page Header ─────────────────────────────────────── -->
+<div class="page-header">
+  <div class="page-header-left">
+    <span class="report-back-link" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Reports & Analytics
+    </span>
+    <h4>Income Tax Returns Report</h4>
+    <p>ITR filing status and tax collection analysis — FY {{ fiscalYear }}</p>
+  </div>
+  <div class="page-header-right">
+    <button class="btn-export-csv" (click)="exportCsv()">
+      <i class="bi bi-filetype-csv"></i> Export CSV
+    </button>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Summary Strip -->
+  <div class="report-summary-strip">
+    <div class="rss-item">
+      <span class="rss-label">Total Returns</span>
+      <span class="rss-value">{{ totalElements | number }}</span>
+    </div>
+    <div class="rss-item">
+      <span class="rss-label">Fiscal Year</span>
+      <span class="rss-value">{{ fiscalYear }}</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by TIN, taxpayer name..."
+          [(ngModel)]="searchTerm" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Filter Pills -->
+  <div class="status-filter-row">
+    <button *ngFor="let f of statusFilters" class="filter-pill"
+      [class.active]="activeStatus === f.value" (click)="filterByStatus(f.value)">
+      {{ f.label }}
+    </button>
+    <span style="width:1px;background:#e0e8f0;margin:0 6px"></span>
+    <button *ngFor="let t of typeFilters" class="filter-pill"
+      [class.active]="activeTaxpayerType === t.value" (click)="filterByType(t.value)">
+      {{ t.label }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading income tax data...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>TIN Number</th>
+          <th>Taxpayer</th>
+          <th>Category</th>
+          <th>Assessment Year</th>
+          <th class="text-end">Gross Income</th>
+          <th class="text-end">Taxable Income</th>
+          <th class="text-end">Tax Payable</th>
+          <th class="text-end">Tax Paid</th>
+          <th class="text-end">Tax Due</th>
+          <th>Status</th>
+          <th>Filed At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRows; let i = index">
+          <td>{{ page * size + i + 1 }}</td>
+          <td><span class="ref-code">{{ r.tinNumber }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ r.taxpayerName.charAt(0) || 'T' }}</div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName }}</span>
+                <span class="td-sub">{{ r.taxpayerType }}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="type-badge">{{ r.taxpayerType }}</span></td>
+          <td>{{ r.assessmentYear }}</td>
+          <td class="amount-cell amount-neutral">{{ formatAmount(r.grossIncome) }}</td>
+          <td class="amount-cell amount-neutral">{{ formatAmount(r.taxableIncome) }}</td>
+          <td class="amount-cell amount-negative">{{ formatAmount(r.taxPayable) }}</td>
+          <td class="amount-cell tax-paid-cell">{{ formatAmount(r.taxPaid) }}</td>
+          <td class="amount-cell" [ngClass]="r.taxDue > 0 ? 'tax-due-cell' : 'tax-paid-cell'">
+            {{ formatAmount(r.taxDue) }}
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+          </td>
+          <td>{{ r.filedAt || '—' }}</td>
+        </tr>
+
+        <tr *ngIf="filteredRows.length === 0">
+          <td colspan="12">
+            <div class="empty-state">
+              <i class="bi bi-file-earmark-text"></i>
+              <p>No income tax returns found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && totalElements > 0">
+    <span class="pagination-info">
+      Showing {{ pageRange[0] }}–{{ pageRange[1] }} of {{ totalElements | number }} records
+    </span>
+    <div class="pagination-btns">
+      <button class="btn-page" (click)="prevPage()" [disabled]="page === 0">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <button class="btn-page active">{{ page + 1 }}</button>
+      <button class="btn-page" (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filteredRows">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ r.taxpayerName.charAt(0) || 'T' }}</div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName }}</div>
+            <div class="mobile-sub">{{ r.tinNumber }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Assessment Year</label><span>{{ r.assessmentYear }}</span></div>
+        <div class="mobile-field"><label>Tax Payable</label>
+          <span class="amount-cell amount-negative">{{ formatAmount(r.taxPayable) }}</span></div>
+        <div class="mobile-field"><label>Tax Due</label>
+          <span class="amount-cell" [ngClass]="r.taxDue > 0 ? 'tax-due-cell' : 'tax-paid-cell'">
+            {{ formatAmount(r.taxDue) }}</span></div>
+        <div class="mobile-field"><label>Filed At</label><span>{{ r.filedAt || '—' }}</span></div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filteredRows.length === 0 && !isLoading">
+      <i class="bi bi-file-earmark-text"></i><p>No records found.</p>
+    </div>
+  </div>
+
+</div>

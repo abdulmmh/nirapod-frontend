@@ -1,0 +1,154 @@
+<!-- ─── Page Header ─────────────────────────────────────── -->
+<div class="page-header">
+  <div class="page-header-left">
+    <span class="report-back-link" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Reports & Analytics
+    </span>
+    <h4>AIT Deduction Report</h4>
+    <p>Advance income tax deductions by source type — FY {{ fiscalYear }}</p>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Summary Strip -->
+  <div class="report-summary-strip">
+    <div class="rss-item">
+      <span class="rss-label">Total Records</span>
+      <span class="rss-value">{{ totalElements | number }}</span>
+    </div>
+    <div class="rss-item">
+      <span class="rss-label">Fiscal Year</span>
+      <span class="rss-value">{{ fiscalYear }}</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text"
+          placeholder="Search by AIT ref, taxpayer, source type..."
+          [(ngModel)]="searchTerm" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Filter Pills -->
+  <div class="status-filter-row">
+    <button *ngFor="let f of statusFilters" class="filter-pill"
+      [class.active]="activeStatus === f.value"
+      (click)="filterByStatus(f.value)">{{ f.label }}</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading AIT data...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>AIT Reference No</th>
+          <th>Taxpayer</th>
+          <th>Source Type</th>
+          <th class="text-end">Calculated Amount</th>
+          <th class="text-end">Approved Amount</th>
+          <th>Status</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRows; let i = index">
+          <td>{{ page * size + i + 1 }}</td>
+          <td><span class="ref-code">{{ r.aitReferenceNo }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">
+                {{ (r.taxpayerName || r.taxpayer?.fullName || 'T').charAt(0) }}
+              </div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName || r.taxpayer?.fullName || '—' }}</span>
+                <span class="td-sub">{{ r.tinNumber || r.taxpayer?.tinNumber || '—' }}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="type-badge">{{ r.sourceType }}</span></td>
+          <td class="amount-cell amount-neutral">
+            {{ formatAmount(r.calculatedAitAmount) }}
+          </td>
+          <td class="amount-cell tax-paid-cell">
+            {{ formatAmount(r.approvedAitAmount || r.calculatedAitAmount) }}
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ r.status }}
+            </span>
+          </td>
+          <td>{{ r.createdAt | date:'dd MMM yyyy' }}</td>
+        </tr>
+
+        <tr *ngIf="filteredRows.length === 0">
+          <td colspan="8">
+            <div class="empty-state">
+              <i class="bi bi-percent"></i>
+              <p>No AIT records found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && totalElements > 0">
+    <span class="pagination-info">
+      Showing {{ pageRange[0] }}–{{ pageRange[1] }} of {{ totalElements | number }} records
+    </span>
+    <div class="pagination-btns">
+      <button class="btn-page" (click)="prevPage()" [disabled]="page === 0">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <button class="btn-page active">{{ page + 1 }}</button>
+      <button class="btn-page" (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filteredRows">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">
+            {{ (r.taxpayerName || r.taxpayer?.fullName || 'T').charAt(0) }}
+          </div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName || r.taxpayer?.fullName || '—' }}</div>
+            <div class="mobile-sub">{{ r.aitReferenceNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Source</label>
+          <span class="type-badge">{{ r.sourceType }}</span></div>
+        <div class="mobile-field"><label>Calculated</label>
+          <span class="amount-cell amount-neutral">{{ formatAmount(r.calculatedAitAmount) }}</span></div>
+        <div class="mobile-field"><label>Approved</label>
+          <span class="amount-cell tax-paid-cell">
+            {{ formatAmount(r.approvedAitAmount || r.calculatedAitAmount) }}</span></div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filteredRows.length === 0 && !isLoading">
+      <i class="bi bi-percent"></i><p>No records found.</p>
+    </div>
+  </div>
+
+</div>

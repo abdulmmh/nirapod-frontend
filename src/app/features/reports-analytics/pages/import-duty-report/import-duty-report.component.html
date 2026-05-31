@@ -1,0 +1,165 @@
+<!-- ─── Page Header ─────────────────────────────────────── -->
+<div class="page-header">
+  <div class="page-header-left">
+    <span class="report-back-link" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Reports & Analytics
+    </span>
+    <h4>Import Duty Report</h4>
+    <p>Import duty assessments and clearances — FY {{ fiscalYear }}</p>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Summary Strip -->
+  <div class="report-summary-strip">
+    <div class="rss-item">
+      <span class="rss-label">Total Records</span>
+      <span class="rss-value">{{ totalElements | number }}</span>
+    </div>
+    <div class="rss-item">
+      <span class="rss-label">Fiscal Year</span>
+      <span class="rss-value">{{ fiscalYear }}</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text"
+          placeholder="Search by ref no, importer, port..."
+          [(ngModel)]="searchTerm" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Filter Pills -->
+  <div class="status-filter-row">
+    <button *ngFor="let f of statusFilters" class="filter-pill"
+      [class.active]="activeStatus === f.value"
+      (click)="filterByStatus(f.value)">{{ f.label }}</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading import duty data...</span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Reference No</th>
+          <th>Importer</th>
+          <th>Port of Entry</th>
+          <th>Commodity</th>
+          <th class="text-end">Declared Value</th>
+          <th class="text-end">Duty Amount</th>
+          <th class="text-end">VAT Amount</th>
+          <th class="text-end">Total Payable</th>
+          <th>Status</th>
+          <th>Import Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRows; let i = index">
+          <td>{{ page * size + i + 1 }}</td>
+          <td><span class="ref-code">{{ r.referenceNo || r.id }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">
+                {{ (r.importerName || 'I').charAt(0) }}
+              </div>
+              <div>
+                <span class="td-title">{{ r.importerName || '—' }}</span>
+                <span class="td-sub">{{ r.importerTin || r.tinNumber || '—' }}</span>
+              </div>
+            </div>
+          </td>
+          <td>{{ r.portOfEntry || r.port || '—' }}</td>
+          <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+            [title]="r.commodityDescription || r.description || ''">
+            {{ r.commodityDescription || r.description || '—' }}
+          </td>
+          <td class="amount-cell amount-neutral">
+            {{ formatAmount(r.declaredValue || r.cif) }}
+          </td>
+          <td class="amount-cell amount-negative">
+            {{ formatAmount(r.dutyAmount || r.customsDuty) }}
+          </td>
+          <td class="amount-cell amount-negative">
+            {{ formatAmount(r.vatAmount || r.importVat) }}
+          </td>
+          <td class="amount-cell amount-negative" style="font-weight:800">
+            {{ formatAmount(r.totalPayable || r.totalTax) }}
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ r.status }}
+            </span>
+          </td>
+          <td>{{ (r.importDate || r.createdAt) | date:'dd MMM yyyy' }}</td>
+        </tr>
+
+        <tr *ngIf="filteredRows.length === 0">
+          <td colspan="11">
+            <div class="empty-state">
+              <i class="bi bi-truck-front"></i>
+              <p>No import duty records found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && totalElements > 0">
+    <span class="pagination-info">
+      Showing {{ pageRange[0] }}–{{ pageRange[1] }} of {{ totalElements | number }} records
+    </span>
+    <div class="pagination-btns">
+      <button class="btn-page" (click)="prevPage()" [disabled]="page === 0">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <button class="btn-page active">{{ page + 1 }}</button>
+      <button class="btn-page" (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let r of filteredRows">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">{{ (r.importerName || 'I').charAt(0) }}</div>
+          <div>
+            <div class="mobile-name">{{ r.importerName || '—' }}</div>
+            <div class="mobile-sub">{{ r.referenceNo || r.id }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Port</label><span>{{ r.portOfEntry || '—' }}</span></div>
+        <div class="mobile-field"><label>Duty</label>
+          <span class="amount-cell amount-negative">
+            {{ formatAmount(r.dutyAmount || r.customsDuty) }}</span></div>
+        <div class="mobile-field"><label>Total</label>
+          <span class="amount-cell amount-negative" style="font-weight:800">
+            {{ formatAmount(r.totalPayable || r.totalTax) }}</span></div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="filteredRows.length === 0 && !isLoading">
+      <i class="bi bi-truck-front"></i><p>No records found.</p>
+    </div>
+  </div>
+
+</div>

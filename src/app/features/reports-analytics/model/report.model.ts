@@ -82,6 +82,8 @@ export interface VatCollectionRow {
   circle: string;
   period: string;
   grossSales: number;
+  outputVat: number;        
+  inputVatCredit: number; 
   netVat: number;
   status: string;
   submittedAt: string;
@@ -94,8 +96,10 @@ export interface IncomeTaxRow {
   taxpayerType: string;
   assessmentYear: string;
   grossIncome: number;
+  taxableIncome: number;
   taxPayable: number;
   taxPaid: number;
+  taxDue: number;
   status: string;
   filedAt: string;
 }
@@ -112,6 +116,7 @@ export interface PenaltyReportRow {
   totalAmount: number;
   status: string;
   issuedAt: string;
+  paidAt: string;
 }
 
 export interface RefundReportRow {
@@ -122,6 +127,10 @@ export interface RefundReportRow {
   refundType: string;
   claimedAmount: number;
   approvedAmount: number;
+  paidAmount: number; 
   status: string;
   submittedAt: string;
+  processedAt: string;      
+  riskLevel: string;        
+  fiscalYearName: string;
 }
