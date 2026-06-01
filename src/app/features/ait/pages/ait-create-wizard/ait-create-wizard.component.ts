@@ -56,6 +56,14 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   isEditMode = false;
   editRecordId: number | null = null;
 
+  private readonly AIT_DEFAULT_RATES: Record<AitSourceType, number> = {
+    IMPORT:     5,
+    SUPPLIER:   3,
+    SALARY:     10,
+    CONTRACTOR: 7,
+    RENT:       5,
+  };
+
   sourceTypes: SourceTypeOption[] = [
     { value: 'IMPORT', label: 'Import Duty', icon: 'bi-box-seam' },
     { value: 'SUPPLIER', label: 'Supplier Payment', icon: 'bi-truck' },
@@ -84,7 +92,7 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
       this.loadForEdit(this.editRecordId);
     }
 
-    this.isTaxpayerRole = this.auth.hasRole(Role.TAXPAYER);
+    this.isTaxpayerRole = this.auth.currentUser?.role === Role.TAXPAYER;
     this.buildForms();
 
     if (this.isTaxpayerRole) {
@@ -194,6 +202,11 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
     const term = this.searchControl.value?.trim();
     if (!term) return;
     
+    if (this.isAutoFilled) {
+      this.searchControl.disable();
+    } else {
+      this.searchControl.enable();
+    }
 
     this.isSearching = true;
     this.aitService
@@ -227,6 +240,7 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   clearSelectedTaxpayer(): void {
     this.step1Form.reset();
     this.searchControl.setValue('');
+    this.searchControl.enable(); 
     this.isAutoFilled = false;
     this.searchResults = [];
   }
@@ -241,6 +255,7 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
         taxpayerType: user.taxpayerType ?? '',
       });
       this.isAutoFilled = true;
+      this.searchControl.disable();
     }
     console.log(user?.taxpayerType);
   }
@@ -248,8 +263,12 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   // ── Source type ────────────────────────────────────────────────────────────
 
   selectSourceType(src: AitSourceType): void {
-    this.step2Form.patchValue({ sourceType: src });
+    this.step2Form.patchValue({ 
+      sourceType: src ,
+      aitRate: this.AIT_DEFAULT_RATES[src]
+    });
     this.updateConditionalValidators(src);
+    this.recalculate();
   }
 
   // ── Calculation ────────────────────────────────────────────────────────────

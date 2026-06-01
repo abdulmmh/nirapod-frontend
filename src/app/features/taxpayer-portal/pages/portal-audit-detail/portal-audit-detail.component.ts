@@ -237,14 +237,12 @@ export class PortalAuditDetailComponent implements OnInit {
   }
 
   goToPay(): void {
-    // Navigate to payments module with demand context
-    // Change route below to match your actual payments module route
-    this.router.navigate(['/my-portal/payments/new'], {
+    this.router.navigate(['/my-portal/payments/create'], {
       queryParams: {
-        source: 'DEMAND',
-        refId: this.demandNotice?.id,
+        source:   'DEMAND',
+        refId:    this.demandNotice?.id,
         demandNo: this.demandNotice?.demandNo,
-        amount: this.demandNotice?.amountDue,
+        amount:   this.demandNotice?.amountDue,
       },
     });
   }

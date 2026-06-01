@@ -69,7 +69,7 @@
           <div class="search-field-wrap">
             <i class="bi bi-upc-scan search-icon"></i>
             <input type="text" class="search-input" placeholder="Enter TIN, NID or taxpayer name…"
-              [formControl]="searchControl" (keyup.enter)="searchTaxpayer()" [disabled]="isAutoFilled" />
+              [formControl]="searchControl" (keyup.enter)="searchTaxpayer()"/>
             <button class="clear-btn" *ngIf="isAutoFilled" (click)="clearSelectedTaxpayer()">
               <i class="bi bi-x-lg"></i>
             </button>

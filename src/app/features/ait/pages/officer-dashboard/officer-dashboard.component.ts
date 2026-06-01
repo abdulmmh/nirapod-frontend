@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AitService } from '../../services/ait.service';
 import { AitRecord, AitStatus } from '../../models/ait.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { forkJoin, takeUntil, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-officer-dashboard',
@@ -14,6 +15,8 @@ export class OfficerDashboardComponent implements OnInit {
 
   allRecords: AitRecord[] = [];
   filteredRecords: AitRecord[] = [];
+
+  private destroy$ = new Subject<void>();
 
   kpis = {
     myQueue: 0,
@@ -59,6 +62,13 @@ export class OfficerDashboardComponent implements OnInit {
     this.loadQueueData();
   }
 
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  
   get officerName(): string {
     return this.authService.currentUser?.fullName ?? 'Officer';
   }
@@ -78,19 +88,32 @@ export class OfficerDashboardComponent implements OnInit {
     this.isLoading = true;
     this.loadError = null;
 
-    this.aitService.getMyQueue().subscribe({
-      next: (records) => {
-        this.allRecords = records;
-        this.calculateKPIs();
-        this.applyFilters();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load queue:', err);
-        this.loadError = 'Failed to load queue data. Please try again.';
-        this.isLoading = false;
-      },
-    });
+    // দুটো API call একসাথে — pending queue + my assigned queue
+    forkJoin({
+      pending:    this.aitService.getPendingQueue(),
+      myQueue:    this.aitService.getMyQueue(),
+    }).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ pending, myQueue }) => {
+          // Merge করো, duplicate সরাও
+          const allIds = new Set<number>();
+          const merged: AitRecord[] = [];
+          [...pending, ...myQueue].forEach(r => {
+            if (r.id && !allIds.has(r.id)) {
+              allIds.add(r.id);
+              merged.push(r);
+            }
+          });
+          this.allRecords = merged;
+          this.calculateKPIs();
+          this.applyFilters();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.loadError = 'Failed to load queue data. Please try again.';
+          this.isLoading = false;
+        },
+      });
   }
 
   calculateKPIs(): void {
@@ -150,6 +173,16 @@ export class OfficerDashboardComponent implements OnInit {
       const toDate = new Date(this.dateFilterTo);
       toDate.setHours(23, 59, 59, 999);
       filtered = filtered.filter((r) => new Date(r.createdAt || '') <= toDate);
+    }
+
+    // SLA filter
+    if (this.slaFilter === 'overdue') {
+      filtered = filtered.filter(r => this.getSlaHours(r) < 0);
+    } else if (this.slaFilter === 'at_risk') {
+      filtered = filtered.filter(r => {
+        const h = this.getSlaHours(r);
+        return h >= 0 && h < 12;
+      });
     }
 
     filtered.sort((a, b) => {
@@ -265,6 +298,57 @@ export class OfficerDashboardComponent implements OnInit {
     return `${hrs} hrs`;
   }
 
+  //
+
+  getSourceLabel(source: string): string {
+    const map: Record<string, string> = {
+      IMPORT:     'Import Duty',
+      SUPPLIER:   'Supplier Payment',
+      SALARY:     'Salary Deduction',
+      CONTRACTOR: 'Contractor Payment',
+      RENT:       'Rent Payment',
+    };
+    return map[source] ?? source;
+  }
+
+  getSourceClass(source: string): string {
+    const map: Record<string, string> = {
+      IMPORT:     'cat-import',
+      SUPPLIER:   'cat-supplier',
+      SALARY:     'cat-salary',
+      CONTRACTOR: 'cat-contractor',
+      RENT:       'cat-rent',
+    };
+    return map[source] ?? '';
+  }
+
+  getSourceIcon(source: string): string {
+    const map: Record<string, string> = {
+      IMPORT:     'bi-box-seam',
+      SUPPLIER:   'bi-truck',
+      SALARY:     'bi-person-badge',
+      CONTRACTOR: 'bi-tools',
+      RENT:       'bi-building',
+    };
+    return map[source] ?? 'bi-receipt';
+  }
+
+  getStatusClass(status: AitStatus): string {
+    const map: Record<AitStatus, string> = {
+      DRAFT:        'status-draft',
+      SUBMITTED:    'status-submitted',
+      PENDING:      'status-pending',
+      PAID:         'status-pending',
+      UNDER_REVIEW: 'status-review',
+      APPROVED:     'status-approved',
+      REJECTED:     'status-rejected',
+      CREDITED:     'status-credited',
+      CANCELLED:    'status-cancelled',
+    };
+    return map[status] ?? 'status-draft';
+  }
+  
+
   // ── Actions ───────────────────────────────────────────
   reviewRecord(aitId: number): void {
     this.router.navigate(['/ait/review', aitId]);
@@ -316,5 +400,44 @@ export class OfficerDashboardComponent implements OnInit {
       month: 'short',
       year: 'numeric',
     });
+  }
+
+  // ── Count by status (tabs-এ দরকার) ───────────────────────────────────────
+
+  countByStatus(status: string): number {
+    return this.allRecords.filter(r => r.status === status).length;
+  }
+
+  // ── SLA filter (নতুন filter dropdown) ────────────────────────────────────
+
+  slaFilter: string = '';
+
+  onSlaFilterChange(value: string): void {
+    this.slaFilter = value;
+    this.applyFilters();
+  }
+
+  // ── Bulk assign ───────────────────────────────────────────────────────────
+
+  bulkAssign(): void {
+    // Phase 5 RBAC enhancement-এ implement হবে
+    // এখন শুধু selected records-এর review page-এ navigate করো
+    const ids = Array.from(this.selectedIds);
+    if (ids.length === 1) {
+      this.reviewRecord(ids[0]);
+    }
+  }
+
+  // ── Export ────────────────────────────────────────────────────────────────
+
+  onExport(): void {
+    // CSV export — Phase 5-এ implement হবে
+    console.log('Export clicked');
+  }
+
+  // ── Math reference (template-এ min() দরকার) ──────────────────────────────
+
+  min(a: number, b: number): number {
+    return Math.min(a, b);
   }
 }

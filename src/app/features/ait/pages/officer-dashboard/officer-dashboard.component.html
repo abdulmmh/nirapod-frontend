@@ -1,264 +1,355 @@
-<div class="od">
-  <h2 class="sr-only">Officer AIT Review Dashboard</h2>
 
-  <!-- ── Header ──────────────────────────────────────────── -->
-  <div class="od__header">
-    <div>
-      <div class="od__title">AIT Review Dashboard</div>
-      <div class="od__subtitle">Officer: {{ officerName }} &nbsp;·&nbsp; FY 2024–2025</div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="od-fsel" (click)="refreshQueue()">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M10.5 6A4.5 4.5 0 11 6 1.5a4.5 4.5 0 014 2.5M10.5 1.5v3h-3"
-                stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
-                stroke-linejoin="round"/>
-        </svg>
-        Refresh
-      </button>
-      <button class="od-fsel">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M6 1v8M2 6l4 4 4-4M1 11h10"
-                stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
-                stroke-linejoin="round"/>
-        </svg>
-        Export
-      </button>
-    </div>
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>AIT Officer Dashboard</h4>
+    <p>Officer: {{ officerName }} &nbsp;·&nbsp; FY 2024–2025</p>
   </div>
+  <div class="header-actions">
+    <button class="btn-back" (click)="refreshQueue()">
+      <i class="bi bi-arrow-clockwise"></i> Refresh
+    </button>
+    <button class="btn-add-primary desktop-add-btn" (click)="onExport()">
+      <i class="bi bi-file-earmark-arrow-down"></i> Export
+    </button>
+  </div>
+</div>
 
-  <!-- ── KPI Row ──────────────────────────────────────────── -->
-  <div class="od__kpis">
-    <div class="od-kpi">
-      <div class="od-kpi__label">My Queue</div>
-      <div class="od-kpi__value" style="color:#3C3489">{{ kpis.myQueue }}</div>
-      <div class="od-kpi__sub">Awaiting review</div>
-    </div>
-    <div class="od-kpi">
-      <div class="od-kpi__label">Reviewed Today</div>
-      <div class="od-kpi__value">{{ kpis.reviewedToday }}</div>
-      <div class="od-kpi__sub">Records processed</div>
-    </div>
-    <div class="od-kpi">
-      <div class="od-kpi__label">Approved (Week)</div>
-      <div class="od-kpi__value" style="color:#3B6D11">{{ kpis.approvedWeek }}</div>
-      <div class="od-kpi__sub">Last 7 days</div>
-    </div>
-    <div class="od-kpi">
-      <div class="od-kpi__label">SLA Risk</div>
-      <div class="od-kpi__value"
-           [style.color]="kpis.slaRiskPercent > 30 ? '#791F1F' : '#BA7517'">
-        {{ kpis.slaRiskPercent }}%
+<div class="page-wrapper">
+
+  <!-- ── KPI Summary Row ──────────────────────────────────────────────────── -->
+  <div class="kpi-summary-row">
+    <div class="kpi-summary-card">
+      <div class="kpi-summary-icon kpi-purple">
+        <i class="bi bi-inbox-fill"></i>
       </div>
-      <div class="od-kpi__sub">Overdue / at risk</div>
-    </div>
-    <div class="od-kpi">
-      <div class="od-kpi__label">Approval Rate</div>
-      <div class="od-kpi__value">
-        {{ approvalRate }}%
+      <div class="kpi-summary-body">
+        <div class="kpi-summary-label">My Queue</div>
+        <div class="kpi-summary-value">{{ kpis.myQueue }}</div>
+        <div class="kpi-summary-sub">Awaiting review</div>
       </div>
-      <div class="od-kpi__sub">This month</div>
+    </div>
+    <div class="kpi-summary-card">
+      <div class="kpi-summary-icon kpi-blue">
+        <i class="bi bi-check2-all"></i>
+      </div>
+      <div class="kpi-summary-body">
+        <div class="kpi-summary-label">Reviewed Today</div>
+        <div class="kpi-summary-value">{{ kpis.reviewedToday }}</div>
+        <div class="kpi-summary-sub">Records processed</div>
+      </div>
+    </div>
+    <div class="kpi-summary-card">
+      <div class="kpi-summary-icon kpi-green">
+        <i class="bi bi-patch-check-fill"></i>
+      </div>
+      <div class="kpi-summary-body">
+        <div class="kpi-summary-label">Approved (Week)</div>
+        <div class="kpi-summary-value">{{ kpis.approvedWeek }}</div>
+        <div class="kpi-summary-sub">Last 7 days</div>
+      </div>
+    </div>
+    <div class="kpi-summary-card">
+      <div class="kpi-summary-icon" [ngClass]="kpis.slaRiskPercent > 30 ? 'kpi-red' : 'kpi-amber'">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <div class="kpi-summary-body">
+        <div class="kpi-summary-label">SLA Risk</div>
+        <div class="kpi-summary-value"
+          [style.color]="kpis.slaRiskPercent > 30 ? '#991b1b' : '#92400e'">
+          {{ kpis.slaRiskPercent }}%
+        </div>
+        <div class="kpi-summary-sub">Overdue / at risk</div>
+      </div>
+    </div>
+    <div class="kpi-summary-card">
+      <div class="kpi-summary-icon kpi-teal">
+        <i class="bi bi-graph-up-arrow"></i>
+      </div>
+      <div class="kpi-summary-body">
+        <div class="kpi-summary-label">Approval Rate</div>
+        <div class="kpi-summary-value">{{ approvalRate }}%</div>
+        <div class="kpi-summary-sub">This month</div>
+      </div>
     </div>
   </div>
 
-  <!-- ── Loading ──────────────────────────────────────────── -->
-  <div *ngIf="isLoading" class="od-loading">
-    <div class="ait-spinner"></div>
-    <p>Loading queue data…</p>
+  <!-- ── Status Filter Tabs ───────────────────────────────────────────────── -->
+  <div class="status-tabs">
+    <button class="stab"
+      [class.active]="activeTab === 'ALL'"
+      (click)="setActiveTab('ALL')">
+      All <span class="stab-count">{{ filteredRecords.length }}</span>
+    </button>
+    <button class="stab pending"
+      [class.active]="activeTab === 'PENDING'"
+      (click)="setActiveTab('PENDING')">
+      Pending <span class="stab-count">{{ countByStatus('PENDING') }}</span>
+    </button>
+    <button class="stab review"
+      [class.active]="activeTab === 'UNDER_REVIEW'"
+      (click)="setActiveTab('UNDER_REVIEW')">
+      Under Review <span class="stab-count">{{ countByStatus('UNDER_REVIEW') }}</span>
+    </button>
+    <button class="stab approved"
+      [class.active]="activeTab === 'APPROVED'"
+      (click)="setActiveTab('APPROVED')">
+      Approved <span class="stab-count">{{ countByStatus('APPROVED') }}</span>
+    </button>
+    <button class="stab rejected"
+      [class.active]="activeTab === 'REJECTED'"
+      (click)="setActiveTab('REJECTED')">
+      Rejected <span class="stab-count">{{ countByStatus('REJECTED') }}</span>
+    </button>
   </div>
 
-  <!-- ── Error ────────────────────────────────────────────── -->
-  <div *ngIf="loadError && !isLoading" class="ait-alert ait-alert--danger">
-    <strong>Error:</strong> {{ loadError }}
-    <button class="od-btn od-btn--ghost" (click)="refreshQueue()">Retry</button>
+  <!-- ── Search & Filters ─────────────────────────────────────────────────── -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text"
+          placeholder="Search by TIN, taxpayer name, or reference no..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearchChange()" />
+      </div>
+      <input type="date" class="filter-date"
+        [(ngModel)]="dateFilterFrom"
+        (change)="onDateChange()"
+        title="Filter from date" />
+      <select class="filter-select" (change)="onSlaFilterChange($any($event.target).value)">
+        <option value="">All SLA</option>
+        <option value="at_risk">At Risk (&lt;12hrs)</option>
+        <option value="overdue">Overdue</option>
+      </select>
+      <button class="btn btn-sm btn-outline-secondary"
+        (click)="searchQuery=''; dateFilterFrom=''; slaFilter=''; applyFilters()">
+        <i class="bi bi-x-circle"></i> Clear
+      </button>
+    </div>
   </div>
 
-  <!-- ── Content ──────────────────────────────────────────── -->
-  <div *ngIf="!isLoading">
+  <!-- ── Bulk Action Bar ──────────────────────────────────────────────────── -->
+  <div class="bulk-action-bar" *ngIf="selectedIds.size > 0">
+    <i class="bi bi-check-square-fill" style="color:#1a3f8f"></i>
+    <span class="bulk-count">{{ selectedIds.size }} record(s) selected</span>
+    <div class="bulk-divider"></div>
+    <button class="btn-view" (click)="bulkAssign()">
+      <i class="bi bi-person-check"></i> Assign to Me
+    </button>
+    <button class="btn-view ms-auto" (click)="selectedIds.clear()">
+      <i class="bi bi-x-lg"></i> Clear
+    </button>
+  </div>
 
-    <!-- Compact Filters -->
-    <div class="od-filters">
-      <select class="od-fsel" (change)="setActiveTab($any($event.target).value)">
-        <option value="ALL">All Statuses</option>
-        <option value="PAID">PAID (Queue)</option>
-        <option value="UNDER_REVIEW">UNDER_REVIEW</option>
-        <option value="APPROVED">APPROVED</option>
-        <option value="REJECTED">REJECTED</option>
-      </select>
+  <!-- ── Loading ──────────────────────────────────────────────────────────── -->
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm" style="color:#7c3aed"></div>
+    <span>Loading queue data…</span>
+  </div>
 
-      <select class="od-fsel">
-        <option>FY 2024–2025</option>
-      </select>
+  <!-- ── Error ────────────────────────────────────────────────────────────── -->
+  <div class="alert-error-row" *ngIf="loadError && !isLoading">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ loadError }}</span>
+    <button class="btn-view" (click)="refreshQueue()">Retry</button>
+  </div>
 
-      <input type="text" class="od-search"
-             placeholder="TIN or Ref. No."
-             [(ngModel)]="searchQuery"
-             (input)="onSearchChange()" />
+  <!-- ── Desktop Table ────────────────────────────────────────────────────── -->
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:36px">
+            <input type="checkbox"
+              [checked]="isAllSelected()"
+              (change)="toggleSelectAll()"
+              class="form-check-input" />
+          </th>
+          <th>Ref. No.</th>
+          <th>Taxpayer</th>
+          <th>Source</th>
+          <th>HS Code</th>
+          <th class="text-end">AIT Amount</th>
+          <th>Date</th>
+          <th>SLA</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of getPaginatedRecords()"
+          [class.row-selected]="selectedIds.has(r.id || 0)"
+          [class.row-overdue]="getSlaHours(r) < 0"
+          [class.row-atrisk]="getSlaHours(r) >= 0 && getSlaHours(r) < 12">
 
-      <input type="date" class="od-fsel"
-             [(ngModel)]="dateFilterFrom"
-             (change)="onDateChange()"
-             title="From date" />
+          <td>
+            <input type="checkbox"
+              [checked]="selectedIds.has(r.id || 0)"
+              (change)="toggleSelect(r.id || 0)"
+              class="form-check-input" />
+          </td>
 
-      <select class="od-fsel">
-        <option>All SLA</option>
-        <option>At Risk</option>
-        <option>Overdue</option>
-      </select>
+          <td>
+            <span class="return-code" (click)="reviewRecord(r.id || 0)" style="cursor:pointer">
+              {{ r.aitReferenceNo }}
+            </span>
+          </td>
 
-      <button class="od-btn od-btn--primary" (click)="applyFilters()">Search</button>
-      <button class="od-btn od-btn--ghost"
-              (click)="searchQuery=''; dateFilterFrom=''; applyFilters()">
-        Clear
-      </button>
-      <button class="od-btn od-btn--ghost" style="margin-left:auto">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <rect x="1" y="1" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/>
-          <rect x="7" y="3" width="4" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/>
-        </svg>
-        Columns
-      </button>
-    </div>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar ait-avatar">
+                <i class="bi bi-receipt"></i>
+              </div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName }}</span>
+                <span class="td-sub">{{ r.taxpayerTin }}</span>
+              </div>
+            </div>
+          </td>
 
-    <!-- Bulk Action Bar -->
-    <div class="od-bulk-bar" [class.od-bulk-bar--show]="selectedIds.size > 0">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <rect x="2" y="2" width="12" height="12" rx="2" fill="#185FA5"/>
-        <path d="M5 8l2.5 2.5L11 5" stroke="#fff" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span style="font-weight:500;color:#185FA5">
-        {{ selectedIds.size }} record{{ selectedIds.size > 1 ? 's' : '' }} selected
-      </span>
-      <span class="od-sep">|</span>
-      <button class="od-btn od-btn--primary">
-        Approve ({{ selectedIds.size }})
-      </button>
-      <button class="od-btn od-btn--ghost">Assign to Me</button>
-      <button class="od-btn od-btn--ghost">Export Selected</button>
-      <button class="od-btn od-btn--ghost" style="margin-left:auto;color:var(--c-text2)"
-              (click)="selectedIds.clear()">
-        Clear
-      </button>
-    </div>
+          <td>
+            <span class="cat-badge" [ngClass]="getSourceClass(r.sourceType)">
+              <i class="bi" [ngClass]="getSourceIcon(r.sourceType)"></i>
+              {{ getSourceLabel(r.sourceType) }}
+            </span>
+          </td>
 
-    <!-- Table -->
-    <div class="od-table-wrap">
-      <table class="od-table">
-        <thead>
-          <tr>
-            <th style="width:28px">
-              <span class="od-cb"
-                    [class.od-cb--checked]="isAllSelected()"
-                    (click)="toggleSelectAll()"></span>
-            </th>
-            <th>Ref. No.</th>
-            <th>Taxpayer</th>
-            <th>HS Code</th>
-            <th class="text-right">AIT Amount</th>
-            <th>Paid Date</th>
-            <th>SLA</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let r of getPaginatedRecords()"
-              [class.od-row--selected]="selectedIds.has(r.id || 0)"
-              [class.od-row--overdue]="getSlaHours(r) < 0"
-              [class.od-row--atrisk]="getSlaHours(r) >= 0 && getSlaHours(r) < 12">
+          <td>
+            <span class="code-text">{{ r.hsCode || '—' }}</span>
+          </td>
 
-            <td>
-              <span class="od-cb"
-                    [class.od-cb--checked]="selectedIds.has(r.id || 0)"
-                    (click)="toggleSelect(r.id || 0)"></span>
-            </td>
+          <td class="amt-cell net">
+            ৳ {{ r.calculatedAitAmount | number:'1.0-0' }}
+          </td>
 
-            <td>
-              <a class="od-ref" (click)="reviewRecord(r.id || 0)">
-                {{ r.aitReferenceNo }}
-              </a>
-            </td>
+          <td class="date-cell">
+            {{ r.createdAt | date:'dd MMM' }}
+          </td>
 
-            <td>
-              <div class="od-taxpayer">{{ r.taxpayerName }}</div>
-            </td>
+          <td>
+            <span class="sla-badge"
+              [class.sla-ok]="getSlaHours(r) >= 12"
+              [class.sla-warn]="getSlaHours(r) >= 0 && getSlaHours(r) < 12"
+              [class.sla-over]="getSlaHours(r) < 0">
+              <i class="bi"
+                [ngClass]="getSlaHours(r) < 0 ? 'bi-exclamation-triangle-fill' :
+                           getSlaHours(r) < 12 ? 'bi-clock-fill' : 'bi-check-circle'">
+              </i>
+              {{ getSlaDisplay(r) }}
+            </span>
+          </td>
 
-            <td>
-              <span class="od-code">{{ r.hsCode || '—' }}</span>
-            </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ getStatusLabel(r.status) }}
+            </span>
+          </td>
 
-            <td class="od-amt">৳ {{ r.calculatedAitAmount | number:'1.0-0' }}</td>
-
-            <td class="od-date">{{ r.createdAt | date:'d MMM' }}</td>
-
-            <td>
-              <span class="od-sla"
-                    [class.od-sla--ok]="getSlaHours(r) >= 12"
-                    [class.od-sla--warn]="getSlaHours(r) >= 0 && getSlaHours(r) < 12"
-                    [class.od-sla--over]="getSlaHours(r) < 0">
-                {{ getSlaDisplay(r) }}
-              </span>
-            </td>
-
-            <td>
-              <span class="ait-badge" [ngClass]="getStatusColor(r.status)">
-                {{ getStatusLabel(r.status) }}
-              </span>
-            </td>
-
-            <td class="od-actions">
-              <button class="od-btn od-btn--primary"
-                      (click)="reviewRecord(r.id || 0)">
-                Review
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="reviewRecord(r.id || 0)">
+                <i class="bi bi-eye-fill"></i> Review
               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </td>
+        </tr>
 
-      <!-- Empty State -->
-      <div *ngIf="getPaginatedRecords().length === 0" class="ait-empty">
-        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-          <rect x="8" y="6" width="28" height="32" rx="4"
-                stroke="#CBD5E1" stroke-width="1.5"/>
-          <path d="M14 16h16M14 22h10M14 28h8"
-                stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <p class="ait-empty__title">No records in queue</p>
-        <p class="ait-empty__hint">Try adjusting filters</p>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div class="ait-pagination">
-      <span class="ait-pagination__info">
-        Showing {{ ((currentPage-1)*itemsPerPage)+1 }} to
-        {{ Math.min(currentPage*itemsPerPage, filteredRecords.length) }}
-        of {{ filteredRecords.length }} records
-      </span>
-      <div class="ait-pagination__controls">
-        <button class="od-btn od-btn--ghost"
-                [disabled]="currentPage === 1" (click)="prevPage()">
-          ← Prev
-        </button>
-        <span *ngFor="let p of getPageNumbers()" class="ait-pagination__num"
-              [class.active]="p === currentPage"
-              (click)="goToPage(p)" style="cursor:pointer">
-          {{ p }}
-        </span>
-        <button class="od-btn od-btn--ghost"
-                [disabled]="currentPage >= getTotalPages()" (click)="nextPage()">
-          Next →
-        </button>
-      </div>
-      <select class="od-fsel"
-              (change)="itemsPerPage = +$any($event.target).value; applyFilters()">
-        <option value="10">10 per page</option>
-        <option value="20">20 per page</option>
-        <option value="50">50 per page</option>
-      </select>
-    </div>
-
+        <tr *ngIf="getPaginatedRecords().length === 0">
+          <td colspan="10">
+            <div class="empty-state">
+              <i class="bi bi-inbox"></i>
+              <p>No records in queue.</p>
+              <small>Try adjusting filters or check back later.</small>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
+
+  <!-- ── Mobile Cards ─────────────────────────────────────────────────────── -->
+  <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
+    <div class="mobile-card"
+      *ngFor="let r of getPaginatedRecords()"
+      [class.row-overdue]="getSlaHours(r) < 0">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar ait-avatar">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName }}</div>
+            <div class="mobile-sub">{{ r.aitReferenceNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+          {{ getStatusLabel(r.status) }}
+        </span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>TIN</label>
+          <span>{{ r.taxpayerTin }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>Source</label>
+          <span class="cat-badge" [ngClass]="getSourceClass(r.sourceType)">
+            {{ getSourceLabel(r.sourceType) }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>AIT Amount</label>
+          <span class="net">৳ {{ r.calculatedAitAmount | number:'1.0-0' }}</span>
+        </div>
+        <div class="mobile-field">
+          <label>SLA</label>
+          <span class="sla-badge"
+            [class.sla-ok]="getSlaHours(r) >= 12"
+            [class.sla-warn]="getSlaHours(r) >= 0 && getSlaHours(r) < 12"
+            [class.sla-over]="getSlaHours(r) < 0">
+            {{ getSlaDisplay(r) }}
+          </span>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="reviewRecord(r.id || 0)">
+          <i class="bi bi-eye-fill"></i> Review
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="getPaginatedRecords().length === 0">
+      <i class="bi bi-inbox"></i>
+      <p>No records in queue.</p>
+    </div>
+  </div>
+
+  <!-- ── Pagination ────────────────────────────────────────────────────────── -->
+  <div class="pagination-row" *ngIf="!isLoading && filteredRecords.length > 0">
+    <span class="pagination-info">
+      Showing {{ ((currentPage-1)*itemsPerPage)+1 }} to
+      {{ min(currentPage*itemsPerPage, filteredRecords.length) }}
+      of {{ filteredRecords.length }} records
+    </span>
+    <div class="pagination-controls">
+      <button class="btn-page" [disabled]="currentPage === 1" (click)="prevPage()">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span *ngFor="let p of getPageNumbers()"
+        class="page-num"
+        [class.active]="p === currentPage"
+        (click)="goToPage(p)">
+        {{ p }}
+      </span>
+      <button class="btn-page" [disabled]="currentPage >= getTotalPages()" (click)="nextPage()">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <select class="filter-select"
+      (change)="itemsPerPage = +$any($event.target).value; applyFilters()">
+      <option value="10">10 per page</option>
+      <option value="20">20 per page</option>
+      <option value="50">50 per page</option>
+    </select>
+  </div>
+
 </div>
