@@ -157,6 +157,28 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
       });
   }
 
+  onSubmitRecord(): void {
+    if (!this.ait) return;
+    this.isActioning = true;
+
+    const payload = { attachmentIds: this.ait.documents.map((d) => d.id) };
+
+    this.aitService
+      .submit(this.ait.id!, payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('AIT record submitted successfully.');
+          this.loadRecord(this.ait!.id!);
+          this.isActioning = false;
+        },
+        error: (err) => {
+          this.toast.error(err?.error?.message ?? 'Submission failed.');
+          this.isActioning = false;
+        },
+      });
+  }
+
   onAssign(): void {
     if (!this.ait) return;
     this.isActioning = true;
@@ -240,20 +262,23 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
 
   onDownloadCertificate(): void {
     if (!this.ait) return;
-    this.aitService.downloadCertificate(this.ait.id!)
+    this.aitService
+      .downloadCertificate(this.ait.id!)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);
-          const a   = document.createElement('a');
-          a.href     = url;
+          const a = document.createElement('a');
+          a.href = url;
           a.download = `AIT-Certificate-${this.ait!.aitReferenceNo}.pdf`;
           a.click();
           window.URL.revokeObjectURL(url);
           this.toast.success('Certificate downloaded.');
         },
         error: (err) => {
-          this.toast.error(err?.error?.message ?? 'Certificate download failed.');
+          this.toast.error(
+            err?.error?.message ?? 'Certificate download failed.',
+          );
         },
       });
   }
@@ -313,8 +338,8 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
     return map[source] ?? 'bi-receipt';
   }
 
-  getDocUrl(docId: number): string {
-    return `/api/ait-records/${this.ait?.id}/documents/${docId}`;
+  getDocDownloadUrl(docId: number): string {
+    return `http://localhost:8080/api/ait-records/${this.ait?.id}/documents/${docId}/download`;
   }
 
   formatCurrency(value: number | undefined): string {

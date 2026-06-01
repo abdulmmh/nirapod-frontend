@@ -333,7 +333,12 @@ export class SidebarComponent implements OnInit {
       label: 'AIT',
       icon: 'bi bi-percent',
       route: null,
-      roles: [Role.SUPER_ADMIN, Role.TAX_COMMISSIONER, Role.TAX_OFFICER],
+      roles: [
+        Role.SUPER_ADMIN,
+        Role.TAX_COMMISSIONER,
+        Role.TAX_OFFICER,
+        Role.TAXPAYER,
+      ],
       children: [
         { label: 'AIT Records', route: '/ait', icon: 'bi bi-list-ul' },
         { label: 'New AIT', route: '/ait/create', icon: 'bi bi-plus-circle' },
@@ -498,10 +503,6 @@ export class SidebarComponent implements OnInit {
   }
 
   get visibleMenuItems(): MenuItem[] {
-    if (this.authService.userRole === Role.TAXPAYER) {
-      return [];
-    }
-
     return this.menuItems.filter((item) => {
       if (item.isGroupHeader) {
         return true;

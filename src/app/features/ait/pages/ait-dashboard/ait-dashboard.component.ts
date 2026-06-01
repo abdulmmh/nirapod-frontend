@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
@@ -43,6 +43,7 @@ export class AitDashboardComponent implements OnInit, OnDestroy {
     private toast: ToastService,
     private auth: AuthService,
     private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -118,6 +119,11 @@ export class AitDashboardComponent implements OnInit, OnDestroy {
 
   edit(id: number): void {
     this.router.navigate(['/ait', id, 'edit']);
+  }
+
+  get createRoute(): string {
+    const url = this.router.url;
+    return url.startsWith('/my-portal') ? '/my-portal/ait/create' : '/ait/create';
   }
 
   // ── Workflow actions ────────────────────────────────────────────────────────

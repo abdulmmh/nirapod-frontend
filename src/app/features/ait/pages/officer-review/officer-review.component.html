@@ -181,7 +181,7 @@
         </div>
         <div class="card-p">
           <div class="doc-list">
-            <a class="doc-item" *ngFor="let doc of ait.documents" [href]="getDocUrl(doc.id)" target="_blank">
+            <a class="doc-item" *ngFor="let doc of ait.documents" [href]="getDocDownloadUrl(doc.id)" target="_blank">
               <i class="bi bi-file-earmark-fill"></i>
               <span class="doc-name">{{ doc.fileName }}</span>
               <span class="doc-size">{{ (doc.fileSize / 1024).toFixed(1) }} KB</span>
@@ -200,6 +200,53 @@
 
     <!-- RIGHT: Officer actions + audit trail ─────────────────────────── -->
     <div class="review-sidebar">
+
+      <!-- Taxpayer submit action -->
+      <div class="form-card" *ngIf="isTaxpayerRole && ait.status === 'DRAFT'">
+        <div class="section-header">
+          <div class="section-icon"><i class="bi bi-send-fill"></i></div>
+          <div>
+            <div class="section-title">Submit Record</div>
+            <div class="section-sub">Ready to submit to tax authority?</div>
+          </div>
+        </div>
+        <div class="card-p">
+          <p class="mb-12">
+            Make sure all documents are uploaded before submitting. Once submitted, you cannot edit this record.
+          </p>
+          <button class="btn btn-primary w-full" (click)="onSubmitRecord()"
+            [disabled]="isActioning || !ait.documents.length">
+            <i class="bi bi-send"></i> Submit AIT Record
+          </button>
+          <div class="field-hint text-danger mt-10" *ngIf="!ait.documents.length">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Upload at least one document before submitting.
+          </div>
+        </div>
+      </div>
+
+      <!-- Officer submit (officer can submit DRAFT records) -->
+      <div class="form-card" *ngIf="isOfficerRole && ait.status === 'DRAFT'">
+        <div class="section-header">
+          <div class="section-icon"><i class="bi bi-send-fill"></i></div>
+          <div>
+            <div class="section-title">Submit Record</div>
+            <div class="section-sub">Submit to tax authority for review</div>
+          </div>
+        </div>
+        <div class="card-p">
+          <p class="mb-12">Documents uploaded: {{ ait.documents.length || 0 }} file(s). Once submitted, you cannot
+            edit.</p>
+          <button class="btn btn-primary w-full" (click)="onSubmitRecord()"
+            [disabled]="isActioning || !ait.documents.length">
+            <i class="bi bi-send"></i> Submit AIT Record
+          </button>
+          <div class="field-hint text-danger mt-10" *ngIf="!ait.documents.length">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            ⚠ Upload at least one document first.
+          </div>
+        </div>
+      </div>
 
       <!-- Officer actions -->
       <div class="form-card" *ngIf="isOfficerRole && canAct()">

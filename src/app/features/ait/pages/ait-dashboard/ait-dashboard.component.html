@@ -3,7 +3,7 @@
     <h4>Advance Income Tax (AIT)</h4>
     <p>Manage and track all AIT submissions and credits.</p>
   </div>
-  <a *canDo="'create'" routerLink="/ait/create" class="btn-add-primary desktop-add-btn">
+  <a *canDo="'create'" [routerLink]="createRoute" class="btn-add-primary desktop-add-btn">
     <i class="bi bi-plus-lg"></i> New AIT Record
   </a>
 </div>
@@ -241,7 +241,7 @@
 </div>
 
 <!-- FAB -->
-<button *canDo="'create'" class="fab-btn" routerLink="/ait/create">
+<button class="fab-btn" [routerLink]="createRoute">
   <i class="bi bi-plus-lg"></i>
 </button>
 

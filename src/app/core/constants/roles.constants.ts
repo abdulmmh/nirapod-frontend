@@ -179,6 +179,7 @@ export const ROLE_MENU: Record<Role, string[]> = {
     'Dashboard',
     'VAT Returns',
     'Income Tax Returns',
+    'AIT',
     'TIN Management',
     'Payments',
     'Refund Management',
