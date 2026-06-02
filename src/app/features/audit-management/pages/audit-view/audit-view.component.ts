@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuditService } from '../../service/audit.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Role } from '../../../../core/constants/roles.constants';
 import {
   AuditCase, AuditQuery, AuditDocumentRequest, AuditFinding,
   Assessment, DemandNotice
@@ -10,7 +12,7 @@ import {
 @Component({
   selector: 'app-audit-view',
   templateUrl: './audit-view.component.html',
-  styleUrls: ['./audit-view.component.css']   // ← .css not .scss
+  styleUrls: ['./audit-view.component.css']
 })
 export class AuditDetailComponent implements OnInit {
 
@@ -52,7 +54,8 @@ export class AuditDetailComponent implements OnInit {
     private route:        ActivatedRoute,
     private router:       Router,
     private fb:           FormBuilder,
-    private auditService: AuditService
+    private auditService: AuditService,
+    private authService:  AuthService
   ) {}
 
   ngOnInit(): void {
@@ -137,15 +140,12 @@ export class AuditDetailComponent implements OnInit {
   }
 
   // ── Navigation ─────────────────────────────────────────────────────────────
-
   onBack(): void { this.router.navigate(['/audits']); }
-
   onEdit(): void {
     if (this.auditCase) this.router.navigate(['/audits', this.auditCase.id, 'edit']);
   }
 
   // ── Workflow Actions ───────────────────────────────────────────────────────
-
   issueNotice(): void {
     if (!this.auditCase) return;
     this.auditService.issueNotice(this.auditCase.id).subscribe({
@@ -156,7 +156,11 @@ export class AuditDetailComponent implements OnInit {
   issueDemand(): void {
     if (!this.auditCase) return;
     this.auditService.issueDemandNotice(this.auditCase.id).subscribe({
-      next: d => { this.demandNotice = d; this.loadCase(this.auditCase!.id); this.setTab('demand'); }
+      next: d => {
+        this.demandNotice = d;
+        this.loadCase(this.auditCase!.id);
+        this.setTab('demand');
+      }
     });
   }
 
@@ -165,20 +169,19 @@ export class AuditDetailComponent implements OnInit {
   }
 
   // ── Modal Openers ──────────────────────────────────────────────────────────
-
-  openQueryModal():     void { this.queryForm.reset({ queryType: 'GENERAL' });                            this.showQueryModal = true; }
-  openDocRequestModal(): void { this.docForm.reset({ requestType: 'INITIAL' });                           this.showDocModal = true; }
-  openFindingModal():   void { this.findingForm.reset({ findingType: 'INCOME_OMISSION', status: 'DRAFT' }); this.showFindingModal = true; }
-  openApprovalModal():  void { this.approvalNotes = '';                                                   this.showApprovalModal = true; }
+  openQueryModal():      void { this.queryForm.reset({ queryType: 'GENERAL' });                              this.showQueryModal = true; }
+  openDocRequestModal(): void { this.docForm.reset({ requestType: 'INITIAL' });                              this.showDocModal = true; }
+  openFindingModal():    void { this.findingForm.reset({ findingType: 'INCOME_OMISSION', status: 'DRAFT' }); this.showFindingModal = true; }
+  openApprovalModal():   void { this.approvalNotes = '';                                                     this.showApprovalModal = true; }
 
   // ── Modal Submits ──────────────────────────────────────────────────────────
-
   submitQuery(): void {
     if (this.queryForm.invalid || !this.auditCase) return;
     this.querySubmitting = true;
     this.auditService.raiseQuery(this.auditCase.id, this.queryForm.value).subscribe({
       next: q => {
-        this.queries.push(q); this.querySubmitting = false; this.showQueryModal = false;
+        this.queries.push(q);
+        this.querySubmitting = false; this.showQueryModal = false;
         this.auditCase!.queryCount++; this.auditCase!.openQueryCount++;
       },
       error: () => { this.querySubmitting = false; }
@@ -190,7 +193,8 @@ export class AuditDetailComponent implements OnInit {
     this.docSubmitting = true;
     this.auditService.requestDocuments(this.auditCase.id, this.docForm.value).subscribe({
       next: d => {
-        this.docRequests.push(d); this.docSubmitting = false; this.showDocModal = false;
+        this.docRequests.push(d);
+        this.docSubmitting = false; this.showDocModal = false;
         this.auditCase!.documentRequestCount++;
       },
       error: () => { this.docSubmitting = false; }
@@ -202,8 +206,10 @@ export class AuditDetailComponent implements OnInit {
     this.findingSubmitting = true;
     this.auditService.addFinding(this.auditCase.id, this.findingForm.value).subscribe({
       next: f => {
-        this.findings.push(f); this.findingSubmitting = false; this.showFindingModal = false;
-        this.auditCase!.findingCount++; this.loadCase(this.auditCase!.id);
+        this.findings.push(f);
+        this.findingSubmitting = false; this.showFindingModal = false;
+        this.auditCase!.findingCount++;
+        this.loadCase(this.auditCase!.id);
       },
       error: () => { this.findingSubmitting = false; }
     });
@@ -214,8 +220,9 @@ export class AuditDetailComponent implements OnInit {
     this.approvalSubmitting = true;
     this.auditService.approveAssessment(this.auditCase.id, this.approvalNotes).subscribe({
       next: a => {
-        this.assessment = a; this.approvalSubmitting = false;
-        this.showApprovalModal = false; this.loadCase(this.auditCase!.id);
+        this.assessment = a;
+        this.approvalSubmitting = false; this.showApprovalModal = false;
+        this.loadCase(this.auditCase!.id);
       },
       error: () => { this.approvalSubmitting = false; }
     });
@@ -231,38 +238,47 @@ export class AuditDetailComponent implements OnInit {
   }
 
   // ── Permission Guards ──────────────────────────────────────────────────────
-
   canRequestDocuments(): boolean {
     return !!this.auditCase && !['CLOSED','CANCELLED','PAID'].includes(this.auditCase.status);
   }
+
   canRaiseQuery(): boolean {
     return !!this.auditCase && !['CLOSED','CANCELLED','PAID'].includes(this.auditCase.status);
   }
+
   canAddFinding(): boolean {
     return !!this.auditCase && ['UNDER_REVIEW','RESPONSE_RECEIVED',
       'FINDINGS_RECORDED','DOCUMENT_REQUESTED'].includes(this.auditCase.status);
   }
+
   canProposeAssessment(): boolean {
-    return !!this.auditCase && ['FINDINGS_RECORDED','RESPONSE_RECEIVED','UNDER_REVIEW']
-      .includes(this.auditCase.status) && !this.auditCase.hasAssessment;
+    return !!this.auditCase
+      && ['FINDINGS_RECORDED','RESPONSE_RECEIVED','UNDER_REVIEW'].includes(this.auditCase.status)
+      && !this.auditCase.hasAssessment;
   }
+
+  // ── PRODUCTION GRADE: only SUPERVISOR, TAX_COMMISSIONER, SUPER_ADMIN ──────
   canApproveAssessment(): boolean {
-    return !!this.auditCase && ['ASSESSMENT_PROPOSED','SUPERVISOR_REVIEW']
-      .includes(this.auditCase.status) && this.auditCase.hasAssessment;
+    if (!this.auditCase) return false;
+    if (!['ASSESSMENT_PROPOSED','SUPERVISOR_REVIEW'].includes(this.auditCase.status)) return false;
+    if (!this.auditCase.hasAssessment) return false;
+    return this.authService.hasRole(Role.SUPERVISOR)
+        || this.authService.hasRole(Role.TAX_COMMISSIONER)
+        || this.authService.hasRole(Role.SUPER_ADMIN);
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
-
   isDue(d: string): boolean { return !!d && new Date(d) < new Date(); }
 
   getStatusClass(s: string): string {
     const m: Record<string,string> = {
       SELECTED:'badge-secondary', CASE_CREATED:'badge-info', NOTICE_ISSUED:'badge-warning',
-      UNDER_REVIEW:'badge-primary', DOCUMENT_REQUESTED:'badge-orange', RESPONSE_RECEIVED:'badge-teal',
-      FINDINGS_RECORDED:'badge-purple', ASSESSMENT_PROPOSED:'badge-indigo',
-      SUPERVISOR_REVIEW:'badge-yellow', ASSESSMENT_APPROVED:'badge-success',
-      DEMAND_ISSUED:'badge-danger', PAID:'badge-green', PARTIALLY_PAID:'badge-lime',
-      APPEALED:'badge-pink', CLOSED:'badge-dark', CANCELLED:'badge-muted',
+      UNDER_REVIEW:'badge-primary', DOCUMENT_REQUESTED:'badge-orange',
+      RESPONSE_RECEIVED:'badge-teal', FINDINGS_RECORDED:'badge-purple',
+      ASSESSMENT_PROPOSED:'badge-indigo', SUPERVISOR_REVIEW:'badge-yellow',
+      ASSESSMENT_APPROVED:'badge-success', DEMAND_ISSUED:'badge-danger',
+      PAID:'badge-green', PARTIALLY_PAID:'badge-lime', APPEALED:'badge-pink',
+      CLOSED:'badge-dark', CANCELLED:'badge-muted',
     };
     return m[s] ?? 'badge-secondary';
   }
@@ -278,8 +294,7 @@ export class AuditDetailComponent implements OnInit {
   }
 
   getTaxTypeLabel(t: string): string {
-    const m: Record<string,string> = { INCOME_TAX:'Income Tax', VAT:'VAT', AIT:'AIT' };
-    return m[t] ?? t;
+    return { INCOME_TAX:'Income Tax', VAT:'VAT', AIT:'AIT' }[t] ?? t;
   }
 
   getTriggerLabel(t: string): string {
@@ -292,10 +307,7 @@ export class AuditDetailComponent implements OnInit {
   }
 
   getPriorityClass(p: string): string {
-    const m: Record<string,string> = {
-      LOW:'pri-low', NORMAL:'pri-normal', HIGH:'pri-high', CRITICAL:'pri-critical'
-    };
-    return m[p] ?? '';
+    return { LOW:'pri-low', NORMAL:'pri-normal', HIGH:'pri-high', CRITICAL:'pri-critical' }[p] ?? '';
   }
 
   getRiskNumClass(score: number): string {
@@ -306,26 +318,17 @@ export class AuditDetailComponent implements OnInit {
   }
 
   getDocStatusClass(s: string): string {
-    const m: Record<string,string> = {
-      PENDING:'badge-warning', FULFILLED:'badge-success',
-      PARTIALLY_FULFILLED:'badge-lime', OVERDUE:'badge-danger',
-    };
-    return m[s] ?? 'badge-secondary';
+    return { PENDING:'badge-warning', FULFILLED:'badge-success',
+             PARTIALLY_FULFILLED:'badge-lime', OVERDUE:'badge-danger' }[s] ?? 'badge-secondary';
   }
 
   getDemandStatusClass(s: string): string {
-    const m: Record<string,string> = {
-      ISSUED:'badge-danger', PARTIALLY_PAID:'badge-orange',
-      PAID:'badge-success', APPEALED:'badge-pink', CANCELLED:'badge-muted',
-    };
-    return m[s] ?? 'badge-secondary';
+    return { ISSUED:'badge-danger', PARTIALLY_PAID:'badge-orange',
+             PAID:'badge-success', APPEALED:'badge-pink', CANCELLED:'badge-muted' }[s] ?? 'badge-secondary';
   }
 
   getFindingStatusClass(s: string): string {
-    const m: Record<string,string> = {
-      DRAFT:'badge-secondary', CONFIRMED:'badge-success',
-      DISPUTED:'badge-warning', WITHDRAWN:'badge-muted',
-    };
-    return m[s] ?? 'badge-secondary';
+    return { DRAFT:'badge-secondary', CONFIRMED:'badge-success',
+             DISPUTED:'badge-warning', WITHDRAWN:'badge-muted' }[s] ?? 'badge-secondary';
   }
 }

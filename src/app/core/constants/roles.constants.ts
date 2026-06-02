@@ -2,6 +2,7 @@ export enum Role {
   SUPER_ADMIN = 'SUPER_ADMIN',
   TAX_COMMISSIONER = 'TAX_COMMISSIONER',
   TAX_OFFICER = 'TAX_OFFICER',
+  SUPERVISOR = 'SUPERVISOR',
   AUDITOR = 'AUDITOR',
   TAXPAYER = 'TAXPAYER',
   DATA_ENTRY_OPERATOR = 'DATA_ENTRY_OPERATOR',
@@ -67,7 +68,6 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
   ],
 
   [Role.TAXPAYER]: [
-    'dashboard',
     'taxpayers',
     'my-profile',
     'vat-returns',
@@ -75,6 +75,15 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
     'payments',
     'notices',
     'refunds',
+  ],
+
+  [Role.SUPERVISOR]: [
+    'dashboard',
+    'audits',
+    'taxpayers',
+    'reports',
+    'notices',
+    'documents',
   ],
 
   [Role.GUEST]: ['dashboard'],
@@ -93,6 +102,7 @@ export const ROLE_ACTIONS: Record<Role, string[]> = {
   [Role.TAX_COMMISSIONER]: ['create', 'edit', 'delete', 'view', 'export'],
   [Role.TAX_OFFICER]: ['create', 'edit', 'view'],
   [Role.AUDITOR]: ['view', 'export', 'create', 'edit'],
+  [Role.SUPERVISOR]: ['view', 'export', 'create', 'edit'],
   [Role.DATA_ENTRY_OPERATOR]: ['create', 'edit', 'view'],
   [Role.TAXPAYER]: ['view', 'create'],
   [Role.GUEST]: ['view'],
@@ -162,6 +172,15 @@ export const ROLE_MENU: Record<Role, string[]> = {
     'Document Verification',
     'Reports & Analytics',
     'Notices & Notifications',
+  ],
+
+  [Role.SUPERVISOR]: [
+    'Dashboard',
+    'Audit Management',
+    'Taxpayer Management',
+    'Document Verification',
+    'Notices & Notifications',
+    'Reports & Analytics',
   ],
 
   [Role.DATA_ENTRY_OPERATOR]: [

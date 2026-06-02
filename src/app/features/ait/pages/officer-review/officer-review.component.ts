@@ -129,7 +129,7 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
         error: (err) => {
           this.toast.error(err?.error?.message ?? 'Failed to load AIT record.');
           this.isLoading = false;
-          this.router.navigate(['/ait']);
+          this.router.navigate(['..'], { relativeTo: this.route });
         },
       });
   }

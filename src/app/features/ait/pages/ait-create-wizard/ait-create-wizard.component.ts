@@ -403,7 +403,15 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/ait']);
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['..'], {
+        relativeTo: this.route
+      });
+    }
   }
 
   // ── Display helpers ────────────────────────────────────────────────────────

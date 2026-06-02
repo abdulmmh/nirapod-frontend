@@ -1,8 +1,9 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
-import { Subject, timer } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-user-create',
@@ -63,7 +64,11 @@ export class UserCreateComponent implements OnDestroy {
     );
   }
 
-  constructor(private router: Router, private toast: ToastService) {}
+  constructor(
+    private userService: UserService,
+    private router: Router,
+    private toast: ToastService
+  ) {}
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -76,15 +81,36 @@ export class UserCreateComponent implements OnDestroy {
       this.toast.error('Please fill in all required fields correctly.');
       return;
     }
+
     this.isLoading = true;
     this.errorMsg = '';
-    timer(800).pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.isLoading = false;
-      this.successMsg = 'User created successfully!';
-      this.toast.success('User created successfully!');
-      timer(1500).pipe(takeUntil(this.destroy$))
-        .subscribe(() => this.router.navigate(['/users']));
-    });
+
+    const newUser = {
+      fullName: this.form.fullName,
+      username: this.form.username,
+      email: this.form.email,
+      password: this.form.password,
+      role: this.form.role,
+      department: this.form.department,
+      status: this.form.status,
+    };
+
+    this.userService.create(newUser)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.successMsg = 'User created successfully!';
+          this.toast.success('User created successfully!');
+          setTimeout(() => this.router.navigate(['/user-management']), 1500);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          const message = err?.error?.message || 'Failed to create user';
+          this.errorMsg = message;
+          this.toast.error(message);
+        }
+      });
   }
 
   onReset(): void {
@@ -103,6 +129,6 @@ export class UserCreateComponent implements OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/users']);
+    this.router.navigate(['/user-management']);
   }
 }

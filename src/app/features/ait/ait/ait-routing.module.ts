@@ -51,7 +51,7 @@ const routes: Routes = [
     component: OfficerReviewComponent,
     canActivate: [AuthGuard],
     data: {
-      roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.SUPER_ADMIN],
+      roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.SUPER_ADMIN, Role.TAXPAYER],
     },
   },
   {

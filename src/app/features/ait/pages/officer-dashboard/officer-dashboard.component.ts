@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AitService } from '../../services/ait.service';
 import { AitRecord, AitStatus } from '../../models/ait.model';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -56,19 +56,18 @@ export class OfficerDashboardComponent implements OnInit {
     private aitService: AitService,
     private router: Router,
     private authService: AuthService,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
     this.loadQueueData();
   }
 
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  
   get officerName(): string {
     return this.authService.currentUser?.fullName ?? 'Officer';
   }
@@ -88,17 +87,16 @@ export class OfficerDashboardComponent implements OnInit {
     this.isLoading = true;
     this.loadError = null;
 
-    // দুটো API call একসাথে — pending queue + my assigned queue
     forkJoin({
-      pending:    this.aitService.getPendingQueue(),
-      myQueue:    this.aitService.getMyQueue(),
-    }).pipe(takeUntil(this.destroy$))
+      pending: this.aitService.getPendingQueue(),
+      myQueue: this.aitService.getMyQueue(),
+    })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: ({ pending, myQueue }) => {
-          // Merge করো, duplicate সরাও
           const allIds = new Set<number>();
           const merged: AitRecord[] = [];
-          [...pending, ...myQueue].forEach(r => {
+          [...pending, ...myQueue].forEach((r) => {
             if (r.id && !allIds.has(r.id)) {
               allIds.add(r.id);
               merged.push(r);
@@ -177,9 +175,9 @@ export class OfficerDashboardComponent implements OnInit {
 
     // SLA filter
     if (this.slaFilter === 'overdue') {
-      filtered = filtered.filter(r => this.getSlaHours(r) < 0);
+      filtered = filtered.filter((r) => this.getSlaHours(r) < 0);
     } else if (this.slaFilter === 'at_risk') {
-      filtered = filtered.filter(r => {
+      filtered = filtered.filter((r) => {
         const h = this.getSlaHours(r);
         return h >= 0 && h < 12;
       });
@@ -302,62 +300,61 @@ export class OfficerDashboardComponent implements OnInit {
 
   getSourceLabel(source: string): string {
     const map: Record<string, string> = {
-      IMPORT:     'Import Duty',
-      SUPPLIER:   'Supplier Payment',
-      SALARY:     'Salary Deduction',
+      IMPORT: 'Import Duty',
+      SUPPLIER: 'Supplier Payment',
+      SALARY: 'Salary Deduction',
       CONTRACTOR: 'Contractor Payment',
-      RENT:       'Rent Payment',
+      RENT: 'Rent Payment',
     };
     return map[source] ?? source;
   }
 
   getSourceClass(source: string): string {
     const map: Record<string, string> = {
-      IMPORT:     'cat-import',
-      SUPPLIER:   'cat-supplier',
-      SALARY:     'cat-salary',
+      IMPORT: 'cat-import',
+      SUPPLIER: 'cat-supplier',
+      SALARY: 'cat-salary',
       CONTRACTOR: 'cat-contractor',
-      RENT:       'cat-rent',
+      RENT: 'cat-rent',
     };
     return map[source] ?? '';
   }
 
   getSourceIcon(source: string): string {
     const map: Record<string, string> = {
-      IMPORT:     'bi-box-seam',
-      SUPPLIER:   'bi-truck',
-      SALARY:     'bi-person-badge',
+      IMPORT: 'bi-box-seam',
+      SUPPLIER: 'bi-truck',
+      SALARY: 'bi-person-badge',
       CONTRACTOR: 'bi-tools',
-      RENT:       'bi-building',
+      RENT: 'bi-building',
     };
     return map[source] ?? 'bi-receipt';
   }
 
   getStatusClass(status: AitStatus): string {
     const map: Record<AitStatus, string> = {
-      DRAFT:        'status-draft',
-      SUBMITTED:    'status-submitted',
-      PENDING:      'status-pending',
-      PAID:         'status-pending',
+      DRAFT: 'status-draft',
+      SUBMITTED: 'status-submitted',
+      PENDING: 'status-pending',
+      PAID: 'status-pending',
       UNDER_REVIEW: 'status-review',
-      APPROVED:     'status-approved',
-      REJECTED:     'status-rejected',
-      CREDITED:     'status-credited',
-      CANCELLED:    'status-cancelled',
+      APPROVED: 'status-approved',
+      REJECTED: 'status-rejected',
+      CREDITED: 'status-credited',
+      CANCELLED: 'status-cancelled',
     };
     return map[status] ?? 'status-draft';
   }
-  
 
   // ── Actions ───────────────────────────────────────────
   reviewRecord(aitId: number): void {
-    this.router.navigate(['/ait/review', aitId]);
+    this.router.navigate(['..', 'review', aitId], { relativeTo: this.route });
   }
 
   viewDetails(aitId: number): void {
-    this.router.navigate(['/ait/review', aitId]);
+    this.router.navigate(['..', 'review', aitId], { relativeTo: this.route });
   }
-
+ 
   refreshQueue(): void {
     this.loadQueueData();
   }
@@ -405,7 +402,7 @@ export class OfficerDashboardComponent implements OnInit {
   // ── Count by status (tabs-এ দরকার) ───────────────────────────────────────
 
   countByStatus(status: string): number {
-    return this.allRecords.filter(r => r.status === status).length;
+    return this.allRecords.filter((r) => r.status === status).length;
   }
 
   // ── SLA filter (নতুন filter dropdown) ────────────────────────────────────

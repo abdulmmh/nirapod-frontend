@@ -114,17 +114,23 @@ export class AitDashboardComponent implements OnInit, OnDestroy {
   // ── Navigation ──────────────────────────────────────────────────────────────
 
   view(id: number): void {
-    this.router.navigate(['/ait', id]);
+    this.router.navigate(['review', id], {
+      relativeTo: this.route
+    });
   }
 
   edit(id: number): void {
-    this.router.navigate(['/ait', id, 'edit']);
+    this.router.navigate(['edit', id], {
+      relativeTo: this.route
+    });
   }
 
-  get createRoute(): string {
-    const url = this.router.url;
-    return url.startsWith('/my-portal') ? '/my-portal/ait/create' : '/ait/create';
+  navigateToCreate(): void {
+    this.router.navigate(['create'], {
+      relativeTo: this.route
+    });
   }
+
 
   // ── Workflow actions ────────────────────────────────────────────────────────
 
