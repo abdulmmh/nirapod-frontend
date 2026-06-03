@@ -1,15 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  RefundService,
-  RefundType,
-  EligibleSourceRecord,
-  RefundCalculation,
-  CreateRefundRequest,
-} from '../../services/refund.service';
+
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Role } from 'src/app/core/constants/roles.constants';
+import { RefundType, EligibleSourceRecord, RefundCalculation, CreateRefundRequest } from 'src/app/models/refund.model';
+import { RefundService } from '../../services/refund.service';
 
 export interface RefundTypeOption {
   value: RefundType;

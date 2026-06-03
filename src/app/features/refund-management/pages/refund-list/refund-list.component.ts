@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { RefundSummary, RefundFilterRequest } from 'src/app/models/refund.model';
 import {
-  RefundService,
-  RefundSummary,
-  RefundFilterRequest,
+  RefundService
 } from '../../services/refund.service';
 
 @Component({

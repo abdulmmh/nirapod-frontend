@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RefundService, RefundDetail } from '../../services/refund.service';
+import { RefundDetail } from 'src/app/models/refund.model';
+import { RefundService } from '../../services/refund.service';
 
 @Component({
   selector: 'app-refund-respond',

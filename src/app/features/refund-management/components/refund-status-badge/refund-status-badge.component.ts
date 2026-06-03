@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { RefundStatus } from '../../services/refund.service';
+import { RefundStatus } from 'src/app/models/refund.model';
+
 
 interface BadgeConfig {
   label: string;

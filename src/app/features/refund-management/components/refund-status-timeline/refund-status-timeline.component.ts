@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { RefundStatusHistory } from '../../services/refund.service';
+import { RefundStatusHistory } from 'src/app/models/refund.model';
 
 @Component({
   selector: 'app-refund-status-timeline',

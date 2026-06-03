@@ -1,12 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RefundDetail, RefundType, EligibleSourceRecord, RefundCalculation } from 'src/app/models/refund.model';
 import {
-  RefundService,
-  RefundDetail,
-  RefundType,
-  EligibleSourceRecord,
-  RefundCalculation,
+  RefundService
 } from '../../services/refund.service';
 
 @Component({
