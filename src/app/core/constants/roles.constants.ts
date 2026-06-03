@@ -195,7 +195,6 @@ export const ROLE_MENU: Record<Role, string[]> = {
   ],
 
   [Role.TAXPAYER]: [
-    'Dashboard',
     'VAT Returns',
     'Income Tax Returns',
     'AIT',
