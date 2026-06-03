@@ -11,6 +11,7 @@ import { RefundSuccessComponent } from '../pages/refund-success/refund-success.c
 import { RefundRespondComponent } from '../pages/refund-respond/refund-respond.component';
 import { RefundStatusBadgeComponent } from '../components/refund-status-badge/refund-status-badge.component';
 import { RefundStatusTimelineComponent } from '../components/refund-status-timeline/refund-status-timeline.component';
+import { SharedModule } from '../../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -22,16 +23,15 @@ import { RefundStatusTimelineComponent } from '../components/refund-status-timel
     RefundRespondComponent,
     RefundStatusBadgeComponent,
     RefundStatusTimelineComponent,
+
   ],
   imports: [
     CommonModule,
     FormsModule,
+    SharedModule,
     ReactiveFormsModule,
     RefundRoutingModule,
   ],
-  exports: [
-    RefundStatusBadgeComponent,
-    RefundStatusTimelineComponent,
-  ],
+  exports: [RefundStatusBadgeComponent, RefundStatusTimelineComponent],
 })
 export class RefundModule {}

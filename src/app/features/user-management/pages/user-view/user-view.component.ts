@@ -1,7 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppUser } from '../user-list/user-list.component';
+import { User } from 'src/app/models/user.model';
+
 
 @Component({
   selector: 'app-user-view',
@@ -9,10 +10,10 @@ import { AppUser } from '../user-list/user-list.component';
   styleUrls: ['./user-view.component.css'],
 })
 export class UserViewComponent implements OnInit {
-  user: AppUser | null = null;
+  user: User | null = null;
   isLoading = true;
 
-  private fallback: AppUser[] = [
+  private fallback: User[] = [
     {
       id: 1,
       fullName: 'System Administrator',

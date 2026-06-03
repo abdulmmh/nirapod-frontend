@@ -8,10 +8,15 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
-import { Taxpayer } from '../../../../models/taxpayer.model';
-import { ToastService } from '../../../../shared/toast/toast.service';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  takeUntil,
+} from 'rxjs/operators';
+import { Taxpayer } from '../../models/taxpayer.model';
+import { ToastService } from '../toast/toast.service';
+import { API_ENDPOINTS } from '../../core/constants/api.constants';
 
 @Component({
   selector: 'app-taxpayer-search',
@@ -57,8 +62,8 @@ export class TaxpayerSearchComponent implements OnInit, OnDestroy {
     if (!tp) return '';
     const type = tp.taxpayerType?.typeName?.toLowerCase() ?? '';
     return type.includes('company')
-      ? tp.companyName ?? 'Unknown Company'
-      : tp.fullName ?? 'Unknown';
+      ? (tp.companyName ?? 'Unknown Company')
+      : (tp.fullName ?? 'Unknown');
   }
 
   onInputChange(): void {
@@ -86,7 +91,9 @@ export class TaxpayerSearchComponent implements OnInit, OnDestroy {
     this.hasSearched = false;
 
     this.http
-      .get<Taxpayer[]>(`${API_ENDPOINTS.TAXPAYERS.LIST}?search=${encodeURIComponent(q)}`)
+      .get<Taxpayer[]>(
+        `${API_ENDPOINTS.TAXPAYERS.LIST}?search=${encodeURIComponent(q)}`,
+      )
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isSearching = false)),
@@ -97,7 +104,9 @@ export class TaxpayerSearchComponent implements OnInit, OnDestroy {
           this.showResults = true;
           this.hasSearched = true;
           if (results.length === 0) {
-            this.toast.info('No taxpayer found. Check the TIN, NID, or name and try again.');
+            this.toast.info(
+              'No taxpayer found. Check the TIN, NID, or name and try again.',
+            );
           }
         },
         // 400/network errors are handled by ErrorInterceptor — no duplicate toast here.

@@ -1,376 +1,399 @@
-<div class="container-fluid py-4 px-4">
-
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h4 class="page-title mb-1">
-        <i class="bi bi-plus-circle me-2 text-primary"></i>New Refund Application
-      </h4>
-      <p class="text-muted mb-0 small">Complete all steps to submit your refund request</p>
-    </div>
-    <button class="btn btn-outline-secondary btn-sm" (click)="cancel()">
+<div class="page-header">
+  <div class="page-header-left">
+    <h4><i class="bi bi-plus-circle"></i> New Refund Application</h4>
+    <p>Complete all steps to submit your refund request</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-cancel" (click)="cancel()">
       <i class="bi bi-x-lg me-1"></i> Cancel
     </button>
   </div>
+</div>
 
-  <!-- Stepper -->
-  <div class="stepper-wrapper mb-4">
-    <div
-      *ngFor="let label of stepLabels; let i = index"
-      class="stepper-item"
-      [class.completed]="currentStep > i + 1"
-      [class.active]="currentStep === i + 1"
-    >
-      <div class="stepper-circle" (click)="goToStep(i + 1)">
-        <i *ngIf="currentStep > i + 1" class="bi bi-check-lg"></i>
-        <span *ngIf="currentStep <= i + 1">{{ i + 1 }}</span>
-      </div>
-      <div class="stepper-label">{{ label }}</div>
-      <div class="stepper-connector" *ngIf="i < stepLabels.length - 1"></div>
-    </div>
-  </div>
+<div class="page-wrapper">
 
-  <!-- Error Alert -->
-  <div *ngIf="errorMsg" class="alert alert-danger d-flex align-items-center gap-2 mb-3">
-    <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
-  </div>
-
-  <!-- ─── STEP 1: REFUND TYPE ─────────────────────────────── -->
-  <div class="wizard-card" *ngIf="currentStep === 1">
+  <!-- ─── STEP 0: TAXPAYER SELECTION (Officer only) ──────── -->
+  <div *ngIf="currentStep === 0" class="wizard-card">
     <div class="wizard-card-header">
-      <i class="bi bi-list-check me-2"></i> Step 1 — Select Refund Type
+      <i class="bi bi-person-search"></i> Select Taxpayer
+      <span class="ms-2 td-sub">Search and select the taxpayer for whom you are creating this refund</span>
     </div>
     <div class="wizard-card-body">
-      <p class="text-muted small mb-3">Choose the type of refund you are applying for.</p>
-      <div class="row g-3">
-        <div class="col-md-4 col-sm-6" *ngFor="let t of refundTypeOptions">
-          <div
-            class="type-card"
-            [class.type-card--selected]="selectedRefundType === t.value"
-            [ngClass]="selectedRefundType === t.value ? t.color + '--active' : ''"
-            (click)="selectedRefundType = t.value"
-            role="button"
-            tabindex="0"
-            (keydown.enter)="selectedRefundType = t.value"
-            [attr.aria-pressed]="selectedRefundType === t.value"
-            [attr.aria-label]="'Select ' + t.label + ' refund type'"
-          >
-            <div class="type-card-icon" [ngClass]="t.color">
-              <i [class]="t.icon" aria-hidden="true"></i>
+
+      <!-- Reuse existing taxpayer-search component from VAT module -->
+      <app-taxpayer-search
+        [selectedTaxpayer]="selectedTaxpayer"
+        (taxpayerSelected)="onTaxpayerSelected($event)"
+        (taxpayerCleared)="onTaxpayerCleared()">
+      </app-taxpayer-search>
+
+      <!-- Selected taxpayer confirmation card -->
+      <div *ngIf="selectedTaxpayer" class="taxpayer-confirm-card mt-3">
+        <div class="taxpayer-confirm-header">
+          <i class="bi bi-check-circle-fill text-success me-2"></i>
+          Taxpayer Selected
+        </div>
+        <div class="taxpayer-confirm-body">
+          <div class="form-grid">
+            <div class="form-field">
+              <span class="form-label">Name</span>
+              <span class="fw-semibold">
+                {{ selectedTaxpayer.fullName || selectedTaxpayer.companyName || '—' }}
+              </span>
             </div>
-            <div class="type-card-label">{{ t.label }}</div>
-            <div class="type-card-desc">{{ t.description }}</div>
-            <div class="type-card-check" *ngIf="selectedRefundType === t.value">
-              <i class="bi bi-check-circle-fill text-success"></i>
+            <div class="form-field">
+              <span class="form-label">TIN</span>
+              <span class="code-badge">{{ selectedTaxpayer.tinNumber || '—' }}</span>
+            </div>
+            <div class="form-field">
+              <span class="form-label">Email</span>
+              <span class="td-sub">{{ selectedTaxpayer.email || '—' }}</span>
+            </div>
+            <div class="form-field">
+              <span class="form-label">Type</span>
+              <span class="cat-badge cat-standard">
+                {{ selectedTaxpayer.taxpayerType?.typeName || '—' }}
+              </span>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="wizard-card-footer">
-      <div></div>
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()" [disabled]="saving">
-          <span *ngIf="saving" class="spinner-border spinner-border-sm me-1"></span>Save Draft
-        </button>
-        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!selectedRefundType">
-          Next: Source Records <i class="bi bi-arrow-right ms-1"></i>
-        </button>
-      </div>
-    </div>
-  </div>
 
-  <!-- ─── STEP 2: SOURCE RECORDS ────────────────────────────── -->
-  <div class="wizard-card" *ngIf="currentStep === 2">
-    <div class="wizard-card-header">
-      <i class="bi bi-database me-2"></i> Step 2 — Select Source Records
-      <span class="badge bg-primary ms-2">{{ getRefundTypeLabel(selectedRefundType) }}</span>
-    </div>
-    <div class="wizard-card-body">
-      <p class="text-muted small mb-3">
-        Select the records that caused the overpayment. Only eligible records with positive excess balances are shown.
-      </p>
-      <div *ngIf="loadingSources" class="text-center py-4">
-        <div class="spinner-border spinner-border-sm text-primary"></div>
-        <span class="ms-2 small">Loading eligible records…</span>
-      </div>
-      <div *ngIf="!loadingSources && eligibleSources.length === 0" class="alert alert-info">
-        <i class="bi bi-info-circle me-2"></i>
-        No eligible source records found for this refund type and fiscal year.
-      </div>
-      <div class="table-responsive" *ngIf="!loadingSources && eligibleSources.length > 0">
-        <table class="table table-hover align-middle source-table">
-          <thead class="table-light">
-            <tr>
-              <th style="width:40px"></th>
-              <th>Reference</th>
-              <th>Period</th>
-              <th class="text-end">Tax Paid</th>
-              <th class="text-end">Tax Liability</th>
-              <th class="text-end text-success">Excess Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              *ngFor="let s of eligibleSources"
-              [class.source-row--selected]="isSourceSelected(s.id)"
-              (click)="toggleSource(s.id)"
-              style="cursor:pointer"
-              [attr.aria-selected]="isSourceSelected(s.id)"
-            >
-              <td>
-                <div class="form-check mb-0">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    [checked]="isSourceSelected(s.id)"
-                    (change)="toggleSource(s.id)"
-                    [attr.aria-label]="'Select source ' + s.reference"
-                  >
-                </div>
-              </td>
-              <td><span class="fw-semibold small">{{ s.reference }}</span></td>
-              <td class="text-muted small">{{ s.periodLabel }}</td>
-              <td class="text-end small">{{ formatCurrency(s.taxPaid) }}</td>
-              <td class="text-end small">{{ formatCurrency(s.taxLiability) }}</td>
-              <td class="text-end fw-semibold text-success">{{ formatCurrency(s.excessAmount) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div *ngIf="selectedSourceIds.size > 0" class="alert alert-success py-2 small mt-2">
-        <i class="bi bi-check2 me-1"></i>
-        {{ selectedSourceIds.size }} source record(s) selected —
-        Total excess: <strong>{{ formatCurrency(selectedSourcesTotalExcess) }}</strong>
-      </div>
     </div>
     <div class="wizard-card-footer">
-      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
-        <i class="bi bi-arrow-left me-1"></i> Back
+      <button class="btn-cancel" (click)="cancel()">
+        <i class="bi bi-x-lg me-1"></i> Cancel
       </button>
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
-        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="selectedSourceIds.size === 0">
-          Next: Calculation <i class="bi bi-arrow-right ms-1"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── STEP 3: CALCULATION ────────────────────────────────── -->
-  <div class="wizard-card" *ngIf="currentStep === 3">
-    <div class="wizard-card-header">
-      <i class="bi bi-calculator me-2"></i> Step 3 — Refund Calculation
-    </div>
-    <div class="wizard-card-body">
-      <div *ngIf="calculationError" class="alert alert-danger small">
-        <i class="bi bi-exclamation-triangle me-2"></i>{{ calculationError }}
-      </div>
-      <div *ngIf="!calculation && !calculationError" class="text-center py-4">
-        <div class="spinner-border spinner-border-sm text-primary"></div>
-        <span class="ms-2 small">Calculating…</span>
-      </div>
-      <div *ngIf="calculation">
-        <div class="calc-box mb-4">
-          <div class="calc-row">
-            <span>Total Tax Paid <em class="text-muted small">(from selected sources)</em></span>
-            <span>{{ formatCurrency(calculation.totalTaxPaid) }}</span>
-          </div>
-          <div class="calc-row">
-            <span>Total Tax Liability</span>
-            <span>{{ formatCurrency(calculation.totalTaxLiability) }}</span>
-          </div>
-          <div class="calc-row">
-            <span>Previously Claimed Refunds</span>
-            <span>{{ formatCurrency(calculation.previouslyClaimed) }}</span>
-          </div>
-          <div class="calc-divider"></div>
-          <div class="calc-total-row">
-            <span>Maximum Eligible Refund</span>
-            <span class="text-success fw-bold fs-5">{{ formatCurrency(calculation.eligibleRefundAmount) }}</span>
-          </div>
-        </div>
-
-        <div class="alert alert-info d-flex gap-2 align-items-start small py-2">
-          <i class="bi bi-lock me-1 mt-1 flex-shrink-0"></i>
-          <span>
-            Eligible refund amount is system-calculated and cannot be edited.
-            You may request a <strong>partial refund</strong> by entering a lower amount below.
-          </span>
-        </div>
-
-        <div class="row mt-3">
-          <div class="col-md-5">
-            <label class="form-label fw-semibold small">
-              Requested Refund Amount <span class="text-danger">*</span>
-            </label>
-            <div class="input-group">
-              <span class="input-group-text">৳</span>
-              <input
-                type="number"
-                class="form-control"
-                [(ngModel)]="requestedAmount"
-                [max]="calculation.eligibleRefundAmount"
-                min="1"
-                [class.is-invalid]="amountExceedsEligible"
-                aria-label="Requested refund amount in BDT"
-              >
-            </div>
-            <div *ngIf="amountExceedsEligible" class="invalid-feedback d-block small">
-              Amount cannot exceed ৳ {{ calculation.eligibleRefundAmount | number }}.
-            </div>
-            <div class="form-text">Maximum: {{ formatCurrency(calculation.eligibleRefundAmount) }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="wizard-card-footer">
-      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
-        <i class="bi bi-arrow-left me-1"></i> Back
+      <button class="btn-submit"
+              (click)="confirmTaxpayerAndProceed()"
+              [disabled]="!selectedTaxpayerId">
+        Next: Select Refund Type <i class="bi bi-arrow-right ms-1"></i>
       </button>
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
-        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!canProceed()">
-          Next: Bank Info <i class="bi bi-arrow-right ms-1"></i>
-        </button>
-      </div>
     </div>
   </div>
 
-  <!-- ─── STEP 4: BANK INFO ──────────────────────────────────── -->
-  <div class="wizard-card" *ngIf="currentStep === 4">
-    <div class="wizard-card-header">
-      <i class="bi bi-bank2 me-2"></i> Step 4 — Bank Account Information
+  <!-- ─── STEPS 1–6 ────────────────────────────────────── -->
+  <ng-container *ngIf="currentStep >= 1">
+
+    <!-- Officer taxpayer banner -->
+    <div *ngIf="isOfficerRole && selectedTaxpayer" class="officer-taxpayer-banner mb-3">
+      <i class="bi bi-person-fill me-2"></i>
+      Creating refund on behalf of:
+      <strong class="ms-1">
+        {{ selectedTaxpayer.fullName || selectedTaxpayer.companyName }}
+      </strong>
+      <span class="code-badge ms-2">{{ selectedTaxpayer.tinNumber }}</span>
+      <button class="btn-cancel ms-auto" style="font-size:0.75rem;padding:3px 10px;"
+              (click)="currentStep = 0">
+        <i class="bi bi-pencil me-1"></i> Change
+      </button>
     </div>
-    <div class="wizard-card-body">
-      <p class="text-muted small mb-3">Enter the bank account where the refund will be disbursed.</p>
-      <form [formGroup]="bankForm" novalidate>
+
+    <!-- Stepper -->
+    <div class="stepper-wrapper mb-4" role="list" aria-label="Wizard steps">
+      <div *ngFor="let label of stepLabels; let i = index"
+           class="stepper-item"
+           [class.active]="currentStep === i + 1"
+           [class.completed]="currentStep > i + 1"
+           role="listitem">
+        <div class="stepper-circle" (click)="goToStep(i + 1)">
+          <i *ngIf="currentStep > i + 1" class="bi bi-check-lg"></i>
+          <span *ngIf="currentStep <= i + 1">{{ i + 1 }}</span>
+        </div>
+        <div class="stepper-connector" *ngIf="i < stepLabels.length - 1"></div>
+        <div class="stepper-label">{{ label }}</div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="errorMsg" class="alert alert-danger d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+    </div>
+
+    <!-- ── STEP 1: Refund Type ─────────────────────────── -->
+    <div class="wizard-card" *ngIf="currentStep === 1">
+      <div class="wizard-card-header">
+        <i class="bi bi-list-check"></i> Step 1 — Select Refund Type
+      </div>
+      <div class="wizard-card-body">
+        <p class="text-muted small mb-3">
+          Choose the category that best describes the reason for the refund.
+        </p>
         <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label fw-semibold small">Bank Name <span class="text-danger">*</span></label>
-            <input formControlName="bankName" list="bank-list" class="form-control form-control-sm"
-              [class.is-invalid]="isFieldInvalid('bankName')" placeholder="e.g. Dutch-Bangla Bank Ltd">
-            <datalist id="bank-list">
-              <option value="Dutch-Bangla Bank Ltd">
-              <option value="BRAC Bank Ltd">
-              <option value="Islami Bank Bangladesh Ltd">
-              <option value="City Bank Ltd">
-              <option value="Sonali Bank Ltd">
-              <option value="Agrani Bank Ltd">
-              <option value="Southeast Bank Ltd">
-              <option value="Eastern Bank Ltd">
-            </datalist>
-            <div class="invalid-feedback">Bank name is required.</div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label fw-semibold small">Branch Name <span class="text-danger">*</span></label>
-            <input formControlName="bankBranch" class="form-control form-control-sm"
-              [class.is-invalid]="isFieldInvalid('bankBranch')" placeholder="e.g. Motijheel Corporate">
-            <div class="invalid-feedback">Branch name is required.</div>
-          </div>
-
-          <div class="col-12">
-            <label class="form-label fw-semibold small">Account Holder Name <span class="text-danger">*</span></label>
-            <input formControlName="accountHolderName" class="form-control form-control-sm"
-              [class.is-invalid]="isFieldInvalid('accountHolderName')" placeholder="Must match registered TIN name">
-            <div class="invalid-feedback">Account holder name is required.</div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label fw-semibold small">Account Number <span class="text-danger">*</span></label>
-            <input formControlName="accountNumber" type="password" class="form-control form-control-sm"
-              [class.is-invalid]="isFieldInvalid('accountNumber')" placeholder="13-digit account number"
-              maxlength="13">
-            <div class="invalid-feedback">
-              Valid 13-digit account number is required.
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label fw-semibold small">Routing Number <span class="text-danger">*</span></label>
-            <input formControlName="routingNumber" class="form-control form-control-sm"
-              [class.is-invalid]="isFieldInvalid('routingNumber')" placeholder="9-digit routing number"
-              maxlength="9">
-            <div class="invalid-feedback">Valid 9-digit routing number is required.</div>
-          </div>
-        </div>
-
-        <!-- Optional MFS -->
-        <div class="optional-section mt-4">
-          <div class="optional-section-title">
-            <i class="bi bi-phone me-1"></i> Optional: Mobile Financial Service (MFS)
-          </div>
-          <div class="row g-3 mt-1">
-            <div class="col-md-4">
-              <label class="form-label small">MFS Provider</label>
-              <select formControlName="mfsProvider" class="form-select form-select-sm">
-                <option value="">— Select —</option>
-                <option value="BKASH">bKash</option>
-                <option value="NAGAD">Nagad</option>
-                <option value="ROCKET">Rocket</option>
-              </select>
-            </div>
-            <div class="col-md-5">
-              <label class="form-label small">MFS Number</label>
-              <input formControlName="mfsNumber" class="form-control form-control-sm"
-                [class.is-invalid]="isFieldInvalid('mfsNumber')"
-                placeholder="01XXXXXXXXX" maxlength="11">
-              <div class="invalid-feedback">Must be 11 digits starting with 01.</div>
+          <div class="col-md-4 col-sm-6" *ngFor="let t of refundTypeOptions">
+            <div class="type-card"
+                 [class.type-card--selected]="selectedRefundType === t.value"
+                 (click)="selectedRefundType = t.value"
+                 role="radio" [attr.aria-checked]="selectedRefundType === t.value"
+                 tabindex="0"
+                 (keydown.enter)="selectedRefundType = t.value"
+                 (keydown.space)="selectedRefundType = t.value">
+              <div class="type-card-icon" [ngClass]="t.color">
+                <i [class]="t.icon" aria-hidden="true"></i>
+              </div>
+              <div class="type-card-label">{{ t.label }}</div>
+              <div class="type-card-desc">{{ t.description }}</div>
+              <i class="bi bi-check-circle-fill type-card-check"
+                 *ngIf="selectedRefundType === t.value"></i>
             </div>
           </div>
         </div>
-
-        <!-- Validate button -->
-        <div class="mt-3">
-          <button
-            type="button"
-            class="btn btn-outline-primary btn-sm"
-            (click)="validateBank()"
-            [disabled]="bankForm.invalid || bankValidating"
-          >
-            <span *ngIf="bankValidating" class="spinner-border spinner-border-sm me-1"></span>
-            <i *ngIf="!bankValidating" class="bi bi-shield-check me-1"></i>
-            {{ bankValidating ? 'Validating…' : 'Validate Bank Account' }}
-          </button>
-          <span *ngIf="bankValidated" class="ms-2 text-success small fw-semibold">
-            <i class="bi bi-check-circle-fill me-1"></i> Account Validated
-          </span>
-          <span *ngIf="bankError" class="ms-2 text-danger small">
-            <i class="bi bi-x-circle me-1"></i> {{ bankError }}
-          </span>
-        </div>
-      </form>
-    </div>
-    <div class="wizard-card-footer">
-      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
-        <i class="bi bi-arrow-left me-1"></i> Back
-      </button>
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
-        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!bankForm.valid || !bankValidated">
-          Next: Documents <i class="bi bi-arrow-right ms-1"></i>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn-cancel" (click)="prevStep()">
+          <i class="bi bi-arrow-left me-1"></i> Back
         </button>
+        <div class="d-flex gap-2">
+          <button class="btn-cancel" (click)="saveDraft()" [disabled]="saving">Save Draft</button>
+          <button class="btn-submit" (click)="nextStep()" [disabled]="!selectedRefundType">
+            Next: Source Records <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- ─── STEP 5: DOCUMENTS ─────────────────────────────────── -->
-  <div class="wizard-card" *ngIf="currentStep === 5">
-    <div class="wizard-card-header">
-      <i class="bi bi-paperclip me-2"></i> Step 5 — Supporting Documents
+    <!-- ── STEP 2: Source Records ──────────────────────── -->
+    <div class="wizard-card" *ngIf="currentStep === 2">
+      <div class="wizard-card-header">
+        <i class="bi bi-database"></i> Step 2 — Select Source Records
+        <span class="ms-2 cat-badge cat-standard">{{ getRefundTypeLabel(selectedRefundType) }}</span>
+      </div>
+      <div class="wizard-card-body">
+        <p class="text-muted small mb-3">
+          Only eligible records with positive excess balances are shown.
+        </p>
+
+        <div *ngIf="loadingSources" class="text-center py-4">
+          <div class="spinner-border spinner-border-sm text-primary"></div>
+          <span class="ms-2 small text-muted">Loading eligible records…</span>
+        </div>
+
+        <div *ngIf="!loadingSources && sourcesError" class="sources-error-box mb-3">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          {{ sourcesError }}
+          <button class="btn-cancel ms-auto" style="font-size:0.75rem;padding:3px 10px;"
+                  (click)="loadSources()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Retry
+          </button>
+        </div>
+
+        <div *ngIf="!loadingSources && !sourcesError && eligibleSources.length === 0"
+             class="alert alert-info d-flex gap-2">
+          <i class="bi bi-info-circle-fill"></i>
+          No eligible source records found for this refund type and fiscal year.
+        </div>
+
+        <div class="table-responsive" *ngIf="!loadingSources && eligibleSources.length > 0">
+          <table class="data-table source-table">
+            <thead>
+              <tr>
+                <th style="width:40px"></th>
+                <th>Reference</th>
+                <th>Period</th>
+                <th class="text-end">Tax Paid</th>
+                <th class="text-end">Tax Liability</th>
+                <th class="text-end" style="color:var(--success)">Excess</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of eligibleSources"
+                  [class.source-row--selected]="isSourceSelected(s.id)"
+                  (click)="toggleSource(s.id)" style="cursor:pointer">
+                <td>
+                  <input type="checkbox" class="form-check-input"
+                         [checked]="isSourceSelected(s.id)"
+                         (click)="$event.stopPropagation(); toggleSource(s.id)">
+                </td>
+                <td><span class="code-badge">{{ s.reference }}</span></td>
+                <td class="td-sub">{{ s.periodLabel }}</td>
+                <td class="text-end td-sub">৳ {{ s.taxPaid | number }}</td>
+                <td class="text-end td-sub">৳ {{ s.taxLiability | number }}</td>
+                <td class="text-end fw-semibold" style="color:var(--success)">
+                  ৳ {{ s.excessAmount | number }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="selectedSourceIds.size > 0" class="alert alert-success py-2 small mt-2">
+          <i class="bi bi-check2 me-1"></i>
+          {{ selectedSourceIds.size }} record(s) selected —
+          Total: <strong>৳ {{ selectedSourcesTotalExcess | number }}</strong>
+        </div>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn-cancel" (click)="prevStep()">
+          <i class="bi bi-arrow-left me-1"></i> Back
+        </button>
+        <div class="d-flex gap-2">
+          <button class="btn-cancel" (click)="saveDraft()">Save Draft</button>
+          <button class="btn-submit" (click)="nextStep()" [disabled]="selectedSourceIds.size === 0">
+            Next: Calculation <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="wizard-card-body">
-      <p class="text-muted small mb-3">
-        Upload required documents. Bank Statement is mandatory. Max 20 MB per file. Accepted: PDF, JPG, PNG.
-      </p>
 
-      <!-- Upload zone -->
-      <div class="upload-section mb-3">
-        <div class="row g-2 align-items-end mb-2">
-          <div class="col-md-5">
+    <!-- ── STEP 3: Calculation ─────────────────────────── -->
+    <div class="wizard-card" *ngIf="currentStep === 3">
+      <div class="wizard-card-header">
+        <i class="bi bi-calculator"></i> Step 3 — Refund Calculation
+      </div>
+      <div class="wizard-card-body">
+        <div *ngIf="calculationError" class="alert alert-danger small mb-3">
+          <i class="bi bi-exclamation-triangle me-1"></i>{{ calculationError }}
+        </div>
+        <div *ngIf="!calculation && !calculationError" class="text-center py-4">
+          <div class="spinner-border spinner-border-sm text-primary"></div>
+          <span class="ms-2 small text-muted">Calculating…</span>
+        </div>
+        <div *ngIf="calculation">
+          <div class="calc-box mb-3">
+            <div class="calc-row">
+              <span class="text-muted">Total Tax Paid</span>
+              <span>৳ {{ calculation.totalTaxPaid | number }}</span>
+            </div>
+            <div class="calc-row">
+              <span class="text-muted">Total Tax Liability</span>
+              <span>৳ {{ calculation.totalTaxLiability | number }}</span>
+            </div>
+            <div class="calc-row">
+              <span class="text-muted">Previously Claimed</span>
+              <span>৳ {{ calculation.previouslyClaimed | number }}</span>
+            </div>
+            <div class="calc-divider"></div>
+            <div class="calc-total-row">
+              <span class="fw-semibold">Maximum Eligible Refund</span>
+              <span class="fw-bold fs-5" style="color:var(--success)">
+                ৳ {{ calculation.eligibleRefundAmount | number }}
+              </span>
+            </div>
+          </div>
+          <div class="alert alert-info d-flex gap-2 align-items-start small py-2">
+            <i class="bi bi-lock flex-shrink-0 mt-1"></i>
+            <span>System-calculated. You may request a <strong>partial refund</strong> by entering a lower amount.</span>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-5">
+              <label class="form-label fw-semibold small">
+                Requested Amount <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text">৳</span>
+                <input type="number" class="form-input"
+                       [(ngModel)]="requestedAmount"
+                       [max]="calculation.eligibleRefundAmount" min="1"
+                       [class.is-invalid]="amountExceedsEligible">
+              </div>
+              <div *ngIf="amountExceedsEligible" class="text-danger small mt-1">
+                Cannot exceed ৳ {{ calculation.eligibleRefundAmount | number }}.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn-cancel" (click)="prevStep()">
+          <i class="bi bi-arrow-left me-1"></i> Back
+        </button>
+        <div class="d-flex gap-2">
+          <button class="btn-cancel" (click)="saveDraft()">Save Draft</button>
+          <button class="btn-submit" (click)="nextStep()" [disabled]="!canProceed()">
+            Next: Bank Info <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: Bank Info ───────────────────────────── -->
+    <div class="wizard-card" *ngIf="currentStep === 4">
+      <div class="wizard-card-header">
+        <i class="bi bi-bank2"></i> Step 4 — Bank Account Information
+      </div>
+      <div class="wizard-card-body">
+        <form [formGroup]="bankForm" novalidate>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">Bank Name <span class="text-danger">*</span></label>
+              <input formControlName="bankName" list="bank-list" class="form-input"
+                     [class.is-invalid]="isFieldInvalid('bankName')" placeholder="e.g. Dutch-Bangla Bank Ltd">
+              <datalist id="bank-list">
+                <option value="Dutch-Bangla Bank Ltd">
+                <option value="BRAC Bank Ltd">
+                <option value="Islami Bank Bangladesh Ltd">
+                <option value="City Bank Ltd">
+                <option value="Sonali Bank Ltd">
+                <option value="Agrani Bank Ltd">
+              </datalist>
+              <div class="invalid-feedback">Required.</div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Branch <span class="text-danger">*</span></label>
+              <input formControlName="bankBranch" class="form-input"
+                     [class.is-invalid]="isFieldInvalid('bankBranch')">
+              <div class="invalid-feedback">Required.</div>
+            </div>
+            <div class="form-field form-field--full">
+              <label class="form-label">Account Holder Name <span class="text-danger">*</span></label>
+              <input formControlName="accountHolderName" class="form-input"
+                     [class.is-invalid]="isFieldInvalid('accountHolderName')">
+              <div class="invalid-feedback">Required.</div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Account Number <span class="text-danger">*</span></label>
+              <input formControlName="accountNumber" type="password" class="form-input"
+                     [class.is-invalid]="isFieldInvalid('accountNumber')"
+                     placeholder="13 digits" maxlength="13">
+              <div class="invalid-feedback">Valid 13-digit number required.</div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Routing Number <span class="text-danger">*</span></label>
+              <input formControlName="routingNumber" class="form-input"
+                     [class.is-invalid]="isFieldInvalid('routingNumber')"
+                     placeholder="9 digits" maxlength="9">
+              <div class="invalid-feedback">Valid 9-digit number required.</div>
+            </div>
+          </div>
+          <div class="mt-3 d-flex align-items-center gap-3">
+            <button type="button" class="btn-submit"
+                    style="background:var(--bg-card);color:var(--primary);border:1px solid var(--primary);"
+                    (click)="validateBank()" [disabled]="bankForm.invalid || bankValidating">
+              <span *ngIf="bankValidating" class="spinner-border spinner-border-sm me-1"></span>
+              <i *ngIf="!bankValidating" class="bi bi-shield-check me-1"></i>
+              {{ bankValidating ? 'Validating…' : 'Validate Account' }}
+            </button>
+            <span *ngIf="bankValidated" class="text-success small fw-semibold">
+              <i class="bi bi-check-circle-fill me-1"></i> Validated
+            </span>
+            <span *ngIf="bankError" class="text-danger small">{{ bankError }}</span>
+          </div>
+        </form>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn-cancel" (click)="prevStep()">
+          <i class="bi bi-arrow-left me-1"></i> Back
+        </button>
+        <div class="d-flex gap-2">
+          <button class="btn-cancel" (click)="saveDraft()">Save Draft</button>
+          <button class="btn-submit" (click)="nextStep()" [disabled]="bankForm.invalid || !bankValidated">
+            Next: Documents <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 5: Documents ───────────────────────────── -->
+    <div class="wizard-card" *ngIf="currentStep === 5">
+      <div class="wizard-card-header">
+        <i class="bi bi-paperclip"></i> Step 5 — Supporting Documents
+      </div>
+      <div class="wizard-card-body">
+        <p class="text-muted small mb-3">Bank Statement is mandatory. Max 20 MB. PDF, JPG, PNG only.</p>
+        <div class="row g-2 align-items-end mb-3">
+          <div class="col-md-4">
             <label class="form-label small fw-semibold">Document Type</label>
-            <select class="form-select form-select-sm" [(ngModel)]="selectedDocType">
+            <select class="form-input" [(ngModel)]="selectedDocType">
               <option *ngFor="let d of documentTypes" [value]="d.value">
                 {{ d.label }}{{ d.required ? ' *' : '' }}
               </option>
@@ -378,126 +401,92 @@
           </div>
           <div class="col-md-5">
             <label class="form-label small fw-semibold">Choose File</label>
-            <input
-              type="file"
-              class="form-control form-control-sm"
-              (change)="onFileSelect($event)"
-              accept=".pdf,.jpg,.jpeg,.png"
-              aria-label="Upload document"
-            >
+            <input type="file" class="form-input" (change)="onFileSelect($event)"
+                   accept=".pdf,.jpg,.jpeg,.png">
           </div>
         </div>
         <div *ngIf="uploadError" class="alert alert-danger py-2 small">
           <i class="bi bi-exclamation-triangle me-1"></i> {{ uploadError }}
         </div>
-      </div>
-
-      <!-- Uploaded files list -->
-      <div *ngIf="uploadedFiles.length > 0">
-        <div class="uploaded-file-item" *ngFor="let f of uploadedFiles; let i = index">
-          <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5" aria-hidden="true"></i>
+        <div *ngFor="let f of uploadedFiles; let i = index" class="uploaded-file-item">
+          <i class="bi bi-file-earmark-pdf text-danger fs-5 flex-shrink-0"></i>
           <div class="flex-grow-1">
             <div class="small fw-semibold">{{ f.name }}</div>
-            <div class="text-muted" style="font-size:0.72rem">{{ getDocTypeLabel(f.type) }} · {{ f.size }}</div>
+            <div class="td-sub">{{ getDocTypeLabel(f.type) }} · {{ f.size }}</div>
           </div>
-          <button class="btn btn-outline-danger btn-sm py-0 px-2" (click)="removeFile(i)" aria-label="Remove file">
-            <i class="bi bi-x-lg"></i>
+          <button class="btn-delete" (click)="removeFile(i)"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div *ngIf="!hasRequiredDocuments()" class="alert alert-warning py-2 small mt-2">
+          <i class="bi bi-exclamation-triangle me-1"></i>
+          <strong>Bank Statement</strong> is required.
+        </div>
+      </div>
+      <div class="wizard-card-footer">
+        <button class="btn-cancel" (click)="prevStep()">
+          <i class="bi bi-arrow-left me-1"></i> Back
+        </button>
+        <div class="d-flex gap-2">
+          <button class="btn-cancel" (click)="saveDraft()">Save Draft</button>
+          <button class="btn-submit" (click)="nextStep()" [disabled]="!hasRequiredDocuments()">
+            Next: Review <i class="bi bi-arrow-right ms-1"></i>
           </button>
         </div>
       </div>
+    </div>
 
-      <div *ngIf="!hasRequiredDocuments()" class="alert alert-warning py-2 small mt-2">
-        <i class="bi bi-exclamation-triangle me-1"></i>
-        <strong>Bank Statement</strong> is required before proceeding.
+    <!-- ── STEP 6: Review & Submit ────────────────────── -->
+    <div class="wizard-card" *ngIf="currentStep === 6">
+      <div class="wizard-card-header">
+        <i class="bi bi-clipboard2-check"></i> Step 6 — Review &amp; Submit
       </div>
-    </div>
-    <div class="wizard-card-footer">
-      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
-        <i class="bi bi-arrow-left me-1"></i> Back
-      </button>
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
-        <button class="btn btn-primary btn-sm" (click)="nextStep()" [disabled]="!hasRequiredDocuments()">
-          Next: Review <i class="bi bi-arrow-right ms-1"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── STEP 6: REVIEW & SUBMIT ───────────────────────────── -->
-  <div class="wizard-card" *ngIf="currentStep === 6">
-    <div class="wizard-card-header">
-      <i class="bi bi-clipboard2-check me-2"></i> Step 6 — Review &amp; Submit
-    </div>
-    <div class="wizard-card-body">
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <div class="review-section">
-            <div class="review-section-title"><i class="bi bi-info-circle me-1"></i> Application Details</div>
-            <div class="review-row"><span>Refund Type</span><span class="fw-semibold">{{ getRefundTypeLabel(selectedRefundType) }}</span></div>
-            <div class="review-row"><span>Source Records</span><span>{{ selectedSourceIds.size }} record(s)</span></div>
-            <div class="review-row">
-              <span>Requested Amount</span>
-              <span class="fw-bold text-success">{{ formatCurrency(requestedAmount) }}</span>
+      <div class="wizard-card-body">
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <div class="review-section">
+              <div class="review-section-title"><i class="bi bi-info-circle me-1"></i> Application</div>
+              <div class="review-row"><span class="text-muted">Refund Type</span><span class="fw-semibold">{{ getRefundTypeLabel(selectedRefundType) }}</span></div>
+              <div class="review-row"><span class="text-muted">Sources</span><span>{{ selectedSourceIds.size }} record(s)</span></div>
+              <div class="review-row"><span class="text-muted">Requested</span><span class="fw-bold" style="color:var(--success)">৳ {{ requestedAmount | number }}</span></div>
+              <div *ngIf="isOfficerRole && selectedTaxpayer" class="review-row">
+                <span class="text-muted">Taxpayer</span>
+                <span>{{ selectedTaxpayer.fullName || selectedTaxpayer.companyName }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="review-section">
+              <div class="review-section-title"><i class="bi bi-bank me-1"></i> Bank</div>
+              <div class="review-row"><span class="text-muted">Bank</span><span>{{ bankForm.value.bankName }}</span></div>
+              <div class="review-row"><span class="text-muted">Account</span><span class="font-monospace">████ {{ bankForm.value.accountNumber?.slice(-4) }}</span></div>
+              <div class="review-row"><span class="text-muted">Validated</span><span class="text-success fw-semibold"><i class="bi bi-shield-check me-1"></i>Yes</span></div>
             </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="review-section">
-            <div class="review-section-title"><i class="bi bi-bank me-1"></i> Bank Details</div>
-            <div class="review-row"><span>Bank</span><span>{{ bankForm.value.bankName }}</span></div>
-            <div class="review-row"><span>Branch</span><span>{{ bankForm.value.bankBranch }}</span></div>
-            <div class="review-row"><span>Account</span><span>████ {{ bankForm.value.accountNumber?.slice(-4) }}</span></div>
-            <div class="review-row"><span>Validated</span><span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Yes</span></div>
+        <div class="declaration-box">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="declaration" [(ngModel)]="declarationAgreed">
+            <label class="form-check-label small" for="declaration">
+              I hereby declare that all information provided is true, accurate, and complete.
+              Providing false information is an offense under the Income Tax Ordinance 1984.
+            </label>
           </div>
         </div>
       </div>
-
-      <div class="review-section mb-3">
-        <div class="review-section-title"><i class="bi bi-paperclip me-1"></i> Documents ({{ uploadedFiles.length }} uploaded)</div>
-        <div class="d-flex flex-wrap gap-2 mt-2">
-          <span *ngFor="let f of uploadedFiles" class="badge border text-secondary fw-normal" style="font-size:0.75rem">
-            <i class="bi bi-file-earmark me-1"></i> {{ f.name }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Declaration -->
-      <div class="declaration-box">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="declaration"
-            [(ngModel)]="declarationAgreed"
-          >
-          <label class="form-check-label small" for="declaration">
-            I hereby declare that all information provided in this refund application is true, accurate, and
-            complete to the best of my knowledge. I understand that providing false or misleading information
-            is an offense under the Income Tax Ordinance 1984 and applicable laws, and may result in penalties
-            and legal action.
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <div class="wizard-card-footer">
-      <button class="btn btn-outline-secondary btn-sm" (click)="prevStep()">
-        <i class="bi bi-arrow-left me-1"></i> Back
-      </button>
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" (click)="saveDraft()">Save Draft</button>
-        <button
-          class="btn btn-success btn-sm"
-          (click)="submitRefund()"
-          [disabled]="!declarationAgreed || submitting"
-        >
-          <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
-          <i *ngIf="!submitting" class="bi bi-send me-1"></i>
-          {{ submitting ? 'Submitting…' : 'Submit Application' }}
+      <div class="wizard-card-footer">
+        <button class="btn-cancel" (click)="prevStep()">
+          <i class="bi bi-arrow-left me-1"></i> Back
         </button>
+        <div class="d-flex gap-2">
+          <button class="btn-cancel" (click)="saveDraft()">Save Draft</button>
+          <button class="btn-submit" style="background:var(--success);border-color:var(--success);"
+                  (click)="submitRefund()" [disabled]="!declarationAgreed || submitting">
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!submitting" class="bi bi-send me-1"></i>
+            {{ submitting ? 'Submitting…' : 'Submit Application' }}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
+  </ng-container>
 </div>

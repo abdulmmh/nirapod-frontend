@@ -11,6 +11,7 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./user-create.component.css'],
 })
 export class UserCreateComponent implements OnDestroy {
+  
   isLoading = false;
   successMsg = '';
   errorMsg = '';
@@ -32,7 +33,7 @@ export class UserCreateComponent implements OnDestroy {
     'Data Management',
     'External',
   ];
-  statuses = ['Active', 'Inactive'];
+  statuses: ('Active' | 'Inactive' | 'Suspended')[] = ['Active', 'Inactive', 'Suspended'];
 
   form = {
     fullName: '',
@@ -42,7 +43,7 @@ export class UserCreateComponent implements OnDestroy {
     confirmPassword: '',
     role: '',
     department: '',
-    status: 'Active',
+    status: 'Active' as 'Active' | 'Inactive' | 'Suspended',
   };
 
   get passwordMismatch(): boolean {

@@ -3,25 +3,29 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HasRoleDirective, CanDoDirective } from '../core/directives/has-role.directive';
 import { ToastComponent } from './toast/toast.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { TaxpayerSearchComponent } from './taxpayer-search/taxpayer-search.component';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     HasRoleDirective,
     CanDoDirective,
-    ToastComponent
+    ToastComponent,
+    TaxpayerSearchComponent
   ],
   imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     RouterModule,
-    ReactiveFormsModule
   ],
   exports: [
     CommonModule,
     RouterModule,
     HasRoleDirective,
     CanDoDirective,
-    ToastComponent
+    ToastComponent,
+    TaxpayerSearchComponent
   ]
 })
 export class SharedModule { }

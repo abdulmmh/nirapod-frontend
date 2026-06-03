@@ -1,56 +1,146 @@
-export type RefundStatus = 'Pending' | 'Approved' | 'Rejected' | 'Processing' | 'Completed' | 'Cancelled';
-export type RefundType   = 'VAT Refund' | 'Income Tax Refund' | 'Excess Payment' | 'Other';
-export type RefundMethod = 'Bank Transfer' | 'Cheque' | 'Adjustment';
 
-export interface ActivityLog {
-  title: string;
-  description?: string;
-  date: string;
-  type: 'filed' | 'assigned' | 'verified' | 'approved' | 'rejected' | 'completed' | 'default';
+export type RefundType =
+  | 'INCOME_TAX'
+  | 'VAT'
+  | 'AIT'
+  | 'DUPLICATE_PAYMENT'
+  | 'APPEAL_DECISION'
+  | 'OTHER';
+
+export type RefundStatus =
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'UNDER_VERIFICATION'
+  | 'INFO_REQUESTED'
+  | 'RESPONSE_RECEIVED'
+  | 'RECOMMENDED'
+  | 'SUPERVISOR_REVIEW'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'PAYMENT_PENDING'
+  | 'PAYMENT_PROCESSING'
+  | 'PAID'
+  | 'FAILED'
+  | 'CANCELLED'
+  | 'CLOSED';
+
+export interface BankDetails {
+  bankName: string;
+  bankBranch: string;
+  accountHolderName: string;
+  accountNumber: string;
+  routingNumber: string;
+  mfsProvider?: string;
+  mfsNumber?: string;
 }
 
-export interface Refund {
+export interface EligibleSourceRecord {
   id: number;
-  refundNo: string;
-  taxpayerId: number;
+  reference: string;
+  periodLabel: string;
+  taxPaid: number;
+  taxLiability: number;
+  excessAmount: number;
+  fiscalYear: string;
+}
+
+export interface RefundCalculation {
+  totalTaxPaid: number;
+  totalTaxLiability: number;
+  previouslyClaimed: number;
+  eligibleRefundAmount: number;
+  calculationBasis: string;
+}
+
+export interface RefundSummary {
+  id: number;
+  refundReferenceNo: string;
+  tin: string;
   taxpayerName: string;
-  tinNumber: string;
   refundType: RefundType;
-  refundMethod: RefundMethod;
-  claimAmount: number;
-  approvedAmount: number;
-  paidAmount: number;
-  returnNo: string;
-  paymentRef: string;
-  bankName: string;
-  bankBranch: string;
-  accountNo: string;
-  claimDate: string;
-  approvalDate: string;
-  paymentDate: string;
+  fiscalYearName: string;
+  claimedRefundAmount: number;
+  verifiedRefundAmount: number | null;
+  approvedRefundAmount: number | null;
   status: RefundStatus;
-  processedBy: string;
-  approvedBy: string;
-  remarks: string;
-  activityLog?: ActivityLog[];
+  isFlaggedForAudit: boolean;
+  submittedAt: string | null;
+  approvedAt: string | null;
+  paidAt: string | null;
+  updatedAt: string | null;
+  documentCount: number;
 }
 
-export interface RefundCreateRequest {
-  taxpayerId: number | null;
-  refundType: string;
-  refundMethod: string;
-  claimAmount: number;
-  returnNo: string;
-  paymentRef: string;
-  bankName: string;
-  bankBranch: string;
-  accountNo: string;
-  claimDate: string;
-  remarks: string;
+export interface RefundDetail extends RefundSummary {
+  totalTaxPaid: number;
+  totalTaxLiability: number;
+  sources: any[];
+  bankDetails: BankDetails;
+  documents: any[];
+  statusHistory: any[];
+  rejectionReasonCode: string | null;
+  rejectionReasonText: string | null;
+  officerNotes: string | null;
+  supervisorNotes: string | null;
+  appealReferenceNo: string | null;
+  courtOrderNo: string | null;
+  bankValidated: boolean;
+  itrRecordId: number | null;
 }
 
-export interface RefundListResponse {
-  data: Refund[];
-  total: number;
-  page: number;
+export interface RefundFilterRequest {
+  status?: string;
+  refundType?: string;
+  fiscalYearId?: number;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDir?: string;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
+export interface CreateRefundRequest {
+  refundType: RefundType;
+  fiscalYearId: number;
+  taxpayerId?: number; // ← Officer: set this; Taxpayer: omit
+  sources: {
+    sourceType: string;
+    sourceRecordId: number;
+    sourceAmount: number;
+  }[];
+  requestedAmount: number;
+  bankDetails: BankDetails;
+  appealReferenceNo?: string;
+  courtOrderNo?: string;
+}
+
+export interface RespondRequest {
+  responseText: string;
+}
+
+export interface RefundStatusHistory {
+  id: number;
+  fromStatus: RefundStatus | null;
+  toStatus: RefundStatus;
+  changedByName: string;
+  changedByRole: string;
+  changedAt: string;
+  changeReason: string | null;
+}
+
+export interface RefundDocument {
+  id: number;
+  documentType: string;
+  documentName: string;
+  originalFilename: string;
+  fileSizeBytes: number;
+  verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  uploadedAt: string;
 }

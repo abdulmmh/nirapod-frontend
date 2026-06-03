@@ -3,7 +3,8 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { UserService, AppUser } from '../../services/user.service';
+import { UserService } from '../../services/user.service';
+import { User } from 'src/app/models/user.model';
 
 @Component({
   selector: 'app-user-list',
@@ -11,7 +12,7 @@ import { UserService, AppUser } from '../../services/user.service';
   styleUrls: ['./user-list.component.css'],
 })
 export class UserListComponent implements OnInit, OnDestroy {
-  users: AppUser[] = [];
+  users: User[] = [];
   searchTerm = '';
   isLoading = false;
   showDeleteModal = false;
@@ -50,7 +51,7 @@ export class UserListComponent implements OnInit, OnDestroy {
       });
   }
 
-  get filtered(): AppUser[] {
+  get filtered(): User[] {
     if (!this.searchTerm.trim()) return this.users;
     const term = this.searchTerm.toLowerCase();
     return this.users.filter(
