@@ -1,10 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { UserService } from '../../services/user.service';
 import { User } from 'src/app/models/user.model';
+import {
+  getRoleClass,
+  getRoleLabel,
+  getStatusClass,
+} from 'src/app/shared/helpers/role-display.helper';
 
 @Component({
   selector: 'app-user-list',
@@ -12,17 +17,18 @@ import { User } from 'src/app/models/user.model';
   styleUrls: ['./user-list.component.css'],
 })
 export class UserListComponent implements OnInit, OnDestroy {
+
   users: User[] = [];
-  searchTerm = '';
-  isLoading = false;
-  showDeleteModal = false;
+  searchTerm       = '';
+  isLoading        = false;
+  showDeleteModal  = false;
   pendingDeleteId: number | null = null;
   private destroy$ = new Subject<void>();
 
   constructor(
     private userService: UserService,
-    private router: Router,
-    private toast: ToastService
+    private router:      Router,
+    private toast:       ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -40,20 +46,19 @@ export class UserListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          this.users = data;
+          this.users     = data;
           this.isLoading = false;
         },
-        error: (err) => {
-          console.error('Failed to load users:', err);
-          this.toast.error('Failed to load users');
+        error: () => {
           this.isLoading = false;
-        }
+          this.toast.error('Failed to load users.');
+        },
       });
   }
 
   get filtered(): User[] {
-    if (!this.searchTerm.trim()) return this.users;
-    const term = this.searchTerm.toLowerCase();
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) return this.users;
     return this.users.filter(
       (u) =>
         u.fullName.toLowerCase().includes(term) ||
@@ -63,44 +68,13 @@ export class UserListComponent implements OnInit, OnDestroy {
     );
   }
 
-  getStatusClass(s: string): string {
-    return s === 'Active'
-      ? 'status-active'
-      : s === 'Suspended'
-        ? 'status-suspended'
-        : 'status-inactive';
-  }
+  // Delegate to shared helpers — no duplication
+  getRoleClass   = getRoleClass;
+  getRoleLabel   = getRoleLabel;
+  getStatusClass = getStatusClass;
 
-  getRoleClass(r: string): string {
-    const map: Record<string, string> = {
-      SUPER_ADMIN: 'role-super',
-      TAX_COMMISSIONER: 'role-commissioner',
-      TAX_OFFICER: 'role-officer',
-      AUDITOR: 'role-auditor',
-      DATA_ENTRY_OPERATOR: 'role-data',
-      TAXPAYER: 'role-taxpayer',
-    };
-    return map[r] ?? '';
-  }
-
-  getRoleLabel(r: string): string {
-    const map: Record<string, string> = {
-      SUPER_ADMIN: 'Super Admin',
-      TAX_COMMISSIONER: 'Commissioner',
-      TAX_OFFICER: 'Tax Officer',
-      AUDITOR: 'Auditor',
-      DATA_ENTRY_OPERATOR: 'Data Entry',
-      TAXPAYER: 'Taxpayer',
-    };
-    return map[r] ?? r;
-  }
-
-  view(id: number): void {
-    this.router.navigate(['/users/view', id]);
-  }
-  edit(id: number): void {
-    this.router.navigate(['/users/edit', id]);
-  }
+  view(id: number): void { this.router.navigate(['/users/view', id]); }
+  edit(id: number): void { this.router.navigate(['/users/edit', id]); }
 
   confirmDelete(id: number): void {
     this.pendingDeleteId = id;
@@ -119,8 +93,23 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
 
   private delete(id: number): void {
+    // Optimistic UI: remove from list immediately
+    const snapshot = [...this.users];
     this.users = this.users.filter((u) => u.id !== id);
-    this.toast.success('User deleted successfully.');
+
+    this.userService.delete(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('User deleted successfully.');
+        },
+        error: (err) => {
+          // Rollback optimistic update on failure
+          this.users = snapshot;
+          const message = err?.error?.message || 'Failed to delete user.';
+          this.toast.error(message);
+        },
+      });
   }
 
   private resetDeleteState(): void {

@@ -1,9 +1,18 @@
 import { Component, OnDestroy } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { UserService } from '../../services/user.service';
+import { ASSIGNABLE_ROLES, DEPARTMENTS } from 'src/app/shared/helpers/role-display.helper';
+
+// Cross-field validator: password === confirmPassword
+function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
+  const pw  = group.get('password')?.value;
+  const cpw = group.get('confirmPassword')?.value;
+  return pw && cpw && pw !== cpw ? { passwordMismatch: true } : null;
+}
 
 @Component({
   selector: 'app-user-create',
@@ -11,125 +20,83 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./user-create.component.css'],
 })
 export class UserCreateComponent implements OnDestroy {
-  
+
   isLoading = false;
-  successMsg = '';
-  errorMsg = '';
+  readonly roles       = ASSIGNABLE_ROLES;
+  readonly departments = DEPARTMENTS;
+  readonly statuses: ('Active' | 'Inactive' | 'Suspended')[] = ['Active', 'Inactive', 'Suspended'];
+
+  form: FormGroup;
   private destroy$ = new Subject<void>();
 
-  roles = [
-    'TAX_COMMISSIONER',
-    'TAX_OFFICER',
-    'AUDITOR',
-    'DATA_ENTRY_OPERATOR',
-    'TAXPAYER',
-  ];
-  departments = [
-    'IT Administration',
-    'Tax Commission',
-    'VAT Division',
-    'Income Tax Division',
-    'Audit Division',
-    'Data Management',
-    'External',
-  ];
-  statuses: ('Active' | 'Inactive' | 'Suspended')[] = ['Active', 'Inactive', 'Suspended'];
-
-  form = {
-    fullName: '',
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: '',
-    department: '',
-    status: 'Active' as 'Active' | 'Inactive' | 'Suspended',
-  };
-
-  get passwordMismatch(): boolean {
-    return !!(
-      this.form.password &&
-      this.form.confirmPassword &&
-      this.form.password !== this.form.confirmPassword
-    );
-  }
-
-  isFormValid(): boolean {
-    return !!(
-      this.form.fullName &&
-      this.form.username &&
-      this.form.email &&
-      this.form.password &&
-      this.form.role &&
-      !this.passwordMismatch
-    );
-  }
-
   constructor(
+    private fb:          FormBuilder,
     private userService: UserService,
-    private router: Router,
-    private toast: ToastService
-  ) {}
+    private router:      Router,
+    private toast:       ToastService,
+  ) {
+    this.form = this.fb.group(
+      {
+        fullName:        ['', [Validators.required, Validators.minLength(3)]],
+        username:        ['', [Validators.required, Validators.minLength(3)]],
+        email:           ['', [Validators.required, Validators.email]],
+        password:        ['', [Validators.required, Validators.minLength(8)]],
+        confirmPassword: ['', Validators.required],
+        role:            ['', Validators.required],
+        department:      [''],
+        status:          ['Active', Validators.required],
+      },
+      { validators: passwordMatchValidator },
+    );
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
+  // Convenience accessors for template readability
+  get f() { return this.form.controls; }
+
+  get passwordMismatch(): boolean {
+    return !!(
+      this.form.hasError('passwordMismatch') &&
+      this.f['confirmPassword'].touched
+    );
+  }
+
   onSubmit(): void {
-    if (!this.isFormValid()) {
-      this.errorMsg = 'Please fill in all required fields correctly.';
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
       this.toast.error('Please fill in all required fields correctly.');
       return;
     }
 
     this.isLoading = true;
-    this.errorMsg = '';
 
-    const newUser = {
-      fullName: this.form.fullName,
-      username: this.form.username,
-      email: this.form.email,
-      password: this.form.password,
-      role: this.form.role,
-      department: this.form.department,
-      status: this.form.status,
-    };
+    const { confirmPassword, ...payload } = this.form.value;
 
-    this.userService.create(newUser)
+    this.userService.create(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.isLoading = false;
-          this.successMsg = 'User created successfully!';
           this.toast.success('User created successfully!');
-          setTimeout(() => this.router.navigate(['/user-management']), 1500);
+          this.router.navigate(['/users']);
         },
         error: (err) => {
           this.isLoading = false;
-          const message = err?.error?.message || 'Failed to create user';
-          this.errorMsg = message;
+          const message = err?.error?.message || 'Failed to create user.';
           this.toast.error(message);
-        }
+        },
       });
   }
 
   onReset(): void {
-    this.form = {
-      fullName: '',
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      role: '',
-      department: '',
-      status: 'Active',
-    };
-    this.errorMsg = '';
-    this.successMsg = '';
+    this.form.reset({ status: 'Active' });
   }
 
   onCancel(): void {
-    this.router.navigate(['/user-management']);
+    this.router.navigate(['/users']);
   }
 }

@@ -3,85 +3,145 @@
     <h4>Edit User</h4>
     <p>Update user profile and access settings.</p>
   </div>
-  <button class="btn-back" (click)="onCancel()"><i class="bi bi-arrow-left"></i> Back to View</button>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back to View
+  </button>
 </div>
 
-<div class="alert-success" *ngIf="successMsg"><i class="bi bi-check-circle-fill"></i> {{ successMsg }}</div>
-<div class="alert-error"   *ngIf="errorMsg"><i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}</div>
-<div class="loading-overlay" *ngIf="isLoading"><div class="spinner-border text-primary"></div></div>
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
 
-<div class="form-card" *ngIf="!isLoading">
+<div class="form-card" *ngIf="!isLoading" [formGroup]="form">
 
   <div class="edit-banner">
     <i class="bi bi-pencil-square"></i>
-    Editing: <strong>{{ form.fullName }}</strong>
-    <span class="banner-sub">@{{ form.username }}</span>
+    Editing: <strong>{{ f['fullName'].value }}</strong>
+    <span class="banner-sub">@{{ f['username'].value }}</span>
   </div>
 
+  <!-- Personal Information -->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon"><i class="bi bi-person-fill"></i></div>
-      <div><h6 class="section-title">Personal Information</h6><span class="section-sub">Name and contact details</span></div>
+      <div>
+        <h6 class="section-title">Personal Information</h6>
+        <span class="section-sub">Name and contact details</span>
+      </div>
     </div>
+
     <div class="form-grid">
+
       <div class="form-group full-width">
         <label class="form-label required">Full Name</label>
-        <div class="input-wrap"><i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.fullName" />
+        <div class="input-wrap">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input type="text" class="form-input"
+            [class.error-input]="f['fullName'].invalid && f['fullName'].touched"
+            formControlName="fullName" />
         </div>
+        <span class="field-error"
+          *ngIf="f['fullName'].invalid && f['fullName'].touched">
+          Full name is required (min 3 characters).
+        </span>
       </div>
+
       <div class="form-group">
         <label class="form-label required">Username</label>
-        <div class="input-wrap"><i class="bi bi-at input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.username" />
+        <div class="input-wrap">
+          <i class="bi bi-at input-icon"></i>
+          <input type="text" class="form-input"
+            [class.error-input]="f['username'].invalid && f['username'].touched"
+            formControlName="username" />
         </div>
+        <span class="field-error"
+          *ngIf="f['username'].invalid && f['username'].touched">
+          Username is required (min 3 characters).
+        </span>
       </div>
+
       <div class="form-group">
         <label class="form-label required">Email</label>
-           <div class="input-wrap"><i class="bi bi-envelope-fill input-icon"></i>
-            <input type="email" class="form-input" [(ngModel)]="form.email" />
-          </div>
+        <div class="input-wrap">
+          <i class="bi bi-envelope-fill input-icon"></i>
+          <input type="email" class="form-input"
+            [class.error-input]="f['email'].invalid && f['email'].touched"
+            formControlName="email" />
+        </div>
+        <span class="field-error"
+          *ngIf="f['email'].invalid && f['email'].touched">
+          A valid email address is required.
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Role & Access -->
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-icon"><i class="bi bi-shield-fill-check"></i></div>
+      <div>
+        <h6 class="section-title">Role & Access</h6>
+        <span class="section-sub">Update role, department and status</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label class="form-label required">Role</label>
+        <div class="input-wrap">
+          <i class="bi bi-lock-fill input-icon"></i>
+          <select class="form-input form-select"
+            [class.error-input]="f['role'].invalid && f['role'].touched"
+            formControlName="role">
+            <option value="">Select Role</option>
+            <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+          </select>
+        </div>
+        <span class="field-error"
+          *ngIf="f['role'].invalid && f['role'].touched">
+          Please select a role.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Department</label>
+        <div class="input-wrap">
+          <i class="bi bi-building input-icon"></i>
+          <select class="form-input form-select" formControlName="department">
+            <option value="">Select Department</option>
+            <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+          </select>
         </div>
       </div>
+
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="input-wrap">
+          <i class="bi bi-toggle-on input-icon"></i>
+          <select class="form-input form-select" formControlName="status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
         </div>
-        <div class="section-divider"></div>
-        <div class="form-section">
-          <div class="section-header">
-            <div class="section-icon purple"><i class="bi bi-shield-fill-check"></i></div>
-            <div><h6 class="section-title">Role & Access</h6><span class="section-sub">Update role, department and status</span></div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label required">Role</label>
-              <div class="input-wrap"><i class="bi bi-lock-fill input-icon"></i>
-                <select class="form-input form-select" [(ngModel)]="form.role">
-                  <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Department</label>
-              <div class="input-wrap"><i class="bi bi-building input-icon"></i>
-                <select class="form-input form-select" [(ngModel)]="form.department">
-                  <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Status</label>
-              <div class="input-wrap"><i class="bi bi-toggle-on input-icon"></i>
-                <select class="form-input form-select" [(ngModel)]="form.status">
-                  <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"><i class="bi bi-x-lg"></i> Cancel</button>
-          <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving || !isFormValid()">
-            <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update User</span>
-            <span *ngIf="isSaving"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
-          </button>
       </div>
+
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="isSaving">
+      <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Update User</span>
+      <span *ngIf="isSaving">
+        <span class="spinner-border spinner-border-sm me-2"></span>Updating...
+      </span>
+    </button>
+  </div>
+
 </div>

@@ -128,39 +128,8 @@ export class DashboardHomeComponent
   complianceFiled = 0;
   compliancePending = 0;
 
-  // ── Zone-wise Collection (static — no backend endpoint yet) ──
-  zones = [
-    {
-      name: 'VAT Zone-1 (Dhaka)',
-      collection: 18.5,
-      target: 20,
-      color: '#1faa8b',
-    },
-    {
-      name: 'VAT Zone-2 (Chittagong)',
-      collection: 12.3,
-      target: 15,
-      color: '#1a3f8f',
-    },
-    {
-      name: 'VAT Zone-3 (Rajshahi)',
-      collection: 7.8,
-      target: 10,
-      color: '#7c3aed',
-    },
-    {
-      name: 'VAT Zone-4 (Sylhet)',
-      collection: 5.1,
-      target: 8,
-      color: '#f59e0b',
-    },
-    {
-      name: 'VAT Zone-5 (Khulna)',
-      collection: 4.2,
-      target: 7,
-      color: '#0891b2',
-    },
-  ];
+  // ── Zone-wise Collection — loaded from backend via loadAll() ──
+  zones: { name: string; collection: number; target: number; color: string }[] = [];
 
   // ── Recent Taxpayers ──
   recentTaxpayers: Array<{
@@ -283,12 +252,14 @@ export class DashboardHomeComponent
           ,
           ,
           fiscalYears,
+          zones,
         ]) => {
           this.applyStats(stats as DashboardStats);
           this.applyTaxpayers(taxpayers as RecentTaxpayer[]);
           this.applyPayments(payments as RecentPayment[]);
           this.applyChartData(chartData as DashboardChartData);
           this.applyFiscalYears(fiscalYears as FiscalYear[]);
+          if (Array.isArray(zones) && zones.length) this.zones = zones;
           // Redraw charts after Angular binds the new data
           timer(50).pipe(takeUntil(this.destroy$))
             .subscribe(() => this.redrawAllCharts());

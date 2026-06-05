@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
     RECENT_PAYMENTS: `${API_BASE_URL}/dashboard/recent-payments`,
     VAT_CHART: `${API_BASE_URL}/dashboard/vat-chart`,
     PAYMENT_CHART: `${API_BASE_URL}/dashboard/payment-chart`,
+    ZONE_VAT: `${API_BASE_URL}/dashboard/zone-vat`,
   },
 
   // Taxpayer
@@ -261,6 +262,7 @@ export const API_ENDPOINTS = {
   USERS: {
     LIST: `${API_BASE_URL}/users`,
     CREATE: `${API_BASE_URL}/users`,
+    GET: (id: number) => `${API_BASE_URL}/users/${id}`,
     UPDATE: (id: number) => `${API_BASE_URL}/users/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/users/${id}`,
   },

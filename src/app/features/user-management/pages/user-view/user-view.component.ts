@@ -1,104 +1,67 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { UserService } from '../../services/user.service';
 import { User } from 'src/app/models/user.model';
-
+import {
+  getRoleClass,
+  getRoleLabel,
+  getStatusClass,
+} from 'src/app/shared/helpers/role-display.helper';
 
 @Component({
   selector: 'app-user-view',
   templateUrl: './user-view.component.html',
   styleUrls: ['./user-view.component.css'],
 })
-export class UserViewComponent implements OnInit {
+export class UserViewComponent implements OnInit, OnDestroy {
+
   user: User | null = null;
   isLoading = true;
-
-  private fallback: User[] = [
-    {
-      id: 1,
-      fullName: 'System Administrator',
-      username: 'super_admin',
-      email: 'admin@nbr.gov.bd',
-      role: 'SUPER_ADMIN',
-      department: 'IT Administration',
-      lastLogin: '2026-04-01 08:31',
-      status: 'Active',
-      createdAt: '2024-01-01',
-    },
-    {
-      id: 2,
-      fullName: 'Mohammad Rahman',
-      username: 'tax_comm_01',
-      email: 'mrahman@nbr.gov.bd',
-      role: 'TAX_COMMISSIONER',
-      department: 'Tax Commission',
-      lastLogin: '2026-04-01 09:15',
-      status: 'Active',
-      createdAt: '2024-01-01',
-    },
-    {
-      id: 3,
-      fullName: 'Nusrat Jahan',
-      username: 'tax_off_01',
-      email: 'njahan@nbr.gov.bd',
-      role: 'TAX_OFFICER',
-      department: 'VAT Division',
-      lastLogin: '2026-03-31 14:22',
-      status: 'Active',
-      createdAt: '2024-01-15',
-    },
-  ];
+  private destroy$ = new Subject<void>();
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private toast: ToastService,
+    private route:       ActivatedRoute,
+    private router:      Router,
+    private userService: UserService,
+    private toast:       ToastService,
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.user = this.fallback.find((u) => u.id === id) || this.fallback[0];
-    if (this.user.id !== id) {
-      this.toast.warning('User not found. Showing the first available user.');
-    }
-    this.isLoading = false;
+
+    this.userService.getById(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user) => {
+          this.user      = user;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.isLoading = false;
+          const message = err?.error?.message || 'User not found.';
+          this.toast.error(message);
+          this.router.navigate(['/users']);
+        },
+      });
   }
 
-  getStatusClass(s: string): string {
-    return s === 'Active'
-      ? 'status-active'
-      : s === 'Suspended'
-        ? 'status-suspended'
-        : 'status-inactive';
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  getRoleLabel(r: string): string {
-    const map: Record<string, string> = {
-      SUPER_ADMIN: 'Super Administrator',
-      TAX_COMMISSIONER: 'Tax Commissioner',
-      TAX_OFFICER: 'Tax Officer',
-      AUDITOR: 'Auditor',
-      DATA_ENTRY_OPERATOR: 'Data Entry Operator',
-      TAXPAYER: 'Taxpayer',
-    };
-    return map[r] ?? r;
-  }
-
-  getRoleClass(r: string): string {
-    const map: Record<string, string> = {
-      SUPER_ADMIN: 'role-super',
-      TAX_COMMISSIONER: 'role-commissioner',
-      TAX_OFFICER: 'role-officer',
-      AUDITOR: 'role-auditor',
-      DATA_ENTRY_OPERATOR: 'role-data',
-      TAXPAYER: 'role-taxpayer',
-    };
-    return map[r] ?? '';
-  }
+  // Delegate to shared helpers — no duplication
+  getRoleClass  = getRoleClass;
+  getRoleLabel  = getRoleLabel;
+  getStatusClass = getStatusClass;
 
   onEdit(): void {
     this.router.navigate(['/users/edit', this.user?.id]);
   }
+
   onBack(): void {
     this.router.navigate(['/users']);
   }

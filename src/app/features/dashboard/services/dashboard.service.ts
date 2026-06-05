@@ -16,7 +16,10 @@ export class DashboardService extends BaseApiService {
 
   constructor(http: HttpClient) { super(http); }
 
-  getStats():           Observable<DashboardStats>   { return this.get<DashboardStats>(API_ENDPOINTS.DASHBOARD.STATS); }
+  // FIX: BaseApiService.get() takes flat params object directly
+  getStats(year?: string): Observable<DashboardStats> {
+    return this.get<DashboardStats>(API_ENDPOINTS.DASHBOARD.STATS, year ? { year } : undefined);
+  }
   getRecentTaxpayers(): Observable<RecentTaxpayer[]> { return this.get<RecentTaxpayer[]>(API_ENDPOINTS.DASHBOARD.RECENT_TAXPAYERS); }
   getRecentPayments():  Observable<RecentPayment[]>  { return this.get<RecentPayment[]>(API_ENDPOINTS.DASHBOARD.RECENT_PAYMENTS); }
 
@@ -26,11 +29,12 @@ export class DashboardService extends BaseApiService {
     );
   }
 
-  getChartData(): Observable<DashboardChartData> {
+  getChartData(year?: string): Observable<DashboardChartData> {
     const mock = this.mockChartData();
+    const p = year ? { year } : undefined;
     return forkJoin([
-      this.get<any[]>(API_ENDPOINTS.DASHBOARD.VAT_CHART).pipe(catchError(() => of(mock.vatChart))),
-      this.get<any[]>(API_ENDPOINTS.DASHBOARD.PAYMENT_CHART).pipe(catchError(() => of(mock.paymentChart))),
+      this.get<any[]>(API_ENDPOINTS.DASHBOARD.VAT_CHART, p).pipe(catchError(() => of(mock.vatChart))),
+      this.get<any[]>(API_ENDPOINTS.DASHBOARD.PAYMENT_CHART, p).pipe(catchError(() => of(mock.paymentChart))),
     ]).pipe(
       map(([vatChart, paymentChart]) => ({
         vatChart:       Array.isArray(vatChart)     ? vatChart     : mock.vatChart,
@@ -42,17 +46,23 @@ export class DashboardService extends BaseApiService {
     );
   }
 
-  loadAll(): Observable<any[]> {
+  loadAll(year?: string): Observable<any[]> {
+    const p = year ? { year } : undefined;
     return forkJoin([
-      this.getStats().pipe(catchError(()          => of(this.mockStats()))),
-      this.getRecentTaxpayers().pipe(catchError(() => of(this.mockTaxpayers()))),
-      this.getRecentPayments().pipe(catchError(()  => of(this.mockPayments()))),
-      this.getChartData().pipe(catchError(()       => of(this.mockChartData()))),
+      this.getStats(year).pipe(catchError(()        => of(this.mockStats()))),
+      this.getRecentTaxpayers().pipe(catchError(()  => of(this.mockTaxpayers()))),
+      this.getRecentPayments().pipe(catchError(()   => of(this.mockPayments()))),
+      this.getChartData(year).pipe(catchError(()    => of(this.mockChartData()))),
       of(this.mockAudits()),
       of(this.mockEntries()),
       of(this.mockNotices()),
       of(this.mockMyReturns()),
-      this.getFiscalYears(),  // index [8] — fiscal years
+      this.getFiscalYears(),
+      // index [9] — zone-wise VAT: try backend, fall back to mock
+      this.get<any[]>(API_ENDPOINTS.DASHBOARD.ZONE_VAT, p).pipe(
+        map(data => Array.isArray(data) && data.length ? data : this.mockZones()),
+        catchError(() => of(this.mockZones()))
+      ),
     ]);
   }
 
@@ -148,6 +158,16 @@ export class DashboardService extends BaseApiService {
         vatDueDay: 15, incomeTaxDueDate: '2025-11-30', isCurrentYear: false, status: 'Upcoming',
         createdAt: '2025-06-01'
       },
+    ];
+  }
+
+  mockZones(): { name: string; collection: number; target: number; color: string }[] {
+    return [
+      { name: 'VAT Zone-1 (Dhaka)',       collection: 18.5, target: 20, color: '#1faa8b' },
+      { name: 'VAT Zone-2 (Chittagong)',   collection: 12.3, target: 15, color: '#1a3f8f' },
+      { name: 'VAT Zone-3 (Rajshahi)',     collection:  7.8, target: 10, color: '#7c3aed' },
+      { name: 'VAT Zone-4 (Sylhet)',       collection:  5.1, target:  8, color: '#f59e0b' },
+      { name: 'VAT Zone-5 (Khulna)',       collection:  4.2, target:  7, color: '#0891b2' },
     ];
   }
 

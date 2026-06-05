@@ -8,27 +8,25 @@ import { User } from 'src/app/models/user.model';
 @Injectable({ providedIn: 'root' })
 export class UserService {
 
-  private readonly apiUrl = '/api/users';
-
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+    return this.http.get<User[]>(API_ENDPOINTS.USERS.LIST);
   }
 
   getById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${id}`);
+    return this.http.get<User>(API_ENDPOINTS.USERS.GET(id));
   }
 
   create(user: Partial<User>): Observable<User> {
-    return this.http.post<User>(this.apiUrl, user);
+    return this.http.post<User>(API_ENDPOINTS.USERS.CREATE, user);
   }
 
   update(id: number, user: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${id}`, user);
+    return this.http.put<User>(API_ENDPOINTS.USERS.UPDATE(id), user);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(API_ENDPOINTS.USERS.DELETE(id));
   }
 }
