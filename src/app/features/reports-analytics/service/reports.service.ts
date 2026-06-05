@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import {
   KpiSummary,
@@ -19,8 +19,6 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
 
-  private base = `${API_ENDPOINTS.REPORTS}`;
-
   constructor(private http: HttpClient) {}
 
   // ─── KPI & Dashboard ─────────────────────────────────────────────────────
@@ -30,29 +28,29 @@ export class ReportsService {
       .set('fiscalYear', fiscalYear)
       .set('zone', zone)
       .set('circle', circle);
-    return this.http.get<KpiSummary>(`${this.base}/kpi-summary`, { params });
+    return this.http.get<KpiSummary>(`${API_ENDPOINTS.REPORTS.KPI_SUMMARY}`, { params });
   }
 
   getRevenueTrend(fiscalYear: string, months = 12): Observable<TrendPoint[]> {
     const params = new HttpParams()
       .set('fiscalYear', fiscalYear)
       .set('months', months.toString());
-    return this.http.get<TrendPoint[]>(`${this.base}/revenue-trend`, { params });
+    return this.http.get<TrendPoint[]>(`${API_ENDPOINTS.REPORTS.REVENUE_TREND}`, { params });
   }
 
   getTaxBreakdown(fiscalYear: string, zone = ''): Observable<TaxBreakdown[]> {
     const params = new HttpParams().set('fiscalYear', fiscalYear).set('zone', zone);
-    return this.http.get<TaxBreakdown[]>(`${this.base}/tax-breakdown`, { params });
+    return this.http.get<TaxBreakdown[]>(`${API_ENDPOINTS.REPORTS.TAX_BREAKDOWN}`, { params });
   }
 
   getZonePerformance(fiscalYear: string): Observable<ZonePerformance[]> {
     const params = new HttpParams().set('fiscalYear', fiscalYear);
-    return this.http.get<ZonePerformance[]>(`${this.base}/zone-performance`, { params });
+    return this.http.get<ZonePerformance[]>(`${API_ENDPOINTS.REPORTS.ZONE_PERFORMANCE}`, { params });
   }
 
   getComplianceRate(fiscalYear: string, zone = ''): Observable<ComplianceData[]> {
     const params = new HttpParams().set('fiscalYear', fiscalYear).set('zone', zone);
-    return this.http.get<ComplianceData[]>(`${this.base}/compliance-rate`, { params });
+    return this.http.get<ComplianceData[]>(`${API_ENDPOINTS.REPORTS.COMPLIANCE_RATE}`, { params });
   }
 
   // ─── Detail Reports (paginated) ───────────────────────────────────────────
@@ -72,7 +70,7 @@ export class ReportsService {
       .set('status', status)
       .set('page', page.toString())
       .set('size', size.toString());
-    return this.http.get<PagedReport<VatCollectionRow>>(`${this.base}/vat-collection`, { params });
+    return this.http.get<PagedReport<VatCollectionRow>>(`${API_ENDPOINTS.REPORTS.VAT_COLLECTION}`, { params });
   }
 
   getIncomeTaxReport(
@@ -88,7 +86,7 @@ export class ReportsService {
       .set('taxpayerType', taxpayerType)
       .set('page', page.toString())
       .set('size', size.toString());
-    return this.http.get<PagedReport<IncomeTaxRow>>(`${this.base}/income-tax`, { params });
+    return this.http.get<PagedReport<IncomeTaxRow>>(`${API_ENDPOINTS.REPORTS.INCOME_TAX}`, { params });
   }
 
   getPenaltyReport(
@@ -104,7 +102,7 @@ export class ReportsService {
       .set('status', status)
       .set('page', page.toString())
       .set('size', size.toString());
-    return this.http.get<PagedReport<PenaltyReportRow>>(`${this.base}/penalty-collection`, { params });
+    return this.http.get<PagedReport<PenaltyReportRow>>(`${API_ENDPOINTS.REPORTS.PENALTY_COLLECTION}`, { params });
   }
 
   getRefundReport(
@@ -118,14 +116,14 @@ export class ReportsService {
       .set('status', status)
       .set('page', page.toString())
       .set('size', size.toString());
-    return this.http.get<PagedReport<RefundReportRow>>(`${this.base}/refund-status`, { params });
+    return this.http.get<PagedReport<RefundReportRow>>(`${API_ENDPOINTS.REPORTS.REFUND_STATUS}`, { params });
   }
 
   // ─── Export ────────────────────────────────────────────────────────────────
 
   exportReport(format: 'pdf' | 'excel' | 'csv', req: ReportExportRequest): Observable<Blob> {
     return this.http.post(
-      `${this.base}/export/${format}`,
+      `${API_ENDPOINTS.REPORTS.EXPORT}/${format}`,
       req,
       { responseType: 'blob' }
     );
@@ -141,4 +139,43 @@ export class ReportsService {
     a.click();
     window.URL.revokeObjectURL(url);
   }
+
+  getAitDeductionReport(
+    fiscalYear: string,
+    status: string,
+    sourceType: string,
+    page: number,
+    size: number
+  ): Observable<any> {
+    let params = new HttpParams()
+      .set('fiscalYear', fiscalYear)
+      .set('page', page)
+      .set('size', size);
+
+    if (status)     params = params.set('status', status);
+    if (sourceType) params = params.set('sourceType', sourceType);
+
+    return this.http.get<any>(
+      `${API_ENDPOINTS.REPORTS.AIT_DEDUCTION}`, { params }
+    ).pipe(catchError(() => of({ content: [], totalElements: 0, totalPages: 0 })));
+  }
+
+  getImportDutyReport(
+    fiscalYear: string,
+    status: string,
+    page: number,
+    size: number
+  ): Observable<any> {
+    let params = new HttpParams()
+      .set('fiscalYear', fiscalYear)
+      .set('page', page)
+      .set('size', size);
+
+    if (status) params = params.set('status', status);
+
+    return this.http.get<any>(
+      `${API_ENDPOINTS.REPORTS}/import-duty`, { params }
+    ).pipe(catchError(() => of({ content: [], totalElements: 0, totalPages: 0 })));
+  }
+
 }

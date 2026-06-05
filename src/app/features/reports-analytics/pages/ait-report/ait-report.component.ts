@@ -1,11 +1,21 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { ReportsService } from '../../service/reports.service';
 
+/**
+ * AitReportComponent — UPDATED for Gap B.
+ *
+ * Previously used generic /api/ait-records endpoint (no fiscal year filter).
+ * Now uses proper /api/reports/ait-deduction endpoint with:
+ *   - fiscalYear filter (via AitRecord.fiscalYear.yearName)
+ *   - status filter
+ *   - sourceType filter
+ *   - TAXPAYER role scoping (backend handles it)
+ *
+ * REPLACE your existing ait-report.component.ts with this file.
+ */
 @Component({
   selector: 'app-ait-report',
   templateUrl: './ait-report.component.html',
@@ -13,7 +23,6 @@ import { ReportsService } from '../../service/reports.service';
 })
 export class AitReportComponent implements OnInit, OnDestroy {
 
-  // AIT uses the existing /api/ait-records endpoint with fiscal year filter
   rows: any[] = [];
   isLoading = false;
   totalElements = 0;
@@ -21,6 +30,7 @@ export class AitReportComponent implements OnInit, OnDestroy {
 
   fiscalYear = '';
   activeStatus = '';
+  activeSourceType = '';
   searchTerm = '';
   page = 0;
   size = 20;
@@ -34,12 +44,20 @@ export class AitReportComponent implements OnInit, OnDestroy {
     { label: 'Rejected',     value: 'REJECTED' },
   ];
 
+  sourceTypeFilters = [
+    { label: 'All Sources', value: '' },
+    { label: 'Import',      value: 'IMPORT' },
+    { label: 'Salary',      value: 'SALARY' },
+    { label: 'Supplier',    value: 'SUPPLIER' },
+    { label: 'Contractor',  value: 'CONTRACTOR' },
+    { label: 'Rent',        value: 'RENT' },
+  ];
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient,
     private reportsService: ReportsService,
   ) {}
 
@@ -57,32 +75,17 @@ export class AitReportComponent implements OnInit, OnDestroy {
 
   loadData(): void {
     this.isLoading = true;
-
-    // AIT records use the existing AIT controller endpoint
-    // Paginated list with optional status filter
-    let params = new HttpParams()
-      .set('page', this.page)
-      .set('size', this.size);
-
-    if (this.activeStatus) {
-      params = params.set('status', this.activeStatus);
-    }
-
-    this.http
-      .get<any>(`${API_ENDPOINTS.AITS.LIST}`, { params })
+    // Now calls proper report endpoint with fiscal year filter
+    this.reportsService
+      .getAitDeductionReport(
+        this.fiscalYear, this.activeStatus,
+        this.activeSourceType, this.page, this.size)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (res) => {
-          // Handle both paginated and array responses
-          if (Array.isArray(res)) {
-            this.rows          = res;
-            this.totalElements = res.length;
-            this.totalPages    = 1;
-          } else {
-            this.rows          = res.content || res.data || [];
-            this.totalElements = res.totalElements || this.rows.length;
-            this.totalPages    = res.totalPages || 1;
-          }
+        next: (res: any) => {
+          this.rows          = res.content || [];
+          this.totalElements = res.totalElements || 0;
+          this.totalPages    = res.totalPages || 1;
         },
         error: () => { this.rows = []; },
       });
@@ -90,6 +93,12 @@ export class AitReportComponent implements OnInit, OnDestroy {
 
   filterByStatus(status: string): void {
     this.activeStatus = status;
+    this.page = 0;
+    this.loadData();
+  }
+
+  filterBySourceType(type: string): void {
+    this.activeSourceType = type;
     this.page = 0;
     this.loadData();
   }
@@ -126,8 +135,8 @@ export class AitReportComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatAmount(v: number | null | undefined): string {
+  formatAmount(v: any): string {
     if (!v) return '৳0.00';
-    return '৳' + v.toLocaleString('en-BD', { minimumFractionDigits: 2 });
+    return '৳' + Number(v).toLocaleString('en-BD', { minimumFractionDigits: 2 });
   }
 }

@@ -272,6 +272,18 @@ export const API_ENDPOINTS = {
     VAT_SUMMARY: `${API_BASE_URL}/reports/vat-summary`,
     PAYMENT_SUMMARY: `${API_BASE_URL}/reports/payment-summary`,
     TAXPAYER_STATS: `${API_BASE_URL}/reports/taxpayer-stats`,
+    KPI_SUMMARY: `${API_BASE_URL}/reports/kpi-summary`,
+    REVENUE_TREND: `${API_BASE_URL}/reports/revenue-trend`,
+    ZONE_PERFORMANCE: `${API_BASE_URL}/reports/zone-performance`,
+    COMPLIANCE_RATE: `${API_BASE_URL}/reports/compliance-rate`,
+    VAT_COLLECTION: `${API_BASE_URL}/reports/vat-collection`,
+    INCOME_TAX: `${API_BASE_URL}/reports/income-tax`,
+    PENALTY_COLLECTION: `${API_BASE_URL}/reports/penalty-collection`,
+    REFUND_STATUS: `${API_BASE_URL}/reports/refund-status`,
+    AIT_DEDUCTION: `${API_BASE_URL}/reports/ait-deduction`, // ← ADD
+    IMPORT_DUTY: `${API_BASE_URL}/reports/import-duty`, // ← ADD
+    TAX_BREAKDOWN: `${API_BASE_URL}/reports/tax-breakdown`, // ← ADD
+    EXPORT: `${API_BASE_URL}/reports/export`
   },
 
   // Auth
@@ -360,8 +372,8 @@ export const API_ENDPOINTS = {
     IMPORT_PORTS: `${API_BASE_URL}/master/import-duty/ports`,
     IMPORT_COUNTRIES: `${API_BASE_URL}/master/import-duty/countries`,
     IMPORT_DUTY_STATUSES: `${API_BASE_URL}/master/import-duty/statuses`,
-    
-    TAX_ZONES: `${API_BASE_URL}/master/tax-zones`, 
+
+    TAX_ZONES: `${API_BASE_URL}/master/tax-zones`,
     DISTRICTS_BY_DIVISION: (divisionId: number) =>
       `${API_BASE_URL}/master/divisions/${divisionId}/districts`,
     TAX_ZONES_BY_DISTRICT: (districtId: number) =>

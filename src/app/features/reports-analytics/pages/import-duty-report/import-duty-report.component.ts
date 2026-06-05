@@ -1,10 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
-import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
+import { ReportsService } from '../../service/reports.service';
 
+/**
+ * ImportDutyReportComponent — UPDATED for Gap B.
+ *
+ * Previously used generic /api/import-duty endpoint (no fiscal year filter).
+ * Now uses /api/reports/import-duty with createdAt year-range filtering.
+ *
+ * REPLACE your existing import-duty-report.component.ts with this file.
+ */
 @Component({
   selector: 'app-import-duty-report',
   templateUrl: './import-duty-report.component.html',
@@ -24,11 +31,11 @@ export class ImportDutyReportComponent implements OnInit, OnDestroy {
   size = 20;
 
   statusFilters = [
-    { label: 'All',       value: '' },
-    { label: 'Pending',   value: 'PENDING' },
-    { label: 'Cleared',   value: 'CLEARED' },
-    { label: 'Rejected',  value: 'REJECTED' },
+    { label: 'All',          value: '' },
+    { label: 'Pending',      value: 'PENDING' },
+    { label: 'Cleared',      value: 'CLEARED' },
     { label: 'Under Review', value: 'UNDER_REVIEW' },
+    { label: 'Rejected',     value: 'REJECTED' },
   ];
 
   private destroy$ = new Subject<void>();
@@ -36,7 +43,7 @@ export class ImportDutyReportComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient,
+    private reportsService: ReportsService,
   ) {}
 
   ngOnInit(): void {
@@ -53,29 +60,15 @@ export class ImportDutyReportComponent implements OnInit, OnDestroy {
 
   loadData(): void {
     this.isLoading = true;
-
-    let params = new HttpParams()
-      .set('page', this.page)
-      .set('size', this.size);
-
-    if (this.activeStatus) {
-      params = params.set('status', this.activeStatus);
-    }
-
-    this.http
-      .get<any>(API_ENDPOINTS.IMPORT_DUTIES.LIST, { params })
+    this.reportsService
+      .getImportDutyReport(
+        this.fiscalYear, this.activeStatus, this.page, this.size)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (res) => {
-          if (Array.isArray(res)) {
-            this.rows          = res;
-            this.totalElements = res.length;
-            this.totalPages    = 1;
-          } else {
-            this.rows          = res.content || res.data || [];
-            this.totalElements = res.totalElements || this.rows.length;
-            this.totalPages    = res.totalPages || 1;
-          }
+        next: (res: any) => {
+          this.rows          = res.content || [];
+          this.totalElements = res.totalElements || 0;
+          this.totalPages    = res.totalPages || 1;
         },
         error: () => { this.rows = []; },
       });
@@ -91,10 +84,11 @@ export class ImportDutyReportComponent implements OnInit, OnDestroy {
     if (!this.searchTerm.trim()) return this.rows;
     const q = this.searchTerm.toLowerCase();
     return this.rows.filter((r: any) =>
-      r.referenceNo?.toLowerCase().includes(q) ||
-      r.importerName?.toLowerCase().includes(q) ||
+      r.dutyRef?.toLowerCase().includes(q) ||
+      r.taxpayerName?.toLowerCase().includes(q) ||
+      r.tinNumber?.toLowerCase().includes(q) ||
       r.portOfEntry?.toLowerCase().includes(q) ||
-      r.commodityDescription?.toLowerCase().includes(q)
+      r.boeNumber?.toLowerCase().includes(q)
     );
   }
 
@@ -118,8 +112,8 @@ export class ImportDutyReportComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatAmount(v: number | null | undefined): string {
+  formatAmount(v: any): string {
     if (!v) return '৳0.00';
-    return '৳' + v.toLocaleString('en-BD', { minimumFractionDigits: 2 });
+    return '৳' + Number(v).toLocaleString('en-BD', { minimumFractionDigits: 2 });
   }
 }
