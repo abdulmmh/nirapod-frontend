@@ -106,7 +106,7 @@
             </span>
           </td>
 
-          <td>{{ c.creditedAt | date:'dd MMM yyyy' }}</td>
+          <td>{{ (c.creditedAt || c.creditDate) | date:'dd MMM yyyy' }}</td>
 
           <td>
             <div class="action-btns">
@@ -164,7 +164,7 @@
         </div>
         <div class="mobile-field">
           <label>Credited On</label>
-          <span>{{ c.creditedAt | date:'dd MMM yyyy' }}</span>
+          <span>{{ (c.creditedAt || c.creditDate) | date:'dd MMM yyyy' }}</span>
         </div>
       </div>
       <div class="mobile-card-actions">
@@ -254,11 +254,11 @@
           </div>
           <div class="meta-row">
             <span class="meta-label">Credited At</span>
-            <span class="meta-val">{{ selectedCredit.creditedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+            <span class="meta-val">{{ (selectedCredit.creditedAt || selectedCredit.creditDate) | date:'dd MMM yyyy, HH:mm' }}</span>
           </div>
-          <div class="meta-row" *ngIf="selectedCredit.notes">
+          <div class="meta-row" *ngIf="selectedCredit.notes || selectedCredit.remarks">
             <span class="meta-label">Notes</span>
-            <span class="meta-val">{{ selectedCredit.notes }}</span>
+            <span class="meta-val">{{ selectedCredit.notes || selectedCredit.remarks }}</span>
           </div>
         </div>
       </div>

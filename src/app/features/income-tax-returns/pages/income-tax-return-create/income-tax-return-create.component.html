@@ -697,7 +697,7 @@
       </div>
       
       <!-- AIT Credit Section — only show if taxpayer has available credits -->
-      <div class="form-card" *ngIf="availableCredits.length > 0">
+      <div class="card" *ngIf="isTaxpayerRole && availableCredits.length > 0">
         <div class="card-hdr">
           <div class="card-hdr-left">
             <div class="hdr-icon ic-green">

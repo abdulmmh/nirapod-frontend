@@ -1,69 +1,71 @@
-// ait-credit-ledger.service.ts
-// Add to: src/app/features/ait/services/ait-credit-ledger.service.ts
-
+// ✅ ait-credit-ledger.service.ts — complete rewrite
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { BaseApiService } from '../../../core/services/base-api.service';
 import { API_ENDPOINTS } from '../../../core/constants/api.constants';
+import { AitCreditLedger } from '../models/ait-credit-ledger.model';
 import {
-  AitCreditLedger,
+  AvailableCreditSummary,
+  CreditApplication,
   ApplyAitCreditPayload,
-  CreditRemainingSummary,
-} from '../../../models/ait-credit-ledger.model';
+} from '../models/ait-credit-ledger.model';
 
 @Injectable({ providedIn: 'root' })
 export class AitCreditLedgerService extends BaseApiService {
 
-  constructor(http: HttpClient) {
-    super(http);
+  constructor(http: HttpClient) { super(http); }
+
+  // ── Taxpayer: নিজের credits দেখা ────────────────────────────────────────
+
+  getMyCredits(): Observable<AitCreditLedger[]> {
+    return this.get<AitCreditLedger[]>(API_ENDPOINTS.AIT_CREDIT_LEDGER.MY);
   }
 
-  getAll(): Observable<AitCreditLedger[]> {
-    return this.get<AitCreditLedger[]>(API_ENDPOINTS.AIT_CREDIT_LEDGER.BASE);
+  getAvailableCredits(): Observable<AvailableCreditSummary[]> {
+    return this.get<AvailableCreditSummary[]>(
+      API_ENDPOINTS.AIT_CREDIT_LEDGER.MY_AVAILABLE
+    );
+  }
+
+  getTotalAvailableCredit(): Observable<{ totalAvailableCredit: number }> {
+    return this.get<{ totalAvailableCredit: number }>(
+      API_ENDPOINTS.AIT_CREDIT_LEDGER.MY_TOTAL
+    );
   }
 
   getById(id: number): Observable<AitCreditLedger> {
     return this.get<AitCreditLedger>(API_ENDPOINTS.AIT_CREDIT_LEDGER.BY_ID(id));
   }
 
-  getAvailable(taxpayerId: number): Observable<AitCreditLedger[]> {
+  // ── Officer: taxpayer-এর credits দেখা ───────────────────────────────────
+
+  getByTaxpayerId(taxpayerId: number): Observable<AitCreditLedger[]> {
     return this.get<AitCreditLedger[]>(
-      API_ENDPOINTS.AIT_CREDIT_LEDGER.AVAILABLE(taxpayerId)
+      API_ENDPOINTS.AIT_CREDIT_LEDGER.BY_TAXPAYER(taxpayerId)
     );
   }
 
-  getRemainingSummary(
-    taxpayerId: number,
-    fiscalYearId: number
-  ): Observable<CreditRemainingSummary> {
-    return this.get<CreditRemainingSummary>(
-      API_ENDPOINTS.AIT_CREDIT_LEDGER.REMAINING_SUMMARY,
-      { taxpayerId, fiscalYearId }
-    );
-  }
+  // ── ITR filing-এ credit apply করা ───────────────────────────────────────
 
-  applyToItr(
-    ledgerId: number,
-    payload: ApplyAitCreditPayload
-  ): Observable<AitCreditLedger> {
-    return this.post<AitCreditLedger>(
-      API_ENDPOINTS.AIT_CREDIT_LEDGER.APPLY_TO_ITR(ledgerId),
+  applyCredits(payload: ApplyAitCreditPayload): Observable<CreditApplication[]> {
+    return this.post<CreditApplication[]>(
+      API_ENDPOINTS.AIT_CREDIT_LEDGER.APPLY,
       payload
     );
   }
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ADD TO api.constants.ts — inside API_ENDPOINTS object:
-// ─────────────────────────────────────────────────────────────────────────────
-//
-//   AIT_CREDIT_LEDGER: {
-//     BASE:              `${API_BASE_URL}/ait-credit-ledger`,
-//     BY_ID:             (id: number) => `${API_BASE_URL}/ait-credit-ledger/${id}`,
-//     AVAILABLE:         (taxpayerId: number) =>
-//                          `${API_BASE_URL}/ait-credit-ledger/available/${taxpayerId}`,
-//     REMAINING_SUMMARY: `${API_BASE_URL}/ait-credit-ledger/remaining-summary`,
-//     APPLY_TO_ITR:      (id: number) =>
-//                          `${API_BASE_URL}/ait-credit-ledger/${id}/apply-to-itr`,
-//   },
+  // ── ITR-linked queries ───────────────────────────────────────────────────
+
+  getApplicationsForItr(itrId: number): Observable<CreditApplication[]> {
+    return this.get<CreditApplication[]>(
+      API_ENDPOINTS.AIT_CREDIT_LEDGER.ITR_APPLICATIONS(itrId)
+    );
+  }
+
+  getTotalAppliedToItr(itrId: number): Observable<{ totalAitCreditApplied: number }> {
+    return this.get<{ totalAitCreditApplied: number }>(
+      API_ENDPOINTS.AIT_CREDIT_LEDGER.ITR_TOTAL(itrId)
+    );
+  }
+}

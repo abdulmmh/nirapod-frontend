@@ -5,32 +5,47 @@
   </div>
 </div>
 
+<div class="loading-row" *ngIf="isLoading">
+  <div class="spinner-border spinner-border-sm text-primary"></div>
+  <span>Loading roles...</span>
+</div>
+
 <!-- Role Selector Cards -->
-<div class="role-selector">
+<div class="role-selector" *ngIf="!isLoading">
   <div class="role-card"
     *ngFor="let r of roles"
-    [class.selected]="selectedRole === r.role"
-    (click)="selectRole(r.role)">
-    <div class="rc-avatar" [ngClass]="getRoleColorClass(r.color)">
+    [class.selected]="selectedRole === r.code"
+    (click)="selectRole(r.code)">
+    <div class="rc-avatar"
+      [ngClass]="getRoleColorClass(r.color)"
+      [style]="getRoleColorStyle(r.color)">
       <i class="bi bi-person-badge-fill"></i>
     </div>
     <div class="rc-info">
-      <div class="rc-label">{{ r.label }}</div>
-      <div class="rc-count">{{ r.userCount }} user{{ r.userCount > 1 ? 's' : '' }}</div>
+      <div class="rc-label">{{ r.name }}</div>
+      <div class="rc-count">{{ r.status }}</div>
     </div>
     <div class="rc-perms">{{ countPermissions(r) }}<span>perms</span></div>
+  </div>
+
+  <div class="empty-state" *ngIf="roles.length === 0">
+    <i class="bi bi-shield-x"></i>
+    <p>No roles found. Create your first role.</p>
   </div>
 </div>
 
 <!-- Permission Matrix -->
-<div class="perm-section">
+<div class="perm-section" *ngIf="!isLoading && selectedRoleConfig">
+
   <div class="perm-header">
     <div class="ph-left">
-      <div class="ph-avatar" [ngClass]="getRoleColorClass(selectedRoleConfig.color)">
+      <div class="ph-avatar"
+        [ngClass]="getRoleColorClass(selectedRoleConfig.color)"
+        [style]="getRoleColorStyle(selectedRoleConfig.color)">
         <i class="bi bi-shield-fill-check"></i>
       </div>
       <div>
-        <div class="ph-title">{{ selectedRoleConfig.label }}</div>
+        <div class="ph-title">{{ selectedRoleConfig.name }}</div>
         <div class="ph-desc">{{ selectedRoleConfig.description }}</div>
       </div>
     </div>
@@ -55,23 +70,42 @@
         <tr *ngFor="let p of selectedRoleConfig.permissions; let odd = odd"
           [class.odd-row]="odd">
           <td class="module-name">{{ p.module }}</td>
-          <td><span class="perm-chip" [class.yes]="p.create" [class.no]="!p.create">
-            <i [class]="p.create ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
-          </span></td>
-          <td><span class="perm-chip" [class.yes]="p.read" [class.no]="!p.read">
-            <i [class]="p.read ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
-          </span></td>
-          <td><span class="perm-chip" [class.yes]="p.update" [class.no]="!p.update">
-            <i [class]="p.update ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
-          </span></td>
-          <td><span class="perm-chip" [class.yes]="p.delete" [class.no]="!p.delete">
-            <i [class]="p.delete ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
-          </span></td>
-          <td><span class="perm-chip" [class.yes]="p.export" [class.no]="!p.export">
-            <i [class]="p.export ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
-          </span></td>
+          <td>
+            <span class="perm-chip" [class.yes]="p.create" [class.no]="!p.create">
+              <i [class]="p.create ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+            </span>
+          </td>
+          <td>
+            <span class="perm-chip" [class.yes]="p.read" [class.no]="!p.read">
+              <i [class]="p.read ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+            </span>
+          </td>
+          <td>
+            <span class="perm-chip" [class.yes]="p.update" [class.no]="!p.update">
+              <i [class]="p.update ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+            </span>
+          </td>
+          <td>
+            <span class="perm-chip" [class.yes]="p.delete" [class.no]="!p.delete">
+              <i [class]="p.delete ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+            </span>
+          </td>
+          <td>
+            <span class="perm-chip" [class.yes]="p.export" [class.no]="!p.export">
+              <i [class]="p.export ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="selectedRoleConfig.permissions.length === 0">
+          <td colspan="6">
+            <div class="empty-state">
+              <i class="bi bi-shield"></i>
+              <p>No permissions configured for this role.</p>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
+
 </div>

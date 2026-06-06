@@ -8,13 +8,6 @@
   </button>
 </div>
 
-<div class="alert-success" *ngIf="successMsg">
-  <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
-</div>
-<div class="alert-error" *ngIf="errorMsg">
-  <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
-</div>
-
 <div class="form-card">
 
   <!-- Section 1: Role Info -->
@@ -26,25 +19,31 @@
         <span class="section-sub">Name, code and description</span>
       </div>
     </div>
+
     <div class="form-grid">
+
       <div class="form-group">
         <label class="form-label required">Role Name</label>
         <div class="input-wrap">
           <i class="bi bi-shield-fill input-icon"></i>
           <input type="text" class="form-input"
             placeholder="e.g. Senior Tax Officer"
-            [(ngModel)]="form.roleName"
+            [(ngModel)]="form.name"
             (ngModelChange)="onRoleNameChange()" />
         </div>
       </div>
+
       <div class="form-group">
-        <label class="form-label required">Role Code <span class="auto-label">Auto</span></label>
+        <label class="form-label required">
+          Role Code <span class="auto-label">Auto</span>
+        </label>
         <div class="input-wrap">
           <i class="bi bi-code-slash input-icon"></i>
           <input type="text" class="form-input auto-field"
-            [value]="form.roleCode || 'Auto from name'" readonly />
+            [value]="form.code || 'Auto from name'" readonly />
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Status</label>
         <div class="input-wrap">
@@ -55,15 +54,17 @@
           </select>
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Role Color</label>
         <div class="color-wrap">
           <input type="color" class="color-picker" [(ngModel)]="form.color" />
           <span class="color-preview" [style.background]="form.color">
-            {{ form.roleName || 'Role' }}
+            {{ form.name || 'Role' }}
           </span>
         </div>
       </div>
+
       <div class="form-group full-width">
         <label class="form-label">Description</label>
         <div class="input-wrap">
@@ -73,6 +74,7 @@
             [(ngModel)]="form.description" rows="2"></textarea>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -81,7 +83,7 @@
   <!-- Section 2: Permissions -->
   <div class="form-section">
     <div class="section-header">
-      <div class="section-icon purple"><i class="bi bi-lock-fill"></i></div>
+      <div class="section-icon"><i class="bi bi-lock-fill"></i></div>
       <div>
         <h6 class="section-title">Module Permissions</h6>
         <span class="section-sub">{{ selectedPermCount }} permissions selected</span>

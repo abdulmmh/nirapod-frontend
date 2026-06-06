@@ -4,14 +4,14 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { AitCreditService } from '../../services/ait-credit.service';
+import { AitCreditLedgerService } from '../../services/ait-credit-ledger.service';
 import { ToastService } from '../../../../shared/toast/toast.service';
 import {
   AitCreditLedger,
   CreditLedgerStatus,
   CREDIT_STATUS_LABELS,
   CREDIT_STATUS_CLASSES,
-} from '../../models/ait-credit.model';
+} from '../../models/ait-credit-ledger.model';
 import { AIT_SOURCE_LABELS } from '../../models/ait.model';
 
 @Component({
@@ -37,7 +37,7 @@ export class AitCreditLedgerComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private creditService: AitCreditService,
+    private creditService: AitCreditLedgerService,
     private toast: ToastService,
     private router: Router,
   ) {}

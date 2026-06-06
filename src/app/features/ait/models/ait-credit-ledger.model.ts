@@ -1,5 +1,3 @@
-// ait-credit-ledger.model.ts
-// Add to: src/app/models/ait-credit-ledger.model.ts
 
 export type CreditLedgerStatus =
   | 'AVAILABLE'
@@ -36,21 +34,51 @@ export interface AitCreditLedger {
 
   // Workflow
   status: CreditLedgerStatus;
-  creditDate: string;
+  creditedAt?: string;
+  creditDate?: string;
   appliedDate?: string;
   expiryDate?: string;
   creditedBy?: string;
   appliedBy?: string;
   remarks?: string;
+  notes?: string;
+  applications?: CreditApplication[];
 
   createdAt: string;
 }
 
-export interface ApplyAitCreditPayload {
-  itrId: number;
-  applyAmount?: number;
+export interface AvailableCreditSummary {
+  ledgerId:       number;   // selectedAmounts key হিসেবে ব্যবহার হয়
+  aitReferenceNo: string;   // template-এ দেখানো হয়
+  sourceType:     string;   // getSourceLabel() দিয়ে display হয়
+  fiscalYearId:   number;
+  fiscalYearName: string;   // template-এ দেখানো হয়
+  creditedAmount: number;
+  usedAmount:     number;
+  remainingAmount: number;  // display + toggleCredit + selectedAmounts max
 }
 
+export interface CreditApplication {
+  id: number;
+  ledgerId: number;
+  itrId: number;
+  itrReturnNo?: string;
+  appliedAmount: number;
+  appliedAt: string;
+  appliedBy: string;
+  status?: string;
+  reversalReason?: string;
+}
+
+export interface ApplyAitCreditPayload {
+  itrId: number;
+  credits: CreditItem[];  // ← backend expects list of items
+}
+
+export interface CreditItem {
+  ledgerId: number;
+  applyAmount: number;
+}
 export interface CreditRemainingSummary {
   taxpayerId: number;
   fiscalYearId: number;

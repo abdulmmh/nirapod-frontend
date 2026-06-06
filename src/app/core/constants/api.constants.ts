@@ -133,18 +133,15 @@ export const API_ENDPOINTS = {
     CREDIT: (id: number) => `${API_BASE_URL}/ait-records/${id}/credit`,
   },
 
-  AIT_CREDIT: {
-    MY: `${API_BASE_URL}/ait-credit-ledger/my`,
-    MY_AVAILABLE: `${API_BASE_URL}/ait-credit-ledger/my/available`,
-    MY_TOTAL: `${API_BASE_URL}/ait-credit-ledger/my/total`,
-    BY_ID: (id: number) => `${API_BASE_URL}/ait-credit-ledger/${id}`,
-    BY_TAXPAYER: (tpId: number) =>
-      `${API_BASE_URL}/ait-credit-ledger/taxpayer/${tpId}`,
-    APPLY: `${API_BASE_URL}/ait-credit-ledger/apply`,
-    ITR_APPLICATIONS: (itrId: number) =>
-      `${API_BASE_URL}/ait-credit-ledger/itr/${itrId}/applications`,
-    ITR_TOTAL: (itrId: number) =>
-      `${API_BASE_URL}/ait-credit-ledger/itr/${itrId}/total`,
+  AIT_CREDIT_LEDGER: {
+    MY:               `${API_BASE_URL}/ait-credit-ledger/my`,
+    MY_AVAILABLE:     `${API_BASE_URL}/ait-credit-ledger/my/available`,
+    MY_TOTAL:         `${API_BASE_URL}/ait-credit-ledger/my/total`,
+    BY_ID:            (id: number)     => `${API_BASE_URL}/ait-credit-ledger/${id}`,
+    BY_TAXPAYER:      (tpId: number)   => `${API_BASE_URL}/ait-credit-ledger/taxpayer/${tpId}`,
+    APPLY:            `${API_BASE_URL}/ait-credit-ledger/apply`,
+    ITR_APPLICATIONS: (itrId: number)  => `${API_BASE_URL}/ait-credit-ledger/itr/${itrId}/applications`,
+    ITR_TOTAL:        (itrId: number)  => `${API_BASE_URL}/ait-credit-ledger/itr/${itrId}/total`,
   },
 
   // Fiscal Years
@@ -265,6 +262,15 @@ export const API_ENDPOINTS = {
     GET: (id: number) => `${API_BASE_URL}/users/${id}`,
     UPDATE: (id: number) => `${API_BASE_URL}/users/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/users/${id}`,
+  },
+
+  // Roles
+  ROLES: {
+    LIST: `${API_BASE_URL}/roles`,
+    CREATE: `${API_BASE_URL}/roles`,
+    GET: (id: number) => `${API_BASE_URL}/roles/${id}`,
+    UPDATE: (id: number) => `${API_BASE_URL}/roles/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/roles/${id}`,
   },
 
   // Reports
