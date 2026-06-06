@@ -54,27 +54,34 @@
       <div class="dropdown-panel notif-panel" *ngIf="isNotifDropdownOpen">
         <div class="dropdown-header">
           <span>Notifications</span>
-          <span class="badge-count">{{ unreadCount }} New</span>
+          <span class="badge-count" *ngIf="unreadCount > 0">{{ unreadCount }} New</span>
         </div>
 
         <div class="notif-list">
+          <div class="notif-empty" *ngIf="isLoadingNotices">Loading notifications...</div>
+
+          <div class="notif-empty" *ngIf="!isLoadingNotices && recentNotices.length === 0">
+            No notifications
+          </div>
+
           <div
             class="notif-item"
-            *ngFor="let notif of notifications"
-            [class.unread]="notif.unread"
+            *ngFor="let notif of recentNotices"
+            [class.unread]="notif.status === 'Unread'"
+            (click)="viewNotice(notif, $event)"
           >
             <div class="notif-icon-wrap">
-              <i [class]="notif.icon"></i>
+              <i [class]="getNoticeIcon(notif.noticeType)"></i>
             </div>
             <div class="notif-body">
-              <p class="notif-text">{{ notif.text }}</p>
-              <span class="notif-time">{{ notif.time }}</span>
+              <p class="notif-text">{{ notif.subject }}</p>
+              <span class="notif-time">{{ getNoticeTime(notif.issuedDate) }}</span>
             </div>
           </div>
         </div>
 
         <div class="dropdown-footer">
-          <a href="#">View all notifications</a>
+          <a routerLink="/notices" (click)="viewAllNotices($event)">View all notifications</a>
         </div>
       </div>
     </div>

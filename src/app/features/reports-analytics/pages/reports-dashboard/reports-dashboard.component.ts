@@ -1,8 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy
-} from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { Router } from '@angular/router';
 import { Subject, forkJoin } from 'rxjs';
@@ -51,6 +47,9 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy {
   complianceData: ComplianceData[] = [];
   errorMsg = '';
   isExportingAll = false;
+
+    // dropdown open/close state
+  activeDropdown: string | null = null;
 
   // ─── Filter State ─────────────────────────────────────────────────────────
   filters: ReportFilter = {
@@ -445,13 +444,24 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy {
 
   // ─── Export ───────────────────────────────────────────────────────────────
 
-  downloadReport(reportType: string, event: MouseEvent): void {
+  downloadReport(
+    reportType: string,
+    format: 'pdf' | 'excel' | 'csv',
+    event: MouseEvent,
+  ): void {
+    event.stopPropagation();
     const card = this.reportCards.find((r) => r.reportType === reportType);
     if (!card) return;
     card.downloading = true;
 
+    const extensions: Record<string, string> = {
+      pdf: '.pdf',
+      excel: '.xlsx',
+      csv: '.csv',
+    };
+
     this.reportsService
-      .exportReport('excel', {
+      .exportReport(format, {
         reportType,
         fiscalYear: this.filters.fiscalYear,
         zone: this.filters.zone || undefined,
@@ -463,17 +473,26 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (blob) => {
-          const filename = `${reportType}_${this.filters.fiscalYear}.xlsx`;
+          const filename = `${reportType}_${this.filters.fiscalYear}${extensions[format]}`;
           this.reportsService.triggerBlobDownload(blob, filename);
-          this.toast.success(
-            `${card.title} downloaded successfully`,
-            'success',
-          );
+          this.toast.success(`${card.title} downloaded`, 'success');
         },
         error: () => {
           this.toast.error('Export failed. Please try again.', 'error');
         },
       });
+  }
+
+
+
+  toggleDropdown(reportType: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.activeDropdown =
+      this.activeDropdown === reportType ? null : reportType;
+  }
+
+  closeDropdown(): void {
+    this.activeDropdown = null;
   }
 
   exportAll(): void {

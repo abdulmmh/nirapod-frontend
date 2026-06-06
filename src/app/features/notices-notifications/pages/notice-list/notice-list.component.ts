@@ -6,6 +6,7 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Notice } from '../../../../models/notice.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Role } from '../../../../core/constants/roles.constants';
+import { NoticeService } from '../../services/notice.service';
 
 @Component({
   selector: 'app-notice-list',
@@ -173,6 +174,7 @@ export class NoticeListComponent implements OnInit {
     private route: ActivatedRoute,
     public authService: AuthService,
     private toast: ToastService,
+    private noticeService: NoticeService,
   ) {}
 
   ngOnInit(): void {
@@ -293,8 +295,15 @@ export class NoticeListComponent implements OnInit {
   }
 
   private delete(id: number): void {
-    this.notices = this.notices.filter((n) => n.id !== id);
-    this.toast.success('Notice deleted successfully.');
+    this.noticeService.delete(id).subscribe({
+      next: () => {
+        this.notices = this.notices.filter((n) => n.id !== id);
+        this.toast.success('Notice deleted successfully.');
+      },
+      error: () => {
+        this.toast.error('Failed to delete notice. Please try again.');
+      },
+    });
   }
 
   private resetDeleteState(): void {

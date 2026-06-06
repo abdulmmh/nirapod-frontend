@@ -2,7 +2,10 @@ import {
   Component, EventEmitter, OnDestroy, OnInit, Output,
   HostListener, ElementRef, ViewChild
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { NoticeService } from 'src/app/features/notices-notifications/services/notice.service';
+import { Notice } from 'src/app/models/notice.model';
 import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -20,25 +23,71 @@ export class TopbarComponent implements OnInit, OnDestroy {
   isNotifDropdownOpen = false;
   isSearchOpen = false;
   currentDate: string = '';
+  notices: Notice[] = [];
+  isLoadingNotices = false;
 
-  notifications = [
-    { icon: 'bi bi-file-earmark-text', text: 'New VAT Return submitted',    time: '5 min ago',  unread: true  },
-    { icon: 'bi bi-person-plus',        text: 'New taxpayer registered',      time: '1 hr ago',   unread: true  },
-    { icon: 'bi bi-exclamation-triangle',text: 'Penalty issued to TIN #44821',time: '3 hr ago',   unread: false },
-    { icon: 'bi bi-shield-check',        text: 'Audit #A-2024-009 completed', time: 'Yesterday',  unread: false },
-  ];
+  private readonly recentNoticeLimit = 5;
 
   get unreadCount(): number {
-    return this.notifications.filter(n => n.unread).length;
+    return this.notices.filter(n => n.status === 'Unread').length;
   }
 
-  constructor(private eRef: ElementRef, private authService: AuthService) {}
+  get recentNotices(): Notice[] {
+    return [...this.notices]
+      .sort((a, b) => new Date(b.issuedDate).getTime() - new Date(a.issuedDate).getTime())
+      .slice(0, this.recentNoticeLimit);
+  }
+
+  constructor(
+    private eRef: ElementRef,
+    private authService: AuthService,
+    private noticeService: NoticeService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     const now = new Date();
     this.currentDate = now.toLocaleDateString('en-GB', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
+    this.loadNotices();
+  }
+
+  loadNotices(): void {
+    this.isLoadingNotices = true;
+    this.noticeService.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.notices = data ?? [];
+          this.isLoadingNotices = false;
+        },
+        error: () => {
+          this.notices = [];
+          this.isLoadingNotices = false;
+        },
+      });
+  }
+
+  getNoticeIcon(type: string): string {
+    return this.noticeService.getTypeIcon(type);
+  }
+
+  getNoticeTime(issuedDate: string): string {
+    return this.noticeService.formatRelativeTime(issuedDate);
+  }
+
+  viewNotice(notice: Notice, event: Event): void {
+    event.stopPropagation();
+    this.isNotifDropdownOpen = false;
+    this.router.navigate(['/notices/view', notice.id]);
+  }
+
+  viewAllNotices(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isNotifDropdownOpen = false;
+    this.router.navigate(['/notices']);
   }
 
   ngOnDestroy(): void {
@@ -64,6 +113,9 @@ export class TopbarComponent implements OnInit, OnDestroy {
   toggleNotifDropdown(): void {
     this.isNotifDropdownOpen = !this.isNotifDropdownOpen;
     this.isUserDropdownOpen = false;
+    if (this.isNotifDropdownOpen) {
+      this.loadNotices();
+    }
   }
 
   @HostListener('document:click', ['$event'])

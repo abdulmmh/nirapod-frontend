@@ -328,6 +328,13 @@
   overflow-y: auto;
 }
 
+.notif-empty {
+  padding: 20px 16px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 13px;
+}
+
 .notif-item {
   display: flex;
   align-items: flex-start;
