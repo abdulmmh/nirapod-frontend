@@ -21,9 +21,7 @@
     <div class="wizard-card-body">
 
       <!-- Reuse existing taxpayer-search component from VAT module -->
-      <app-taxpayer-search
-        [selectedTaxpayer]="selectedTaxpayer"
-        (taxpayerSelected)="onTaxpayerSelected($event)"
+      <app-taxpayer-search [selectedTaxpayer]="selectedTaxpayer" (taxpayerSelected)="onTaxpayerSelected($event)"
         (taxpayerCleared)="onTaxpayerCleared()">
       </app-taxpayer-search>
 
@@ -64,9 +62,7 @@
       <button class="btn-cancel" (click)="cancel()">
         <i class="bi bi-x-lg me-1"></i> Cancel
       </button>
-      <button class="btn-submit"
-              (click)="confirmTaxpayerAndProceed()"
-              [disabled]="!selectedTaxpayerId">
+      <button class="btn-submit" (click)="confirmTaxpayerAndProceed()" [disabled]="!selectedTaxpayerId">
         Next: Select Refund Type <i class="bi bi-arrow-right ms-1"></i>
       </button>
     </div>
@@ -83,19 +79,15 @@
         {{ selectedTaxpayer.fullName || selectedTaxpayer.companyName }}
       </strong>
       <span class="code-badge ms-2">{{ selectedTaxpayer.tinNumber }}</span>
-      <button class="btn-cancel ms-auto" style="font-size:0.75rem;padding:3px 10px;"
-              (click)="currentStep = 0">
+      <button class="btn-cancel ms-auto" style="font-size:0.75rem;padding:3px 10px;" (click)="currentStep = 0">
         <i class="bi bi-pencil me-1"></i> Change
       </button>
     </div>
 
     <!-- Stepper -->
     <div class="stepper-wrapper mb-4" role="list" aria-label="Wizard steps">
-      <div *ngFor="let label of stepLabels; let i = index"
-           class="stepper-item"
-           [class.active]="currentStep === i + 1"
-           [class.completed]="currentStep > i + 1"
-           role="listitem">
+      <div *ngFor="let label of stepLabels; let i = index" class="stepper-item" [class.active]="currentStep === i + 1"
+        [class.completed]="currentStep > i + 1" role="listitem">
         <div class="stepper-circle" (click)="goToStep(i + 1)">
           <i *ngIf="currentStep > i + 1" class="bi bi-check-lg"></i>
           <span *ngIf="currentStep <= i + 1">{{ i + 1 }}</span>
@@ -121,20 +113,16 @@
         </p>
         <div class="row g-3">
           <div class="col-md-4 col-sm-6" *ngFor="let t of refundTypeOptions">
-            <div class="type-card"
-                 [class.type-card--selected]="selectedRefundType === t.value"
-                 (click)="selectedRefundType = t.value"
-                 role="radio" [attr.aria-checked]="selectedRefundType === t.value"
-                 tabindex="0"
-                 (keydown.enter)="selectedRefundType = t.value"
-                 (keydown.space)="selectedRefundType = t.value">
+            <div class="type-card" [class.type-card--selected]="selectedRefundType === t.value"
+              (click)="selectedRefundType = t.value" role="radio" [attr.aria-checked]="selectedRefundType === t.value"
+              tabindex="0" (keydown.enter)="selectedRefundType = t.value"
+              (keydown.space)="selectedRefundType = t.value">
               <div class="type-card-icon" [ngClass]="t.color">
                 <i [class]="t.icon" aria-hidden="true"></i>
               </div>
               <div class="type-card-label">{{ t.label }}</div>
               <div class="type-card-desc">{{ t.description }}</div>
-              <i class="bi bi-check-circle-fill type-card-check"
-                 *ngIf="selectedRefundType === t.value"></i>
+              <i class="bi bi-check-circle-fill type-card-check" *ngIf="selectedRefundType === t.value"></i>
             </div>
           </div>
         </div>
@@ -155,73 +143,111 @@
     <!-- ── STEP 2: Source Records ──────────────────────── -->
     <div class="wizard-card" *ngIf="currentStep === 2">
       <div class="wizard-card-header">
-        <i class="bi bi-database"></i> Step 2 — Select Source Records
-        <span class="ms-2 cat-badge cat-standard">{{ getRefundTypeLabel(selectedRefundType) }}</span>
+        <i class="bi bi-database"></i>
+        Step 2 — Select Source Records
+        <span class="ms-2 cat-badge cat-standard">
+          {{ getRefundTypeLabel(selectedRefundType) }}
+        </span>
       </div>
+
       <div class="wizard-card-body">
         <p class="text-muted small mb-3">
           Only eligible records with positive excess balances are shown.
+          Select one or more records to include in this refund application.
         </p>
 
+        <!-- Loading spinner -->
         <div *ngIf="loadingSources" class="text-center py-4">
           <div class="spinner-border spinner-border-sm text-primary"></div>
           <span class="ms-2 small text-muted">Loading eligible records…</span>
         </div>
 
+        <!-- Error with Retry -->
         <div *ngIf="!loadingSources && sourcesError" class="sources-error-box mb-3">
           <i class="bi bi-exclamation-triangle-fill"></i>
           {{ sourcesError }}
-          <button class="btn-cancel ms-auto" style="font-size:0.75rem;padding:3px 10px;"
-                  (click)="loadSources()">
+          <button class="btn-cancel ms-auto" style="font-size:0.75rem;padding:3px 10px;" (click)="loadSources()">
             <i class="bi bi-arrow-clockwise me-1"></i> Retry
           </button>
         </div>
 
+        <!-- Empty state -->
         <div *ngIf="!loadingSources && !sourcesError && eligibleSources.length === 0"
-             class="alert alert-info d-flex gap-2">
-          <i class="bi bi-info-circle-fill"></i>
+          class="alert alert-info d-flex gap-2 align-items-center py-2">
+          <i class="bi bi-info-circle-fill flex-shrink-0"></i>
           No eligible source records found for this refund type and fiscal year.
         </div>
 
+        <!-- Source records table — FIX: period inline in same row, not separate row -->
         <div class="table-responsive" *ngIf="!loadingSources && eligibleSources.length > 0">
           <table class="data-table source-table">
             <thead>
               <tr>
-                <th style="width:40px"></th>
-                <th>Reference</th>
+                <th style="width:44px"></th>
+                <th style="width:200px">Reference</th>
                 <th>Period</th>
-                <th class="text-end">Tax Paid</th>
-                <th class="text-end">Tax Liability</th>
-                <th class="text-end" style="color:var(--success)">Excess</th>
+                <th class="text-end" style="width:130px">Tax Paid</th>
+                <th class="text-end" style="width:130px">Tax Liability</th>
+                <th class="text-end" style="width:120px">Excess</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let s of eligibleSources"
-                  [class.source-row--selected]="isSourceSelected(s.id)"
-                  (click)="toggleSource(s.id)" style="cursor:pointer">
-                <td>
-                  <input type="checkbox" class="form-check-input"
-                         [checked]="isSourceSelected(s.id)"
-                         (click)="$event.stopPropagation(); toggleSource(s.id)">
+              <tr *ngFor="let s of eligibleSources" [class.source-row--selected]="isSourceSelected(s.id)"
+                (click)="toggleSource(s.id)" style="cursor:pointer" [attr.aria-selected]="isSourceSelected(s.id)">
+
+                <!-- Checkbox -->
+                <td style="text-align:center;vertical-align:middle">
+                  <input type="checkbox" class="form-check-input" [checked]="isSourceSelected(s.id)"
+                    (click)="$event.stopPropagation(); toggleSource(s.id)"
+                    style="width:16px;height:16px;cursor:pointer">
                 </td>
-                <td><span class="code-badge">{{ s.reference }}</span></td>
-                <td class="td-sub">{{ s.periodLabel }}</td>
-                <td class="text-end td-sub">৳ {{ s.taxPaid | number }}</td>
-                <td class="text-end td-sub">৳ {{ s.taxLiability | number }}</td>
-                <td class="text-end fw-semibold" style="color:var(--success)">
-                  ৳ {{ s.excessAmount | number }}
+
+                <!-- Reference — code badge style -->
+                <td style="vertical-align:middle">
+                  <span class="code-badge" style="font-size:0.72rem;display:inline-block">
+                    {{ s.reference }}
+                  </span>
                 </td>
+
+                <!-- Period — inline same row -->
+                <td class="td-sub" style="vertical-align:middle">
+                  {{ s.periodLabel }}
+                </td>
+
+                <!-- Tax Paid -->
+                <td class="text-end td-sub" style="vertical-align:middle">
+                  ৳ {{ s.taxPaid | number:'1.0-0' }}
+                </td>
+
+                <!-- Tax Liability -->
+                <td class="text-end td-sub" style="vertical-align:middle">
+                  ৳ {{ s.taxLiability | number:'1.0-0' }}
+                </td>
+
+                <!-- Excess — always green, never 0 (filtered by backend) -->
+                <td class="text-end" style="vertical-align:middle;color:var(--success,#198754);font-weight:600">
+                  ৳ {{ s.excessAmount | number:'1.0-0' }}
+                </td>
+
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div *ngIf="selectedSourceIds.size > 0" class="alert alert-success py-2 small mt-2">
-          <i class="bi bi-check2 me-1"></i>
-          {{ selectedSourceIds.size }} record(s) selected —
-          Total: <strong>৳ {{ selectedSourcesTotalExcess | number }}</strong>
+        <!-- Selection summary bar -->
+        <div *ngIf="selectedSourceIds.size > 0" class="d-flex align-items-center gap-2 mt-3 px-2 py-2 rounded"
+          style="background:#f0fdf4;border:1px solid #86efac;font-size:0.83rem">
+          <i class="bi bi-check2-circle text-success"></i>
+          <span>
+            <strong>{{ selectedSourceIds.size }}</strong> record(s) selected —
+            Total excess:
+            <strong style="color:var(--success,#198754)">
+              ৳ {{ selectedSourcesTotalExcess | number:'1.0-0' }}
+            </strong>
+          </span>
         </div>
       </div>
+
       <div class="wizard-card-footer">
         <button class="btn-cancel" (click)="prevStep()">
           <i class="bi bi-arrow-left me-1"></i> Back
@@ -272,7 +298,8 @@
           </div>
           <div class="alert alert-info d-flex gap-2 align-items-start small py-2">
             <i class="bi bi-lock flex-shrink-0 mt-1"></i>
-            <span>System-calculated. You may request a <strong>partial refund</strong> by entering a lower amount.</span>
+            <span>System-calculated. You may request a <strong>partial refund</strong> by entering a lower
+              amount.</span>
           </div>
           <div class="row mt-3">
             <div class="col-md-5">
@@ -281,10 +308,8 @@
               </label>
               <div class="input-group">
                 <span class="input-group-text">৳</span>
-                <input type="number" class="form-input"
-                       [(ngModel)]="requestedAmount"
-                       [max]="calculation.eligibleRefundAmount" min="1"
-                       [class.is-invalid]="amountExceedsEligible">
+                <input type="number" class="form-input" [(ngModel)]="requestedAmount"
+                  [max]="calculation.eligibleRefundAmount" min="1" [class.is-invalid]="amountExceedsEligible">
               </div>
               <div *ngIf="amountExceedsEligible" class="text-danger small mt-1">
                 Cannot exceed ৳ {{ calculation.eligibleRefundAmount | number }}.
@@ -317,7 +342,7 @@
             <div class="form-field">
               <label class="form-label">Bank Name <span class="text-danger">*</span></label>
               <input formControlName="bankName" list="bank-list" class="form-input"
-                     [class.is-invalid]="isFieldInvalid('bankName')" placeholder="e.g. Dutch-Bangla Bank Ltd">
+                [class.is-invalid]="isFieldInvalid('bankName')" placeholder="e.g. Dutch-Bangla Bank Ltd">
               <datalist id="bank-list">
                 <option value="Dutch-Bangla Bank Ltd">
                 <option value="BRAC Bank Ltd">
@@ -330,35 +355,32 @@
             </div>
             <div class="form-field">
               <label class="form-label">Branch <span class="text-danger">*</span></label>
-              <input formControlName="bankBranch" class="form-input"
-                     [class.is-invalid]="isFieldInvalid('bankBranch')">
+              <input formControlName="bankBranch" class="form-input" [class.is-invalid]="isFieldInvalid('bankBranch')">
               <div class="invalid-feedback">Required.</div>
             </div>
             <div class="form-field form-field--full">
               <label class="form-label">Account Holder Name <span class="text-danger">*</span></label>
               <input formControlName="accountHolderName" class="form-input"
-                     [class.is-invalid]="isFieldInvalid('accountHolderName')">
+                [class.is-invalid]="isFieldInvalid('accountHolderName')">
               <div class="invalid-feedback">Required.</div>
             </div>
             <div class="form-field">
               <label class="form-label">Account Number <span class="text-danger">*</span></label>
               <input formControlName="accountNumber" type="password" class="form-input"
-                     [class.is-invalid]="isFieldInvalid('accountNumber')"
-                     placeholder="13 digits" maxlength="13">
+                [class.is-invalid]="isFieldInvalid('accountNumber')" placeholder="13 digits" maxlength="13">
               <div class="invalid-feedback">Valid 13-digit number required.</div>
             </div>
             <div class="form-field">
               <label class="form-label">Routing Number <span class="text-danger">*</span></label>
               <input formControlName="routingNumber" class="form-input"
-                     [class.is-invalid]="isFieldInvalid('routingNumber')"
-                     placeholder="9 digits" maxlength="9">
+                [class.is-invalid]="isFieldInvalid('routingNumber')" placeholder="9 digits" maxlength="9">
               <div class="invalid-feedback">Valid 9-digit number required.</div>
             </div>
           </div>
           <div class="mt-3 d-flex align-items-center gap-3">
             <button type="button" class="btn-submit"
-                    style="background:var(--bg-card);color:var(--primary);border:1px solid var(--primary);"
-                    (click)="validateBank()" [disabled]="bankForm.invalid || bankValidating">
+              style="background:var(--bg-card);color:var(--primary);border:1px solid var(--primary);"
+              (click)="validateBank()" [disabled]="bankForm.invalid || bankValidating">
               <span *ngIf="bankValidating" class="spinner-border spinner-border-sm me-1"></span>
               <i *ngIf="!bankValidating" class="bi bi-shield-check me-1"></i>
               {{ bankValidating ? 'Validating…' : 'Validate Account' }}
@@ -401,8 +423,7 @@
           </div>
           <div class="col-md-5">
             <label class="form-label small fw-semibold">Choose File</label>
-            <input type="file" class="form-input" (change)="onFileSelect($event)"
-                   accept=".pdf,.jpg,.jpeg,.png">
+            <input type="file" class="form-input" (change)="onFileSelect($event)" accept=".pdf,.jpg,.jpeg,.png">
           </div>
         </div>
         <div *ngIf="uploadError" class="alert alert-danger py-2 small">
@@ -444,9 +465,12 @@
           <div class="col-md-6">
             <div class="review-section">
               <div class="review-section-title"><i class="bi bi-info-circle me-1"></i> Application</div>
-              <div class="review-row"><span class="text-muted">Refund Type</span><span class="fw-semibold">{{ getRefundTypeLabel(selectedRefundType) }}</span></div>
-              <div class="review-row"><span class="text-muted">Sources</span><span>{{ selectedSourceIds.size }} record(s)</span></div>
-              <div class="review-row"><span class="text-muted">Requested</span><span class="fw-bold" style="color:var(--success)">৳ {{ requestedAmount | number }}</span></div>
+              <div class="review-row"><span class="text-muted">Refund Type</span><span class="fw-semibold">{{
+                  getRefundTypeLabel(selectedRefundType) }}</span></div>
+              <div class="review-row"><span class="text-muted">Sources</span><span>{{ selectedSourceIds.size }}
+                  record(s)</span></div>
+              <div class="review-row"><span class="text-muted">Requested</span><span class="fw-bold"
+                  style="color:var(--success)">৳ {{ requestedAmount | number }}</span></div>
               <div *ngIf="isOfficerRole && selectedTaxpayer" class="review-row">
                 <span class="text-muted">Taxpayer</span>
                 <span>{{ selectedTaxpayer.fullName || selectedTaxpayer.companyName }}</span>
@@ -456,9 +480,12 @@
           <div class="col-md-6">
             <div class="review-section">
               <div class="review-section-title"><i class="bi bi-bank me-1"></i> Bank</div>
-              <div class="review-row"><span class="text-muted">Bank</span><span>{{ bankForm.value.bankName }}</span></div>
-              <div class="review-row"><span class="text-muted">Account</span><span class="font-monospace">████ {{ bankForm.value.accountNumber?.slice(-4) }}</span></div>
-              <div class="review-row"><span class="text-muted">Validated</span><span class="text-success fw-semibold"><i class="bi bi-shield-check me-1"></i>Yes</span></div>
+              <div class="review-row"><span class="text-muted">Bank</span><span>{{ bankForm.value.bankName }}</span>
+              </div>
+              <div class="review-row"><span class="text-muted">Account</span><span class="font-monospace">████ {{
+                  bankForm.value.accountNumber?.slice(-4) }}</span></div>
+              <div class="review-row"><span class="text-muted">Validated</span><span class="text-success fw-semibold"><i
+                    class="bi bi-shield-check me-1"></i>Yes</span></div>
             </div>
           </div>
         </div>
@@ -479,7 +506,7 @@
         <div class="d-flex gap-2">
           <button class="btn-cancel" (click)="saveDraft()">Save Draft</button>
           <button class="btn-submit" style="background:var(--success);border-color:var(--success);"
-                  (click)="submitRefund()" [disabled]="!declarationAgreed || submitting">
+            (click)="submitRefund()" [disabled]="!declarationAgreed || submitting">
             <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
             <i *ngIf="!submitting" class="bi bi-send me-1"></i>
             {{ submitting ? 'Submitting…' : 'Submit Application' }}

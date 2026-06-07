@@ -379,12 +379,12 @@ export class SidebarComponent implements OnInit {
         },
         {
           label: 'Tax Collection',
-          route: '/reports/tax',
+          route: '/reports/income-tax',
           icon: 'bi bi-cash-stack',
         },
         {
-          label: 'Audit Reports',
-          route: '/reports/audit',
+          label: 'Ait Reports',
+          route: '/reports/ait-report',
           icon: 'bi bi-shield-fill-check',
         },
         {

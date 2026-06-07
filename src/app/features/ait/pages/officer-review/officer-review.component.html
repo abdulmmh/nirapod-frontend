@@ -3,7 +3,7 @@
     <h4>AIT Review</h4>
     <p>Review, verify, and process this advance income tax record.</p>
   </div>
-  <button class="btn-back" routerLink="/ait/officer-dashboard">
+  <button class="btn-back" [routerLink]="backRoute">
     <i class="bi bi-arrow-left"></i> Back to Queue
   </button>
 </div>
@@ -209,8 +209,7 @@
           <div class="empty-state" *ngIf="documents.length === 0">
             <i class="bi bi-file-earmark-x" style="font-size:32px;color:#ccc"></i>
             <div style="margin-top:8px;color:#888;font-size:13px">No documents uploaded yet.</div>
-            <div *ngIf="isTaxpayerRole && ait.status === 'DRAFT'"
-              style="font-size:12px;color:#A32D2D;margin-top:4px">
+            <div *ngIf="isTaxpayerRole && ait.status === 'DRAFT'" style="font-size:12px;color:#A32D2D;margin-top:4px">
               Upload at least one document before submitting.
             </div>
           </div>
@@ -220,10 +219,10 @@
             <div class="doc-item" *ngFor="let doc of documents">
               <div class="doc-icon">
                 <i class="bi" [ngClass]="{
-                        'bi-filetype-pdf': doc.fileType.includes('pdf'),
-                        'bi-file-earmark-image': doc.fileType.includes('image'),
-                        'bi-file-earmark': !doc.fileType.includes('pdf') && !doc.fileType.includes('image')
-                    }"></i>
+                      'bi-filetype-pdf':      doc.fileType.includes('pdf'),
+                      'bi-file-earmark-image': doc.fileType.includes('image'),
+                      'bi-file-earmark': !doc.fileType.includes('pdf') && !doc.fileType.includes('image')
+                  }"></i>
               </div>
               <div class="doc-info">
                 <div class="doc-name">{{ doc.fileName }}</div>
@@ -266,7 +265,7 @@
             Make sure all documents are uploaded before submitting. Once submitted, you cannot edit this record.
           </p>
           <button class="btn btn-primary w-full" (click)="onSubmitRecord()"
-            [disabled]="isActioning || !ait.documents.length">
+            [disabled]="isActioning || documents.length">
             <i class="bi bi-send"></i> Submit AIT Record
           </button>
           <div class="field-hint text-danger mt-10" *ngIf="!ait.documents.length">

@@ -60,7 +60,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(count => this.unreadCount = count);
 
-    this.loadNotices();
+    // this.loadNotices();
   }
 
   loadNotices(): void {
@@ -151,5 +151,8 @@ export class TopbarComponent implements OnInit, OnDestroy {
   get currentUser() { return this.authService.currentUser; }
   get userInitial()  { return this.authService.currentUser?.fullName?.charAt(0) ?? 'A'; }
 
-  logout(): void { this.authService.logout(); }
+  logout(): void {
+      this.notificationSvc.stopPolling();
+     this.authService.logout();
+   }
 }

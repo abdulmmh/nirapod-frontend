@@ -234,8 +234,9 @@ export class RefundCreateComponent implements OnInit {
   calculateRefund(): void {
     this.calculationError = '';
     this.calculation      = null;
+
     this.refundService.calculateRefund(
-      this.selectedRefundType!,
+      this.sourceTypeFor(this.selectedRefundType!),  // ← FIX: 'INCOME_TAX' → 'ITR'
       Array.from(this.selectedSourceIds),
       this.resolvedTaxpayerId ?? undefined
     ).subscribe({
