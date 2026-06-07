@@ -46,7 +46,7 @@
           <div class="ref-box-row">
             <span class="ref-label">Submitted On</span>
             <span class="ref-value">
-              {{ refund.submittedAt ? (refund.submittedAt | date:'dd MMMM yyyy, hh:mm a') : (refund.updatedAt | date:'dd MMMM yyyy') }}
+              {{ refund.submittedAt ? (refund.submittedAt | date:'dd MMMM yyyy, hh:mm a') : (refund.approvedAt| date:'dd MMMM yyyy') }}
             </span>
           </div>
         </div>

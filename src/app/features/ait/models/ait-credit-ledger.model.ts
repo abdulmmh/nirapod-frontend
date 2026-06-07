@@ -77,7 +77,7 @@ export interface ApplyAitCreditPayload {
 
 export interface CreditItem {
   ledgerId: number;
-  applyAmount: number;
+  amountToApply: number;
 }
 export interface CreditRemainingSummary {
   taxpayerId: number;

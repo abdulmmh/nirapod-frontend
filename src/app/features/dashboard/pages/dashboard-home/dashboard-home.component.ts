@@ -40,13 +40,16 @@ export class DashboardHomeComponent
 {
   private destroy$ = new Subject<void>();
 
+  // FIX: track whether user has manually changed the year
+  // applyFiscalYears() will only set selectedYear on first load
+  private yearInitialised = false;
+
   currentUser: any;
   currentDate = new Date();
   selectedYear = '2024-25';
   isRefreshing = false;
   isLoading = true;
   hasError = false;
-  
 
   years = ['2024-25', '2023-24', '2022-23'];
 
@@ -128,8 +131,9 @@ export class DashboardHomeComponent
   complianceFiled = 0;
   compliancePending = 0;
 
-  // ── Zone-wise Collection — loaded from backend via loadAll() ──
-  zones: { name: string; collection: number; target: number; color: string }[] = [];
+  // ── Zone-wise Collection ──
+  zones: { name: string; collection: number; target: number; color: string }[] =
+    [];
 
   // ── Recent Taxpayers ──
   recentTaxpayers: Array<{
@@ -150,7 +154,7 @@ export class DashboardHomeComponent
     status: string;
   }> = [];
 
-  // ── Tax Type Breakdown (static — no breakdown endpoint yet) ──
+  // ── Tax Type Breakdown (static) ──
   taxBreakdown = [
     { label: 'VAT', value: 28.2, percentage: 61, color: '#1faa8b' },
     { label: 'Income Tax', value: 12.4, percentage: 27, color: '#1a3f8f' },
@@ -215,8 +219,8 @@ export class DashboardHomeComponent
   }
 
   ngAfterViewInit(): void {
-    // Initial draw (data may not be ready yet; loadDashboard will call again when done)
-    timer(100).pipe(takeUntil(this.destroy$))
+    timer(100)
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.redrawAllCharts());
   }
 
@@ -226,15 +230,15 @@ export class DashboardHomeComponent
   }
 
   // ─────────────────────────────────────────────
-  // Data Loading — wired to DashboardService
+  // Data Loading
   // ─────────────────────────────────────────────
 
-  private loadDashboard(): void {
+  private loadDashboard(year: string = ''): void {
     this.isLoading = true;
     this.hasError = false;
 
     this.dashboardService
-      .loadAll()
+      .loadAll(year)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
@@ -260,8 +264,8 @@ export class DashboardHomeComponent
           this.applyChartData(chartData as DashboardChartData);
           this.applyFiscalYears(fiscalYears as FiscalYear[]);
           if (Array.isArray(zones) && zones.length) this.zones = zones;
-          // Redraw charts after Angular binds the new data
-          timer(50).pipe(takeUntil(this.destroy$))
+          timer(50)
+            .pipe(takeUntil(this.destroy$))
             .subscribe(() => this.redrawAllCharts());
         },
         error: () => {
@@ -273,10 +277,12 @@ export class DashboardHomeComponent
       });
   }
 
-  // ── FiscalYear[] → dropdown + current year card ──
+  // ── FiscalYear[] → dropdown + current year card ──────────────────────────
+  // FIX: selectedYear শুধু প্রথমবার (yearInitialised=false) set হবে।
+  //      User year change করলে আর override হবে না।
   private applyFiscalYears(list: FiscalYear[]): void {
     if (!list?.length) return;
-    // Sort: Active first, then Upcoming, then Closed — within each by yearName desc
+
     this.fiscalYears = [...list].sort((a, b) => {
       const order: Record<string, number> = {
         Active: 0,
@@ -286,10 +292,14 @@ export class DashboardHomeComponent
       const diff = (order[a.status] ?? 3) - (order[b.status] ?? 3);
       return diff !== 0 ? diff : b.yearName.localeCompare(a.yearName);
     });
+
     this.currentFiscalYear =
       this.fiscalYears.find((y) => y.isCurrentYear) ?? this.fiscalYears[0];
-    if (this.currentFiscalYear) {
+
+    // FIX: শুধু প্রথম load এ selectedYear set করো
+    if (!this.yearInitialised && this.currentFiscalYear) {
       this.selectedYear = this.currentFiscalYear.yearName;
+      this.yearInitialised = true;
     }
   }
 
@@ -298,7 +308,7 @@ export class DashboardHomeComponent
     return new Date(dateStr) < new Date();
   }
 
-  // ── DashboardStats → statCards + gauge ──
+  // ── DashboardStats → statCards + gauge ───────────────────────────────────
   private applyStats(stats: DashboardStats): void {
     const revenueInCr = +(stats.totalRevenue / 10_000_000).toFixed(1);
 
@@ -318,7 +328,7 @@ export class DashboardHomeComponent
     this.statCards[4].change = stats.auditGrowth ?? -3.1;
 
     this.statCards[5].value = stats.pendingRefunds;
-    this.statCards[5].change = -5.2;
+    this.statCards[5].change = stats.refundGrowth ?? -5.2; // FIX: hardcoded -5.2 সরানো
 
     // Compliance gauge
     const totalFiled = stats.completedAudits ?? stats.totalVatReturns;
@@ -328,7 +338,7 @@ export class DashboardHomeComponent
     this.complianceFiled = totalFiled;
     this.compliancePending = stats.pendingAudits ?? 0;
 
-    // Normalised progress rings
+    // Progress rings
     this.statCards[0].progress = Math.min(
       100,
       Math.round((stats.totalTaxpayers / 30_000) * 100),
@@ -355,18 +365,18 @@ export class DashboardHomeComponent
     );
   }
 
-  // ── RecentTaxpayer[] → display list ──
+  // ── RecentTaxpayer[] → display list ──────────────────────────────────────
   private applyTaxpayers(list: RecentTaxpayer[]): void {
     this.recentTaxpayers = (list || []).slice(0, 5).map((t) => ({
       name: t.fullName,
       tin: t.tin,
-      type: 'Company', // extend backend model to expose type when ready
+      type: 'Company',
       date: t.registrationDate,
       status: t.status,
     }));
   }
 
-  // ── RecentPayment[] → display list ──
+  // ── RecentPayment[] → display list ───────────────────────────────────────
   private applyPayments(list: RecentPayment[]): void {
     this.recentPayments = (list || []).slice(0, 5).map((p) => ({
       ref: p.transactionId,
@@ -378,15 +388,13 @@ export class DashboardHomeComponent
     }));
   }
 
-  // ── DashboardChartData → chart arrays ──
+  // ── DashboardChartData → chart arrays ────────────────────────────────────
   private applyChartData(data: DashboardChartData): void {
     if (data?.vatChart?.length) {
       this.vatMonths = data.vatChart.map((d) => d.label);
-      // Backend stores raw BDT values → convert to Lakh for display
       this.vatData = data.vatChart.map((d) => +(d.value / 100_000).toFixed(1));
       this.vatMax = Math.ceil(Math.max(...this.vatData) * 1.25) || 70;
     }
-
     if (data?.paymentChart?.length) {
       this.payMonths = data.paymentChart.map((d) => d.label);
       this.payData = data.paymentChart.map(
@@ -402,15 +410,18 @@ export class DashboardHomeComponent
 
   onRefresh(): void {
     this.isRefreshing = true;
-    this.loadDashboard();
-    timer(1200).pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.isRefreshing = false;
-      if (!this.hasError) this.toast.success('Dashboard refreshed.');
-    });
+    this.loadDashboard(this.selectedYear); // FIX: refresh এও selectedYear পাঠাও
+    timer(1200)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.isRefreshing = false;
+        if (!this.hasError) this.toast.success('Dashboard refreshed.');
+      });
   }
 
-  onYearChange(): void {
-    this.loadDashboard();
+  onYearChange(year: string): void {
+    this.selectedYear = year;
+    this.loadDashboard(year);
   }
 
   // ─────────────────────────────────────────────
@@ -431,7 +442,8 @@ export class DashboardHomeComponent
   }
 
   getZonePercent(z: any): number {
-    return Math.round((z.collection / z.target) * 100);
+    if (!z.target || z.target === 0) return 0;
+    return Math.min(100, Math.round((z.collection / z.target) * 100));
   }
 
   getStatusClass(s: string): string {
@@ -480,11 +492,11 @@ export class DashboardHomeComponent
     if (!canvas) return;
     const ctx = this.setupCanvas(canvas);
     const rect = canvas.getBoundingClientRect();
-    const cx = rect.width / 2;
-    const cy = rect.height * 0.75;
-    const r = 90;
-    const start = Math.PI;
-    const val = start + (this.complianceRate / 100) * Math.PI;
+    const cx = rect.width / 2,
+      cy = rect.height * 0.75,
+      r = 90;
+    const start = Math.PI,
+      val = start + (this.complianceRate / 100) * Math.PI;
     ctx.clearRect(0, 0, rect.width, rect.height);
     ctx.beginPath();
     ctx.arc(cx, cy, r, start, 2 * Math.PI);
@@ -635,8 +647,8 @@ export class DashboardHomeComponent
     }
     this.payData.forEach((v, i) => {
       const x = pad.left + (i / (this.payData.length - 1)) * cw - barW / 2;
-      const bh = (v / this.payMax) * ch;
-      const y = pad.top + ch - bh;
+      const bh = (v / this.payMax) * ch,
+        y = pad.top + ch - bh;
       const g = ctx.createLinearGradient(0, y, 0, pad.top + ch);
       g.addColorStop(0, '#1a3f8f');
       g.addColorStop(1, '#1a3f8f30');

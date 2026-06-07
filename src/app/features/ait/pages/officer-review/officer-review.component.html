@@ -171,27 +171,78 @@
       </div>
 
       <!-- Documents -->
-      <div class="form-card">
-        <div class="section-header">
-          <div class="section-icon"><i class="bi bi-paperclip"></i></div>
-          <div>
-            <div class="section-title">Supporting Documents</div>
-            <div class="section-sub">{{ ait.documents.length }} file(s) attached</div>
+      <!-- Documents Section — Taxpayer ও Officer উভয়ই দেখবে, upload শুধু taxpayer + DRAFT status -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-hdr-left">
+            <div class="hdr-icon ic-blue">
+              <i class="bi bi-paperclip" style="font-size:12px;color:#185FA5"></i>
+            </div>
+            <div>
+              <div class="card-title">Supporting Documents</div>
+              <div class="card-sub">{{ documents.length }} file(s) uploaded</div>
+            </div>
           </div>
+          <!-- Upload button: শুধু DRAFT/REJECTED status-এ taxpayer upload করতে পারবে -->
+          <label class="btn btn-primary btn-sm"
+            *ngIf="isTaxpayerRole && (ait.status === 'DRAFT' || ait.status === 'REJECTED')"
+            [class.disabled]="isUploading" style="cursor:pointer">
+            <span *ngIf="!isUploading">
+              <i class="bi bi-upload"></i> Upload Document
+            </span>
+            <span *ngIf="isUploading">
+              <span class="spinner-border spinner-border-sm me-1"></span> Uploading…
+            </span>
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" (change)="onFileSelect($event)"
+              [disabled]="isUploading" />
+          </label>
         </div>
+
         <div class="card-p">
-          <div class="doc-list">
-            <a class="doc-item" *ngFor="let doc of ait.documents" [href]="getDocDownloadUrl(doc.id)" target="_blank">
-              <i class="bi bi-file-earmark-fill"></i>
-              <span class="doc-name">{{ doc.fileName }}</span>
-              <span class="doc-size">{{ (doc.fileSize / 1024).toFixed(1) }} KB</span>
-              <i class="bi bi-download ms-auto"></i>
-            </a>
+          <!-- Error -->
+          <div class="alert alert-warn" *ngIf="uploadError" style="margin-bottom:12px">
+            <div>⚠</div>
+            <div>{{ uploadError }}</div>
           </div>
+
           <!-- Empty state -->
-          <div class="empty-state-sm" *ngIf="!ait.documents.length">
-            <i class="bi bi-paperclip"></i>
-            <span>No documents attached.</span>
+          <div class="empty-state" *ngIf="documents.length === 0">
+            <i class="bi bi-file-earmark-x" style="font-size:32px;color:#ccc"></i>
+            <div style="margin-top:8px;color:#888;font-size:13px">No documents uploaded yet.</div>
+            <div *ngIf="isTaxpayerRole && ait.status === 'DRAFT'"
+              style="font-size:12px;color:#A32D2D;margin-top:4px">
+              Upload at least one document before submitting.
+            </div>
+          </div>
+
+          <!-- Document list -->
+          <div class="doc-list" *ngIf="documents.length > 0">
+            <div class="doc-item" *ngFor="let doc of documents">
+              <div class="doc-icon">
+                <i class="bi" [ngClass]="{
+                        'bi-filetype-pdf': doc.fileType.includes('pdf'),
+                        'bi-file-earmark-image': doc.fileType.includes('image'),
+                        'bi-file-earmark': !doc.fileType.includes('pdf') && !doc.fileType.includes('image')
+                    }"></i>
+              </div>
+              <div class="doc-info">
+                <div class="doc-name">{{ doc.fileName }}</div>
+                <div class="doc-meta">
+                  {{ formatFileSize(doc.fileSize) }} ·
+                  Uploaded by {{ doc.uploadedBy }} ·
+                  {{ doc.uploadedAt | date:'dd MMM yyyy' }}
+                </div>
+              </div>
+              <div class="doc-actions">
+                <button class="btn btn-sm btn-ghost" (click)="downloadDoc(doc)" title="Download">
+                  <i class="bi bi-download"></i>
+                </button>
+                <button class="btn btn-sm btn-ghost text-danger" *ngIf="isTaxpayerRole && ait.status === 'DRAFT'"
+                  (click)="deleteDoc(doc.id)" title="Remove">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

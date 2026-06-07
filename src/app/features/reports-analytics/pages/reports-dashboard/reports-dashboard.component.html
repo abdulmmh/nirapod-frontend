@@ -74,7 +74,7 @@
         <div class="kpi-icon teal"><i class="bi bi-receipt-cutoff"></i></div>
         <div class="kpi-body">
           <span class="kpi-label">VAT Collected</span>
-          <span class="kpi-value">৳{{ formatCrore(kpi.vatCollected) }} Cr</span>
+          <span class="kpi-value">৳{{  formatAmount(kpi.vatCollected) }} </span>
           <span class="kpi-change" [ngClass]="kpi.vatGrowthPct >= 0 ? 'positive' : 'negative'">
             <i [class]="kpi.vatGrowthPct >= 0 ? 'bi bi-arrow-up-right' : 'bi bi-arrow-down-right'"></i>
             {{ kpi.vatGrowthPct | number:'1.1-1' }}% vs last year
@@ -88,7 +88,7 @@
         <div class="kpi-icon purple"><i class="bi bi-file-earmark-text-fill"></i></div>
         <div class="kpi-body">
           <span class="kpi-label">Income Tax Collected</span>
-          <span class="kpi-value">৳{{ formatCrore(kpi.incomeTaxCollected) }} Cr</span>
+          <span class="kpi-value">৳{{  formatAmount(kpi.incomeTaxCollected) }} </span>
           <span class="kpi-change" [ngClass]="kpi.itGrowthPct >= 0 ? 'positive' : 'negative'">
             <i [class]="kpi.itGrowthPct >= 0 ? 'bi bi-arrow-up-right' : 'bi bi-arrow-down-right'"></i>
             {{ kpi.itGrowthPct | number:'1.1-1' }}% vs last year
@@ -102,7 +102,7 @@
         <div class="kpi-icon red"><i class="bi bi-truck-front-fill"></i></div>
         <div class="kpi-body">
           <span class="kpi-label">Import Duty Collected</span>
-          <span class="kpi-value">৳{{ formatCrore(kpi.importDutyCollected) }} Cr</span>
+          <span class="kpi-value">৳{{  formatAmount(kpi.importDutyCollected) }} </span>
           <span class="kpi-change" [ngClass]="kpi.importDutyGrowthPct >= 0 ? 'positive' : 'negative'">
             <i [class]="kpi.importDutyGrowthPct >= 0 ? 'bi bi-arrow-up-right' : 'bi bi-arrow-down-right'"></i>
             {{ kpi.importDutyGrowthPct | number:'1.1-1' }}% vs last year
@@ -116,7 +116,7 @@
         <div class="kpi-icon orange"><i class="bi bi-exclamation-triangle-fill"></i></div>
         <div class="kpi-body">
           <span class="kpi-label">Penalty Collected</span>
-          <span class="kpi-value">৳{{ formatCrore(kpi.penaltyCollected) }} Cr</span>
+          <span class="kpi-value">৳{{  formatAmount(kpi.penaltyCollected) }} </span>
           <span class="kpi-change neutral">
             <i class="bi bi-dash"></i> FY {{ filters.fiscalYear }}
           </span>
@@ -138,7 +138,7 @@
         <div class="kpi-icon teal"><i class="bi bi-percent"></i></div>
         <div class="kpi-body">
           <span class="kpi-label">Your AIT Deducted</span>
-          <span class="kpi-value">৳{{ formatCrore(kpi?.aitDeducted) }} Cr</span>
+          <span class="kpi-value">৳{{  formatAmount(kpi?.aitDeducted) }} </span>
           <span class="kpi-drill-hint">Click to view →</span>
         </div>
       </div>
@@ -146,7 +146,7 @@
         <div class="kpi-icon green"><i class="bi bi-arrow-return-left"></i></div>
         <div class="kpi-body">
           <span class="kpi-label">Your Refund Paid</span>
-          <span class="kpi-value">৳{{ formatCrore(kpi?.refundPaid) }} Cr</span>
+          <span class="kpi-value">৳{{  formatAmount(kpi?.refundPaid) }} </span>
           <span class="kpi-drill-hint">Click to view →</span>
         </div>
       </div>
@@ -197,7 +197,7 @@
       <div class="kpi-icon purple"><i class="bi bi-arrow-return-left"></i></div>
       <div class="kpi-body">
         <span class="kpi-label">Refund Paid Out</span>
-        <span class="kpi-value">৳{{ formatCrore(kpi.refundPaid) }} Cr</span>
+        <span class="kpi-value">৳{{  formatAmount(kpi.refundPaid) }} </span>
         <span class="kpi-drill-hint">Click to drill down →</span>
       </div>
     </div>

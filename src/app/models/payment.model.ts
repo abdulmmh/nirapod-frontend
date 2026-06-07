@@ -1,7 +1,8 @@
-export type PaymentStatus = 'Completed' | 'Pending' | 'Failed' | 'Cancelled';
+export type PaymentStatus = 'Completed' | 'Pending' | 'Under Review' | 'Failed' | 'Cancelled';
+ 
 export type PaymentType   = 'VAT' | 'Income Tax' | 'Penalty' | 'Other';
 export type PaymentMethod = 'Bank Transfer' | 'Online Banking' | 'Cheque' | 'Cash' | 'Mobile Banking';
-
+ 
 export interface Payment {
   id:            number;
   transactionId: string;

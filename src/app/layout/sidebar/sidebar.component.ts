@@ -389,7 +389,7 @@ export class SidebarComponent implements OnInit {
         },
         {
           label: 'Export Reports',
-          route: '/reports/export',
+          route: '/reports',
           icon: 'bi bi-download',
         },
       ],

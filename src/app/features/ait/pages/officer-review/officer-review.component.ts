@@ -17,6 +17,9 @@ import {
 import { Role } from 'src/app/core/constants/roles.constants';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ToastService } from 'src/app/shared/toast/toast.service';
+import { AitDocument } from '../../models/ait.model';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 
 interface WorkflowStep {
   status: AitStatus | string;
@@ -37,6 +40,11 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
   isTaxpayerRole = false;
 
   showRejectPanel = false;
+
+  documents: AitDocument[] = [];
+  isUploading = false;
+  uploadError: string | null = null;
+
 
   // Reactive forms (replacing old component-state approach)
   challanForm!: FormGroup;
@@ -66,6 +74,7 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
+    private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private aitService: AitService,
@@ -78,12 +87,19 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
       this.auth.hasRole(Role.TAX_OFFICER) ||
       this.auth.hasRole(Role.TAX_COMMISSIONER) ||
       this.auth.hasRole(Role.SUPER_ADMIN);
-    this.isTaxpayerRole = this.auth.hasRole(Role.TAXPAYER);
+    this.isTaxpayerRole = this.auth.hasRole(Role.TAXPAYER) && !this.isOfficerRole;
 
     this.buildForms();
 
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.loadRecord(id);
+    this.loadDocuments();
+  }
+
+  loadDocuments(): void {
+      this.http.get<AitDocument[]>(
+          API_ENDPOINTS.AITS.DOCUMENTS.LIST(this.ait?.id ?? 0)
+      ).subscribe(docs => this.documents = docs);
   }
 
   ngOnDestroy(): void {
@@ -176,6 +192,70 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
           this.toast.error(err?.error?.message ?? 'Submission failed.');
           this.isActioning = false;
         },
+      });
+  }
+
+  // Upload method:
+  onFileSelect(event: Event): void {
+      const input = event.target as HTMLInputElement;
+      const file  = input.files?.[0];
+      if (!file) return;
+
+      // Validation
+      if (file.size > 10 * 1024 * 1024) {
+          this.uploadError = 'File must be less than 10MB.';
+          return;
+      }
+      const allowed = ['application/pdf', 'image/jpeg', 'image/png'];
+      if (!allowed.includes(file.type)) {
+          this.uploadError = 'Only PDF, JPG, PNG files are allowed.';
+          return;
+      }
+
+      this.uploadError = null;
+      this.isUploading = true;
+      const formData = new FormData();
+      formData.append('file', file);
+
+      this.http.post<AitDocument>(
+          API_ENDPOINTS.AITS.DOCUMENTS.UPLOAD(this.ait?.id ?? 0),
+          formData
+      ).subscribe({
+          next: (doc) => {
+              this.documents.push(doc);
+              this.isUploading = false;
+              this.toast.success('Document uploaded successfully.');
+              input.value = '';    // reset input
+          },
+          error: (err) => {
+              this.isUploading = false;
+              this.uploadError = err.error?.message ?? 'Upload failed.';
+          }
+      });
+  }
+
+  deleteDoc(docId: number): void {
+      this.http.delete(
+          API_ENDPOINTS.AITS.DOCUMENTS.DELETE(this.ait?.id ?? 0, docId)
+      ).subscribe({
+          next: () => {
+              this.documents = this.documents.filter(d => d.id !== docId);
+              this.toast.success('Document removed.');
+          }
+      });
+  }
+
+  downloadDoc(doc: AitDocument): void {
+      this.http.get(
+          API_ENDPOINTS.AITS.DOCUMENTS.DOWNLOAD(this.ait?.id ?? 0, doc.id),
+          { responseType: 'blob' }
+      ).subscribe(blob => {
+          const url    = URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href     = url;
+          anchor.download = doc.fileName;
+          anchor.click();
+          URL.revokeObjectURL(url);
       });
   }
 
@@ -338,10 +418,6 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
     return map[source] ?? 'bi-receipt';
   }
 
-  getDocDownloadUrl(docId: number): string {
-    return `http://localhost:8080/api/ait-records/${this.ait?.id}/documents/${docId}/download`;
-  }
-
   formatCurrency(value: number | undefined): string {
     if (value == null) return '৳0';
     return (
@@ -351,5 +427,17 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
         maximumFractionDigits: 2,
       })
     );
+  }
+
+  formatFileSize(bytes: number, decimals: number = 2): string {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 }

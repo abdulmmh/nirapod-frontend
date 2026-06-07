@@ -77,6 +77,7 @@ export class DashboardService extends BaseApiService {
       vatReturnGrowth: 15.2, paymentGrowth: 9.7,
       totalAudits: 890, completedAudits: 748,
       flaggedCases: 34, auditGrowth: 6.4,
+      refundGrowth: 4.2,
       todayEntries: 47, pendingTasks: 12,
       taxpayersAddedThisMonth: 183,
       myVatReturns: 6, myPayments: 8,

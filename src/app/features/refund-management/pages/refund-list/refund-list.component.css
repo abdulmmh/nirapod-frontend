@@ -1,55 +1,159 @@
-.page-title { font-size: 1.25rem; font-weight: 600; color: #1a1a1a; }
+/* refund-list.component.css
+   Mirrors audit-list.component.css pattern exactly.
+   Base styles from global-styles.css — only refund-specific here. */
 
-/* Summary cards */
-.summary-card {
-  background: #fff;
-  border: 1px solid #e8e6e1;
-  border-radius: 12px;
-  padding: 16px;
+/* ── KPI Row ─────────────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  padding: 0 24px 20px;
+}
+@media (max-width: 1100px) { .kpi-row { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px)  { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+
+.kpi-card {
+  background: var(--bg-card);
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
-  transition: box-shadow .15s;
+  gap: 12px;
+  box-shadow: var(--shadow-card);
 }
-.summary-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
 
-.summary-icon {
-  width: 46px; height: 46px; border-radius: 10px;
+.kpi-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.25rem; flex-shrink: 0;
+  font-size: 1.1rem; flex-shrink: 0;
 }
-.summary-icon--blue  { background: #e6f1fb; color: #0c447c; }
-.summary-icon--green { background: #eaf3de; color: #27500a; }
-.summary-icon--teal  { background: #e1f5ee; color: #085041; }
-.summary-icon--amber { background: #faeeda; color: #633806; }
+.kpi-total    { background: #e6f1fb; color: #0c447c; }
+.kpi-pending  { background: #fef3c7; color: #92400e; }
+.kpi-approved { background: #dcfce7; color: #166534; }
+.kpi-paid     { background: #e0f2fe; color: #075985; }
+.kpi-rejected { background: #fee2e2; color: #991b1b; }
 
-.summary-label { font-size: 0.72rem; color: #6c757d; text-transform: uppercase; letter-spacing: .4px; }
-.summary-value { font-size: 1.15rem; font-weight: 600; color: #1a1a1a; margin-top: 2px; }
-.summary-sub   { font-size: 0.72rem; color: #9e9d98; margin-top: 2px; }
+.kpi-value { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+.kpi-label { font-size: 0.70rem; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: .3px; }
 
-/* Table */
-.ref-link {
-  color: #185fa5; cursor: pointer; font-size: 0.83rem;
-  text-decoration: none;
+/* ── Reference code badge ────────────────────────────────────── */
+.refund-code {
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--bg-subtle);
+  color: var(--primary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-default);
+  white-space: nowrap;
 }
-.ref-link:hover { text-decoration: underline; }
 
+/* ── Audit flag icon ─────────────────────────────────────────── */
+.audit-flag { color: var(--danger); font-size: 0.7rem; }
+
+/* ── Refund Type badges ──────────────────────────────────────── */
 .type-badge {
-  font-size: 0.72rem; font-weight: 500; padding: 2px 9px;
-  border-radius: 10px; background: #f1efe8; color: #444441;
-  border: 1px solid #dcdbd5;
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.71rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.type-income-tax    { background: #e6f1fb; color: #0c447c; border: 1px solid #b5d4f4; }
+.type-vat           { background: #e1f5ee; color: #085041; border: 1px solid #9fe2c6; }
+.type-ait           { background: #eeedfe; color: #3c3489; border: 1px solid #c4bffc; }
+.type-duplicate     { background: #faeeda; color: #633806; border: 1px solid #f6c97f; }
+.type-appeal        { background: #ede9fe; color: #4c1d95; border: 1px solid #c4b5fd; }
+.type-other         { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-default); }
+
+/* ── Priority / Risk badges ──────────────────────────────────── */
+.pri-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.risk-low      { background: #dcfce7; color: #166534; }
+.risk-medium   { background: #fef3c7; color: #92400e; }
+.risk-high     { background: #fee2e2; color: #991b1b; }
+.risk-critical { background: #7f1d1d; color: #fff; }
+
+/* ── Status badges ───────────────────────────────────────────── */
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.71rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-draft               { background: #f1f5f9; color: #475569; }
+.status-submitted           { background: #e6f1fb; color: #0c447c; }
+.status-under-verification  { background: #fef3c7; color: #92400e; }
+.status-info-requested      { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+.status-response-received   { background: #e0f2fe; color: #075985; }
+.status-recommended         { background: #ede9fe; color: #4c1d95; }
+.status-supervisor-review   { background: #fae8ff; color: #701a75; }
+.status-approved            { background: #dcfce7; color: #166534; }
+.status-rejected            { background: #fee2e2; color: #991b1b; }
+.status-payment-pending     { background: #fef9c3; color: #713f12; }
+.status-payment-processing  { background: #e0f2fe; color: #075985; }
+.status-paid                { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+.status-failed              { background: #fee2e2; color: #7f1d1d; }
+.status-cancelled           { background: #f1f5f9; color: #475569; text-decoration: line-through; }
+.status-closed              { background: #f0fdf4; color: #166534; }
+
+/* ── Amounts ─────────────────────────────────────────────────── */
+.amount-cell { font-variant-numeric: tabular-nums; font-weight: 500; color: var(--text-primary); }
+.approved-amt { color: #166534; }
+
+/* ── Respond button ──────────────────────────────────────────── */
+.btn-respond {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: var(--radius-sm);
+  font-size: 0.75rem; font-weight: 500; cursor: pointer;
+  background: #fff8e1; color: #b45309;
+  border: 1px solid #fbbf24; transition: background .15s;
+}
+.btn-respond:hover { background: #fef3c7; }
+
+/* ── Pagination row ──────────────────────────────────────────── */
+.pagination-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 20px;
+  border-top: var(--border-width) solid var(--border-default);
+  flex-wrap: wrap; gap: 8px;
+}
+.pagination-info { font-size: 0.78rem; color: var(--text-muted); }
+.pagination-btns { display: flex; align-items: center; gap: 4px; }
+
+.pg-btn {
+  padding: 5px 12px; font-size: 0.78rem; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default); background: var(--bg-card);
+  color: var(--text-primary); cursor: pointer; transition: all .15s;
+}
+.pg-btn:hover:not(:disabled) { background: var(--bg-subtle); }
+.pg-btn:disabled { opacity: .4; cursor: not-allowed; }
+.pg-btn--active {
+  background: var(--primary); color: #fff;
+  border-color: var(--primary); font-weight: 600;
+}
+.pg-size {
+  padding: 4px 8px; font-size: 0.78rem; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default); background: var(--bg-card);
+  color: var(--text-primary); margin-left: 8px;
 }
 
-.table-warning-light { background: rgba(250,238,218,.2) !important; }
-.table-danger-light  { background: rgba(252,235,235,.2) !important; }
-
-.table thead th {
-  font-size: 0.75rem; font-weight: 600;
-  color: #6c757d; text-transform: uppercase; letter-spacing: .4px;
-  border-bottom: 2px solid #e8e6e1;
+/* ── Clear button ────────────────────────────────────────────── */
+.btn-clear {
+  padding: 0 10px; background: transparent; border: none;
+  color: var(--text-muted); cursor: pointer; font-size: 1rem;
+  transition: color .15s;
 }
-
-.table td { font-size: 0.83rem; }
-
-.card-footer { border-top: 1px solid #e8e6e1; }
+.btn-clear:hover { color: var(--danger); }

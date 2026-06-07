@@ -15,22 +15,13 @@
   <!-- Center: Desktop Search -->
   <div class="search-box desktop-search">
     <i class="bi bi-search search-icon"></i>
-    <input
-      type="text"
-      placeholder="Search taxpayer, TIN, BIN..."
-      class="search-input"
-    />
+    <input type="text" placeholder="Search taxpayer, TIN, BIN..." class="search-input" />
   </div>
 
   <!-- Mobile Search Expanded -->
   <div class="mobile-search-bar" *ngIf="isSearchOpen">
     <i class="bi bi-search"></i>
-    <input
-      #mobileSearchInput
-      type="text"
-      placeholder="Search taxpayer, TIN, BIN..."
-      class="mobile-search-input"
-    />
+    <input #mobileSearchInput type="text" placeholder="Search taxpayer, TIN, BIN..." class="mobile-search-input" />
     <button type="button" class="close-search-btn" (click)="closeSearch()">
       <i class="bi bi-x-lg"></i>
     </button>
@@ -45,13 +36,17 @@
     </button>
 
     <!-- Notifications -->
+    <!-- Notifications -->
     <div class="topbar-action" (click)="toggleNotifDropdown()">
       <button class="icon-btn" [class.active]="isNotifDropdownOpen">
         <i class="bi bi-bell-fill"></i>
-        <span class="badge-dot" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+        <!-- আনরিড নোটিফিকেশন ৯৯ এর বেশি হলে ৯৯+ দেখাবে -->
+        <span class="badge-dot" *ngIf="unreadCount > 0">
+          {{ unreadCount > 99 ? '99+' : unreadCount }}
+        </span>
       </button>
 
-      <div class="dropdown-panel notif-panel" *ngIf="isNotifDropdownOpen">
+      <div class="dropdown-panel notif-panel" *ngIf="isNotifDropdownOpen" (click)="$event.stopPropagation()">
         <div class="dropdown-header">
           <span>Notifications</span>
           <span class="badge-count" *ngIf="unreadCount > 0">{{ unreadCount }} New</span>
@@ -64,28 +59,30 @@
             No notifications
           </div>
 
-          <div
-            class="notif-item"
-            *ngFor="let notif of recentNotices"
-            [class.unread]="notif.status === 'Unread'"
-            (click)="viewNotice(notif, $event)"
-          >
+          <div class="notif-item" *ngFor="let notif of recentNotices" [class.unread]="notif.status === 'Unread'"
+            (click)="viewNotice(notif, $event)">
             <div class="notif-icon-wrap">
               <i [class]="getNoticeIcon(notif.noticeType)"></i>
+              <!-- যদি আনরিড হয় তবে নোটিফিকেশনের ভেতরে ব্লু/রেড ডট ইনডিকেটর দেখাবে -->
+              <span class="unread-indicator-dot" *ngIf="notif.status === 'Unread'"></span>
             </div>
             <div class="notif-body">
-              <p class="notif-text">{{ notif.subject }}</p>
-              <span class="notif-time">{{ getNoticeTime(notif.issuedDate) }}</span>
+              <p class="notif-text fw-semibold text-dark mb-0">{{ notif.subject }}</p>
+              <!-- নোটিফিকেশনের বডি টেক্সট সর্বোচ্চ ৮০ ক্যারেক্টার দেখাবে, বড় হলে '…' যোগ হবে -->
+              <p class="notif-desc text-muted small mb-1" *ngIf="notif.body">
+                {{ notif.body | slice:0:80 }}{{ notif.body.length > 80 ? '…' : '' }}
+              </p>
+              <span class="notif-time text-secondary"><i class="bi bi-clock me-1"></i>{{ getNoticeTime(notif.issuedDate)
+                }}</span>
             </div>
           </div>
         </div>
 
         <div class="dropdown-footer">
-          <a routerLink="/notices" (click)="viewAllNotices($event)">View all notifications</a>
+          <a routerLink="/notices" (click)="viewAllNotices($event)">View all notifications →</a>
         </div>
       </div>
     </div>
-
     <div class="topbar-divider"></div>
 
     <!-- User -->

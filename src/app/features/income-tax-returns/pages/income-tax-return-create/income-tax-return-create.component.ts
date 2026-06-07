@@ -760,9 +760,9 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   private applySelectedAitCredits(itrId: number): void {
     const credits = Object.entries(this.selectedAmounts)
       .filter(([, amt]) => amt > 0)
-      .map(([ledgerId, applyAmount]) => ({
+      .map(([ledgerId, amountToApply]) => ({
         ledgerId: Number(ledgerId),
-        applyAmount, // ← CreditItem.applyAmount
+        amountToApply: amountToApply,
       }));
 
     if (credits.length === 0) return;

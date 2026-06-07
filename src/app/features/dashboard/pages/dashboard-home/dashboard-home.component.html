@@ -29,7 +29,7 @@
       </div>
     </div>
     <div class="dash-header-right">
-      <select class="year-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
+      <select class="year-select" [(ngModel)]="selectedYear" (change)="onYearChange(selectedYear)">
         <option *ngFor="let fy of fiscalYears" [value]="fy.yearName">
           FY {{ fy.yearName }}{{ fy.isCurrentYear ? ' ★' : '' }}
         </option>

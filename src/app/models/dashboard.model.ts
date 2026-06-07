@@ -12,6 +12,7 @@ export interface DashboardStats {
   revenueGrowth: number;
   vatReturnGrowth: number;
   paymentGrowth: number;
+  refundGrowth: number;
 
   // Auditor specific
   totalAudits: number;

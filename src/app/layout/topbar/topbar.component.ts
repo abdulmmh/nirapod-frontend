@@ -5,10 +5,10 @@ import {
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { NoticeService } from 'src/app/features/notices-notifications/services/notice.service';
+import { NotificationService } from 'src/app/core/services/notification.service'; 
 import { Notice } from 'src/app/models/notice.model';
 import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
 @Component({
   selector: 'app-topbar',
   templateUrl: './topbar.component.html',
@@ -26,11 +26,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
   notices: Notice[] = [];
   isLoadingNotices = false;
 
-  private readonly recentNoticeLimit = 5;
-
-  get unreadCount(): number {
-    return this.notices.filter(n => n.status === 'Unread').length;
-  }
+  unreadCount = 0;
 
   get recentNotices(): Notice[] {
     return [...this.notices]
@@ -38,10 +34,17 @@ export class TopbarComponent implements OnInit, OnDestroy {
       .slice(0, this.recentNoticeLimit);
   }
 
+  private readonly recentNoticeLimit = 5;
+
+  // get unreadCount(): number {
+  //   return this.notices.filter(n => n.status === 'Unread').length;
+  // }
+
   constructor(
     private eRef: ElementRef,
     private authService: AuthService,
     private noticeService: NoticeService,
+    private notificationSvc: NotificationService,
     private router: Router,
   ) {}
 
@@ -50,12 +53,19 @@ export class TopbarComponent implements OnInit, OnDestroy {
     this.currentDate = now.toLocaleDateString('en-GB', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
+
+    this.notificationSvc.startPolling();
+
+    this.notificationSvc.unreadCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(count => this.unreadCount = count);
+
     this.loadNotices();
   }
 
   loadNotices(): void {
     this.isLoadingNotices = true;
-    this.noticeService.getAll()
+    this.notificationSvc.getMyNotices() // গ্লোবাল সার্ভিস থেকে নোটিফিকেশন ডাটা ফেচ
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
@@ -80,6 +90,17 @@ export class TopbarComponent implements OnInit, OnDestroy {
   viewNotice(notice: Notice, event: Event): void {
     event.stopPropagation();
     this.isNotifDropdownOpen = false;
+
+    // নোটিফিকেশনটি যদি Unread থাকে, তবে ব্যাকএন্ডে Read স্ট্যাটাস আপডেট পাঠান
+    if (notice.status === 'Unread') {
+      this.notificationSvc.markAsRead(notice.id).subscribe({
+        next: () => {
+          notice.status = 'Read';
+          this.notificationSvc.refresh(); // কাউন্টার ম্যানুয়ালি রিফ্রেশ
+        }
+      });
+    }
+
     this.router.navigate(['/notices/view', notice.id]);
   }
 
@@ -100,6 +121,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
     timer(100).pipe(takeUntil(this.destroy$))
       .subscribe(() => this.mobileSearchInput?.nativeElement?.focus());
   }
+
 
   closeSearch(): void {
     this.isSearchOpen = false;

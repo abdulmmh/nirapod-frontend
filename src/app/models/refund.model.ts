@@ -63,11 +63,11 @@ export interface RefundSummary {
   verifiedRefundAmount: number | null;
   approvedRefundAmount: number | null;
   status: RefundStatus;
+  riskLevel: string | null;       
   isFlaggedForAudit: boolean;
   submittedAt: string | null;
   approvedAt: string | null;
   paidAt: string | null;
-  updatedAt: string | null;
   documentCount: number;
 }
 

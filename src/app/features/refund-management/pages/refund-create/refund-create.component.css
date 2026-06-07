@@ -276,3 +276,40 @@
   border-bottom: 1px solid #bbf7d0;
 }
 .taxpayer-confirm-body { padding: 14px 16px; }
+
+/* ── Source records table fix ─────────────────────────────────────
+   Prevents EXCESS column from overflowing off-screen.
+   Each column gets an explicit width so all 6 columns are visible.
+   ─────────────────────────────────────────────────────────────── */
+
+.source-table {
+  table-layout: fixed;
+  width: 100%;
+  font-size: 0.82rem;
+}
+
+.source-table th:nth-child(1) { width: 44px; }     /* checkbox */
+.source-table th:nth-child(2) { width: 190px; }    /* reference */
+.source-table th:nth-child(3) { width: auto; }     /* period — takes remaining */
+.source-table th:nth-child(4) { width: 120px; }    /* tax paid */
+.source-table th:nth-child(5) { width: 120px; }    /* tax liability */
+.source-table th:nth-child(6) { width: 110px; }    /* excess */
+
+.source-table td:nth-child(2) .code-badge {
+  font-size: 0.72rem;
+  word-break: break-all;
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* Selected row highlight */
+.source-row--selected {
+  background: color-mix(in srgb, var(--primary, #185FA5) 8%, transparent) !important;
+}
+.source-row--selected td { border-color: color-mix(in srgb, var(--primary, #185FA5) 20%, transparent) !important; }
+
+/* Excess column — always green */
+.source-table td:last-child {
+  color: var(--success, #198754);
+  font-weight: 600;
+}

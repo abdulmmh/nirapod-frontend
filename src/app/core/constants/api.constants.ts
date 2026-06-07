@@ -105,6 +105,8 @@ export const API_ENDPOINTS = {
         `${API_BASE_URL}/ait-records/${aitId}/documents`,
       DELETE: (aitId: number, docId: number) =>
         `${API_BASE_URL}/ait-records/${aitId}/documents/${docId}`,
+      DOWNLOAD: (aitId: number, docId: number) =>
+            `${API_BASE_URL}/ait-records/${aitId}/documents/${docId}/download`,
     },
 
     // Document requests
@@ -184,16 +186,18 @@ export const API_ENDPOINTS = {
     GET: (id: number) => `${API_BASE_URL}/payments/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/payments/${id}`,
     UPDATE_STATUS: (id: number) => `${API_BASE_URL}/payments/${id}/status`,
+    BY_TAXPAYER:   (taxpayerId: number) => `${API_BASE_URL}/payments?taxpayerId=${taxpayerId}`,
   },
 
   // Notices & Notifications
   NOTICES: {
-    LIST: `${API_BASE_URL}/notices`,
-    CREATE: `${API_BASE_URL}/notices`,
-    GET: (id: number) => `${API_BASE_URL}/notices/${id}`,
-    UPDATE: (id: number) => `${API_BASE_URL}/notices/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/notices/${id}`,
-    READ: (id: number) => `${API_BASE_URL}/notices/${id}/read`, // ← এটা যোগ করো
+      LIST:           `${API_BASE_URL}/notices`,
+      CREATE:         `${API_BASE_URL}/notices`,
+      GET:            (id: number) => `${API_BASE_URL}/notices/${id}`,
+      UPDATE:         (id: number) => `${API_BASE_URL}/notices/${id}`,
+      DELETE:         (id: number) => `${API_BASE_URL}/notices/${id}`,
+      READ:           (id: number) => `${API_BASE_URL}/notices/${id}/read`,
+      UNREAD_COUNT:   `${API_BASE_URL}/notices/my/unread-count`,  // ✅ ADD
   },
 
   // Penalties & Fines

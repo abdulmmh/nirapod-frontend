@@ -88,39 +88,47 @@ export class OfficerDashboardComponent implements OnInit {
     this.loadError = null;
 
     forkJoin({
-      pending: this.aitService.getPendingQueue(),
-      myQueue: this.aitService.getMyQueue(),
+      all: this.aitService.getAll(), // ✅ ADD — সব records
+      pending: this.aitService.getPendingQueue(), // KPI-এর জন্য রাখো
+      myQueue: this.aitService.getMyQueue(), // KPI-এর জন্য রাখো
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ pending, myQueue }) => {
-          const allIds = new Set<number>();
-          const merged: AitRecord[] = [];
-          [...pending, ...myQueue].forEach((r) => {
-            if (r.id && !allIds.has(r.id)) {
-              allIds.add(r.id);
-              merged.push(r);
-            }
-          });
-          this.allRecords = merged;
-          this.calculateKPIs();
+        next: ({ all, pending, myQueue }) => {
+          // Table-এ সব records দেখাবে
+          this.allRecords = all;
+
+          // KPI শুধু queue records থেকে calculate হবে
+          const queueRecords = (() => {
+            const seen = new Set<number>();
+            const merged: AitRecord[] = [];
+            [...pending, ...myQueue].forEach((r) => {
+              if (r.id && !seen.has(r.id)) {
+                seen.add(r.id);
+                merged.push(r);
+              }
+            });
+            return merged;
+          })();
+
+          this.calculateKPIs(queueRecords);
           this.applyFilters();
           this.isLoading = false;
         },
-        error: (err) => {
+        error: () => {
           this.loadError = 'Failed to load queue data. Please try again.';
           this.isLoading = false;
         },
       });
   }
 
-  calculateKPIs(): void {
+  calculateKPIs(queueRecords: AitRecord[]): void {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const weekAgo = new Date(today);
     weekAgo.setDate(weekAgo.getDate() - 7);
 
-    this.kpis.myQueue = this.allRecords.filter(
+    this.kpis.myQueue = queueRecords.filter(
       (r) => r.status === 'UNDER_REVIEW',
     ).length;
 
@@ -135,12 +143,10 @@ export class OfficerDashboardComponent implements OnInit {
       return updated >= weekAgo && r.status === 'APPROVED';
     }).length;
 
-    const overdue = this.allRecords.filter(
-      (r) => this.getSlaHours(r) < 0,
-    ).length;
+    const overdue = queueRecords.filter((r) => this.getSlaHours(r) < 0).length;
     this.kpis.slaRiskPercent =
-      this.allRecords.length > 0
-        ? Math.round((overdue / this.allRecords.length) * 100)
+      queueRecords.length > 0
+        ? Math.round((overdue / queueRecords.length) * 100)
         : 0;
   }
 
@@ -354,7 +360,7 @@ export class OfficerDashboardComponent implements OnInit {
   viewDetails(aitId: number): void {
     this.router.navigate(['..', 'review', aitId], { relativeTo: this.route });
   }
- 
+
   refreshQueue(): void {
     this.loadQueueData();
   }

@@ -443,6 +443,34 @@
   text-decoration: underline;
 }
 
+/* নোটিফিকেশন ড্রপডাউনের ভেতরের আনরিড ডট মার্কার */
+.notif-icon-wrap {
+  position: relative;
+}
+
+.unread-indicator-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #0d6efd; /* Bootstrap primary blue */
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+}
+
+/* আনরিড আইটেমের ব্যাকগ্রাউন্ড আলাদা করা */
+.notif-item.unread {
+  background-color: #f4f7fa;
+}
+
+.notif-desc {
+  display: block;
+  font-size: 0.8rem;
+  color: #6c757d;
+  line-height: 1.3;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .desktop-search {

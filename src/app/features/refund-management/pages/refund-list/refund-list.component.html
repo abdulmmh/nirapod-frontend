@@ -1,252 +1,311 @@
-<div class="container-fluid py-4 px-4">
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Refund Management</h4>
+    <p>Manage and track tax refund applications.</p>
+  </div>
+  <button class="btn-add-primary desktop-add-btn" (click)="navigateToCreate()">
+    <i class="bi bi-plus-lg"></i> New Refund Application
+  </button>
+</div>
 
-  <!-- Page Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+<!-- KPI Summary Row -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-total"><i class="bi bi-file-earmark-text"></i></div>
     <div>
-      <h4 class="page-title mb-1">
-        <i class="bi bi-arrow-counterclockwise me-2 text-primary"></i>
-        My Refund Applications
-      </h4>
-      <p class="text-muted mb-0 small">Track and manage your tax refund applications</p>
-    </div>
-    <button class="btn btn-primary" (click)="navigateToCreate()">
-      <i class="bi bi-plus-lg me-1"></i> New Refund Application
-    </button>
-  </div>
-
-  <!-- Summary Cards -->
-  <div class="row g-3 mb-4">
-    <div class="col-xl-3 col-md-6">
-      <div class="summary-card">
-        <div class="summary-icon summary-icon--blue">
-          <i class="bi bi-file-earmark-text"></i>
-        </div>
-        <div class="summary-body">
-          <div class="summary-label">Total Claimed</div>
-          <div class="summary-value">{{ formatCurrency(totalClaimed) }}</div>
-          <div class="summary-sub">{{ totalElements }} applications</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-      <div class="summary-card">
-        <div class="summary-icon summary-icon--green">
-          <i class="bi bi-check2-circle"></i>
-        </div>
-        <div class="summary-body">
-          <div class="summary-label">Approved</div>
-          <div class="summary-value text-success">{{ formatCurrency(totalApproved) }}</div>
-          <div class="summary-sub">Approved amount</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-      <div class="summary-card">
-        <div class="summary-icon summary-icon--teal">
-          <i class="bi bi-bank"></i>
-        </div>
-        <div class="summary-body">
-          <div class="summary-label">Paid / Disbursed</div>
-          <div class="summary-value" style="color:#0f6e56">{{ formatCurrency(totalPaid) }}</div>
-          <div class="summary-sub">Received in account</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-      <div class="summary-card">
-        <div class="summary-icon summary-icon--amber">
-          <i class="bi bi-hourglass-split"></i>
-        </div>
-        <div class="summary-body">
-          <div class="summary-label">Pending</div>
-          <div class="summary-value text-warning">{{ totalPending }}</div>
-          <div class="summary-sub">Awaiting action</div>
-        </div>
-      </div>
+      <div class="kpi-value">{{ totalElements }}</div>
+      <div class="kpi-label">Total Applications</div>
     </div>
   </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-pending"><i class="bi bi-hourglass-split"></i></div>
+    <div>
+      <div class="kpi-value">{{ countByStatus('SUBMITTED') + countByStatus('UNDER_VERIFICATION') }}</div>
+      <div class="kpi-label">Pending Review</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-approved"><i class="bi bi-check-circle"></i></div>
+    <div>
+      <div class="kpi-value">{{ formatCurrency(totalApproved) }}</div>
+      <div class="kpi-label">Approved Amount</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-paid"><i class="bi bi-bank"></i></div>
+    <div>
+      <div class="kpi-value">{{ formatCurrency(totalPaid) }}</div>
+      <div class="kpi-label">Paid / Disbursed</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-rejected"><i class="bi bi-x-circle"></i></div>
+    <div>
+      <div class="kpi-value">{{ countByStatus('REJECTED') }}</div>
+      <div class="kpi-label">Rejected</div>
+    </div>
+  </div>
+</div>
 
-  <!-- Filters -->
-  <div class="card border-0 shadow-sm mb-3">
-    <div class="card-body py-3">
-      <div class="row g-2 align-items-end">
-        <div class="col-md-3">
-          <label class="form-label form-label-sm mb-1">Status</label>
-          <select class="form-select form-select-sm" [(ngModel)]="selectedStatus">
-            <option value="">All Statuses</option>
-            <option *ngFor="let s of statuses" [value]="s">{{ s | titlecase }}</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label form-label-sm mb-1">Refund Type</label>
-          <select class="form-select form-select-sm" [(ngModel)]="selectedType">
-            <option value="">All Types</option>
-            <option *ngFor="let t of refundTypes" [value]="t.value">{{ t.label }}</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label form-label-sm mb-1">Page Size</label>
-          <select class="form-select form-select-sm" [(ngModel)]="pageSize" (change)="applyFilters()">
-            <option [value]="10">10 per page</option>
-            <option [value]="25">25 per page</option>
-            <option [value]="50">50 per page</option>
-          </select>
-        </div>
-        <div class="col-md-3 d-flex gap-2">
-          <button class="btn btn-primary btn-sm w-100" (click)="applyFilters()">
-            <i class="bi bi-search me-1"></i> Search
-          </button>
-          <button class="btn btn-outline-secondary btn-sm" (click)="clearFilters()" title="Clear filters">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
+<div class="page-wrapper">
+
+  <!-- Search / Filter Bar -->
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field search-field--grow">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by reference no, TIN, taxpayer..." [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilters()" />
       </div>
+      <div class="search-field">
+        <i class="bi bi-funnel"></i>
+        <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+          <option value="">All Statuses</option>
+          <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <i class="bi bi-tag"></i>
+        <select [(ngModel)]="selectedType" (change)="applyFilters()">
+          <option value="">All Types</option>
+          <option *ngFor="let t of refundTypes" [value]="t.value">{{ t.label }}</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <i class="bi bi-calendar3"></i>
+        <select [(ngModel)]="selectedFiscalYear" (change)="applyFilters()">
+          <option value="">All Years</option>
+          <option *ngFor="let fy of fiscalYears" [value]="getFyId(fy)">{{ getFyName(fy) }}</option>
+        </select>
+      </div>
+      <button class="btn-clear" (click)="clearFilters()" title="Clear filters">
+        <i class="bi bi-x-circle"></i>
+      </button>
+      <button class="btn-export" (click)="exportCsv()">
+        <i class="bi bi-download"></i>
+        <span>Export</span>
+      </button>
     </div>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="text-muted mt-2 small">Loading refund applications…</p>
+  <div class="loading-row" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading refund applications...</span>
   </div>
 
-  <!-- Error -->
-  <div *ngIf="!loading && errorMessage" class="alert alert-danger d-flex align-items-center gap-2">
-    <i class="bi bi-exclamation-triangle-fill"></i>
-    {{ errorMessage }}
+  <!-- Desktop Table -->
+  <div class="table-responsive desktop-table" *ngIf="!loading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Reference No.</th>
+          <th>Taxpayer</th>
+          <th>Type</th>
+          <th>Fiscal Year</th>
+          <th class="text-end">Claimed</th>
+          <th class="text-end">Approved</th>
+          <th>Risk</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- Empty state -->
+        <tr *ngIf="refunds.length === 0">
+          <td colspan="11">
+            <div class="empty-state">
+              <i class="bi bi-inbox"></i>
+              <p>No refund applications found.</p>
+              <button class="btn-add-primary" style="margin-top:8px" (click)="navigateToCreate()">
+                <i class="bi bi-plus-lg me-1"></i> Create Application
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Data rows -->
+        <tr *ngFor="let r of refunds; let i = index">
+
+          <!-- # -->
+          <td>{{ (currentPage * pageSize) + i + 1 }}</td>
+
+          <!-- Reference No -->
+          <td>
+            <span class="refund-code" (click)="navigateToView(r.id)" style="cursor:pointer">
+              {{ r.refundReferenceNo }}
+            </span>
+            <span *ngIf="r.isFlaggedForAudit" class="audit-flag ms-1" title="Flagged for Audit">
+              <i class="bi bi-flag-fill"></i>
+            </span>
+          </td>
+
+          <!-- Taxpayer -->
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">
+                {{ (r.taxpayerName || 'T').charAt(0).toUpperCase() }}
+              </div>
+              <div>
+                <span class="td-title">{{ r.taxpayerName || '—' }}</span>
+                <span class="td-sub">{{ r.tin || '' }}</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- Type badge -->
+          <td>
+            <span class="type-badge" [ngClass]="getTypeClass(r.refundType)">
+              {{ refundTypeLabels[r.refundType] || r.refundType }}
+            </span>
+          </td>
+
+          <!-- Fiscal Year -->
+          <td class="td-sub">{{ r.fiscalYearName || '—' }}</td>
+
+          <!-- Claimed -->
+          <td class="text-end amount-cell">{{ formatCurrency(r.claimedRefundAmount) }}</td>
+
+          <!-- Approved -->
+          <td class="text-end">
+            <span *ngIf="r.approvedRefundAmount" class="amount-cell approved-amt">
+              {{ formatCurrency(r.approvedRefundAmount) }}
+            </span>
+            <span *ngIf="!r.approvedRefundAmount" class="td-sub">—</span>
+          </td>
+
+          <!-- Risk Level -->
+          <td>
+            <span *ngIf="getRisk(r)" class="pri-badge" [ngClass]="getRiskClass(getRisk(r))">
+              {{ getRisk(r) }}
+            </span>
+            <span *ngIf="!getRisk(r)" class="td-sub">—</span>
+          </td>
+
+          <!-- Status -->
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+              {{ getStatusLabel(r.status) }}
+            </span>
+          </td>
+
+          <!-- Submitted date -->
+          <td class="td-sub">
+            {{ r.submittedAt ? (r.submittedAt | date:'dd MMM yyyy') : '—' }}
+          </td>
+
+          <!-- Actions -->
+          <td>
+            <div class="action-btns">
+              <button class="btn-view" (click)="navigateToView(r.id)" title="View">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+              <button *ngIf="canEdit(r)" class="btn-edit" (click)="navigateToEdit(r.id)" title="Edit">
+                <i class="bi bi-pencil-fill"></i> Edit
+              </button>
+              <button *ngIf="canRespond(r)" class="btn-respond" (click)="navigateToRespond(r.id)" title="Respond">
+                <i class="bi bi-reply-fill"></i>
+              </button>
+              <button *ngIf="canCancel(r)" class="btn-delete" (click)="cancelRefund(r.id)" title="Cancel">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <!-- Table -->
-  <div *ngIf="!loading && !errorMessage" class="card border-0 shadow-sm">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0" aria-label="Refund applications list">
-        <thead class="table-light">
-          <tr>
-            <th scope="col">Reference No.</th>
-            <th scope="col">Type</th>
-            <th scope="col">Fiscal Year</th>
-            <th scope="col" class="text-end">Claimed</th>
-            <th scope="col" class="text-end">Approved</th>
-            <th scope="col">Status</th>
-            <th scope="col">Submitted</th>
-            <th scope="col" class="text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngIf="refunds.length === 0">
-            <td colspan="8" class="text-center py-5 text-muted">
-              <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-              No refund applications found.
-              <a class="d-block mt-1 small" (click)="navigateToCreate()" style="cursor:pointer">
-                Create your first application →
-              </a>
-            </td>
-          </tr>
-
-          <tr
-            *ngFor="let r of refunds"
-            [class.table-warning-light]="r.status === 'INFO_REQUESTED'"
-            [class.table-danger-light]="r.status === 'FAILED'"
-          >
-            <td>
-              <a
-                class="ref-link fw-semibold"
-                (click)="navigateToView(r.id)"
-                role="button"
-                [attr.aria-label]="'View refund ' + r.refundReferenceNo"
-              >
-                {{ r.refundReferenceNo }}
-              </a>
-              <div *ngIf="r.isFlaggedForAudit" class="small text-danger mt-1">
-                <i class="bi bi-flag-fill me-1"></i>Audit Flagged
-              </div>
-            </td>
-            <td>
-              <span class="type-badge">{{ refundTypeLabels[r.refundType] }}</span>
-            </td>
-            <td class="text-muted small">{{ r.fiscalYearName }}</td>
-            <td class="text-end fw-semibold">{{ formatCurrency(r.claimedRefundAmount) }}</td>
-            <td class="text-end">
-              <span *ngIf="r.approvedRefundAmount" class="text-success fw-semibold">
-                {{ formatCurrency(r.approvedRefundAmount) }}
-              </span>
-              <span *ngIf="!r.approvedRefundAmount" class="text-muted">—</span>
-            </td>
-            <td>
-              <app-refund-status-badge [status]="r.status" size="sm"></app-refund-status-badge>
-            </td>
-            <td class="text-muted small">
-              {{ r.submittedAt ? (r.submittedAt | date:'dd MMM yyyy') : '—' }}
-            </td>
-            <td class="text-center">
-              <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'Actions for ' + r.refundReferenceNo">
-                <button
-                  class="btn btn-outline-primary btn-sm"
-                  (click)="navigateToView(r.id)"
-                  title="View Details"
-                >
-                  <i class="bi bi-eye"></i>
-                </button>
-                <button
-                  *ngIf="canRespond(r)"
-                  class="btn btn-warning btn-sm"
-                  (click)="navigateToRespond(r.id)"
-                  title="Respond to Information Request"
-                >
-                  <i class="bi bi-reply"></i>
-                </button>
-                <button
-                  *ngIf="canEdit(r)"
-                  class="btn btn-outline-secondary btn-sm"
-                  (click)="navigateToEdit(r.id)"
-                  title="Edit Draft"
-                >
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button
-                  *ngIf="canCancel(r)"
-                  class="btn btn-outline-danger btn-sm"
-                  (click)="cancelRefund(r.id)"
-                  title="Cancel"
-                >
-                  <i class="bi bi-x-lg"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <!-- Mobile Cards -->
+  <div class="mobile-cards" *ngIf="!loading">
+    <div class="mobile-card" *ngFor="let r of refunds">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">
+          <div class="mobile-avatar">
+            {{ (r.taxpayerName || 'T').charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <div class="mobile-name">{{ r.taxpayerName || '—' }}</div>
+            <div class="mobile-sub refund-code">{{ r.refundReferenceNo }}</div>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+          {{ getStatusLabel(r.status) }}
+        </span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field">
+          <label>Type</label>
+          <span class="type-badge" [ngClass]="getTypeClass(r.refundType)">
+            {{ refundTypeLabels[r.refundType] }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Claimed</label>
+          <span class="amount-cell">{{ formatCurrency(r.claimedRefundAmount) }}</span>
+        </div>
+        <div class="mobile-field" *ngIf="r.approvedRefundAmount">
+          <label>Approved</label>
+          <span class="amount-cell approved-amt">
+            {{ formatCurrency(r.approvedRefundAmount) }}
+          </span>
+        </div>
+        <div class="mobile-field">
+          <label>Submitted</label>
+          <span>{{ r.submittedAt ? (r.submittedAt | date:'dd MMM yyyy') : '—' }}</span>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="navigateToView(r.id)">
+          <i class="bi bi-eye-fill"></i> View
+        </button>
+        <button *ngIf="canEdit(r)" class="btn-edit" (click)="navigateToEdit(r.id)">
+          <i class="bi bi-pencil-fill"></i> Edit
+        </button>
+        <button *ngIf="canCancel(r)" class="btn-delete" (click)="cancelRefund(r.id)">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- Pagination -->
-    <div class="card-footer d-flex justify-content-between align-items-center bg-white py-2">
-      <small class="text-muted">
-        Showing {{ refunds.length }} of {{ totalElements }} records
-      </small>
-      <nav *ngIf="totalPages > 1" aria-label="Refund list pagination">
-        <ul class="pagination pagination-sm mb-0">
-          <li class="page-item" [class.disabled]="currentPage === 0">
-            <button class="page-link" (click)="goToPage(currentPage - 1)" aria-label="Previous">
-              <i class="bi bi-chevron-left"></i>
-            </button>
-          </li>
-          <li
-            *ngFor="let p of pages"
-            class="page-item"
-            [class.active]="p === currentPage"
-          >
-            <button class="page-link" (click)="goToPage(p)">{{ p + 1 }}</button>
-          </li>
-          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
-            <button class="page-link" (click)="goToPage(currentPage + 1)" aria-label="Next">
-              <i class="bi bi-chevron-right"></i>
-            </button>
-          </li>
-        </ul>
-      </nav>
+    <div class="empty-state" *ngIf="refunds.length === 0">
+      <i class="bi bi-inbox"></i>
+      <p>No refund applications found.</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!loading && totalPages > 1">
+    <span class="pagination-info">
+      Showing {{ refunds.length }} of {{ totalElements }} records
+    </span>
+    <div class="pagination-btns">
+      <button class="pg-btn" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
+        ← Prev
+      </button>
+      <button *ngFor="let p of visiblePages" class="pg-btn" [class.pg-btn--active]="p === currentPage"
+        (click)="goToPage(p)">
+        {{ p + 1 }}
+      </button>
+      <button class="pg-btn" [disabled]="currentPage === totalPages - 1" (click)="goToPage(currentPage + 1)">
+        Next →
+      </button>
+      <select class="pg-size" [(ngModel)]="pageSize" (change)="applyFilters()">
+        <option [value]="10">10 / page</option>
+        <option [value]="20">20 / page</option>
+        <option [value]="50">50 / page</option>
+      </select>
     </div>
   </div>
 
 </div>
+
+<!-- FAB -->
+<button class="fab-btn" (click)="navigateToCreate()" title="New Refund Application">
+  <i class="bi bi-plus-lg"></i>
+</button>

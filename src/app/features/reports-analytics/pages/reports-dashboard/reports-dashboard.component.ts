@@ -375,29 +375,29 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy {
         case 'VAT_COLLECTION':
           return {
             ...r,
-            count: '৳' + this.formatCrore(kpi.vatCollected) + ' Cr',
+            count: '৳' + this.formatAmount(kpi.vatCollected) + ' Cr',
           };
         case 'INCOME_TAX':
           return { ...r, count: kpi.filedReturns.toLocaleString() };
         case 'IMPORT_DUTY':
           return {
             ...r,
-            count: '৳' + this.formatCrore(kpi.importDutyCollected) + ' Cr',
+            count: '৳' + this.formatAmount(kpi.importDutyCollected) + ' Cr',
           };
         case 'AIT_DEDUCTION':
           return {
             ...r,
-            count: '৳' + this.formatCrore(kpi.aitDeducted) + ' Cr',
+            count: '৳' + this.formatAmount(kpi.aitDeducted) + ' Cr',
           };
         case 'PENALTY_COLLECTION':
           return {
             ...r,
-            count: '৳' + this.formatCrore(kpi.penaltyCollected) + ' Cr',
+            count: '৳' + this.formatAmount(kpi.penaltyCollected) + ' Cr',
           };
         case 'REFUND_STATUS':
           return {
             ...r,
-            count: '৳' + this.formatCrore(kpi.refundPaid) + ' Cr',
+            count: '৳' + this.formatAmount(kpi.refundPaid) + ' Cr',
           };
         default:
           return r;
@@ -523,8 +523,14 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy {
 
   // ─── Formatters ───────────────────────────────────────────────────────────
 
-  formatCrore(value: number | null | undefined): string {
-    if (!value) return '0.0';
-    return (value / 10000000).toFixed(1);
+  formatAmount(value: number | null | undefined): string {
+    if (!value || value === 0) return '0.0 Cr';
+    if (value >= 10000000) {
+      return (value / 10000000).toFixed(2) + ' Cr';
+    } else if (value >= 100000) {
+      return (value / 100000).toFixed(2) + ' L';
+    } else {
+      return '৳' + value.toLocaleString('en-BD');
+    }
   }
 }
