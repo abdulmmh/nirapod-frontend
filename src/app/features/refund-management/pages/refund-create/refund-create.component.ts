@@ -1,19 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import {
+  RefundService,
+} from '../../services/refund.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Role } from 'src/app/core/constants/roles.constants';
-import { RefundType, EligibleSourceRecord, RefundCalculation, CreateRefundRequest } from 'src/app/models/refund.model';
-import { RefundService } from '../../services/refund.service';
-
-export interface RefundTypeOption {
-  value: RefundType;
-  label: string;
-  description: string;
-  icon: string;
-  color: string;
-}
+import { CreateRefundRequest, EligibleSourceRecord, RefundCalculation, RefundType, RefundTypeOption } from '../../../../models/refund.model';
 
 @Component({
   selector: 'app-refund-create',
@@ -235,8 +228,11 @@ export class RefundCreateComponent implements OnInit {
     this.calculationError = '';
     this.calculation      = null;
 
+    // FIX: Use sourceTypeFor() to map 'INCOME_TAX' → 'ITR' etc.
+    // Previously sent this.selectedRefundType! directly ('INCOME_TAX')
+    // which never matched the backend check ("ITR".equalsIgnoreCase(...)).
     this.refundService.calculateRefund(
-      this.sourceTypeFor(this.selectedRefundType!),  // ← FIX: 'INCOME_TAX' → 'ITR'
+      this.sourceTypeFor(this.selectedRefundType!),
       Array.from(this.selectedSourceIds),
       this.resolvedTaxpayerId ?? undefined
     ).subscribe({

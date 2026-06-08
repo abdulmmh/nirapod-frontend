@@ -52,6 +52,14 @@ export interface RefundCalculation {
   calculationBasis: string;
 }
 
+export interface RefundTypeOption {
+  value: RefundType;
+  label: string;
+  description: string;
+  icon: string;
+  color: string;
+}
+
 export interface RefundSummary {
   id: number;
   refundReferenceNo: string;
