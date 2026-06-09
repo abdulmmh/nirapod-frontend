@@ -106,7 +106,7 @@ export const API_ENDPOINTS = {
       DELETE: (aitId: number, docId: number) =>
         `${API_BASE_URL}/ait-records/${aitId}/documents/${docId}`,
       DOWNLOAD: (aitId: number, docId: number) =>
-            `${API_BASE_URL}/ait-records/${aitId}/documents/${docId}/download`,
+        `${API_BASE_URL}/ait-records/${aitId}/documents/${docId}/download`,
     },
 
     // Document requests
@@ -136,14 +136,17 @@ export const API_ENDPOINTS = {
   },
 
   AIT_CREDIT_LEDGER: {
-    MY:               `${API_BASE_URL}/ait-credit-ledger/my`,
-    MY_AVAILABLE:     `${API_BASE_URL}/ait-credit-ledger/my/available`,
-    MY_TOTAL:         `${API_BASE_URL}/ait-credit-ledger/my/total`,
-    BY_ID:            (id: number)     => `${API_BASE_URL}/ait-credit-ledger/${id}`,
-    BY_TAXPAYER:      (tpId: number)   => `${API_BASE_URL}/ait-credit-ledger/taxpayer/${tpId}`,
-    APPLY:            `${API_BASE_URL}/ait-credit-ledger/apply`,
-    ITR_APPLICATIONS: (itrId: number)  => `${API_BASE_URL}/ait-credit-ledger/itr/${itrId}/applications`,
-    ITR_TOTAL:        (itrId: number)  => `${API_BASE_URL}/ait-credit-ledger/itr/${itrId}/total`,
+    MY: `${API_BASE_URL}/ait-credit-ledger/my`,
+    MY_AVAILABLE: `${API_BASE_URL}/ait-credit-ledger/my/available`,
+    MY_TOTAL: `${API_BASE_URL}/ait-credit-ledger/my/total`,
+    BY_ID: (id: number) => `${API_BASE_URL}/ait-credit-ledger/${id}`,
+    BY_TAXPAYER: (tpId: number) =>
+      `${API_BASE_URL}/ait-credit-ledger/taxpayer/${tpId}`,
+    APPLY: `${API_BASE_URL}/ait-credit-ledger/apply`,
+    ITR_APPLICATIONS: (itrId: number) =>
+      `${API_BASE_URL}/ait-credit-ledger/itr/${itrId}/applications`,
+    ITR_TOTAL: (itrId: number) =>
+      `${API_BASE_URL}/ait-credit-ledger/itr/${itrId}/total`,
   },
 
   // Fiscal Years
@@ -186,18 +189,20 @@ export const API_ENDPOINTS = {
     GET: (id: number) => `${API_BASE_URL}/payments/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/payments/${id}`,
     UPDATE_STATUS: (id: number) => `${API_BASE_URL}/payments/${id}/status`,
-    BY_TAXPAYER:   (taxpayerId: number) => `${API_BASE_URL}/payments?taxpayerId=${taxpayerId}`,
+    BY_TAXPAYER: (taxpayerId: number) =>
+      `${API_BASE_URL}/payments?taxpayerId=${taxpayerId}`,
   },
 
   // Notices & Notifications
   NOTICES: {
-      LIST:           `${API_BASE_URL}/notices`,
-      CREATE:         `${API_BASE_URL}/notices`,
-      GET:            (id: number) => `${API_BASE_URL}/notices/${id}`,
-      UPDATE:         (id: number) => `${API_BASE_URL}/notices/${id}`,
-      DELETE:         (id: number) => `${API_BASE_URL}/notices/${id}`,
-      READ:           (id: number) => `${API_BASE_URL}/notices/${id}/read`,
-      UNREAD_COUNT:   `${API_BASE_URL}/notices/my/unread-count`,  // ✅ ADD
+    LIST: `${API_BASE_URL}/notices`,
+    MY: `${API_BASE_URL}/notices/my`, 
+    CREATE: `${API_BASE_URL}/notices`,
+    GET: (id: number) => `${API_BASE_URL}/notices/${id}`,
+    UPDATE: (id: number) => `${API_BASE_URL}/notices/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/notices/${id}`,
+    READ: (id: number) => `${API_BASE_URL}/notices/${id}/read`,
+    UNREAD_COUNT: `${API_BASE_URL}/notices/my/unread-count`,
   },
 
   // Penalties & Fines
@@ -293,7 +298,7 @@ export const API_ENDPOINTS = {
     AIT_DEDUCTION: `${API_BASE_URL}/reports/ait-deduction`, // ← ADD
     IMPORT_DUTY: `${API_BASE_URL}/reports/import-duty`, // ← ADD
     TAX_BREAKDOWN: `${API_BASE_URL}/reports/tax-breakdown`, // ← ADD
-    EXPORT: `${API_BASE_URL}/reports/export`
+    EXPORT: `${API_BASE_URL}/reports/export`,
   },
 
   // Auth

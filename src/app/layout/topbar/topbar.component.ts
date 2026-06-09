@@ -1,18 +1,24 @@
 import {
-  Component, EventEmitter, OnDestroy, OnInit, Output,
-  HostListener, ElementRef, ViewChild
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  HostListener,
+  ElementRef,
+  ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { NoticeService } from 'src/app/features/notices-notifications/services/notice.service';
-import { NotificationService } from 'src/app/core/services/notification.service'; 
+import { NotificationService } from 'src/app/features/notices-notifications/services/notification.service';
 import { Notice } from 'src/app/models/notice.model';
 import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-topbar',
   templateUrl: './topbar.component.html',
-  styleUrls: ['./topbar.component.css']
+  styleUrls: ['./topbar.component.css'],
 })
 export class TopbarComponent implements OnInit, OnDestroy {
   @Output() menuToggle = new EventEmitter<void>();
@@ -30,7 +36,10 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
   get recentNotices(): Notice[] {
     return [...this.notices]
-      .sort((a, b) => new Date(b.issuedDate).getTime() - new Date(a.issuedDate).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.issuedDate).getTime() - new Date(a.issuedDate).getTime(),
+      )
       .slice(0, this.recentNoticeLimit);
   }
 
@@ -51,21 +60,25 @@ export class TopbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const now = new Date();
     this.currentDate = now.toLocaleDateString('en-GB', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
 
     this.notificationSvc.startPolling();
 
     this.notificationSvc.unreadCount$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(count => this.unreadCount = count);
+      .subscribe((count) => (this.unreadCount = count));
 
     // this.loadNotices();
   }
 
   loadNotices(): void {
     this.isLoadingNotices = true;
-    this.notificationSvc.getMyNotices() // গ্লোবাল সার্ভিস থেকে নোটিফিকেশন ডাটা ফেচ
+    this.notificationSvc
+      .getMyNotices() // গ্লোবাল সার্ভিস থেকে নোটিফিকেশন ডাটা ফেচ
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
@@ -97,7 +110,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
         next: () => {
           notice.status = 'Read';
           this.notificationSvc.refresh(); // কাউন্টার ম্যানুয়ালি রিফ্রেশ
-        }
+        },
       });
     }
 
@@ -118,10 +131,10 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
   openSearch(): void {
     this.isSearchOpen = true;
-    timer(100).pipe(takeUntil(this.destroy$))
+    timer(100)
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.mobileSearchInput?.nativeElement?.focus());
   }
-
 
   closeSearch(): void {
     this.isSearchOpen = false;
@@ -148,11 +161,15 @@ export class TopbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  get currentUser() { return this.authService.currentUser; }
-  get userInitial()  { return this.authService.currentUser?.fullName?.charAt(0) ?? 'A'; }
+  get currentUser() {
+    return this.authService.currentUser;
+  }
+  get userInitial() {
+    return this.authService.currentUser?.fullName?.charAt(0) ?? 'A';
+  }
 
   logout(): void {
-      this.notificationSvc.stopPolling();
-     this.authService.logout();
-   }
+    this.notificationSvc.stopPolling();
+    this.authService.logout();
+  }
 }

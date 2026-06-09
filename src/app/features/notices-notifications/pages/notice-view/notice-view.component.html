@@ -91,18 +91,16 @@
     <div class="response-header">
       <i class="bi bi-reply-fill"></i>
       <span>Response</span>
-      <span class="response-date">{{ notice.responseDate }}</span>
+      <span class="response-date" *ngIf="notice.responseDate">
+        {{ notice.responseDate }}
+      </span>
     </div>
     <div class="response-body">{{ notice.responseNote }}</div>
   </div>
 
   <!-- Reply Box -->
-  <div class="reply-section" *ngIf="notice.status !== 'Responded'">
-    <button
-      class="btn-reply"
-      *ngIf="!showResponse"
-      (click)="showResponse = true"
-    >
+  <div class="reply-section" *ngIf="isTaxpayerRole && notice.status !== 'Responded'"> <!-- ← isTaxpayerRole যোগ -->
+    <button class="btn-reply" *ngIf="!showResponse" (click)="showResponse = true">
       <i class="bi bi-reply-fill"></i> Reply to Notice
     </button>
 
@@ -111,17 +109,11 @@
         <i class="bi bi-reply-fill"></i>
         <span>Your Response</span>
       </div>
-      <textarea
-        class="reply-textarea"
-        placeholder="Enter your response here..."
-        [(ngModel)]="responseNote"
-        rows="4"
-      ></textarea>
+      <textarea class="reply-textarea" placeholder="Enter your response here..." [(ngModel)]="responseNote"
+        rows="4"></textarea>
       <div class="reply-actions">
-        <button class="btn-cancel-reply" (click)="showResponse = false">
-          Cancel
-        </button>
-        <button class="btn-send-reply" (click)="submitResponse()">
+        <button class="btn-cancel-reply" (click)="showResponse = false">Cancel</button>
+        <button class="btn-send-reply" (click)="submitResponse()" [disabled]="!responseNote.trim()">
           <i class="bi bi-send-fill"></i> Send Response
         </button>
       </div>

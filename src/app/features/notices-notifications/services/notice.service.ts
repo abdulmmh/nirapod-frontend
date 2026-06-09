@@ -12,6 +12,10 @@ export class NoticeService {
     return this.http.get<Notice[]>(API_ENDPOINTS.NOTICES.LIST);
   }
 
+  getMyNotices(): Observable<Notice[]> {
+      return this.http.get<Notice[]>(API_ENDPOINTS.NOTICES.MY);
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(API_ENDPOINTS.NOTICES.DELETE(id));
   }

@@ -179,16 +179,16 @@ export class NoticeListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.http.get<Notice[]>(API_ENDPOINTS.NOTICES.LIST).subscribe({
-      next: (data) => {
-        this.notices = data;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.notices = this.fallback;
-        this.isLoading = false;
-        this.toast.error('Failed to load notices. Showing sample data.');
-      },
+    this.noticeService.getMyNotices().subscribe({
+        next: (data) => {
+            this.notices = data;
+            this.isLoading = false;
+        },
+        error: () => {
+            this.notices = this.fallback;
+            this.isLoading = false;
+            this.toast.error('Failed to load notices. Showing sample data.');
+        },
     });
   }
 

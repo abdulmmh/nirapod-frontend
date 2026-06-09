@@ -1,182 +1,115 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ToastService } from 'src/app/shared/toast/toast.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { Notice } from '../../../../models/notice.model';
+import { Component, OnInit }        from '@angular/core';
+import { ToastService }             from 'src/app/shared/toast/toast.service';
+import { ActivatedRoute, Router }   from '@angular/router';
+import { HttpClient }               from '@angular/common/http';
+import { API_ENDPOINTS }            from '../../../../core/constants/api.constants';
+import { Notice }                   from '../../../../models/notice.model';
+import { AuthService }              from '../../../../core/services/auth.service';  // ✅ ADD
+import { Role }                     from '../../../../core/constants/roles.constants'; // ✅ ADD
 
 @Component({
-  selector: 'app-notice-view',
-  templateUrl: './notice-view.component.html',
-  styleUrls: ['./notice-view.component.css'],
+    selector:    'app-notice-view',
+    templateUrl: './notice-view.component.html',
+    styleUrls:   ['./notice-view.component.css'],
 })
 export class NoticeViewComponent implements OnInit {
-  notice: Notice | null = null;
-  isLoading = true;
-  responseNote = '';
-  showResponse = false;
+    notice:       Notice | null = null;
+    isLoading     = true;
+    responseNote  = '';
+    showResponse  = false;
 
-  private fallback: Notice[] = [
-    {
-      taxpayerId: 0,
-      id: 1,
-      noticeNo: 'NOT-2024-00001',
-      subject: 'VAT Return Due Reminder — January 2024',
-      body: 'Dear Taxpayer, your VAT return for January 2024 is due by February 15, 2024. Please submit your return to avoid penalties.',
-      noticeType: 'Reminder',
-      priority: 'High',
-      targetType: 'Specific Taxpayer',
-      tinNumber: 'TIN-1001',
-      taxpayerName: 'Rahman Textile Ltd.',
-      issuedBy: 'Tax Officer',
-      issuedDate: '2024-02-01',
-      dueDate: '2024-02-15',
-      readDate: '2024-02-02',
-      responseDate: '',
-      responseNote: '',
-      attachmentName: '',
-      status: 'Read',
-    },
-    {
-      taxpayerId: 0,
-      id: 2,
-      noticeNo: 'NOT-2024-00002',
-      subject: 'Penalty Notice — Late Filing',
-      body: 'This notice is issued for late filing of VAT return. A penalty of BDT 25,000 has been imposed. Please pay within 30 days.',
-      noticeType: 'Penalty Notice',
-      priority: 'Urgent',
-      targetType: 'Specific Taxpayer',
-      tinNumber: 'TIN-1002',
-      taxpayerName: 'Karim Traders',
-      issuedBy: 'Tax Commissioner',
-      issuedDate: '2024-03-01',
-      dueDate: '2024-03-31',
-      readDate: '',
-      responseDate: '',
-      responseNote: '',
-      attachmentName: 'penalty_notice.pdf',
-      status: 'Unread',
-    },
-  ];
+    isOfficerRole  = false;
+    isTaxpayerRole = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private http: HttpClient,
-    private toast: ToastService,
-  ) {}
+    constructor(
+        private route:   ActivatedRoute,
+        private router:  Router,
+        private http:    HttpClient,
+        private toast:   ToastService,
+        private auth:    AuthService,   
+    ) {}
 
-  ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.http.get<Notice>(API_ENDPOINTS.NOTICES.GET(id)).subscribe({
-      next: (data) => {
-        this.notice = data;
-        this.isLoading = false;
-        this.markAsReadIfNeeded();
-      },
-      error: () => {
-        this.notice =
-          this.fallback.find((n) => n.id === id) || this.fallback[0];
-        this.isLoading = false;
-        this.toast.error('Failed to load notice details. Showing sample data.');
-        this.markAsReadIfNeeded();
-      },
-    });
-  }
+    ngOnInit(): void {
+        this.isOfficerRole =
+            this.auth.hasRole(Role.TAX_OFFICER)     ||
+            this.auth.hasRole(Role.TAX_COMMISSIONER) ||
+            this.auth.hasRole(Role.SUPER_ADMIN);
+        this.isTaxpayerRole = this.auth.hasRole(Role.TAXPAYER) && !this.isOfficerRole;
 
-  getStatusClass(s: string): string {
-    const map: Record<string, string> = {
-      Unread: 'status-unread',
-      Read: 'status-read',
-      Responded: 'status-active',
-      Expired: 'status-inactive',
-      Cancelled: 'status-suspended',
-    };
-    return map[s] ?? '';
-  }
-
-  getPriorityClass(p: string): string {
-    const map: Record<string, string> = {
-      Low: 'pri-low',
-      Normal: 'pri-normal',
-      High: 'pri-high',
-      Urgent: 'pri-urgent',
-    };
-    return map[p] ?? '';
-  }
-
-  getTypeIcon(type: string): string {
-    const map: Record<string, string> = {
-      General: 'bi bi-info-circle-fill',
-      'Tax Due': 'bi bi-cash-coin',
-      'Audit Notice': 'bi bi-shield-fill-check',
-      'Penalty Notice': 'bi bi-exclamation-triangle-fill',
-      Compliance: 'bi bi-patch-check-fill',
-      'Refund Update': 'bi bi-cash-stack',
-      System: 'bi bi-gear-fill',
-      Reminder: 'bi bi-bell-fill',
-    };
-    return map[type] ?? 'bi bi-bell-fill';
-  }
-
-  submitResponse(): void {
-    if (!this.responseNote.trim() || !this.notice) return;
-
-    const payload = {
-      taxpayerId:     this.notice.taxpayerId,
-      subject:        this.notice.subject,
-      body:           this.notice.body,
-      noticeType:     this.notice.noticeType,
-      priority:       this.notice.priority,
-      targetType:     this.notice.targetType,
-      issuedBy:       this.notice.issuedBy,
-      issuedDate:     this.notice.issuedDate,
-      dueDate:        this.notice.dueDate,
-      attachmentName: this.notice.attachmentName,
-      status:         'Responded',
-      responseNote:   this.responseNote.trim(),
-      responseDate:   new Date().toISOString().split('T')[0],
-    };
-
-    this.http.put<any>(API_ENDPOINTS.NOTICES.UPDATE(this.notice.id), payload)
-      .subscribe({
-        next: () => {
-          this.notice = { 
-            ...this.notice!, 
-            status: 'Responded',
-            responseNote: this.responseNote.trim()
-          };
-          this.showResponse = false;
-          this.responseNote = '';
-          this.toast.success('Response submitted successfully.');
-        },
-        error: () => {
-          this.toast.error('Failed to submit response.');
-        }
-    });
-  }
-
-  onBack(): void {
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-    if (returnUrl) {
-      this.router.navigateByUrl(returnUrl);
-    } else {
-      const currentUrl = this.router.url;
-      if (currentUrl.includes('/my-portal')) {
-        this.router.navigate(['/my-portal/notices']);
-      } else {
-        this.router.navigate(['/notices']);
-      }
+        const id = Number(this.route.snapshot.paramMap.get('id'));
+        this.http.get<Notice>(API_ENDPOINTS.NOTICES.GET(id)).subscribe({
+            next: (data) => {
+                this.notice   = data;
+                this.isLoading = false;
+                this.markAsReadIfNeeded();  
+            },
+            error: () => {
+                this.isLoading = false;
+                this.toast.error('Failed to load notice details.');
+            },
+        });
     }
-}
 
-  private markAsReadIfNeeded(): void {
-    if (!this.notice || this.notice.status !== 'Unread') return;
+    submitResponse(): void {
+        if (!this.responseNote.trim() || !this.notice) return;
 
-    const id = this.notice.id;  
-    this.notice = { ...this.notice, status: 'Read' };
+        const payload = {
+            taxpayerId:     this.notice.taxpayerId,
+            subject:        this.notice.subject,
+            body:           this.notice.body,
+            noticeType:     this.notice.noticeType,
+            priority:       this.notice.priority,
+            targetType:     this.notice.targetType,
+            issuedBy:       this.notice.issuedBy,
+            issuedDate:     this.notice.issuedDate,
+            dueDate:        this.notice.dueDate,
+            attachmentName: this.notice.attachmentName,
+            status:         'Responded',
+            responseNote:   this.responseNote.trim(),
+            responseDate:   new Date().toISOString().split('T')[0],
+        };
 
-    this.http.patch(API_ENDPOINTS.NOTICES.READ(id), {})
-      .subscribe({ next: () => {}, error: () => {} });
-  }
+        this.http.put<Notice>(API_ENDPOINTS.NOTICES.UPDATE(this.notice.id), payload)
+            .subscribe({
+                next: () => {
+                    this.notice = {
+                        ...this.notice!,
+                        status:       'Responded',
+                        responseNote: this.responseNote.trim(),
+                        responseDate: new Date().toISOString().split('T')[0],
+                    };
+                    this.showResponse  = false;
+                    this.responseNote  = '';
+                    this.toast.success('Response submitted successfully.');
+                },
+                error: () => this.toast.error('Failed to submit response.'),
+            });
+    }
+
+    onBack(): void {
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            this.router.navigate(
+                this.router.url.includes('/my-portal')
+                    ? ['/my-portal/notices']
+                    : ['/notices']
+            );
+        }
+    }
+
+    private markAsReadIfNeeded(): void {
+        if (!this.isTaxpayerRole) return;         // ← officer/admin skip
+        if (!this.notice || this.notice.status !== 'Unread') return;
+
+        const id    = this.notice.id;
+        this.notice = { ...this.notice, status: 'Read' };
+        this.http.patch(API_ENDPOINTS.NOTICES.READ(id), {})
+            .subscribe({ next: () => {}, error: () => {} });
+    }
+
+    getStatusClass  = (s: string) => ({ Unread:'status-unread', Read:'status-read', Responded:'status-active', Expired:'status-inactive' }[s] ?? '');
+    getPriorityClass = (p: string) => ({ Low:'pri-low', Normal:'pri-normal', High:'pri-high', Urgent:'pri-urgent' }[p] ?? '');
+    getTypeIcon      = (t: string) => ({ General:'bi bi-info-circle-fill', 'Tax Due':'bi bi-cash-coin', 'Audit Notice':'bi bi-shield-fill-check', 'Penalty Notice':'bi bi-exclamation-triangle-fill', Compliance:'bi bi-patch-check-fill', 'Refund Update':'bi bi-cash-stack', System:'bi bi-gear-fill', Reminder:'bi bi-bell-fill' }[t] ?? 'bi bi-bell-fill');
 }
