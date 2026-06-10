@@ -202,6 +202,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/notices/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/notices/${id}`,
     READ: (id: number) => `${API_BASE_URL}/notices/${id}/read`,
+    RESPOND:      (id: number) => `${API_BASE_URL}/notices/${id}/respond`, 
     UNREAD_COUNT: `${API_BASE_URL}/notices/my/unread-count`,
   },
 
