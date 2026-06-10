@@ -200,7 +200,7 @@ export class VatReturnViewComponent implements OnInit, OnDestroy {
 
   onEdit(): void {
     if (this.vr?.id) {
-      this.router.navigate(['edit', this.vr.id], {
+      this.router.navigate(['../../edit', this.vr.id], {
         relativeTo: this.route
       });
     }

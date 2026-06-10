@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
@@ -28,6 +28,7 @@ export class BusinessListComponent implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private route: ActivatedRoute,
     private toast: ToastService,
   ) {}
 
@@ -143,8 +144,26 @@ export class BusinessListComponent implements OnInit, OnDestroy {
     this.showDeleteModal = false;
   }
 
-  view(id: number): void { this.router.navigate(['/businesses/view', id]); }
-  edit(id: number): void { this.router.navigate(['/businesses/edit', id]); }
+// ───────────────── Navigation ───────────────────────
+
+  view(id: number): void {
+    this.router.navigate(['view', id], {
+      relativeTo: this.route
+    });
+  }
+
+  edit(id: number): void {
+    this.router.navigate(['edit', id], {
+      relativeTo: this.route
+    });
+  }
+
+  
+  navigateToCreate(): void {
+    this.router.navigate(['create'], {
+      relativeTo: this.route
+    });
+  }
 
   // ────────────── UI Helpers  ─────────────────────────
 

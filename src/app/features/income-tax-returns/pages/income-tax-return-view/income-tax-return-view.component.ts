@@ -15,7 +15,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
   styleUrls: ['./income-tax-return-view.component.css'],
 })
 export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
-
   itr: IncomeTaxReturn | null = null;
   isLoading = true;
   isActing = false;
@@ -57,7 +56,8 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
 
   private loadData(id: number): void {
     this.isLoading = true;
-    this.http.get<IncomeTaxReturn>(API_ENDPOINTS.INCOME_TAX_RETURNS.GET(id))
+    this.http
+      .get<IncomeTaxReturn>(API_ENDPOINTS.INCOME_TAX_RETURNS.GET(id))
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false)),
@@ -76,13 +76,18 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
   }
 
   canStartReview(): boolean {
-    return this.itr?.status === 'Submitted' && this.authService.hasRole(Role.TAX_OFFICER);
+    return (
+      this.itr?.status === 'Submitted' &&
+      this.authService.hasRole(Role.TAX_OFFICER)
+    );
   }
 
   canAccept(): boolean {
-    return this.itr?.status === 'Under Review' &&
+    return (
+      this.itr?.status === 'Under Review' &&
       (this.authService.hasRole(Role.TAX_COMMISSIONER) ||
-        this.authService.hasRole(Role.SUPER_ADMIN));
+        this.authService.hasRole(Role.SUPER_ADMIN))
+    );
   }
 
   canReject(): boolean {
@@ -90,9 +95,11 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
   }
 
   canSendBack(): boolean {
-    return this.itr?.status === 'Under Review' &&
+    return (
+      this.itr?.status === 'Under Review' &&
       (this.authService.hasRole(Role.TAX_OFFICER) ||
-        this.authService.hasRole(Role.TAX_COMMISSIONER));
+        this.authService.hasRole(Role.TAX_COMMISSIONER))
+    );
   }
 
   openAction(action: string): void {
@@ -131,10 +138,11 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
     this.isActing = true;
     this.actionError = '';
 
-    this.http.patch<IncomeTaxReturn>(
-      API_ENDPOINTS.INCOME_TAX_RETURNS.UPDATE_STATUS(this.itr.id),
-      payload,
-    )
+    this.http
+      .patch<IncomeTaxReturn>(
+        API_ENDPOINTS.INCOME_TAX_RETURNS.UPDATE_STATUS(this.itr.id),
+        payload,
+      )
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isActing = false)),
@@ -146,7 +154,9 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
           this.closeModal();
         },
         error: (err) => {
-          this.toast.error(err?.error?.message || 'Failed to update status. Please try again.');
+          this.toast.error(
+            err?.error?.message || 'Failed to update status. Please try again.',
+          );
         },
       });
   }
@@ -199,16 +209,24 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
   }
 
   private get returnUrl(): string {
-    return this.route.snapshot.queryParamMap.get('returnUrl')
-      || '/income-tax-returns';
+    return (
+      this.route.snapshot.queryParamMap.get('returnUrl') ||
+      '/income-tax-returns'
+    );
   }
 
   get taxableIncome(): number {
-    return this.itr?.taxableIncome ?? Math.max(0, (this.itr?.grossIncome || 0) - (this.itr?.exemptIncome || 0));
+    return (
+      this.itr?.taxableIncome ??
+      Math.max(0, (this.itr?.grossIncome || 0) - (this.itr?.exemptIncome || 0))
+    );
   }
 
   get netTaxPayable(): number {
-    return this.itr?.netTaxPayable ?? Math.max(0, (this.itr?.grossTax || 0) - (this.itr?.taxRebate || 0));
+    return (
+      this.itr?.netTaxPayable ??
+      Math.max(0, (this.itr?.grossTax || 0) - (this.itr?.taxRebate || 0))
+    );
   }
 
   get refundable(): number {
@@ -234,13 +252,26 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
     return map[action] ?? 'Return status updated successfully!';
   }
 
+  // ───────────────────── Navigation ────────────────────────
+
   onEdit(): void {
-    this.router.navigate(['/income-tax-returns/edit', this.itr?.id]);
+    if (this.itr?.id) {
+      this.router.navigate(['../../edit', this.itr.id], {
+        relativeTo: this.route,
+      });
+    }
   }
 
   onBack(): void {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-    this.router.navigateByUrl(returnUrl || '/income-tax-returns');
+
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['../..'], {
+        relativeTo: this.route,
+      });
+    }
   }
 
   goToIT10B(): void {
@@ -249,10 +280,10 @@ export class IncomeTaxReturnViewComponent implements OnInit, OnDestroy {
         ['/my-portal/income-tax-returns', this.itr.id, 'it10b'],
         {
           queryParams: {
-            returnNo:  this.itr.returnNo,
+            returnNo: this.itr.returnNo,
             returnUrl: this.returnUrl,
-          }
-        }
+          },
+        },
       );
     }
   }

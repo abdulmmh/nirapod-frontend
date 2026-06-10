@@ -94,12 +94,24 @@ export class BusinessViewComponent implements OnInit, OnDestroy {
   // ─────────────────── Navigation ──────────────────────────
 
   onEdit(): void {
-    if (!this.business?.id) return;
-    this.router.navigate(['/businesses/edit', this.business.id]);
+    if (this.business?.id) {
+      this.router.navigate(['../../edit', this.business.id], {
+        relativeTo: this.route
+      });
+    }
   }
 
-  onBack(): void { this.router.navigate(['/businesses']); }
+  onBack(): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
 
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['../..'], {
+        relativeTo: this.route
+      });
+    }
+  }
   // ─────────────────── UI Helpers ───────────────────────────
 
   getStatusClass(status: string): string {

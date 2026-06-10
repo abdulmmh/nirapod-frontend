@@ -11,15 +11,14 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-certificate-view',
   templateUrl: './certificate-view.component.html',
-  styleUrls: ['./certificate-view.component.css']
+  styleUrls: ['./certificate-view.component.css'],
 })
 export class CertificateViewComponent implements OnInit, OnDestroy {
-
   // ── State ────────────────────────────────────────────────────────────────
   record: any = null;
   certType: 'tin' | 'bin' = 'tin';
   sourceId = 0;
-  isLoading    = false;
+  isLoading = false;
   isDownloading = false;
 
   private destroy$ = new Subject<void>();
@@ -29,17 +28,20 @@ export class CertificateViewComponent implements OnInit, OnDestroy {
     private router: Router,
     private http: HttpClient,
     private certService: CertificateService,
-    private toast: ToastService
+    private toast: ToastService,
   ) {}
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     const type = this.route.snapshot.paramMap.get('type') ?? 'tin';
-    const id   = Number(this.route.snapshot.paramMap.get('id'));
-    if (!id || isNaN(id)) { this.router.navigate(['/certificates']); return; }
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (!id || isNaN(id)) {
+      this.router.navigate(['/certificates']);
+      return;
+    }
 
-    this.certType = (type === 'bin') ? 'bin' : 'tin';
+    this.certType = type === 'bin' ? 'bin' : 'tin';
     this.sourceId = id;
     this.loadRecord();
   }
@@ -53,15 +55,23 @@ export class CertificateViewComponent implements OnInit, OnDestroy {
 
   private loadRecord(): void {
     this.isLoading = true;
-    const url = this.certType === 'tin'
-      ? API_ENDPOINTS.TINS.GET(this.sourceId)
-      : API_ENDPOINTS.VAT_REGISTRATIONS.GET(this.sourceId);
+    const url =
+      this.certType === 'tin'
+        ? API_ENDPOINTS.TINS.GET(this.sourceId)
+        : API_ENDPOINTS.VAT_REGISTRATIONS.GET(this.sourceId);
 
-    this.http.get<any>(url)
-      .pipe(takeUntil(this.destroy$), finalize(() => this.isLoading = false))
+    this.http
+      .get<any>(url)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      )
       .subscribe({
-        next:  (data) => this.record = data,
-        error: () => { this.toast.error('Failed to load record'); this.onBack(); }
+        next: (data) => (this.record = data),
+        error: () => {
+          this.toast.error('Failed to load record');
+          this.onBack();
+        },
       });
   }
 
@@ -69,34 +79,46 @@ export class CertificateViewComponent implements OnInit, OnDestroy {
 
   onDownload(): void {
     this.isDownloading = true;
-    const call$ = this.certType === 'tin'
-      ? this.certService.downloadTinCertificate(this.sourceId)
-      : this.certService.downloadBinCertificate(this.sourceId);
+    const call$ =
+      this.certType === 'tin'
+        ? this.certService.downloadTinCertificate(this.sourceId)
+        : this.certService.downloadBinCertificate(this.sourceId);
 
     call$
-      .pipe(takeUntil(this.destroy$), finalize(() => this.isDownloading = false))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isDownloading = false)),
+      )
       .subscribe({
         next: (response) => {
-          const blob     = response.body as Blob;
-          const certNo   = this.certType === 'tin'
-            ? `CERT-TIN-${this.sourceId.toString().padStart(4,'0')}`
-            : `CERT-BIN-${this.sourceId.toString().padStart(4,'0')}`;
-          const url      = URL.createObjectURL(blob);
-          const a        = document.createElement('a');
-          a.href         = url;
-          a.download     = `${certNo}.pdf`;
+          const blob = response.body as Blob;
+          const certNo =
+            this.certType === 'tin'
+              ? `CERT-TIN-${this.sourceId.toString().padStart(4, '0')}`
+              : `CERT-BIN-${this.sourceId.toString().padStart(4, '0')}`;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${certNo}.pdf`;
           a.click();
           URL.revokeObjectURL(url);
           this.toast.success('Certificate downloaded');
         },
-        error: () => this.toast.error('Download failed')
+        error: () => this.toast.error('Download failed'),
       });
   }
 
   onBack(): void {
-    this.router.navigate(['/certificates']);
-  }
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
 
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['../..'], {
+        relativeTo: this.route,
+      });
+    }
+  }
   // ── UI Helpers ───────────────────────────────────────────────────────────
 
   get certNo(): string {
@@ -106,7 +128,9 @@ export class CertificateViewComponent implements OnInit, OnDestroy {
 
   get holderName(): string {
     if (!this.record) return '';
-    return this.certType === 'tin' ? this.record.taxpayerName : this.record.businessName;
+    return this.certType === 'tin'
+      ? this.record.taxpayerName
+      : this.record.businessName;
   }
 
   get referenceNo(): string {
@@ -116,7 +140,9 @@ export class CertificateViewComponent implements OnInit, OnDestroy {
 
   get issuedDate(): string {
     if (!this.record) return '';
-    return this.certType === 'tin' ? this.record.issuedDate : this.record.registrationDate;
+    return this.certType === 'tin'
+      ? this.record.issuedDate
+      : this.record.registrationDate;
   }
 
   get expiryDate(): string | null {
@@ -129,8 +155,11 @@ export class CertificateViewComponent implements OnInit, OnDestroy {
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      Active: 'status-active', Inactive: 'status-expired',
-      Suspended: 'status-revoked', Cancelled: 'status-revoked', Pending: 'status-pending'
+      Active: 'status-active',
+      Inactive: 'status-expired',
+      Suspended: 'status-revoked',
+      Cancelled: 'status-revoked',
+      Pending: 'status-pending',
     };
     return map[s] ?? '';
   }

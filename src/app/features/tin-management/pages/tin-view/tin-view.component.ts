@@ -29,7 +29,7 @@ export class TinViewComponent implements OnInit, OnDestroy {
     private router: Router,
     private http: HttpClient,
     private toast: ToastService,
-    private apiService: BaseApiService
+    private apiService: BaseApiService,
   ) {}
 
   // ────────────────────── Lifecycle ──────────────────────
@@ -104,20 +104,17 @@ export class TinViewComponent implements OnInit, OnDestroy {
 
     this.apiService.downloadTinCertificate(tinId).subscribe({
       next: (blob: Blob) => {
-
         const url = window.URL.createObjectURL(blob);
-        
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = `TIN_Certificate_${tinNumber}.pdf`; 
+        a.download = `TIN_Certificate_${tinNumber}.pdf`;
         document.body.appendChild(a);
         a.click();
-        
 
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        
+
         this.isDownloading = false;
         this.toast.success('Certificate downloaded successfully!');
       },
@@ -125,15 +122,16 @@ export class TinViewComponent implements OnInit, OnDestroy {
         console.error('Download error:', err);
         this.isDownloading = false;
         this.toast.error('Failed to download certificate. Please try again.');
-      }
+      },
     });
   }
+
   // ───────────────────── Navigation ────────────────────────
 
   onEdit(): void {
     if (this.tin?.id) {
-      this.router.navigate(['edit', this.tin.id], {
-        relativeTo: this.route
+      this.router.navigate(['../../edit', this.tin.id], {
+        relativeTo: this.route,
       });
     }
   }
@@ -145,7 +143,7 @@ export class TinViewComponent implements OnInit, OnDestroy {
       this.router.navigateByUrl(returnUrl);
     } else {
       this.router.navigate(['../..'], {
-        relativeTo: this.route
+        relativeTo: this.route,
       });
     }
   }

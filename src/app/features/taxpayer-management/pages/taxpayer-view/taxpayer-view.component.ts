@@ -9,6 +9,7 @@ import { TaxCircle, TaxZone } from 'src/app/models/master-data.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Role } from 'src/app/core/constants/roles.constants';
 import { District } from '../../../../models/master-data.model';
+import { environment } from '../../../../../environments/environment.prod';
 
 @Component({
   selector: 'app-taxpayer-view',
@@ -189,7 +190,7 @@ export class TaxpayerViewComponent implements OnInit, OnDestroy {
   }
 
   getPhotoUrl(photoPath: string): string {
-    return 'http://localhost:8080' + photoPath;
+    return "http://localhost:8080" + photoPath;
   }
 
   // ───────────────────── Navigation ────────────────────────

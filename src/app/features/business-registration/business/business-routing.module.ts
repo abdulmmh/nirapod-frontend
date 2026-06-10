@@ -13,13 +13,13 @@ const routes: Routes = [
     path: '',
     component: BusinessListComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR] }
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] }
   },
   {
     path: 'create',
     component: BusinessCreateComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
   },
   {
     path: 'view/:id',
@@ -31,7 +31,7 @@ const routes: Routes = [
     path: 'edit/:id',
     component: BusinessEditComponent,
     canActivate: [AuthGuard],
-    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+    data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
   },
 ];
 

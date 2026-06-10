@@ -61,8 +61,8 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
 
   private autoFillCurrentTaxpayer(): void {
     const user = this.authService.currentUser;
-    if (!user?.id) return;
-    this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(user.id))
+    if (!user?.taxpayerId) return;
+    this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(user.taxpayerId))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next:  tp  => this.selectTaxpayer(tp),
@@ -222,7 +222,7 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
   private handleSuccess(): void {
     this.toast.success('Business registered successfully!');
     timer(1500).pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.router.navigate(['/businesses']));
+      .subscribe(() => this.router.navigate(['..']));
   }
 
   private handleError(error: unknown): void {
@@ -243,7 +243,7 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     this.toast.info('Form has been reset.');
   }
 
-  onCancel(): void { this.router.navigate(['/businesses']); }
+  onCancel(): void { this.router.navigate(['..']); }
 
   private getEmptyForm(): BusinessCreateRequest {
     return {

@@ -168,7 +168,7 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/businesses/view', this.businessId]);
+    this.router.navigate(['../../view', this.businessId], { relativeTo: this.route });
   }
 
   // ────────── Validation ───────────────
@@ -239,7 +239,7 @@ export class BusinessEditComponent implements OnInit, OnDestroy {
   private handleUpdateSuccess(): void {
     this.toast.success('Business updated successfully!');
     timer(1500).pipe(takeUntil(this.destroy$))
-          .subscribe(() => this.router.navigate(['/businesses']));
+          .subscribe(() => this.router.navigate(['../../view', this.businessId], { relativeTo: this.route }));
   }
 
   private handleUpdateError(error: unknown): void {

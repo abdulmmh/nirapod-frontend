@@ -23,6 +23,12 @@ const routes: Routes = [
             .then(m => m.TaxpayerModule)
       },
       {
+        path: 'businesses', 
+        loadChildren: () =>
+          import('../../../features/business-registration/business/business.module')
+            .then(m => m.BusinessModule)
+      },
+      {
         path: 'tin',
         loadChildren: () =>
           import('../../../features/tin-management/tin/tin.module')

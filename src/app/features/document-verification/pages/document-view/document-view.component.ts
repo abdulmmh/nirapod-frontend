@@ -9,14 +9,12 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
   selector: 'app-document-view',
   templateUrl: './document-view.component.html',
-  styleUrls: ['./document-view.component.css']
+  styleUrls: ['./document-view.component.css'],
 })
 export class DocumentViewComponent implements OnInit {
-
   document: Document | null = null;
   isLoading = true;
-  documentId : number | null = null;
-
+  documentId: number | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -24,11 +22,11 @@ export class DocumentViewComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private toast: ToastService
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
-    const rawId   = this.route.snapshot.paramMap.get('id');
+    const rawId = this.route.snapshot.paramMap.get('id');
     const parsedId = Number(rawId);
 
     if (!rawId || isNaN(parsedId) || parsedId <= 0) {
@@ -41,7 +39,6 @@ export class DocumentViewComponent implements OnInit {
     this.loadDocument();
   }
 
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -52,15 +49,17 @@ export class DocumentViewComponent implements OnInit {
       this.toast.error('Invalid document ID. Please go back and try again.');
       return;
     }
-      this.isLoading = true;
-  
-      this.http.get<Document>(API_ENDPOINTS.DOCUMENTS.GET(this.documentId!))
-        .pipe(takeUntil(this.destroy$),
-         finalize  (() => this.isLoading = false)) // FIX #3: Auto-cancel on destroy
-        .subscribe({
-          next: data => {
-            this.document  = data;
-          
+    this.isLoading = true;
+
+    this.http
+      .get<Document>(API_ENDPOINTS.DOCUMENTS.GET(this.documentId!))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoading = false)),
+      ) // FIX #3: Auto-cancel on destroy
+      .subscribe({
+        next: (data) => {
+          this.document = data;
 
           // WARNING: expired documents
           if (data.expiryDate && this.isExpired(data.expiryDate)) {
@@ -73,33 +72,45 @@ export class DocumentViewComponent implements OnInit {
           }
 
           // INFO: suspended or dissolved status
-          if (data.status === 'Pending' || data.status === 'Rejected' || data.status === 'Under Review') {
+          if (
+            data.status === 'Pending' ||
+            data.status === 'Rejected' ||
+            data.status === 'Under Review'
+          ) {
             this.toast.info(`This document is currently ${data.status}.`);
           }
         },
-          error: (error) => {
-            console.error('Failed to load document details', error);
-            this.toast.error('Failed to load document details. Please go back and try again.');
-          }
-        });
-    }
+        error: (error) => {
+          console.error('Failed to load document details', error);
+          this.toast.error(
+            'Failed to load document details. Please go back and try again.',
+          );
+        },
+      });
+  }
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      'Pending': 'status-pending', 'Verified': 'status-active',
-      'Rejected': 'status-suspended', 'Expired': 'status-expired',
-      'Under Review': 'status-review'
+      Pending: 'status-pending',
+      Verified: 'status-active',
+      Rejected: 'status-suspended',
+      Expired: 'status-expired',
+      'Under Review': 'status-review',
     };
     return map[s] ?? '';
   }
 
   getTypeIcon(type: string): string {
     const map: Record<string, string> = {
-      'NID': 'bi bi-person-badge-fill', 'Trade License': 'bi bi-building-fill',
-      'TIN Certificate': 'bi bi-upc-scan', 'BIN Certificate': 'bi bi-file-earmark-text-fill',
-      'VAT Return': 'bi bi-arrow-repeat', 'Income Tax Return': 'bi bi-receipt-cutoff',
-      'Bank Statement': 'bi bi-bank2', 'Audit Report': 'bi bi-shield-fill-check',
-      'Other': 'bi bi-file-earmark-fill'
+      NID: 'bi bi-person-badge-fill',
+      'Trade License': 'bi bi-building-fill',
+      'TIN Certificate': 'bi bi-upc-scan',
+      'BIN Certificate': 'bi bi-file-earmark-text-fill',
+      'VAT Return': 'bi bi-arrow-repeat',
+      'Income Tax Return': 'bi bi-receipt-cutoff',
+      'Bank Statement': 'bi bi-bank2',
+      'Audit Report': 'bi bi-shield-fill-check',
+      Other: 'bi bi-file-earmark-fill',
     };
     return map[type] ?? 'bi bi-file-earmark-fill';
   }
@@ -120,11 +131,23 @@ export class DocumentViewComponent implements OnInit {
     return diff >= 0 && diff <= 30;
   }
 
-  onEdit(): void { 
-    if (!this.document?.id) return;
-    this.router.navigate(['/documents', this.document?.id, 'edit']); 
+  onEdit(): void {
+    if (this.document?.id) {
+      this.router.navigate(['../../edit', this.document.id], {
+        relativeTo: this.route,
+      });
+    }
   }
-  onBack(): void { 
-    this.router.navigate(['/documents']); 
+
+  onBack(): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['../..'], {
+        relativeTo: this.route,
+      });
+    }
   }
 }

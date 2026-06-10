@@ -3,7 +3,7 @@
     <h4>Business Registration</h4>
     <p>Manage all registered businesses and trade licenses.</p>
   </div>
-  <a *canDo="'create'" routerLink="/businesses/create" class="btn-add-primary desktop-add-btn">
+  <a *canDo="'create'" (click)="navigateToCreate()" class="btn-add-primary desktop-add-btn">
     <i class="bi bi-plus-lg"></i> Register Business
   </a>
 </div>
@@ -179,7 +179,7 @@
 
 </div>
 
-<button *canDo="'create'" class="fab-btn" routerLink="/businesses/create">
+<button *canDo="'create'" class="fab-btn" (click)="navigateToCreate()">
   <i class="bi bi-plus-lg"></i>
 </button>
 
