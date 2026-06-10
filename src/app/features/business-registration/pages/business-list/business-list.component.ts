@@ -8,6 +8,8 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Business, BUSINESS_TYPE_MAP } from '../../../../models/business.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { BusinessCategory, BusinessType } from 'src/app/models/master-data.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Role } from '../../../../core/constants/roles.constants';
 
 @Component({
   selector: 'app-business-list',
@@ -16,7 +18,7 @@ import { BusinessCategory, BusinessType } from 'src/app/models/master-data.model
 })
 export class BusinessListComponent implements OnInit, OnDestroy {
 
-  businesses: Business[] = [];
+  businesses: (Business)[] = [];
   searchTerm = '';
   isLoading = false;
 
@@ -30,7 +32,9 @@ export class BusinessListComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private toast: ToastService,
+    private authService: AuthService
   ) {}
+
 
   ngOnInit(): void {
     this.fetchBusinesses();
@@ -45,13 +49,19 @@ export class BusinessListComponent implements OnInit, OnDestroy {
 
   private fetchBusinesses(): void {
     this.isLoading = true;
-    this.http
-      .get<Business[]>(API_ENDPOINTS.BUSINESSES.LIST)
+    const role       = this.authService.userRole;
+    const taxpayerId = this.authService.currentUser?.taxpayerId;
+
+    const url = (role === Role.TAXPAYER && taxpayerId)
+      ? API_ENDPOINTS.BUSINESSES.BY_TAXPAYER_VAT_STATUS(taxpayerId)
+      : API_ENDPOINTS.BUSINESSES.LIST;
+
+    this.http.get<Business[]>(url)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (data) => this.handleFetchSuccess(data),
-        error: (error) => this.handleFetchError(error),
-    });
+        next:  data  => this.handleFetchSuccess(data),
+        error: error => this.handleFetchError(error),
+      });
   }
 
   private handleFetchSuccess(data: Business[]): void {
