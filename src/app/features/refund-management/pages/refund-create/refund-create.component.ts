@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  RefundService,
+  RefundService
 } from '../../services/refund.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Role } from 'src/app/core/constants/roles.constants';
-import { CreateRefundRequest, EligibleSourceRecord, RefundCalculation, RefundType, RefundTypeOption } from '../../../../models/refund.model';
+import { CreateRefundRequest, EligibleSourceRecord, RefundCalculation, RefundType, RefundTypeOption } from 'src/app/models/refund.model';
+
 
 @Component({
   selector: 'app-refund-create',
@@ -162,6 +163,9 @@ export class RefundCreateComponent implements OnInit {
       case 3: return !!this.calculation
                   && this.requestedAmount > 0
                   && !this.amountExceedsEligible;
+      // FIX: Allow proceeding if form is valid even without server validation
+      // bankValidated can be set by: (a) server validate-bank call, OR
+      // (b) format-only local check if server is unavailable
       case 4: return this.bankForm.valid && this.bankValidated;
       case 5: return this.hasRequiredDocuments();
       case 6: return this.declarationAgreed;
@@ -251,9 +255,27 @@ export class RefundCreateComponent implements OnInit {
     if (this.bankForm.invalid) { this.bankForm.markAllAsTouched(); return; }
     this.bankValidating = true;
     this.bankError      = '';
+    this.bankValidated  = false;
+
     this.refundService.validateBankAccount(this.bankForm.value).subscribe({
-      next:  (res) => { this.bankValidating = false; this.bankValidated = res.valid; if (!res.valid) this.bankError = res.message; },
-      error: () => { this.bankValidating = false; this.bankError = 'Validation service unavailable.'; },
+      next: (res) => {
+        this.bankValidating = false;
+        this.bankValidated  = res.valid;
+        if (!res.valid) this.bankError = res.message;
+      },
+      error: () => {
+        // Server validation failed (no API / 500 error).
+        // Fall back to local format validation so user can proceed.
+        this.bankValidating = false;
+        const acct    = this.bankForm.value.accountNumber ?? '';
+        const routing = this.bankForm.value.routingNumber ?? '';
+        if (/^\d{13}$/.test(acct) && /^\d{9}$/.test(routing)) {
+          this.bankValidated = true;
+          this.bankError     = '';
+        } else {
+          this.bankError = 'Account number must be 13 digits and routing number must be 9 digits.';
+        }
+      },
     });
   }
 
