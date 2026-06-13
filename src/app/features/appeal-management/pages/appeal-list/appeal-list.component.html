@@ -1,0 +1,135 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Appeal Management</h4>
+    <p>Review and decide taxpayer appeals against audit assessments.</p>
+  </div>
+</div>
+
+<!-- KPI Row -->
+<div class="appeal-kpi-row" *ngIf="kpis">
+  <div class="akpi-card">
+    <div class="akpi-icon blue"><i class="bi bi-file-earmark-text-fill"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Filed</span>
+      <span class="akpi-value">{{ kpis['filed'] ?? 0 }}</span>
+    </div>
+  </div>
+  <div class="akpi-card">
+    <div class="akpi-icon orange"><i class="bi bi-search"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Under Review</span>
+      <span class="akpi-value">{{ kpis['underReview'] ?? 0 }}</span>
+    </div>
+  </div>
+  <div class="akpi-card">
+    <div class="akpi-icon teal"><i class="bi bi-calendar-event-fill"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Hearing Scheduled</span>
+      <span class="akpi-value">{{ kpis['hearingScheduled'] ?? 0 }}</span>
+    </div>
+  </div>
+  <div class="akpi-card">
+    <div class="akpi-icon purple"><i class="bi bi-gavel"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Decided</span>
+      <span class="akpi-value">{{ kpis['decided'] ?? 0 }}</span>
+    </div>
+  </div>
+  <div class="akpi-card">
+    <div class="akpi-icon green"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="akpi-text">
+      <span class="akpi-label">Closed</span>
+      <span class="akpi-value">{{ kpis['closed'] ?? 0 }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrapper">
+  <div class="list-search-bar">
+    <div class="search-field-row">
+      <div class="search-field">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search appeal no, TIN, taxpayer..."
+          [(ngModel)]="searchTerm" />
+      </div>
+    </div>
+    <div class="filter-row">
+      <select class="filter-select" [(ngModel)]="filterStatus">
+        <option value="">All Statuses</option>
+        <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+      </select>
+      <button class="btn-clear-filter" (click)="clearFilters()">
+        <i class="bi bi-x-circle"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading appeals...</span>
+  </div>
+
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Appeal No</th>
+          <th>Taxpayer</th>
+          <th>Type</th>
+          <th>Demanded (BDT)</th>
+          <th>Disputed (BDT)</th>
+          <th>Filed On</th>
+          <th>Hearing</th>
+          <th>Decision</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><span class="code-badge">{{ a.appealNo }}</span></td>
+          <td>
+            <div class="td-name">
+              <div class="td-avatar">{{ a.taxpayerName?.charAt(0) }}</div>
+              <div>
+                <span class="td-title">{{ a.taxpayerName }}</span>
+                <span class="td-sub">{{ a.tinNumber }}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="cat-badge">{{ a.appealType?.replace('_', ' ') }}</span></td>
+          <td>{{ a.demandedAmount | number:'1.2-2' }}</td>
+          <td>{{ a.disputedAmount | number:'1.2-2' }}</td>
+          <td>{{ a.filedAt | date:'dd MMM yyyy' }}</td>
+          <td>{{ a.hearingDate ? (a.hearingDate | date:'dd MMM') : '—' }}</td>
+          <td>
+            <span *ngIf="a.decision" class="status-badge" [ngClass]="getDecisionClass(a.decision)">
+              {{ a.decision?.replace('_', ' ') }}
+            </span>
+            <span *ngIf="!a.decision" class="text-muted">—</span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(a.status)">
+              {{ getStatusLabel(a.status) }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-view" (click)="view(a.id)">
+              <i class="bi bi-eye-fill"></i> View
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="11">
+            <div class="empty-state">
+              <i class="bi bi-shield-slash"></i>
+              <p>No appeals found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

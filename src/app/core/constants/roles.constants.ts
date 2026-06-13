@@ -29,6 +29,7 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
     'notices',
     'reports',
     'activity-logs',
+    'Appeal Management'
   ],
 
   [Role.TAX_OFFICER]: [
@@ -42,6 +43,7 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
     'payments',
     'notices',
     'documents',
+    'Appeal Management'
   ],
 
   [Role.AUDITOR]: [
@@ -54,6 +56,7 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
     'documents',
     'reports',
     'notices',
+    'Appeal Management'
   ],
 
   [Role.DATA_ENTRY_OPERATOR]: [
@@ -75,6 +78,7 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
     'payments',
     'notices',
     'refunds',
+    'My Appeals'
   ],
 
   [Role.SUPERVISOR]: [
@@ -84,6 +88,7 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
     'reports',
     'notices',
     'documents',
+    'Appeal Management'
   ],
 
   [Role.GUEST]: ['dashboard'],

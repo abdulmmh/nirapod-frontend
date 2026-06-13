@@ -46,7 +46,9 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
         API_ENDPOINTS.TAXPAYERS.GET(taxpayerId),
       ),
       returns: this.http
-        .get<IncomeTaxReturn[]>(`${API_ENDPOINTS.INCOME_TAX_RETURNS.LIST}?taxpayerId=${taxpayerId}`)
+        .get<
+          IncomeTaxReturn[]
+        >(`${API_ENDPOINTS.INCOME_TAX_RETURNS.LIST}?taxpayerId=${taxpayerId}`)
         .pipe(catchError(() => of([]))),
     })
       .pipe(takeUntil(this.destroy$))
@@ -144,6 +146,12 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
         { label: 'Payments', route: '/my-portal/payments', icon: '💳' },
         { label: 'Notices', route: '/my-portal/notices', icon: '🔔' },
         { label: 'My Audits', route: '/my-portal/audits', icon: '🔍' },
+
+        {
+          label: 'My Appeals',
+          route: '/my-portal/appeals',
+          icon: 'bi bi-shield-exclamation',
+        },
       ];
     } else if (category === 'Business') {
       this.menuItems = [
@@ -191,7 +199,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
 
   get photoUrl(): string | null {
     return this.taxpayer?.photoPath
-      ? "http://localhost:8080" + this.taxpayer.photoPath
+      ? 'http://localhost:8080' + this.taxpayer.photoPath
       : null;
   }
 

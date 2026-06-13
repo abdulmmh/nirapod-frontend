@@ -525,19 +525,40 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
 
    
     this.vatService.create(payload)
-      .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (created: VatRegistration) => {
-          this.toast.success('VAT registration submitted successfully!');
-          this.clearDraft();
-          this.router.navigate(['/../success'], {
-            relativeTo: this.route,
-            state: { registration: created },
-          });
+          if (this.uploadCount > 0) {
+            this.uploadDocuments(created.id!, created);
+          } else {
+            this.finishSubmit(created);
+          }
         },
-        error: () => {},
+        error: (error) => { this.isLoading = false; 
+          this.toast.error('Failed to create VAT registration. Please try again.', error);
+        },
       });
   }
+
+  private uploadDocuments(id: number, created: VatRegistration): void {
+      const fd = new FormData();
+      if (this.uploadedFiles.tradeLicense)   fd.append('tradeLicense', this.uploadedFiles.tradeLicense);
+      if (this.uploadedFiles.tinCertificate) fd.append('tinCertificate', this.uploadedFiles.tinCertificate);
+      if (this.uploadedFiles.nidAuthorized)  fd.append('nidAuthorized', this.uploadedFiles.nidAuthorized);
+
+      // this.vatService.uploadDocuments(id, fd)
+      //   .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
+      //   .subscribe({
+      //     next:  () => this.finishSubmit(created),
+      //     error: () => this.toast.warning('Registration created, but document upload failed. Please re-upload from the edit page.'),
+      //   });
+    }
+
+    private finishSubmit(created: VatRegistration): void {
+      this.toast.success('VAT registration submitted successfully!');
+      this.clearDraft();
+      this.router.navigate(['/vat-registrations']);
+    }
 
   // ── Reset / Cancel ─────────────────────────────────────────────────────────
 

@@ -1,0 +1,35 @@
+.appeal-kpi-row {
+  display: flex; gap: 12px; flex-wrap: wrap; padding: 16px 20px;
+}
+.akpi-card {
+  flex: 1; min-width: 140px; background: #fff;
+  border: 1px solid #eef2f8; border-radius: 12px;
+  padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05); transition: box-shadow .2s;
+}
+.akpi-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.09); }
+.akpi-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+.akpi-icon.blue   { background: #e8eef9; color: #1a3f8f; }
+.akpi-icon.orange { background: #fff3e0; color: #e65100; }
+.akpi-icon.teal   { background: #e0f7fa; color: #00695c; }
+.akpi-icon.purple { background: #f3e8ff; color: #6d28d9; }
+.akpi-icon.green  { background: #e6f7ee; color: #1a7a45; }
+.akpi-text { display: flex; flex-direction: column; gap: 2px; }
+.akpi-label { font-size: 11px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
+.akpi-value { font-size: 22px; font-weight: 800; color: #1a2340; line-height: 1.2; }
+
+.code-badge {
+  font-family: monospace; font-size: 12px; font-weight: 700;
+  color: #1a3f8f; background: #e8eef9; padding: 2px 8px; border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+  .appeal-kpi-row { padding: 12px; }
+  .akpi-card { min-width: calc(50% - 6px); flex: 0 0 calc(50% - 6px); }
+}
+@media (max-width: 480px) {
+  .akpi-card { min-width: 100%; flex: 0 0 100%; }
+}

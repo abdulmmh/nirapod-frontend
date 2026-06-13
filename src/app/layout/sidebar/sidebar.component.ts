@@ -243,6 +243,12 @@ export class SidebarComponent implements OnInit {
     },
 
     {
+      label: 'Appeal Management',
+      route: '/appeals',
+      icon: 'bi bi-shield-exclamation',
+    },
+
+    {
       label: 'Document Verification',
       icon: 'bi bi-file-earmark-check-fill',
       route: '/documents',

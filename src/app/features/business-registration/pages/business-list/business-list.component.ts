@@ -100,7 +100,7 @@ export class BusinessListComponent implements OnInit, OnDestroy {
     return (
       b.businessName.toLowerCase().includes(term) ||
       b.businessRegNo.toLowerCase().includes(term) ||
-      b.tinNumber.toLowerCase().includes(term) ||
+      (b.tinNumber?.toLowerCase().includes(term) ?? false) ||
       (b.ownerName?.toLowerCase().includes(term) ?? false) ||
       this.getTypeName(b.businessType).toLowerCase().includes(term) ||
 
@@ -178,22 +178,18 @@ export class BusinessListComponent implements OnInit, OnDestroy {
   // ────────────── UI Helpers  ─────────────────────────
 
 
-  getTypeName(type: BusinessType): string {
-    if (!type) return '—';
-
-    if (typeof type === 'object') {
-      return type.typeName || type.typeName || 'Unknown';
-    }
-    return BUSINESS_TYPE_MAP[type] ?? type;
+  getTypeName(b: any): string {
+    if (b && typeof b === 'object' && b.typeName) return b.typeName;
+    if (b && typeof b === 'object' && b.businessTypeName) return b.businessTypeName;
+    if (typeof b === 'string') return BUSINESS_TYPE_MAP[b] ?? b;
+    return '—';
   }
 
-  getCategoryName(category: BusinessCategory): string {
-    if (!category) return '—';
-
-    if (typeof category === 'object') {
-      return category.categoryName || category.categoryName || 'Unknown';
-    }
-    return category;
+  getCategoryName(b: any): string {
+    if (b && typeof b === 'object' && b.categoryName) return b.categoryName;
+    if (b && typeof b === 'object' && b.businessCategoryName) return b.businessCategoryName;
+    if (typeof b === 'string') return b;
+    return '—';
   }
 
   getStatusClass(status: string): string {
@@ -247,11 +243,15 @@ export class BusinessListComponent implements OnInit, OnDestroy {
 
 
   getDistrictName(b: Business): string {
-    return b.district?.name ?? '—';
+    return b.district?.name         
+      ?? (b as any).districtName     
+      ?? '—';
   }
 
   getDivisionName(b: Business): string {
-    return b.division?.name ?? '—';
+    return b.division?.name
+      ?? (b as any).divisionName
+      ?? '—';
   }
 
   // ─────────────────── Date Helpers ───────────────────────

@@ -1,0 +1,184 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>Appeal Details</h4>
+    <p>Track the status of your filed appeal.</p>
+  </div>
+  <button class="btn-back" (click)="onBack()">
+    <i class="bi bi-arrow-left"></i> Back
+  </button>
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<ng-container *ngIf="!isLoading && appeal">
+
+  <!-- Decision Banner -->
+  <div class="tp-decision-banner success" *ngIf="appeal.decision === 'UPHELD'">
+    <i class="bi bi-check-circle-fill"></i>
+    <div>
+      <strong>Appeal Successful!</strong> {{ getDecisionMessage(appeal.decision) }}
+    </div>
+  </div>
+
+  <div class="tp-decision-banner partial" *ngIf="appeal.decision === 'PARTIALLY_UPHELD'">
+    <i class="bi bi-shield-half"></i>
+    <div>
+      <strong>Partial Relief Granted.</strong> {{ getDecisionMessage(appeal.decision) }}
+      <span *ngIf="appeal.reliefGranted"> Relief amount: <strong>{{ appeal.reliefGranted | number:'1.2-2' }} BDT</strong></span>
+    </div>
+  </div>
+
+  <div class="tp-decision-banner dismissed" *ngIf="appeal.decision === 'DISMISSED'">
+    <i class="bi bi-x-circle-fill"></i>
+    <div>
+      <strong>Appeal Dismissed.</strong> {{ getDecisionMessage(appeal.decision) }}
+    </div>
+  </div>
+
+  <!-- Hearing Banner -->
+  <div class="tp-action-banner" *ngIf="appeal.status === 'HEARING_SCHEDULED'">
+    <i class="bi bi-calendar-event-fill"></i>
+    <div>
+      <strong>Hearing Scheduled:</strong>
+      {{ appeal.hearingDate | date:'mediumDate' }}
+      <span *ngIf="appeal.hearingVenue"> at {{ appeal.hearingVenue }}</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="appeal-tp-header">
+    <div class="ath-top">
+      <span class="ath-no">{{ appeal.appealNo }}</span>
+      <span class="status-badge" [ngClass]="getStatusClass(appeal.status)">
+        {{ getStatusLabel(appeal.status) }}
+      </span>
+    </div>
+    <div class="ath-meta">
+      <span><i class="bi bi-tag-fill"></i> {{ appeal.appealType?.replace('_',' ') }}</span>
+      <span><i class="bi bi-clock"></i> Filed {{ appeal.filedAt | date:'mediumDate' }}</span>
+      <span *ngIf="appeal.deadline"><i class="bi bi-alarm"></i> Deadline: {{ appeal.deadline | date:'mediumDate' }}</span>
+    </div>
+  </div>
+
+  <!-- Detail Card -->
+  <div class="form-card" style="margin-top:16px;">
+
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon"><i class="bi bi-cash-stack"></i></div>
+        <div>
+          <h6 class="section-title">Financial Details</h6>
+          <span class="section-sub">Amounts involved in this appeal</span>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Total Demanded</label>
+          <div class="amount-display red">{{ appeal.demandedAmount | number:'1.2-2' }} BDT</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount Disputed</label>
+          <div class="amount-display orange">{{ appeal.disputedAmount | number:'1.2-2' }} BDT</div>
+        </div>
+        <div class="form-group" *ngIf="appeal.reliefGranted">
+          <label class="form-label">Relief Granted</label>
+          <div class="amount-display green">{{ appeal.reliefGranted | number:'1.2-2' }} BDT</div>
+        </div>
+        <div class="form-group" *ngIf="appeal.acceptedAmount">
+          <label class="form-label">Accepted Amount</label>
+          <div class="amount-display">{{ appeal.acceptedAmount | number:'1.2-2' }} BDT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon amber"><i class="bi bi-file-text-fill"></i></div>
+        <div>
+          <h6 class="section-title">Your Grounds</h6>
+          <span class="section-sub">Reasons submitted for this appeal</span>
+        </div>
+      </div>
+      <div class="grounds-text">{{ appeal.groundsText }}</div>
+      <div class="grounds-text relief" *ngIf="appeal.reliefSought">
+        <strong>Relief Sought:</strong> {{ appeal.reliefSought }}
+      </div>
+    </div>
+
+    <div class="section-divider" *ngIf="appeal.decision"></div>
+
+    <div class="form-section" *ngIf="appeal.decision">
+      <div class="section-header">
+        <div class="section-icon"><i class="bi bi-gavel"></i></div>
+        <div>
+          <h6 class="section-title">Decision</h6>
+          <span class="section-sub">Official decision on your appeal</span>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Outcome</label>
+          <span class="status-badge" [ngClass]="getDecisionClass(appeal.decision)">
+            {{ appeal.decision?.replace('_',' ') }}
+          </span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Decided By</label>
+          <div class="form-input auto-field">{{ appeal.decidedBy }}</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Decided On</label>
+          <div class="form-input auto-field">{{ appeal.decidedAt | date:'mediumDate' }}</div>
+        </div>
+        <div class="form-group full-width" *ngIf="appeal.decisionNotes">
+          <label class="form-label">Decision Notes</label>
+          <div class="grounds-text">{{ appeal.decisionNotes }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions" *ngIf="canWithdraw()">
+      <button class="btn-cancel" (click)="showWithdrawModal = true">
+        <i class="bi bi-x-circle"></i> Withdraw Appeal
+      </button>
+    </div>
+
+  </div>
+
+</ng-container>
+
+<!-- Withdraw Modal -->
+<div class="modal-overlay" *ngIf="showWithdrawModal">
+  <div class="modal-card">
+    <div class="modal-accent error"></div>
+    <div class="modal-icon-wrap error">
+      <i class="bi bi-x-circle-fill" style="color:#A32D2D;font-size:22px;"></i>
+    </div>
+    <p class="modal-title">Withdraw Appeal?</p>
+    <p class="modal-msg">
+      Once withdrawn, your appeal cannot be reinstated. The original demand notice will be restored.
+    </p>
+    <div class="form-group mb-3">
+      <label class="form-label">Reason (optional)</label>
+      <div class="input-wrap">
+        <i class="bi bi-chat-text input-icon textarea-icon"></i>
+        <textarea class="form-input form-textarea" rows="2"
+          [(ngModel)]="withdrawReason"
+          placeholder="Reason for withdrawal..."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="showWithdrawModal = false">Cancel</button>
+      <button class="btn-modal-confirm error" (click)="submitWithdraw()" [disabled]="withdrawSubmitting">
+        <span *ngIf="withdrawSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+        <i class="bi bi-x-circle-fill" *ngIf="!withdrawSubmitting"></i>
+        Withdraw
+      </button>
+    </div>
+  </div>
+</div>

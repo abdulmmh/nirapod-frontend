@@ -239,22 +239,22 @@ export class PortalAuditDetailComponent implements OnInit {
   goToPay(): void {
     this.router.navigate(['/my-portal/payments/create'], {
       queryParams: {
-        source:   'DEMAND',
-        refId:    this.demandNotice?.id,
+        source: 'DEMAND',
+        refId: this.demandNotice?.id,
         demandNo: this.demandNotice?.demandNo,
-        amount:   this.demandNotice?.amountDue,
+        amount: this.demandNotice?.amountDue,
       },
     });
   }
 
   goToAppeal(): void {
-    // Navigate to appeals module with audit context
-    // Change route below to match your actual appeals module route
     this.router.navigate(['/my-portal/appeals/new'], {
       queryParams: {
         auditCaseId: this.caseId,
+        demandNoticeId: this.demandNotice?.id,
         assessmentNo: this.assessment?.assessmentNo,
         caseNo: this.auditCase?.caseNo,
+        demandedAmount: this.demandNotice?.amountDue,
       },
     });
   }

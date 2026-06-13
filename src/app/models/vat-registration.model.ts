@@ -27,6 +27,12 @@ export interface VatRegistration {
   zoneId:           number;
   status:           VatStatus;
   remarks:          string;
+  returnPeriod?:    ReturnPeriod;       // ← add — backend এ আছে কিন্তু এখানে নেই
+  tradeLicensePath?:    string | null;  // ← add
+  tinCertificatePath?:  string | null;  // ← add
+  nidAuthorizedPath?:   string | null;  // ← add
+  taxpayerId?:      number;             // ← add — @PostLoad এ populate হয়
+  businessId?:      number | null;
 }
 
 
@@ -49,5 +55,24 @@ export interface VatRegistrationCreateRequest {
   expiryDate?:      string;
 
   // Optional officer notes
+  remarks?: string;
+}
+
+export interface VatRegistrationUpdateRequest {
+  vatZoneId?:     number;
+  vatCircleId?:   number;
+  districtId?:    number;
+
+  vatCategory?:   VatCategory | string;
+  returnPeriod?:  ReturnPeriod;
+
+  effectiveDate?: string;
+  expiryDate?:    string;
+
+  email?:         string;
+  phone?:         string;
+  address?:       string;
+  annualTurnover?: number;
+
   remarks?: string;
 }

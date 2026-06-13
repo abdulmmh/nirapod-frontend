@@ -278,7 +278,12 @@ export class VatReturnCreateComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    const payload = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+
+    const payload = {
+      ...raw,
+      dueDate: raw.dueDate || null,   
+    };
 
     this.http
       .post(API_ENDPOINTS.VAT_RETURNS.CREATE, payload)

@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { VatReturn, VatReturnStatus } from '../../../../models/vat-return.model';
+import { VatReturn } from '../../../../models/vat-return.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
 
 @Component({
@@ -23,9 +23,6 @@ export class VatReturnEditComponent implements OnInit, OnDestroy {
   vatId       = 0;
   returnNo    = '';
   businessName = '';
-  statuses: VatReturnStatus[] = ['Draft' , 'Submitted' , 'Under Review' ,
-  'Accepted' , 'Rejected' , 'Overdue' ,
-  'Amended' , 'Send Back'];
 
   private destroy$ = new Subject<void>();
 
@@ -73,7 +70,6 @@ export class VatReturnEditComponent implements OnInit, OnDestroy {
       inputTax:          [0, Validators.min(0)],
       taxPaid:           [0, Validators.min(0)],
       submittedBy:       [''],
-      status:     ['Draft'],
       remarks:           ['']
     });
   }

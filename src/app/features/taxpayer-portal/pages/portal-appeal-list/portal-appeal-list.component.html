@@ -1,0 +1,97 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>My Appeals</h4>
+    <p>View all appeals you have filed against audit assessments.</p>
+  </div>
+</div>
+
+<div class="page-wrapper">
+  <div class="loading-row" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span>Loading appeals...</span>
+  </div>
+
+  <div class="table-responsive desktop-table" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Appeal No</th>
+          <th>Type</th>
+          <th>Demanded (BDT)</th>
+          <th>Disputed (BDT)</th>
+          <th>Filed On</th>
+          <th>Hearing</th>
+          <th>Decision</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of appeals; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><span class="case-code">{{ a.appealNo }}</span></td>
+          <td>{{ a.appealType.replace('_',' ') }}</td>
+          <td>{{ a.demandedAmount | number:'1.2-2' }}</td>
+          <td>{{ a.disputedAmount | number:'1.2-2' }}</td>
+          <td>{{ a.filedAt | date:'dd MMM yyyy' }}</td>
+          <td>{{ a.hearingDate ? (a.hearingDate | date:'dd MMM yyyy') : '—' }}</td>
+          <td>
+            <span *ngIf="a.decision" class="status-badge" [ngClass]="getDecisionClass(a.decision)">
+              {{ a.decision.replace('_',' ') }}
+            </span>
+            <span *ngIf="!a.decision">—</span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(a.status)">
+              {{ getStatusLabel(a.status) }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-view" (click)="view(a.id)">
+              <i class="bi bi-eye-fill"></i> View
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="appeals.length === 0">
+          <td colspan="10">
+            <div class="empty-state">
+              <i class="bi bi-shield-slash"></i>
+              <p>You have not filed any appeals yet.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile cards -->
+  <div class="mobile-cards" style="padding:12px" *ngIf="!isLoading">
+    <div class="mobile-card" *ngFor="let a of appeals"
+      [class.mobile-card-alert]="isActive(a)">
+      <div class="mobile-card-header">
+        <div>
+          <div class="case-code">{{ a.appealNo }}</div>
+          <div class="mobile-sub">{{ a.appealType.replace('_',' ') }}</div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(a.status)">{{ getStatusLabel(a.status) }}</span>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-field"><label>Demanded</label><span>{{ a.demandedAmount | number:'1.2-2' }} BDT</span></div>
+        <div class="mobile-field"><label>Disputed</label><span>{{ a.disputedAmount | number:'1.2-2' }} BDT</span></div>
+        <div class="mobile-field"><label>Filed On</label><span>{{ a.filedAt | date:'mediumDate' }}</span></div>
+        <div class="mobile-field" *ngIf="a.hearingDate"><label>Hearing</label><span>{{ a.hearingDate | date:'mediumDate' }}</span></div>
+        <div class="mobile-field" *ngIf="a.decision"><label>Decision</label>
+          <span class="status-badge" [ngClass]="getDecisionClass(a.decision)">{{ a.decision.replace('_',' ') }}</span>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-view" (click)="view(a.id)"><i class="bi bi-eye-fill"></i> View</button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="appeals.length === 0">
+      <i class="bi bi-shield-slash"></i>
+      <p>No appeals filed yet.</p>
+    </div>
+  </div>
+</div>

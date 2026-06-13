@@ -58,6 +58,8 @@ export const API_ENDPOINTS = {
     CREATE: `${API_BASE_URL}/vat-registrations`,
     UPDATE: (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
+    UPDATE_STATUS: (id: number) => `${API_BASE_URL}/vat-registrations/${id}/status`,
+    UPLOAD_DOCUMENTS: (id: number) => `${API_BASE_URL}/vat-registrations/${id}/documents`,
     GET: (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
   },
 
@@ -263,6 +265,22 @@ export const API_ENDPOINTS = {
       `${API_BASE_URL}/my-portal/audits/${id}/assessment`,
     MY_DEMAND: (id: number) =>
       `${API_BASE_URL}/my-portal/audits/${id}/demand-notice`,
+  },
+
+  APPEALS: {
+    LIST: `${API_BASE_URL}/appeals`,
+    GET:              (id: number) => `${API_BASE_URL}/appeals/${id}`,
+    SEARCH:           `${API_BASE_URL}/appeals/search`,
+    KPIS:             `${API_BASE_URL}/appeals/kpis`,
+    BY_CASE:          (caseId: number) => `${API_BASE_URL}/appeals/by-case/${caseId}`,
+    REVIEW:           (id: number) => `${API_BASE_URL}/appeals/${id}/review`,
+    SCHEDULE_HEARING: (id: number) => `${API_BASE_URL}/appeals/${id}/schedule-hearing`,
+    DECIDE:           (id: number) => `${API_BASE_URL}/appeals/${id}/decide`,
+    CLOSE:            (id: number) => `${API_BASE_URL}/appeals/${id}/close`,
+    MY_LIST:          `${API_BASE_URL}/my-portal/appeals`,
+    MY_GET:           (id: number) => `${API_BASE_URL}/my-portal/appeals/${id}`,
+    MY_FILE:          `${API_BASE_URL}/my-portal/appeals`,
+    MY_WITHDRAW:      (id: number) => `${API_BASE_URL}/my-portal/appeals/${id}/withdraw`,
   },
 
   // Users

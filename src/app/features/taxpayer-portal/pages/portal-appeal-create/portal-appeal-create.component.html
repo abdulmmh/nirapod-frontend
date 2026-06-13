@@ -1,0 +1,154 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h4>File an Appeal</h4>
+    <p>Submit your appeal against the audit assessment or demand notice.</p>
+  </div>
+  <button class="btn-back" (click)="onCancel()">
+    <i class="bi bi-arrow-left"></i> Back
+  </button>
+</div>
+
+<div class="form-card">
+
+  <!-- Context Banner -->
+  <div class="appeal-context-banner" *ngIf="caseNo || assessmentNo">
+    <i class="bi bi-info-circle-fill"></i>
+    <div>
+      <strong>Filing appeal for:</strong>
+      <span *ngIf="caseNo"> Case {{ caseNo }}</span>
+      <span *ngIf="assessmentNo"> · Assessment {{ assessmentNo }}</span>
+      <span *ngIf="demandedAmount"> · Demanded Amount: <strong>{{ demandedAmount | number:'1.2-2' }} BDT</strong></span>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+    <!-- Section 1: Appeal Type -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon cyan">
+          <i class="bi bi-shield-exclamation"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Appeal Information</h6>
+          <span class="section-sub">Type of appeal and disputed amount</span>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label required">Appeal Type</label>
+          <div class="input-wrap">
+            <i class="bi bi-tag-fill input-icon"></i>
+            <select class="form-input form-select" formControlName="appealType">
+              <option value="DEMAND_NOTICE">Against Demand Notice</option>
+              <option value="ASSESSMENT_ORDER">Against Assessment Order</option>
+              <option value="PENALTY">Against Penalty</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Disputed Amount (BDT)</label>
+          <div class="input-wrap">
+            <i class="bi bi-cash-stack input-icon"></i>
+            <input type="number" class="form-input" formControlName="disputedAmount" min="0" />
+          </div>
+          <span class="field-hint">Amount you are disputing. Cannot exceed demanded amount.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 2: Grounds -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon amber">
+          <i class="bi bi-file-text-fill"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Grounds for Appeal</h6>
+          <span class="section-sub">Explain clearly why you are disputing this assessment (minimum 50 characters)</span>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label class="form-label required">Grounds / Reasons</label>
+          <div class="input-wrap">
+            <i class="bi bi-pencil-square input-icon textarea-icon"></i>
+            <textarea class="form-input form-textarea"
+              rows="6" formControlName="groundsText"
+              placeholder="Example: The assessment has included salary receipts as income which are already taxed at source. The declared income of BDT 5,00,000 is correct as per Form-16. Bank credits include BDT 15,00,000 in family transfers which are not taxable...">
+            </textarea>
+          </div>
+          <span class="field-error-msg" *ngIf="f['groundsText'].errors?.['required'] && f['groundsText'].touched">
+            Grounds for appeal are required.
+          </span>
+          <span class="field-error-msg" *ngIf="f['groundsText'].errors?.['minlength'] && f['groundsText'].touched">
+            Please provide at least 50 characters explaining your grounds.
+          </span>
+          <span class="field-hint">{{ form.get('groundsText')?.value?.length || 0 }} characters</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Relief Sought</label>
+          <div class="input-wrap">
+            <i class="bi bi-hand-index-fill input-icon textarea-icon"></i>
+            <textarea class="form-input form-textarea"
+              rows="3" formControlName="reliefSought"
+              placeholder="What outcome are you requesting? e.g. Full cancellation of demand, Reduction of additional tax from BDT X to BDT Y...">
+            </textarea>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Supporting Evidence <span class="optional">(optional)</span></label>
+          <div class="input-wrap">
+            <i class="bi bi-paperclip input-icon textarea-icon"></i>
+            <textarea class="form-input form-textarea"
+              rows="3" formControlName="supportingEvidence"
+              placeholder="List documents you are attaching: e.g. Bank statement (Jan-Dec 2024), Salary certificate, Loan agreement...">
+            </textarea>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Additional Remarks <span class="optional">(optional)</span></label>
+          <div class="input-wrap">
+            <i class="bi bi-chat-text input-icon textarea-icon"></i>
+            <textarea class="form-input form-textarea"
+              rows="2" formControlName="remarks"
+              placeholder="Any other information you want to include...">
+            </textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appeal Rights Notice -->
+    <div class="appeal-rights-notice">
+      <i class="bi bi-info-circle-fill"></i>
+      <div>
+        <strong>Appeal Rights:</strong> You have <strong>45 days</strong> from the date of the demand notice
+        to file an appeal. Once submitted, your appeal will be reviewed by a tax officer and
+        a hearing may be scheduled. The decision of the appeal authority is final unless
+        further legal remedies are pursued.
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isSubmitting">
+        <i class="bi bi-x-lg"></i> Cancel
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="form.invalid || isSubmitting">
+        <span *ngIf="isSubmitting">
+          <span class="spinner-border spinner-border-sm me-2"></span>Submitting...
+        </span>
+        <span *ngIf="!isSubmitting">
+          <i class="bi bi-shield-check me-1"></i> File Appeal
+        </span>
+      </button>
+    </div>
+
+  </form>
+</div>
