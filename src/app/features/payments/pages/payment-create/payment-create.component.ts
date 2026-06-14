@@ -1,10 +1,10 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { PaymentCreateRequest } from '../../../../models/payment.model';
+import { PaymentCreateRequest, ReturnValidationResponse } from '../../../../models/payment.model';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -15,7 +15,7 @@ import { Role } from 'src/app/core/constants/roles.constants';
   templateUrl: './payment-create.component.html',
   styleUrls: ['./payment-create.component.css']
 })
-export class PaymentCreateComponent implements OnDestroy {
+export class PaymentCreateComponent implements OnInit, OnDestroy {
 
   isLoading = false;
   private destroy$ = new Subject<void>();
@@ -39,6 +39,11 @@ export class PaymentCreateComponent implements OnDestroy {
 
   form: PaymentCreateRequest = this.getEmptyForm();
 
+  // ── C7: return-number validation state ────────────────────────────────────
+  returnValidation: ReturnValidationResponse | null = null;
+  isValidatingReturn = false;
+  private returnNoDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -54,6 +59,7 @@ export class PaymentCreateComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.returnNoDebounceTimer) clearTimeout(this.returnNoDebounceTimer);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -170,6 +176,49 @@ export class PaymentCreateComponent implements OnDestroy {
     this.toast.info('Taxpayer cleared.');
   }
 
+  // ── C7: Return / Penalty number validation ──────────────────────────────────
+  //
+  // Debounced (600ms) live check against GET /api/payments/validate-return.
+  // Purely informational — never blocks submission. Lets the user know
+  // BEFORE submitting whether the entered returnNo will actually link to a
+  // real VAT/ITR/Penalty record (and therefore whether PaymentLedgerService
+  // will be able to auto-deduct the liability once Completed).
+
+  onReturnNoChange(): void {
+    this.returnValidation = null;
+    if (this.returnNoDebounceTimer) clearTimeout(this.returnNoDebounceTimer);
+    this.returnNoDebounceTimer = setTimeout(() => this.validateReturnNo(), 600);
+  }
+
+  onPaymentTypeChange(): void {
+    this.returnValidation = null;
+    if (this.form.returnNo && this.form.returnNo.trim().length >= 3) {
+      this.validateReturnNo();
+    }
+  }
+
+  private validateReturnNo(): void {
+    const type = this.form.paymentType;
+    const no   = this.form.returnNo?.trim() ?? '';
+
+    // "Other" payment type, or empty/short returnNo → no API call, no hint shown
+    if (!type || type === 'Other' || no.length < 3) {
+      this.returnValidation = null;
+      return;
+    }
+
+    this.isValidatingReturn = true;
+    this.http.get<ReturnValidationResponse>(API_ENDPOINTS.PAYMENTS.VALIDATE_RETURN(type, no))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isValidatingReturn = false))
+      )
+      .subscribe({
+        next:  (res) => { this.returnValidation = res; },
+        error: () => { this.returnValidation = null; }
+      });
+  }
+
   // ── Validation ──
 
   isFormValid(): boolean {
@@ -220,6 +269,7 @@ export class PaymentCreateComponent implements OnDestroy {
     this.searchResults    = [];
     this.showResults      = false;
     this.hasSearched      = false;
+    this.returnValidation = null;
     this.toast.info('Form has been reset.');
   }
 

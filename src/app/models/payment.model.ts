@@ -50,3 +50,15 @@ export interface PaymentStatusUpdate {
   remarks?:     string;
   processedBy?: string;  
 }
+
+export interface ReturnValidationResponse {
+  found: boolean;
+  warning: boolean;
+  returnNo: string;
+  paymentType: string;
+  status?: string;
+  totalDue?: number;
+  alreadyPaid?: number;
+  outstanding?: number;
+  message: string;
+}

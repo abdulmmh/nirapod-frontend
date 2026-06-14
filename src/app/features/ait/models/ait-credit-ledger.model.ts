@@ -48,14 +48,14 @@ export interface AitCreditLedger {
 }
 
 export interface AvailableCreditSummary {
-  ledgerId:       number;   // selectedAmounts key হিসেবে ব্যবহার হয়
-  aitReferenceNo: string;   // template-এ দেখানো হয়
-  sourceType:     string;   // getSourceLabel() দিয়ে display হয়
-  fiscalYearId:   number;
-  fiscalYearName: string;   // template-এ দেখানো হয়
-  creditedAmount: number;
-  usedAmount:     number;
-  remainingAmount: number;  // display + toggleCredit + selectedAmounts max
+    ledgerId:        number;
+    aitReferenceNo:  string;
+    sourceType:      string;
+    fiscalYearName:  string;
+    creditedAmount:  number;   
+    usedAmount:      number;   
+    remainingAmount: number;
+    creditedAt?:     string;
 }
 
 export interface CreditApplication {

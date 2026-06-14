@@ -695,7 +695,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- AIT Credit Section — only show if taxpayer has available credits -->
       <div class="card" *ngIf="isTaxpayerRole && availableCredits.length > 0">
         <div class="card-hdr">
@@ -736,14 +736,24 @@
               </div>
 
               <div class="ait-credit-right">
-                <div class="ait-available-label">Available</div>
-                <div class="ait-available-amt">{{ fmt(credit.remainingAmount) }}</div>
-                <!-- Amount input shown when selected -->
+                <div class="ait-credit-breakdown">
+                  <span class="ait-credited-label">Credited</span>
+                  <span class="ait-credited-val">{{ fmt(credit.creditedAmount) }}</span>
+                </div>
+                <div class="ait-credit-breakdown" *ngIf="credit.usedAmount > 0">
+                  <span class="ait-used-label">Used</span>
+                  <span class="ait-used-val">− {{ fmt(credit.usedAmount) }}</span>
+                </div>
+                <div class="ait-credit-breakdown highlight">
+                  <span class="ait-available-label">Available</span>
+                  <span class="ait-available-amt">{{ fmt(credit.remainingAmount) }}</span>
+                </div>
+
+                <!-- Amount input when selected -->
                 <input *ngIf="isSelected(credit.ledgerId)" type="number" class="ait-apply-input"
                   [max]="credit.remainingAmount" [min]="0.01" [(ngModel)]="selectedAmounts[credit.ledgerId]"
                   (change)="recalcWithAitCredit()" placeholder="Amount to apply" />
               </div>
-            </div>
           </div>
 
           <!-- Summary of selected credits -->

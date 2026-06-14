@@ -123,7 +123,8 @@
         <label class="form-label required">Payment Type</label>
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.paymentType">
+          <select class="form-input form-select" [(ngModel)]="form.paymentType"
+            (ngModelChange)="onPaymentTypeChange()">
             <option value="">Select Type</option>
             <option *ngFor="let t of paymentTypes" [value]="t">{{ t }}</option>
           </select>
@@ -136,7 +137,21 @@
           <i class="bi bi-file-earmark-text input-icon"></i>
           <input type="text" class="form-input"
             placeholder="e.g. ITR-2025-26-XXXXXXXX"
-            [(ngModel)]="form.returnNo" />
+            [(ngModel)]="form.returnNo"
+            (ngModelChange)="onReturnNoChange()" />
+          <span class="return-check-spinner" *ngIf="isValidatingReturn">
+            <span class="spinner-border spinner-border-sm"></span>
+          </span>
+        </div>
+
+        <!-- C7: live return-number validation hint -->
+        <div class="return-check ok" *ngIf="returnValidation?.found">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>{{ returnValidation?.message }}</span>
+        </div>
+        <div class="return-check warn" *ngIf="returnValidation?.warning">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>{{ returnValidation?.message }}</span>
         </div>
       </div>
 
@@ -316,5 +331,3 @@
       </span>
     </button>
   </div>
-
-</div>

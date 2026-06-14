@@ -191,9 +191,13 @@ export const API_ENDPOINTS = {
     GET: (id: number) => `${API_BASE_URL}/payments/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/payments/${id}`,
     UPDATE_STATUS: (id: number) => `${API_BASE_URL}/payments/${id}/status`,
-    BY_TAXPAYER: (taxpayerId: number) =>
-      `${API_BASE_URL}/payments?taxpayerId=${taxpayerId}`,
+  
+    VALIDATE_RETURN: (paymentType: string, returnNo: string) =>
+      `${API_BASE_URL}/payments/validate-return`
+      + `?paymentType=${encodeURIComponent(paymentType)}`
+      + `&returnNo=${encodeURIComponent(returnNo)}`,
   },
+  
 
   // Notices & Notifications
   NOTICES: {
