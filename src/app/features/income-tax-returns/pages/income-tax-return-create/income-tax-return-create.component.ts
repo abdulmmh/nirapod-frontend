@@ -832,7 +832,7 @@ export class IncomeTaxReturnCreateComponent implements OnInit, OnDestroy {
   goToView(): void {
     if (this.successData) {
       this.router.navigate(
-        ['/my-portal/income-tax-returns/view', this.successData.returnId],
+  ['/income-tax-returns/view', this.successData.returnId],
         { queryParams: { returnUrl: this.returnUrl } },
       );
     }

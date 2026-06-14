@@ -3,8 +3,7 @@
     <h4>Income Tax Returns</h4>
     <p>Manage and process all income tax return filings.</p>
   </div>
-  <a *canDo="'create'" routerLink="/income-tax-returns/create"
-     class="btn-add-primary desktop-add-btn">
+  <a *canDo="'create'" routerLink="/income-tax-returns/create" class="btn-add-primary desktop-add-btn">
     <i class="bi bi-plus-lg"></i> File Return
   </a>
 </div>
@@ -13,39 +12,26 @@
 
   <!-- Status Filter Tabs -->
   <div class="status-tabs">
-    <button class="stab"
-      [class.active]="filterStatus === ''"
-      (click)="filterStatus = ''">
+    <button class="stab" [class.active]="filterStatus === ''" (click)="filterStatus = ''">
       All <span class="stab-count">{{ countByStatus('') }}</span>
     </button>
-    <button class="stab submitted"
-      [class.active]="filterStatus === 'Submitted'"
-      (click)="filterStatus = 'Submitted'">
+    <button class="stab submitted" [class.active]="filterStatus === 'Submitted'" (click)="filterStatus = 'Submitted'">
       Submitted <span class="stab-count">{{ countByStatus('Submitted') }}</span>
     </button>
-    <button class="stab review"
-      [class.active]="filterStatus === 'Under Review'"
+    <button class="stab review" [class.active]="filterStatus === 'Under Review'"
       (click)="filterStatus = 'Under Review'">
       Under Review <span class="stab-count">{{ countByStatus('Under Review') }}</span>
     </button>
-    <button class="stab accepted"
-      [class.active]="filterStatus === 'Accepted'"
-      (click)="filterStatus = 'Accepted'">
+    <button class="stab accepted" [class.active]="filterStatus === 'Accepted'" (click)="filterStatus = 'Accepted'">
       Accepted <span class="stab-count">{{ countByStatus('Accepted') }}</span>
     </button>
-    <button class="stab rejected"
-      [class.active]="filterStatus === 'Rejected'"
-      (click)="filterStatus = 'Rejected'">
+    <button class="stab rejected" [class.active]="filterStatus === 'Rejected'" (click)="filterStatus = 'Rejected'">
       Rejected <span class="stab-count">{{ countByStatus('Rejected') }}</span>
     </button>
-    <button class="stab draft"
-      [class.active]="filterStatus === 'Draft'"
-      (click)="filterStatus = 'Draft'">
+    <button class="stab draft" [class.active]="filterStatus === 'Draft'" (click)="filterStatus = 'Draft'">
       Draft <span class="stab-count">{{ countByStatus('Draft') }}</span>
     </button>
-    <button class="stab overdue"
-      [class.active]="filterStatus === 'Overdue'"
-      (click)="filterStatus = 'Overdue'">
+    <button class="stab overdue" [class.active]="filterStatus === 'Overdue'" (click)="filterStatus = 'Overdue'">
       Overdue <span class="stab-count">{{ countByStatus('Overdue') }}</span>
     </button>
   </div>
@@ -55,12 +41,11 @@
     <div class="search-field-row">
       <div class="search-field">
         <i class="bi bi-search"></i>
-        <input type="text"
-          placeholder="Search by return no, TIN, taxpayer, category, year..."
+        <input type="text" placeholder="Search by return no, TIN, taxpayer, category, year..."
           [(ngModel)]="searchTerm" />
       </div>
       <button class="btn btn-export" (click)="onExport()" [disabled]="isExporting">
-        <i class="bi" [ngClass]="isExporting ? 'bi-hourglass-split spin' : 'bi-file-earmark-excel'"></i> 
+        <i class="bi" [ngClass]="isExporting ? 'bi-hourglass-split spin' : 'bi-file-earmark-excel'"></i>
         {{ isExporting ? 'Exporting...' : 'Export to CSV' }}
       </button>
     </div>
@@ -147,14 +132,11 @@
               <button class="btn-view" (click)="view(r.id)">
                 <i class="bi bi-eye-fill"></i> View
               </button>
-              <button *canDo="'edit'"
-                class="btn-edit"
-                [disabled]="r.status === 'Accepted' || r.status === 'Under Review'"
+              <button *canDo="'edit'" class="btn-edit" [disabled]="r.status !== 'Draft' && r.status !== 'Send Back'"
                 (click)="edit(r.id)">
                 <i class="bi bi-pencil-fill"></i> Edit
               </button>
-              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
-                class="btn-delete" (click)="confirmDelete(r.id)">
+              <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(r.id)">
                 <i class="bi bi-trash-fill"></i>
               </button>
             </div>
@@ -194,8 +176,10 @@
           <span class="cat-badge" [ngClass]="getCategoryClass(r.itrCategory)">{{ r.itrCategory }}</span>
         </div>
         <div class="mobile-field"><label>Assessment Year</label><span>{{ r.assessmentYear }}</span></div>
-        <div class="mobile-field"><label>Taxable Income</label><span>{{ formatCurrency(taxableIncomeOf(r)) }}</span></div>
-        <div class="mobile-field"><label>Net Payable</label><span class="net">{{ formatCurrency(netPayableOf(r)) }}</span></div>
+        <div class="mobile-field"><label>Taxable Income</label><span>{{ formatCurrency(taxableIncomeOf(r)) }}</span>
+        </div>
+        <div class="mobile-field"><label>Net Payable</label><span class="net">{{ formatCurrency(netPayableOf(r))
+            }}</span></div>
         <div class="mobile-field"><label>Tax Paid</label><span class="paid">{{ formatCurrency(r.taxPaid) }}</span></div>
         <div class="mobile-field" *ngIf="refundableOf(r) > 0">
           <label>Refundable</label>
@@ -212,20 +196,14 @@
             <i class="bi bi-pencil-fill"></i> Edit
           </button>
         </ng-container>
-
-        <ng-container *ngIf="r.status === 'Rejected'">
-          <button *canDo="'edit'" class="btn-amend" (click)="edit(r.id)">
-            <i class="bi bi-arrow-repeat"></i> Amend
-          </button>
-        </ng-container>
-        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']"
-          class="btn-delete" (click)="confirmDelete(r.id)">
+        <button *hasRole="['SUPER_ADMIN','TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(r.id)">
           <i class="bi bi-trash-fill"></i>
         </button>
       </div>
     </div>
     <div class="empty-state" *ngIf="filtered.length === 0">
-      <i class="bi bi-receipt-cutoff"></i><p>No income tax returns found.</p>
+      <i class="bi bi-receipt-cutoff"></i>
+      <p>No income tax returns found.</p>
     </div>
   </div>
 
@@ -243,9 +221,9 @@
       <i class="bi bi-trash-fill" style="color:#A32D2D; font-size:22px;"></i>
     </div>
     <p class="modal-title">Delete Income Tax Return?</p>
-      <p class="modal-msg">
-        This action cannot be undone. Are you sure you want to delete this return record?
-      </p>
+    <p class="modal-msg">
+      This action cannot be undone. Are you sure you want to delete this return record?
+    </p>
     <div class="modal-actions">
       <button class="btn-modal-cancel" (click)="cancelDelete()">Cancel</button>
       <button class="btn-modal-confirm error" (click)="confirmDeleteExecute()">
