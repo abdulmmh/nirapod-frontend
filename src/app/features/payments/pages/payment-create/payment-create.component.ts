@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, timer } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
-import { PaymentCreateRequest, ReturnValidationResponse } from '../../../../models/payment.model';
+import { PaymentCreateRequest, OutstandingItem } from '../../../../models/payment.model';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -39,10 +39,10 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
 
   form: PaymentCreateRequest = this.getEmptyForm();
 
-  // ── C7: return-number validation state ────────────────────────────────────
-  returnValidation: ReturnValidationResponse | null = null;
-  isValidatingReturn = false;
-  private returnNoDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  // ── Outstanding Dues ─────────────────────────────────────────────────────────
+  outstandingItems: OutstandingItem[] = [];
+  isLoadingOutstanding = false;
+  selectedOutstandingItem: OutstandingItem | null = null;
 
   constructor(
     private http: HttpClient,
@@ -59,7 +59,6 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.returnNoDebounceTimer) clearTimeout(this.returnNoDebounceTimer);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -70,17 +69,27 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
   // Load Initial Data
 
 
+  /**
+   * TAXPAYER role এর জন্য নিজের taxpayer profile load করে।
+   *
+   * NOTE: আগে এটা `GET /api/taxpayers?search=<email>` call করত — কিন্তু
+   * সেই endpoint এ TAXPAYER role এর access নেই (officer-only search),
+   * তাই AuthorizationDeniedException → 500 হত এবং পুরো form ভেঙে যেত।
+   *
+   * এখন `GET /api/taxpayers/me` call করে — এটা backend এ JWT থেকে
+   * taxpayer resolve করে, single Taxpayer object রিটার্ন করে।
+   * (backend এ এই endpoint যোগ করতে হবে — TaxpayerController এ)
+   */
   private loadOwnTaxpayerRecord(): void {
     const currentUser = this.authService.currentUser;
     if (!currentUser) return;
 
-    const url = `${API_ENDPOINTS.TAXPAYERS.LIST}?search=${encodeURIComponent(currentUser.email)}`;
-    this.http.get<Taxpayer[]>(url)
+    this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.ME)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          if (data.length > 0) {
-            this.selectTaxpayer(data[0]);
+          if (data) {
+            this.selectTaxpayer(data);
           } else {
             this.toast.error('Your taxpayer profile was not found. Contact your tax officer.');
           }
@@ -93,6 +102,16 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
 
   get isAutoFilled(): boolean {
     return this.selectedTaxpayer !== null;
+  }
+
+  /** True once an outstanding item has been picked — locks Payment Type + Return No. */
+  get isObligationLocked(): boolean {
+    return this.selectedOutstandingItem !== null;
+  }
+
+  /** Officers/admins search for a taxpayer; taxpayers only see their own profile. */
+  get isOfficerView(): boolean {
+    return this.authService.userRole !== Role.TAXPAYER;
   }
 
   get showChequeField(): boolean {
@@ -162,6 +181,9 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
     this.form.taxpayerName = this.getDisplayName(taxpayer);
 
     this.toast.success(`"${this.form.taxpayerName}" auto-filled.`);
+
+    // Fetch this taxpayer's outstanding VAT/ITR/Penalty dues
+    this.loadOutstandingItems();
   }
 
   clearTaxpayer(): void {
@@ -173,50 +195,55 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
     this.form.taxpayerId   = undefined;
     this.form.tinNumber    = '';
     this.form.taxpayerName = '';
+
+    this.outstandingItems        = [];
+    this.selectedOutstandingItem = null;
+
     this.toast.info('Taxpayer cleared.');
   }
 
-  // ── C7: Return / Penalty number validation ──────────────────────────────────
-  //
-  // Debounced (600ms) live check against GET /api/payments/validate-return.
-  // Purely informational — never blocks submission. Lets the user know
-  // BEFORE submitting whether the entered returnNo will actually link to a
-  // real VAT/ITR/Penalty record (and therefore whether PaymentLedgerService
-  // will be able to auto-deduct the liability once Completed).
+  // ── Outstanding Dues ──────────────────────────────────────────────────────
 
-  onReturnNoChange(): void {
-    this.returnValidation = null;
-    if (this.returnNoDebounceTimer) clearTimeout(this.returnNoDebounceTimer);
-    this.returnNoDebounceTimer = setTimeout(() => this.validateReturnNo(), 600);
-  }
+  private loadOutstandingItems(): void {
+    if (!this.form.taxpayerId) return;
 
-  onPaymentTypeChange(): void {
-    this.returnValidation = null;
-    if (this.form.returnNo && this.form.returnNo.trim().length >= 3) {
-      this.validateReturnNo();
-    }
-  }
+    this.isLoadingOutstanding = true;
+    this.outstandingItems     = [];
 
-  private validateReturnNo(): void {
-    const type = this.form.paymentType;
-    const no   = this.form.returnNo?.trim() ?? '';
-
-    // "Other" payment type, or empty/short returnNo → no API call, no hint shown
-    if (!type || type === 'Other' || no.length < 3) {
-      this.returnValidation = null;
-      return;
-    }
-
-    this.isValidatingReturn = true;
-    this.http.get<ReturnValidationResponse>(API_ENDPOINTS.PAYMENTS.VALIDATE_RETURN(type, no))
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.isValidatingReturn = false))
-      )
+    this.http.get<OutstandingItem[]>(API_ENDPOINTS.PAYMENTS.OUTSTANDING(this.form.taxpayerId))
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoadingOutstanding = false)))
       .subscribe({
-        next:  (res) => { this.returnValidation = res; },
-        error: () => { this.returnValidation = null; }
+        next:  (items) => { this.outstandingItems = items ?? []; },
+        error: () => { this.outstandingItems = []; }
       });
+  }
+
+  /** User picks an item from the Outstanding Dues list — auto-fills the form, list collapses. */
+  selectOutstandingItem(item: OutstandingItem): void {
+    this.selectedOutstandingItem = item;
+    this.form.paymentType = item.type;
+    this.form.returnNo    = item.returnNo;
+    this.form.amount      = item.outstanding;   // editable — supports partial payment
+  }
+
+  /** "Change" — collapses back to the full list, unlocks Payment Type + Return No. Values are kept. */
+  clearOutstandingSelection(): void {
+    this.selectedOutstandingItem = null;
+  }
+
+  getTypeClass(type: string): string {
+    const map: Record<string, string> = {
+      'VAT':        'oi-type-vat',
+      'Income Tax': 'oi-type-it',
+      'Penalty':    'oi-type-penalty'
+    };
+    return map[type] ?? 'oi-type-other';
+  }
+
+  formatAmount(v: number): string {
+    if (!v) return '৳0';
+    if (v >= 100_000) return `৳${(v / 100_000).toFixed(2)}L`;
+    return `৳${v.toLocaleString('en-BD')}`;
   }
 
   // ── Validation ──
@@ -261,7 +288,6 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  
   onReset(): void {
     this.form             = this.getEmptyForm();
     this.selectedTaxpayer = null;
@@ -269,7 +295,10 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
     this.searchResults    = [];
     this.showResults      = false;
     this.hasSearched      = false;
-    this.returnValidation = null;
+
+    this.outstandingItems        = [];
+    this.selectedOutstandingItem = null;
+
     this.toast.info('Form has been reset.');
   }
 

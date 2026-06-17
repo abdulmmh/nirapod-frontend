@@ -7,52 +7,401 @@
 .section-icon.purple {
   background: linear-gradient(135deg, #7c3aed, #a855f7);
 }
-.return-check-spinner {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+
+/* New icon colour for the "Outstanding Dues" section header */
+.section-icon.red {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+/* ── Loading / empty states ──────────────────────────────────────────────── */
+
+.outstanding-loading,
+.outstanding-empty {
   display: flex;
   align-items: center;
-  color: #1a3f8f;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
 }
-.return-check-spinner .spinner-border {
-  width: 14px;
-  height: 14px;
-  border-width: 2px;
+.outstanding-loading {
+  background: #f0f4f8;
+  color: #666;
 }
- 
-/* C7: hint shown below the Return/Reference No. field */
-.return-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin-top: 6px;
-  padding: 7px 11px;
-  border-radius: 7px;
-  font-size: 12px;
-  line-height: 1.5;
-}
-.return-check i {
-  margin-top: 1px;
-  flex-shrink: 0;
-}
- 
-/* Found + outstanding shown — teal */
-.return-check.ok {
+.outstanding-empty {
   background: #e6f7f3;
   color: #0f8a70;
 }
-.return-check.ok i {
+.outstanding-empty i {
+  font-size: 16px;
+  color: #1faa8b;
+}
+
+/* ── Outstanding items list ──────────────────────────────────────────────── */
+
+.outstanding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.outstanding-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1.5px solid #e8eef9;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.outstanding-item:hover {
+  border-color: #1a3f8f;
+  box-shadow: 0 2px 10px rgba(26, 63, 143, 0.08);
+}
+.outstanding-item.selected {
+  border-color: #1faa8b;
+  background: #f3fdf9;
+  box-shadow: 0 2px 10px rgba(31, 170, 139, 0.12);
+}
+.outstanding-item.overdue {
+  border-left: 4px solid #e74c3c;
+}
+
+.oi-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.oi-type-badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.oi-type-vat     { background: #e6f7f3; color: #1faa8b; }
+.oi-type-it      { background: #e8eef9; color: #1a3f8f; }
+.oi-type-penalty { background: #fff0f0; color: #e74c3c; }
+.oi-type-other   { background: #f0f4f8; color: #666; }
+
+.oi-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.oi-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a2340;
+}
+.oi-meta {
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.oi-returnno {
+  font-family: monospace;
+  font-weight: 600;
+  color: #1a3f8f;
+}
+.oi-overdue-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff0f0;
+  color: #e74c3c;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.oi-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.oi-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1a3f8f;
+}
+.oi-select-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.outstanding-item.selected .oi-select-tag {
+  color: #1faa8b;
+}
+
+.obligation-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #1a3f8f;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+.obligation-clear:hover {
+  background: #e8eef9;
+}
+
+/* New icon colour for the "Outstanding Dues" section header */
+.section-icon.red {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+ 
+/* ── Loading / empty states ──────────────────────────────────────────────── */
+ 
+.outstanding-loading,
+.outstanding-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.outstanding-loading {
+  background: #f0f4f8;
+  color: #666;
+}
+.outstanding-empty {
+  background: #e6f7f3;
+  color: #0f8a70;
+}
+.outstanding-empty i {
+  font-size: 16px;
   color: #1faa8b;
 }
  
-/* Not found — amber warning, non-blocking */
-.return-check.warn {
-  background: #fef3e2;
-  color: #946208;
+/* ── Collapsed: selected obligation bar ──────────────────────────────────── */
+ 
+.outstanding-selected-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f3fdf9;
+  border: 1.5px solid #1faa8b;
+  border-radius: 10px;
 }
-.return-check.warn i {
-  color: #f59e0b;
+.osb-check {
+  color: #1faa8b;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.osb-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a2340;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.osb-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1a3f8f;
+  flex-shrink: 0;
 }
  
+/* ── Expanded: outstanding items list ────────────────────────────────────── */
+ 
+.outstanding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+ 
+.outstanding-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1.5px solid #e8eef9;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.outstanding-item:hover {
+  border-color: #1a3f8f;
+  box-shadow: 0 2px 10px rgba(26, 63, 143, 0.08);
+}
+.outstanding-item.overdue {
+  border-left: 4px solid #e74c3c;
+}
+ 
+.oi-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+ 
+.oi-type-badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.oi-type-vat     { background: #e6f7f3; color: #1faa8b; }
+.oi-type-it      { background: #e8eef9; color: #1a3f8f; }
+.oi-type-penalty { background: #fff0f0; color: #e74c3c; }
+.oi-type-other   { background: #f0f4f8; color: #666; }
+ 
+.oi-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.oi-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a2340;
+}
+.oi-meta {
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.oi-returnno {
+  font-family: monospace;
+  font-weight: 600;
+  color: #1a3f8f;
+}
+.oi-overdue-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff0f0;
+  color: #e74c3c;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+ 
+.oi-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.oi-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1a3f8f;
+}
+.oi-select-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #aaa;
+}
+ 
+/* ── "Change" button — reused in the collapsed bar ───────────────────────── */
+ 
+.obligation-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #1a3f8f;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+.obligation-clear:hover {
+  background: #e8eef9;
+}
+ 
+/* ── Small helper text under fields ──────────────────────────────────────── */
+ 
+.field-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: #999;
+  line-height: 1.4;
+}
+ 
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+ 
+@media (max-width: 640px) {
+  .outstanding-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .oi-right {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .outstanding-selected-bar {
+    flex-wrap: wrap;
+  }
+  .osb-label {
+    white-space: normal;
+    flex-basis: 100%;
+    order: 3;
+  }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .outstanding-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .oi-right {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between;
+  }
+}

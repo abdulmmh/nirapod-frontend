@@ -10,60 +10,81 @@
 
 <div class="form-card">
 
-  <!-- Section 0: Find Taxpayer -->
+  <!-- Section 0: Find Taxpayer (officers) / Your Profile (taxpayer) -->
   <div class="form-section">
-    <div class="section-header">
-      <div class="section-icon search-icon">
-        <i class="bi bi-search"></i>
-      </div>
-      <div>
-        <h6 class="section-title">Find Taxpayer</h6>
-        <span class="section-sub">Search by TIN number, NID or name — details will auto-fill</span>
-      </div>
-    </div>
 
-    <div class="search-row">
-      <div class="input-wrap search-input-wrap">
-        <i class="bi bi-upc-scan input-icon"></i>
-        <input type="text" class="form-input"
-          placeholder="Enter TIN number, NID or taxpayer name..."
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="onSearchInput()"
-          (keyup.enter)="searchTaxpayer()"
-          [disabled]="isAutoFilled" />
-        <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearTaxpayer()">
-          <i class="bi bi-x-lg"></i>
+    <!-- Officer / Admin view — search by TIN/NID/name -->
+    <ng-container *ngIf="isOfficerView">
+      <div class="section-header">
+        <div class="section-icon search-icon">
+          <i class="bi bi-search"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Find Taxpayer</h6>
+          <span class="section-sub">Search by TIN number, NID or name — details will auto-fill</span>
+        </div>
+      </div>
+
+      <div class="search-row">
+        <div class="input-wrap search-input-wrap">
+          <i class="bi bi-upc-scan input-icon"></i>
+          <input type="text" class="form-input"
+            placeholder="Enter TIN number, NID or taxpayer name..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchInput()"
+            (keyup.enter)="searchTaxpayer()"
+            [disabled]="isAutoFilled" />
+          <button *ngIf="isAutoFilled" class="clear-btn" (click)="clearTaxpayer()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
+          <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
+          <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span> Searching...</span>
         </button>
       </div>
-      <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching || isAutoFilled">
-        <span *ngIf="!isSearching"><i class="bi bi-search"></i> Search</span>
-        <span *ngIf="isSearching"><span class="spinner-border spinner-border-sm"></span> Searching...</span>
-      </button>
-    </div>
 
-    <!-- Search Results -->
-    <div class="search-results" *ngIf="showResults && searchResults.length > 0">
-      <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
-        <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
-        <div class="result-info">
-          <span class="result-name">{{ getDisplayName(t) }}</span>
-          <span class="result-meta">
-            <span *ngIf="t.tinNumber" class="me-2 fw-bold text-primary">TIN: {{ t.tinNumber }}</span>
-            <span *ngIf="!t.tinNumber" class="text-danger me-2">No TIN</span>
-            <span *ngIf="t.nid">NID: {{ t.nid }}</span>
-            <span *ngIf="t.phone"> · {{ t.phone }}</span>
-          </span>
+      <!-- Search Results -->
+      <div class="search-results" *ngIf="showResults && searchResults.length > 0">
+        <div class="result-item" *ngFor="let t of searchResults" (click)="selectTaxpayer(t)">
+          <div class="result-avatar"><i class="bi bi-person-fill"></i></div>
+          <div class="result-info">
+            <span class="result-name">{{ getDisplayName(t) }}</span>
+            <span class="result-meta">
+              <span *ngIf="t.tinNumber" class="me-2 fw-bold text-primary">TIN: {{ t.tinNumber }}</span>
+              <span *ngIf="!t.tinNumber" class="text-danger me-2">No TIN</span>
+              <span *ngIf="t.nid">NID: {{ t.nid }}</span>
+              <span *ngIf="t.phone"> · {{ t.phone }}</span>
+            </span>
+          </div>
+          <span class="result-badge">Select</span>
         </div>
-        <span class="result-badge">Select</span>
       </div>
-    </div>
 
-    <!-- No Results -->
-    <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
-      <i class="bi bi-info-circle"></i> No taxpayer found. Check TIN, NID or name and try again.
-    </div>
+      <!-- No Results -->
+      <div class="no-result-note" *ngIf="hasSearched && searchResults.length === 0">
+        <i class="bi bi-info-circle"></i> No taxpayer found. Check TIN, NID or name and try again.
+      </div>
+    </ng-container>
 
-    <!-- Selected Card -->
+    <!-- Taxpayer (self) view — own profile loading -->
+    <ng-container *ngIf="!isOfficerView && !isAutoFilled">
+      <div class="section-header">
+        <div class="section-icon search-icon">
+          <i class="bi bi-person-fill"></i>
+        </div>
+        <div>
+          <h6 class="section-title">Your Profile</h6>
+          <span class="section-sub">Loading your taxpayer details…</span>
+        </div>
+      </div>
+      <div class="outstanding-loading">
+        <span class="spinner-border spinner-border-sm"></span>
+        Loading your profile...
+      </div>
+    </ng-container>
+
+    <!-- Confirmed taxpayer — shown for both officer and self view -->
     <div class="selected-card" *ngIf="isAutoFilled && selectedTaxpayer">
       <div class="selected-card-left">
         <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
@@ -76,6 +97,71 @@
         </div>
       </div>
       <div class="autofill-tag"><i class="bi bi-lightning-charge-fill"></i> Auto-filled</div>
+    </div>
+  </div>
+
+  <div class="section-divider" *ngIf="isAutoFilled"></div>
+
+  <!-- Outstanding Dues — select what this payment is for -->
+  <div class="form-section" *ngIf="isAutoFilled">
+    <div class="section-header">
+      <div class="section-icon red">
+        <i class="bi bi-exclamation-circle-fill"></i>
+      </div>
+      <div>
+        <h6 class="section-title">Outstanding Dues</h6>
+        <span class="section-sub">Select what this taxpayer is paying for — amount and reference auto-fill</span>
+      </div>
+    </div>
+
+    <div class="outstanding-loading" *ngIf="isLoadingOutstanding">
+      <span class="spinner-border spinner-border-sm"></span>
+      Checking outstanding dues...
+    </div>
+
+    <div class="outstanding-empty" *ngIf="!isLoadingOutstanding && outstandingItems.length === 0">
+      <i class="bi bi-check-circle-fill"></i>
+      No outstanding dues found — all VAT, Income Tax and penalties are settled.
+    </div>
+
+    <!-- Collapsed: one item selected — rest of the list hides -->
+    <div class="outstanding-selected-bar" *ngIf="selectedOutstandingItem">
+      <i class="bi bi-check-circle-fill osb-check"></i>
+      <span class="oi-type-badge" [ngClass]="getTypeClass(selectedOutstandingItem.type)">
+        {{ selectedOutstandingItem.type }}
+      </span>
+      <span class="osb-label">{{ selectedOutstandingItem.label }}</span>
+      <span class="osb-amount">{{ formatAmount(selectedOutstandingItem.outstanding) }}</span>
+      <button type="button" class="obligation-clear" (click)="clearOutstandingSelection()">
+        <i class="bi bi-x-lg"></i> Change
+      </button>
+    </div>
+
+    <!-- Expanded: full list — hidden once something is selected -->
+    <div class="outstanding-list"
+         *ngIf="!isLoadingOutstanding && !selectedOutstandingItem && outstandingItems.length > 0">
+      <div class="outstanding-item"
+           *ngFor="let item of outstandingItems"
+           [class.overdue]="item.overdue"
+           (click)="selectOutstandingItem(item)">
+        <div class="oi-left">
+          <span class="oi-type-badge" [ngClass]="getTypeClass(item.type)">{{ item.type }}</span>
+          <div class="oi-info">
+            <span class="oi-label">{{ item.label }}</span>
+            <span class="oi-meta">
+              <span class="oi-returnno">{{ item.returnNo }}</span>
+              <span *ngIf="item.dueDate"> · Due {{ item.dueDate }}</span>
+              <span class="oi-overdue-tag" *ngIf="item.overdue">
+                <i class="bi bi-exclamation-triangle-fill"></i> Overdue
+              </span>
+            </span>
+          </div>
+        </div>
+        <div class="oi-right">
+          <span class="oi-amount">{{ formatAmount(item.outstanding) }}</span>
+          <span class="oi-select-tag">Select</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -121,38 +207,29 @@
 
       <div class="form-group">
         <label class="form-label required">Payment Type</label>
-        <div class="input-wrap">
+        <div class="input-wrap" [class.locked]="isObligationLocked">
           <i class="bi bi-tag-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.paymentType"
-            (ngModelChange)="onPaymentTypeChange()">
+          <select class="form-input form-select"
+            [(ngModel)]="form.paymentType"
+            [disabled]="isObligationLocked">
             <option value="">Select Type</option>
             <option *ngFor="let t of paymentTypes" [value]="t">{{ t }}</option>
           </select>
+          <i class="bi bi-lock-fill lock-icon" *ngIf="isObligationLocked"></i>
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label">Return / Reference No.</label>
-        <div class="input-wrap">
+        <div class="input-wrap" [class.locked]="isObligationLocked">
           <i class="bi bi-file-earmark-text input-icon"></i>
           <input type="text" class="form-input"
             placeholder="e.g. ITR-2025-26-XXXXXXXX"
             [(ngModel)]="form.returnNo"
-            (ngModelChange)="onReturnNoChange()" />
-          <span class="return-check-spinner" *ngIf="isValidatingReturn">
-            <span class="spinner-border spinner-border-sm"></span>
-          </span>
+            [disabled]="isObligationLocked" />
+          <i class="bi bi-lock-fill lock-icon" *ngIf="isObligationLocked"></i>
         </div>
-
-        <!-- C7: live return-number validation hint -->
-        <div class="return-check ok" *ngIf="returnValidation?.found">
-          <i class="bi bi-check-circle-fill"></i>
-          <span>{{ returnValidation?.message }}</span>
-        </div>
-        <div class="return-check warn" *ngIf="returnValidation?.warning">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-          <span>{{ returnValidation?.message }}</span>
-        </div>
+        <span class="field-hint">Which VAT return, ITR or penalty this payment is for</span>
       </div>
 
     </div>
@@ -203,6 +280,7 @@
             placeholder="e.g. REF-2024-001"
             [(ngModel)]="form.referenceNo" />
         </div>
+        <span class="field-hint">Bank's deposit slip / challan reference — enter manually from the receipt</span>
       </div>
 
       <div class="form-group" *ngIf="showChequeField">
@@ -331,3 +409,5 @@
       </span>
     </button>
   </div>
+
+</div>

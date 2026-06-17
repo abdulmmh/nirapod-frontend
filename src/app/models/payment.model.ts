@@ -51,14 +51,14 @@ export interface PaymentStatusUpdate {
   processedBy?: string;  
 }
 
-export interface ReturnValidationResponse {
-  found: boolean;
-  warning: boolean;
+export interface OutstandingItem {
+  type: 'VAT' | 'Income Tax' | 'Penalty';
   returnNo: string;
-  paymentType: string;
-  status?: string;
-  totalDue?: number;
-  alreadyPaid?: number;
-  outstanding?: number;
-  message: string;
+  label: string;
+  totalDue: number;
+  alreadyPaid: number;
+  outstanding: number;
+  dueDate?: string;
+  status: string;
+  overdue: boolean;
 }

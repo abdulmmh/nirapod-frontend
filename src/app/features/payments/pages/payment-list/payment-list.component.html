@@ -3,15 +3,54 @@
     <h4>Payment Management</h4>
     <p>Track and manage all tax payments and transactions.</p>
   </div>
-  <a *canDo="'create'" routerLink="/my-portal/payments/create"
+  <a *canDo="'create'" (click)="navigateToCreate()"
      class="btn-add-primary desktop-add-btn">
     <i class="bi bi-plus-lg"></i> Record Payment
   </a>
 </div>
 
+<!-- KPI Summary Cards -->
+<div class="kpi-cards-row" *ngIf="!isLoading">
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-icon-pending"><i class="bi bi-hourglass-split"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Pending</span>
+      <span class="kpi-value">{{ kpiPending }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-icon-review"><i class="bi bi-search"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Under Review</span>
+      <span class="kpi-value">{{ kpiUnderReview }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-icon-completed"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Completed</span>
+      <span class="kpi-value">{{ kpiCompleted }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-icon-failed"><i class="bi bi-x-circle-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Failed</span>
+      <span class="kpi-value">{{ kpiFailed }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-icon-collected"><i class="bi bi-cash-stack"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Total Collected</span>
+      <span class="kpi-value">{{ formatCurrency(kpiTotalCollected) }}</span>
+    </div>
+  </div>
+</div>
+
 <div class="page-wrapper">
 
-  <!-- Search -->
+  <!-- Search + Filters -->
   <div class="list-search-bar">
     <div class="search-field-row">
       <div class="search-field">
@@ -20,11 +59,33 @@
           type="text"
           placeholder="Search by TXN ID, taxpayer, TIN, type, reference..."
           [(ngModel)]="searchTerm"
+          (ngModelChange)="onFilterChange()"
         />
       </div>
       <button *canDo="'export'" class="btn-export">
         <i class="bi bi-download"></i>
         <span>Export</span>
+      </button>
+    </div>
+
+    <div class="filter-row">
+      <select class="filter-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+        <option value="">All Statuses</option>
+        <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+      </select>
+
+      <select class="filter-select" [(ngModel)]="typeFilter" (ngModelChange)="onFilterChange()">
+        <option value="">All Types</option>
+        <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
+      </select>
+
+      <select class="filter-select" [(ngModel)]="yearFilter" (ngModelChange)="onFilterChange()">
+        <option value="">All Years</option>
+        <option *ngFor="let y of yearOptions" [value]="y">{{ y }}</option>
+      </select>
+
+      <button class="btn-clear-filters" *ngIf="hasActiveFilters()" (click)="clearFilters()">
+        <i class="bi bi-x-circle"></i> Clear
       </button>
     </div>
   </div>
@@ -54,8 +115,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of filteredPayments; let i = index">
-          <td>{{ i + 1 }}</td>
+        <tr *ngFor="let p of paginatedPayments; let i = index">
+          <td>{{ pageRangeStart + i }}</td>
 
           <td><span class="txn-code">{{ p.transactionId }}</span></td>
 
@@ -127,9 +188,28 @@
     </table>
   </div>
 
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && filteredPayments.length > 0">
+    <span class="pagination-info">
+      Showing {{ pageRangeStart }}–{{ pageRangeEnd }} of {{ filteredPayments.length }}
+    </span>
+    <div class="pagination-controls">
+      <button class="btn-page-nav" (click)="goToPrevPage()" [disabled]="currentPage === 1">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span class="pagination-page-tag">{{ currentPage }}</span>
+      <button class="btn-page-nav" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <select class="page-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+      <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }} / page</option>
+    </select>
+  </div>
+
   <!-- Mobile Cards -->
   <div class="mobile-cards" style="padding: 12px;" *ngIf="!isLoading">
-    <div class="mobile-card" *ngFor="let p of filteredPayments">
+    <div class="mobile-card" *ngFor="let p of paginatedPayments">
 
       <div class="mobile-card-header">
         <div class="mobile-card-title">
@@ -210,7 +290,7 @@
 
 <!-- FAB -->
 <button *canDo="'create'" class="fab-btn"
-  routerLink="/payments/create" title="Record Payment">
+  (click)="navigateToCreate()" title="Record Payment">
   <i class="bi bi-plus-lg"></i>
 </button>
 

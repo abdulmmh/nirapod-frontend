@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
   // Taxpayer
   TAXPAYERS: {
     LIST: `${API_BASE_URL}/taxpayers`,
+    ME:   `${API_BASE_URL}/taxpayers/me`,
     CREATE: `${API_BASE_URL}/taxpayers`,
     UPDATE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
@@ -191,11 +192,9 @@ export const API_ENDPOINTS = {
     GET: (id: number) => `${API_BASE_URL}/payments/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/payments/${id}`,
     UPDATE_STATUS: (id: number) => `${API_BASE_URL}/payments/${id}/status`,
-  
-    VALIDATE_RETURN: (paymentType: string, returnNo: string) =>
-      `${API_BASE_URL}/payments/validate-return`
-      + `?paymentType=${encodeURIComponent(paymentType)}`
-      + `&returnNo=${encodeURIComponent(returnNo)}`,
+    
+    OUTSTANDING: (taxpayerId: number) =>
+    `${API_BASE_URL}/payments/outstanding?taxpayerId=${taxpayerId}`,
   },
   
 
