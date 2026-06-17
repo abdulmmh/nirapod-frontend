@@ -112,7 +112,7 @@ export interface PenaltyReportRow {
   penaltyType: string;
   severity: string;
   baseAmount: number;
-  penaltyAmount: number;
+  interestAmount: number;
   totalAmount: number;
   status: string;
   issuedAt: string;

@@ -17,6 +17,8 @@ import { Role } from 'src/app/core/constants/roles.constants';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AitService } from '../../services/ait.service';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 
 interface SourceTypeOption {
   value: AitSourceType;
@@ -57,11 +59,11 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   editRecordId: number | null = null;
 
   private readonly AIT_DEFAULT_RATES: Record<AitSourceType, number> = {
-    IMPORT:     5,
-    SUPPLIER:   3,
-    SALARY:     10,
+    IMPORT: 5,
+    SUPPLIER: 3,
+    SALARY: 10,
     CONTRACTOR: 7,
-    RENT:       5,
+    RENT: 5,
   };
 
   sourceTypes: SourceTypeOption[] = [
@@ -77,6 +79,7 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private aitService: AitService,
+    private http: HttpClient,
     private toast: ToastService,
     private auth: AuthService,
     private router: Router,
@@ -84,8 +87,9 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.loadActiveFiscalYear();
     const editId = this.route.snapshot.paramMap.get('id');
-    
+
     if (editId) {
       this.isEditMode = true;
       this.editRecordId = Number(editId);
@@ -121,10 +125,10 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
       taxpayerName: [''],
       taxpayerTin: [''],
       taxpayerType: this.fb.group({
-          id: [''],
-          category: [''],
-          typeName: ['']
-        }),
+        id: [''],
+        category: [''],
+        typeName: [''],
+      }),
     });
 
     this.step2Form = this.fb.group({
@@ -145,6 +149,16 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
       .get('sourceType')!
       .valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((src) => this.updateConditionalValidators(src));
+  }
+
+  private loadActiveFiscalYear(): void {
+    this.http
+      .get<any>(API_ENDPOINTS.FISCAL_YEARS.ACTIVE)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (fy) => (this.fiscalYearName = fy.yearName),
+        error: () => (this.fiscalYearName = '2025-26'), // fallback
+      });
   }
 
   private updateConditionalValidators(sourceType: AitSourceType): void {
@@ -168,32 +182,36 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   }
 
   // ── Edit mode loading ─────────────────────────────────────────────────────
-  
+
   loadForEdit(id: number): void {
-    this.aitService.getById(id)
+    this.aitService
+      .getById(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.step1Form.patchValue({
-            taxpayerId:   data.taxpayerId,
+            taxpayerId: data.taxpayerId,
             taxpayerName: data.taxpayerName,
-            taxpayerTin:  data.taxpayerTin,
+            taxpayerTin: data.taxpayerTin,
           });
           this.step2Form.patchValue({
-            sourceType:         data.sourceType,
+            sourceType: data.sourceType,
             importDutyRecordId: data.importDutyRecordId,
-            hsCode:             data.hsCode,
-            deductorName:       data.deductorName,
-            deductorTin:        data.deductorTin,
-            taxableValue:       data.taxableValue,
-            aitRate:            data.aitRate,
+            hsCode: data.hsCode,
+            deductorName: data.deductorName,
+            deductorTin: data.deductorTin,
+            taxableValue: data.taxableValue,
+            aitRate: data.aitRate,
           });
           this.isAutoFilled = true;
           this.recalculate();
         },
         error: (err) => {
-          this.toast.error('Failed to load record for editing.', err?.error?.message);
-        }
+          this.toast.error(
+            'Failed to load record for editing.',
+            err?.error?.message,
+          );
+        },
       });
   }
   // ── Taxpayer search ────────────────────────────────────────────────────────
@@ -201,7 +219,7 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   searchTaxpayer(): void {
     const term = this.searchControl.value?.trim();
     if (!term) return;
-    
+
     if (this.isAutoFilled) {
       this.searchControl.disable();
     } else {
@@ -234,13 +252,12 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
     this.searchResults = [];
     this.isAutoFilled = true;
     console.log(this.step1Form.value);
-    
   }
 
   clearSelectedTaxpayer(): void {
     this.step1Form.reset();
     this.searchControl.setValue('');
-    this.searchControl.enable(); 
+    this.searchControl.enable();
     this.isAutoFilled = false;
     this.searchResults = [];
   }
@@ -263,9 +280,9 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
   // ── Source type ────────────────────────────────────────────────────────────
 
   selectSourceType(src: AitSourceType): void {
-    this.step2Form.patchValue({ 
-      sourceType: src ,
-      aitRate: this.AIT_DEFAULT_RATES[src]
+    this.step2Form.patchValue({
+      sourceType: src,
+      aitRate: this.AIT_DEFAULT_RATES[src],
     });
     this.updateConditionalValidators(src);
     this.recalculate();
@@ -404,12 +421,12 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
 
   onCancel(): void {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-    
+
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
       this.router.navigate(['..'], {
-        relativeTo: this.route
+        relativeTo: this.route,
       });
     }
   }

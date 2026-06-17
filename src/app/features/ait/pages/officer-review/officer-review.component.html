@@ -264,6 +264,19 @@
           <p class="mb-12">
             Make sure all documents are uploaded before submitting. Once submitted, you cannot edit this record.
           </p>
+          <div class="grid-2" style="margin-bottom:12px">
+            <div class="field-group">
+              <label>Challan Number <span style="color:#888;font-size:11px">(optional)</span></label>
+              <input type="text" class="field-input" formControlName="challanForm.get('challanNumber')"
+                placeholder="e.g. CH-2026-001234" />
+            </div>
+            <div class="field-group">
+              <label>Bank Name <span style="color:#888;font-size:11px">(optional)</span></label>
+              <input type="text" class="field-input" formControlName="challanForm.get('bankName')"
+                placeholder="e.g. Sonali Bank" />
+            </div>
+          </div>
+
           <button class="btn btn-primary w-full" (click)="onSubmitRecord()"
             [disabled]="isActioning || documents.length">
             <i class="bi bi-send"></i> Submit AIT Record

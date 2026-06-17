@@ -146,12 +146,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
         { label: 'Payments', route: '/my-portal/payments', icon: '💳' },
         { label: 'Notices', route: '/my-portal/notices', icon: '🔔' },
         { label: 'My Audits', route: '/my-portal/audits', icon: '🔍' },
-
-        {
-          label: 'My Appeals',
-          route: '/my-portal/appeals',
-          icon: 'bi bi-shield-exclamation',
-        },
+        { label: 'My Appeals', route: '/my-portal/appeals', icon: '⚖️' }
       ];
     } else if (category === 'Business') {
       this.menuItems = [
@@ -174,6 +169,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
         { label: 'Payments', route: '/my-portal/payments', icon: '💳' },
         { label: 'Notices', route: '/my-portal/notices', icon: '🔔' },
         { label: 'My Audits', route: '/my-portal/audits', icon: '🔍' },
+        { label: 'My Appeals', route: '/my-portal/appeals', icon: '⚖️' }
       ];
     }
   }
