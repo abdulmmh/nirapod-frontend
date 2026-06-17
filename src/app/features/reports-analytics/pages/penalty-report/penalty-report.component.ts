@@ -25,11 +25,12 @@ export class PenaltyReportComponent implements OnInit, OnDestroy {
   size = 20;
 
   statusFilters = [
-    { label: 'All', value: '' },
-    { label: 'Pending', value: 'PENDING' },
-    { label: 'Paid', value: 'PAID' },
-    { label: 'Waived', value: 'WAIVED' },
-    { label: 'Disputed', value: 'DISPUTED' },
+    { label: 'All',             value: '' },
+    { label: 'Issued',          value: 'ISSUED' },
+    { label: 'Paid',            value: 'PAID' },
+    { label: 'Partially Paid',  value: 'PARTIALLY_PAID' },
+    { label: 'Appealed',        value: 'APPEALED' },
+    { label: 'Cancelled',       value: 'CANCELLED' },
   ];
 
   severityFilters = [

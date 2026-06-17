@@ -8,6 +8,7 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { PenaltyCreateRequest } from '../../../../models/penalty.model';
 import { PenaltyService } from '../../services/penalty.service';
 import { FiscalYear } from '../../../../models/fiscal-year.model';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-penalty-create',
@@ -38,14 +39,6 @@ export class PenaltyCreateComponent implements OnDestroy {
   ];
   severities = ['Low', 'Medium', 'High', 'Critical'];
   assessmentYears: FiscalYear[] = [];
-  officers = [
-    'Tax Officer',
-    'Senior Tax Officer',
-    'Tax Commissioner',
-    'Assistant Commissioner',
-    'Deputy Commissioner',
-  ];
-
   form: PenaltyCreateRequest = {
     taxpayerId: null,
     penaltyType: '',
@@ -91,9 +84,14 @@ export class PenaltyCreateComponent implements OnDestroy {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private authService: AuthService,
     private toast: ToastService,
     private penaltyService: PenaltyService,
   ) {
+    this.form.issuedBy =
+      this.authService.currentUser?.fullName ??
+      this.authService.currentUser?.email ??
+      '';
     this.setDefaultDueDate();
     this.loadFiscalYears();
   }
@@ -202,7 +200,7 @@ export class PenaltyCreateComponent implements OnDestroy {
           this.searchResults = d;
           this.showResults = true;
         },
-        error: () => {},
+        error: () => this.toast.error('Search failed. Please try again.'),
       });
   }
 

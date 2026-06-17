@@ -14,25 +14,25 @@ const routes: Routes = [
       path: '',
       component: PenaltyListComponent,
       canActivate: [AuthGuard],
-      data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR] }
+      data: { roles: [Role.SUPER_ADMIN, Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR] }
     },
     {
       path: 'create',
       component: PenaltyCreateComponent,
       canActivate: [AuthGuard],
-      data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+      data: { roles: [Role.SUPER_ADMIN, Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
     },
     {
       path: 'view/:id',
       component: PenaltyViewComponent,
       canActivate: [AuthGuard],
-      data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] }
+      data: { roles: [Role.SUPER_ADMIN, Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] }
     },
     {
       path: 'edit/:id',
       component: PenaltyEditComponent,
       canActivate: [AuthGuard],
-      data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+      data: { roles: [Role.SUPER_ADMIN, Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
     }
   ];
 

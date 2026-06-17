@@ -43,21 +43,21 @@
         <label class="form-label required">TIN Number</label>
         <div class="input-wrap">
           <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.tinNumber" />
+          <input type="text" class="form-input" [(ngModel)]="form.tinNumber" readonly />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label required">Taxpayer Name</label>
         <div class="input-wrap">
           <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.taxpayerName" />
+          <input type="text" class="form-input" [(ngModel)]="form.taxpayerName" readonly />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Return No.</label>
         <div class="input-wrap">
           <i class="bi bi-file-earmark-text input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.returnNo" />
+          <input type="text" class="form-input" [(ngModel)]="form.returnNo" readonly />
         </div>
       </div>
       <div class="form-group">
@@ -116,24 +116,20 @@
         <label class="form-label">Interest Amount (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-percent input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.interestAmount"
-            (ngModelChange)="form.totalAmount = form.penaltyAmount + form.interestAmount" />
+          <input type="number" class="form-input" [ngModel]="form.interestAmount" readonly />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Paid Amount (৳)</label>
         <div class="input-wrap">
           <i class="bi bi-cash-coin input-icon"></i>
-          <input type="number" class="form-input" [(ngModel)]="form.paidAmount" />
+          <input type="number" class="form-input" [(ngModel)]="form.paidAmount" readonly />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Status</label>
         <div class="input-wrap">
           <i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.status">
-            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-          </select>
         </div>
       </div>
       <div class="form-group">
@@ -154,7 +150,7 @@
         <label class="form-label">Payment Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar-check input-icon"></i>
-          <input type="date" class="form-input" [(ngModel)]="form.paymentDate" />
+          <input type="date" class="form-input" [(ngModel)]="form.paymentDate" readonly />
         </div>
       </div>
       <div class="form-group">
@@ -170,7 +166,7 @@
         <label class="form-label">Approved By</label>
         <div class="input-wrap">
           <i class="bi bi-person-check input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.approvedBy" />
+          <input type="text" class="form-input" [(ngModel)]="form.approvedBy" readonly />
         </div>
       </div>
     </div>

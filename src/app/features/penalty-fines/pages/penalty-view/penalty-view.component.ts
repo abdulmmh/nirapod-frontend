@@ -1,8 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Penalty } from '../../../../models/penalty.model';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -13,7 +11,8 @@ import { PenaltyService } from '../../services/penalty.service';
   templateUrl: './penalty-view.component.html',
   styleUrls: ['./penalty-view.component.css'],
 })
-export class PenaltyViewComponent implements OnInit {
+export class PenaltyViewComponent implements OnInit, OnDestroy {
+  
   penalty: Penalty | null = null;
   isLoading = true;
   showActionModal = false;
@@ -143,6 +142,12 @@ export class PenaltyViewComponent implements OnInit {
       Overdue: 'status-overdue',
     };
     return map[s] ?? '';
+  }
+
+  isDueOverdue(): boolean {
+    if (!this.penalty?.dueDate) return false;
+    if (['PAID', 'CANCELLED', 'CLOSED'].includes(this.penalty.status)) return false;
+    return new Date(this.penalty.dueDate) < new Date();
   }
 
   getSeverityClass(s: string): string {

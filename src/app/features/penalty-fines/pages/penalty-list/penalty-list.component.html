@@ -99,7 +99,7 @@
           <td>{{ p.issueDate }}</td>
 
           <td>
-            <span [class]="p.status === 'Overdue' ? 'due-overdue' : 'due-normal'">
+            <span [class]="isDueOverdue(p) ? 'due-overdue' : 'due-normal'">
               {{ p.dueDate }}
             </span>
           </td>
@@ -115,9 +115,11 @@
               <button class="btn-view" (click)="viewPenalty(p.id)">
                 <i class="bi bi-eye-fill"></i> View
               </button>
-              <button *canDo="'edit'" class="btn-edit" (click)="editPenalty(p.id)">
-                <i class="bi bi-pencil-fill"></i> Edit
-              </button>
+              <ng-container *ngIf="p.status === 'DRAFT'">
+                <button *canDo="'edit'" class="btn-edit" (click)="editPenalty(p.id)">
+                  <i class="bi bi-pencil-fill"></i> Edit
+                </button>
+              </ng-container>
               <button *hasRole="['SUPER_ADMIN', 'TAX_COMMISSIONER']" class="btn-delete" (click)="confirmDelete(p.id)">
                 <i class="bi bi-trash-fill"></i>
               </button>
@@ -189,7 +191,7 @@
         </div>
         <div class="mobile-field">
           <label>Due Date</label>
-          <span [class]="p.status === 'Overdue' ? 'due-overdue' : 'due-normal'">
+          <span [class]="isDueOverdue(p) ? 'due-overdue' : 'due-normal'">
             {{ p.dueDate | date:'dd MMM yyyy' }}
           </span>
         </div>

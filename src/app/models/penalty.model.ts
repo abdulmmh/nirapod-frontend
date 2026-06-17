@@ -1,9 +1,8 @@
 export type PenaltyStatus =
   | 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'ISSUED'
-  | 'PARTIALLY_PAID' | 'PAID' | 'APPEALED' | 'CANCELLED' | 'CLOSED'
-  | 'Issued' | 'Pending' | 'Paid' | 'Waived' | 'Overdue';
+  | 'PARTIALLY_PAID' | 'PAID' | 'APPEALED' | 'CANCELLED' | 'CLOSED';
 
-export type PenaltyType =
+  export type PenaltyType =
   | 'Late Filing' | 'Late Payment' | 'Non-Compliance'
   | 'Fraud' | 'Underpayment' | 'Other';
 

@@ -77,7 +77,7 @@
 
   <div class="section-divider"></div>
 
-  <!-- Section 2: Penalty Details -->
+  <!-- Section 2: Reference & Period-->
   <div class="form-section">
     <div class="section-header">
       <div class="section-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
@@ -210,10 +210,7 @@
         <label class="form-label required">Issued By</label>
         <div class="input-wrap">
           <i class="bi bi-person-badge input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.issuedBy">
-            <option value="">Select Officer</option>
-            <option *ngFor="let o of officers" [value]="o">{{ o }}</option>
-          </select>
+          <input type="text" class="form-input" [(ngModel)]="form.issuedBy" readonly />
         </div>
       </div>
     </div>

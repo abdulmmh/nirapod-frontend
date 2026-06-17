@@ -1,8 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Penalty } from '../../../../models/penalty.model';
 import { PenaltyService } from '../../services/penalty.service';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
@@ -123,6 +121,12 @@ export class PenaltyListComponent implements OnInit {
       Other: 'type-other',
     };
     return map[type] ?? '';
+  }
+
+  isDueOverdue(p: Penalty): boolean {
+    if (!p.dueDate) return false;
+    if (['PAID', 'CANCELLED', 'CLOSED'].includes(p.status)) return false;
+    return new Date(p.dueDate) < new Date();
   }
 
   formatCurrency(amount: number): string {

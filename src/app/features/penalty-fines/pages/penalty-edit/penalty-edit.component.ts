@@ -6,6 +6,7 @@ import { Subject, takeUntil, timer } from 'rxjs';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Penalty } from '../../../../models/penalty.model';
 import { PenaltyService } from '../../services/penalty.service';
+import { FiscalYear } from '../../../../models/fiscal-year.model';
 
 @Component({
   selector: 'app-penalty-edit',
@@ -19,6 +20,8 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
   errorMsg = '';
   penaltyId = 0;
 
+  assessmentYears: string[] = [];
+
   penaltyTypes = [
     'Late Filing',
     'Late Payment',
@@ -29,7 +32,6 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
   ];
   severities = ['Low', 'Medium', 'High', 'Critical'];
   statuses = ['Issued', 'Pending', 'Paid', 'Waived', 'Appealed', 'Overdue'];
-  assessmentYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
   officers = [
     'Tax Officer',
     'Senior Tax Officer',
@@ -38,7 +40,7 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
     'Deputy Commissioner',
   ];
 
-  form: any = {};
+  form: Partial<Penalty> = {};
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -52,6 +54,7 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.penaltyId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadPenalty();
+    this.loadFiscalYears();
   }
 
   ngOnDestroy(): void {
@@ -73,36 +76,24 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
           }
         },
         error: () => {
-          this.form = {
-            id: this.penaltyId,
-            penaltyNo: 'PEN-2024-00001',
-            tinNumber: 'TIN-1001',
-            taxpayerName: 'Rahman Textile Ltd.',
-            penaltyType: 'Late Filing',
-            severity: 'Medium',
-            penaltyAmount: 25000,
-            interestAmount: 3750,
-            totalAmount: 28750,
-            paidAmount: 28750,
-            returnNo: 'VAT-2024-00001',
-            assessmentYear: '2024-25',
-            issueDate: '2024-03-01',
-            dueDate: '2024-03-31',
-            paymentDate: '2024-03-28',
-            status: 'Paid',
-            issuedBy: 'Tax Officer',
-            approvedBy: 'Tax Commissioner',
-            description: 'Late filing of VAT return for Jan 2024',
-            remarks: '',
-          };
           this.isLoading = false;
+          this.toast.error(
+            'Failed to load penalty. Please go back and try again.',
+          );
+          this.router.navigate(['/penalties']);
         },
       });
   }
 
   onPenaltyChange(): void {
-    this.form.interestAmount = Math.round(this.form.penaltyAmount * 0.15);
-    this.form.totalAmount = this.form.penaltyAmount + this.form.interestAmount;
+    this.form.interestAmount = Math.round(this.form.penaltyAmount ?? 0 * 0.15);
+    this.form.totalAmount = (this.form.penaltyAmount ?? 0) + (this.form.interestAmount ?? 0);
+  }
+
+  private loadFiscalYears(): void {
+    this.http.get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({ next: (years) => this.assessmentYears = years.map(y => y.yearName) });
   }
 
   get totalAmount(): number {
@@ -110,11 +101,11 @@ export class PenaltyEditComponent implements OnInit, OnDestroy {
   }
 
   isFormValid(): boolean {
-    if (this.form.status !== 'DRAFT') return false; // ← যোগ করো
+    if (this.form.status !== 'DRAFT') return false;
     return !!(
       this.form.penaltyType &&
       this.form.severity &&
-      this.form.penaltyAmount > 0 &&
+      this.form.penaltyAmount !== undefined && this.form.penaltyAmount > 0 &&
       this.form.issuedBy
     );
   }
