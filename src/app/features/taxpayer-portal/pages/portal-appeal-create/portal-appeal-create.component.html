@@ -75,8 +75,7 @@
           <label class="form-label required">Grounds / Reasons</label>
           <div class="input-wrap">
             <i class="bi bi-pencil-square input-icon textarea-icon"></i>
-            <textarea class="form-input form-textarea"
-              rows="6" formControlName="groundsText"
+            <textarea class="form-input form-textarea" rows="6" formControlName="groundsText"
               placeholder="Example: The assessment has included salary receipts as income which are already taxed at source. The declared income of BDT 5,00,000 is correct as per Form-16. Bank credits include BDT 15,00,000 in family transfers which are not taxable...">
             </textarea>
           </div>
@@ -93,8 +92,7 @@
           <label class="form-label">Relief Sought</label>
           <div class="input-wrap">
             <i class="bi bi-hand-index-fill input-icon textarea-icon"></i>
-            <textarea class="form-input form-textarea"
-              rows="3" formControlName="reliefSought"
+            <textarea class="form-input form-textarea" rows="3" formControlName="reliefSought"
               placeholder="What outcome are you requesting? e.g. Full cancellation of demand, Reduction of additional tax from BDT X to BDT Y...">
             </textarea>
           </div>
@@ -104,8 +102,7 @@
           <label class="form-label">Supporting Evidence <span class="optional">(optional)</span></label>
           <div class="input-wrap">
             <i class="bi bi-paperclip input-icon textarea-icon"></i>
-            <textarea class="form-input form-textarea"
-              rows="3" formControlName="supportingEvidence"
+            <textarea class="form-input form-textarea" rows="3" formControlName="supportingEvidence"
               placeholder="List documents you are attaching: e.g. Bank statement (Jan-Dec 2024), Salary certificate, Loan agreement...">
             </textarea>
           </div>
@@ -115,8 +112,7 @@
           <label class="form-label">Additional Remarks <span class="optional">(optional)</span></label>
           <div class="input-wrap">
             <i class="bi bi-chat-text input-icon textarea-icon"></i>
-            <textarea class="form-input form-textarea"
-              rows="2" formControlName="remarks"
+            <textarea class="form-input form-textarea" rows="2" formControlName="remarks"
               placeholder="Any other information you want to include...">
             </textarea>
           </div>
@@ -132,6 +128,15 @@
         to file an appeal. Once submitted, your appeal will be reviewed by a tax officer and
         a hearing may be scheduled. The decision of the appeal authority is final unless
         further legal remedies are pursued.
+      </div>
+    </div>
+
+    <!-- Submit Error Banner -->
+    <div class="appeal-submit-error" *ngIf="submitError">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <div>
+        <strong>Could not file appeal.</strong>
+        <p>{{ submitError }}</p>
       </div>
     </div>
 

@@ -363,7 +363,7 @@ export const API_ENDPOINTS = {
 
   // Refunds
   REFUNDS: {
-    LIST: `${API_BASE_URL}/refunds`,
+    LIST: `${API_BASE_URL}/refunds/get-all`,
     MY: `${API_BASE_URL}/refunds/my`,
     CREATE: `${API_BASE_URL}/refunds`,
     GET: (id: number) => `${API_BASE_URL}/refunds/${id}`,

@@ -14,28 +14,23 @@
 
 <ng-container *ngIf="!isLoading && appeal">
 
-  <!-- Decision Banner -->
+  <!-- Decision Banners -->
   <div class="tp-decision-banner success" *ngIf="appeal.decision === 'UPHELD'">
     <i class="bi bi-check-circle-fill"></i>
-    <div>
-      <strong>Appeal Successful!</strong> {{ getDecisionMessage(appeal.decision) }}
-    </div>
+    <div><strong>Appeal Successful!</strong> {{ getDecisionMessage(appeal.decision) }}</div>
   </div>
-
   <div class="tp-decision-banner partial" *ngIf="appeal.decision === 'PARTIALLY_UPHELD'">
     <i class="bi bi-shield-half"></i>
     <div>
       <strong>Partial Relief Granted.</strong> {{ getDecisionMessage(appeal.decision) }}
-      <span *ngIf="appeal.reliefGranted"> Relief amount: <strong>{{ appeal.reliefGranted | number:'1.2-2' }}
-          BDT</strong></span>
+      <span *ngIf="appeal.reliefGranted">
+        Relief amount: <strong>{{ appeal.reliefGranted | number:'1.2-2' }} BDT</strong>
+      </span>
     </div>
   </div>
-
   <div class="tp-decision-banner dismissed" *ngIf="appeal.decision === 'DISMISSED'">
     <i class="bi bi-x-circle-fill"></i>
-    <div>
-      <strong>Appeal Dismissed.</strong> {{ getDecisionMessage(appeal.decision) }}
-    </div>
+    <div><strong>Appeal Dismissed.</strong> {{ getDecisionMessage(appeal.decision) }}</div>
   </div>
 
   <!-- Hearing Banner -->
@@ -48,6 +43,16 @@
     </div>
   </div>
 
+  <!-- Deadline Warning Banner — FILED or UNDER_REVIEW only -->
+  <div class="tp-deadline-banner" [ngClass]="deadlineWarningClass"
+    *ngIf="appealDeadline && ['FILED','UNDER_REVIEW','HEARING_SCHEDULED'].includes(appeal.status)">
+    <i class="bi bi-alarm-fill"></i>
+    <div>
+      <strong>Appeal Deadline: {{ appealDeadline | date:'mediumDate' }}</strong>
+      — {{ deadlineMessage }}
+    </div>
+  </div>
+
   <!-- Header -->
   <div class="appeal-tp-header">
     <div class="ath-top">
@@ -57,16 +62,18 @@
       </span>
     </div>
     <div class="ath-meta">
-      <span><i class="bi bi-tag-fill"></i> {{ appeal.appealType.replace('_',' ') }}</span>
+      <span><i class="bi bi-tag-fill"></i> {{ appeal.appealType?.replace('_',' ') }}</span>
       <span><i class="bi bi-clock"></i> Filed {{ appeal.filedAt | date:'mediumDate' }}</span>
-      <span *ngIf="appeal.deadline"><i class="bi bi-alarm"></i> Deadline: {{ appeal.deadline | date:'mediumDate'
-        }}</span>
+      <span *ngIf="appeal.deadline">
+        <i class="bi bi-alarm"></i> Deadline: {{ appeal.deadline | date:'mediumDate' }}
+      </span>
     </div>
   </div>
 
   <!-- Detail Card -->
   <div class="form-card" style="margin-top:16px;">
 
+    <!-- Financial Details -->
     <div class="form-section">
       <div class="section-header">
         <div class="section-icon"><i class="bi bi-cash-stack"></i></div>
@@ -78,30 +85,40 @@
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">Total Demanded</label>
-          <div class="amount-display red">{{ appeal.demandedAmount | number:'1.2-2' }} BDT</div>
+          <div class="amount-display red">
+            {{ appeal.demandedAmount != null ? (appeal.demandedAmount | number:'1.2-2') + ' BDT' : '—' }}
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Amount Disputed</label>
-          <div class="amount-display orange">{{ appeal.disputedAmount | number:'1.2-2' }} BDT</div>
+          <!-- Amount Disputed -->
+          <div class="amount-display orange">
+            {{ appeal.disputedAmount != null ? (appeal.disputedAmount | number:'1.2-2') + ' BDT' : '—' }}
+          </div>
         </div>
         <div class="form-group" *ngIf="appeal.reliefGranted">
           <label class="form-label">Relief Granted</label>
           <div class="amount-display green">{{ appeal.reliefGranted | number:'1.2-2' }} BDT</div>
+
         </div>
         <div class="form-group" *ngIf="appeal.acceptedAmount">
           <label class="form-label">Accepted Amount</label>
           <div class="amount-display">{{ appeal.acceptedAmount | number:'1.2-2' }} BDT</div>
+
+
         </div>
       </div>
     </div>
-    <div class="appeal-pay-section" *ngIf="appeal.status === 'DECIDED' || appeal.status === 'CLOSED'">
 
+    <!-- Pay Section -->
+    <div class="appeal-pay-section" *ngIf="appeal.status === 'DECIDED' || appeal.status === 'CLOSED'">
       <div class="aps-dismissed" *ngIf="appeal.decision === 'DISMISSED'">
         <div class="aps-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
         <div class="aps-content">
           <strong>Full Payment Required</strong>
           <p>Your appeal was dismissed. The full demanded amount of
-            <strong>{{ appeal.demandedAmount | number:'1.2-2' }} BDT</strong>
+            <strong>{{ appeal.demandedAmount != null ? (appeal.demandedAmount | number:'1.2-2') + ' BDT' : 'the full
+              amount' }}</strong>
             must be paid by the original due date.
           </p>
         </div>
@@ -109,14 +126,12 @@
           <i class="bi bi-credit-card-fill"></i> Pay Now
         </button>
       </div>
-
       <div class="aps-partial" *ngIf="appeal.decision === 'PARTIALLY_UPHELD'">
         <div class="aps-icon partial"><i class="bi bi-shield-half"></i></div>
         <div class="aps-content">
           <strong>Partial Payment Required</strong>
           <p>Accepted amount of
-            <strong>{{ appeal.acceptedAmount | number:'1.2-2' }} BDT</strong>
-            must be paid.
+            <strong>{{ appeal.acceptedAmount != null ? (appeal.acceptedAmount | number:'1.2-2') + ' BDT' : 'the accepted amount' }}</strong> must be paid.
             <span *ngIf="appeal.reliefGranted">
               Relief granted: {{ appeal.reliefGranted | number:'1.2-2' }} BDT.
             </span>
@@ -126,7 +141,6 @@
           <i class="bi bi-credit-card-fill"></i> Pay Accepted Amount
         </button>
       </div>
-
       <div class="aps-upheld" *ngIf="appeal.decision === 'UPHELD'">
         <div class="aps-icon success"><i class="bi bi-check-circle-fill"></i></div>
         <div class="aps-content">
@@ -134,11 +148,11 @@
           <p>Your appeal was fully upheld. The demand has been cancelled.</p>
         </div>
       </div>
-
     </div>
 
     <div class="section-divider"></div>
 
+    <!-- Grounds -->
     <div class="form-section">
       <div class="section-header">
         <div class="section-icon amber"><i class="bi bi-file-text-fill"></i></div>
@@ -155,6 +169,7 @@
 
     <div class="section-divider" *ngIf="appeal.decision"></div>
 
+    <!-- Decision -->
     <div class="form-section" *ngIf="appeal.decision">
       <div class="section-header">
         <div class="section-icon"><i class="bi bi-gavel"></i></div>
@@ -167,12 +182,13 @@
         <div class="form-group">
           <label class="form-label">Outcome</label>
           <span class="status-badge" [ngClass]="getDecisionClass(appeal.decision)">
-            {{ appeal.decision.replace('_',' ') }}
+            {{ appeal.decision?.replace('_',' ') }}
           </span>
         </div>
         <div class="form-group">
           <label class="form-label">Decided By</label>
-          <div class="form-input auto-field">{{ appeal.decidedBy }}</div>
+          <!-- decidedByName থাকলে name, না থাকলে email -->
+          <div class="form-input auto-field">{{ decidedByDisplay }}</div>
         </div>
         <div class="form-group">
           <label class="form-label">Decided On</label>
@@ -185,7 +201,7 @@
       </div>
     </div>
 
-    <!-- Actions -->
+    <!-- Withdraw Action -->
     <div class="form-actions" *ngIf="canWithdraw()">
       <button class="btn-cancel" (click)="showWithdrawModal = true">
         <i class="bi bi-x-circle"></i> Withdraw Appeal
@@ -205,7 +221,8 @@
     </div>
     <p class="modal-title">Withdraw Appeal?</p>
     <p class="modal-msg">
-      Once withdrawn, your appeal cannot be reinstated. The original demand notice will be restored.
+      Once withdrawn, your appeal cannot be reinstated.
+      The original demand notice will be restored.
     </p>
     <div class="form-group mb-3">
       <label class="form-label">Reason (optional)</label>

@@ -3,6 +3,7 @@ export interface Appeal {
   appealNo:           string;
   auditCaseId:        number;
   demandNoticeId?:    number;
+  demandNo?:          string;
   assessmentId?:      number;
   taxpayerId:         number;
   tinNumber:          string;
@@ -29,6 +30,9 @@ export interface Appeal {
   assignedTo?:        string;
   remarks?:           string;
   createdAt:          string;
+  decidedByName?: string;
+  filedByName?: string;
+
 }
 
 export interface AppealCreateRequest {

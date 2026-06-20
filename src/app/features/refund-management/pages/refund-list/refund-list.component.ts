@@ -113,8 +113,6 @@ export class RefundListComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     if (this.isOfficerRole) {
-      // FIX: Officers and admins call GET /api/refunds (all refunds) not /api/refunds/my
-      // SUPER_ADMIN has no taxpayer record so getMyRefunds() always returns empty.
       this.refundService.getAllRefunds()
         .pipe(takeUntil(this.destroy$), finalize(() => this.loading = false))
         .subscribe({
