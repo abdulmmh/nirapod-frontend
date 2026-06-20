@@ -17,11 +17,29 @@
   align-items: center;
   gap: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
 }
 
 .akpi-card:hover {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.09);
+}
+
+/* Clickable KPI card — shows pointer, lifts on hover */
+.akpi-card.clickable {
+  cursor: pointer;
+}
+
+/* Active state — when this card's status-group is the current quick filter */
+.akpi-card.active {
+  border-color: #1faa8b;
+  background: #f3fdf9;
+  box-shadow: 0 4px 16px rgba(31, 170, 139, 0.18);
+}
+.akpi-card.active .akpi-label {
+  color: #0f8a70;
+}
+.akpi-card.active .akpi-value {
+  color: #1faa8b;
 }
 
 .akpi-icon {
@@ -75,6 +93,88 @@
   font-weight: 800;
   color: #1a2340;
   line-height: 1.2;
+}
+
+/* ── Filter Dropdown — visible chevron + active-filter highlight ──────────── */
+/* (Local override since .filter-select comes from global CSS without a
+   chevron icon — same fix applied to Payment and ITR list modules.) */
+
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%231a3f8f' d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-color: #fff;
+
+  padding: 8px 36px 8px 14px;
+  border: 1.5px solid #d0daf5;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #444;
+  cursor: pointer;
+  min-width: 140px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.filter-select:hover {
+  border-color: #1a3f8f;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #1a3f8f;
+  box-shadow: 0 0 0 3px rgba(26, 63, 143, 0.08);
+}
+
+.filter-select.active-filter {
+  border-color: #1faa8b;
+  color: #0f8a70;
+  font-weight: 600;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%231faa8b' d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+}
+
+/* ── KPI Quick-Filter Banner ────────────────────────────────────────────── */
+
+.kpi-filter-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  padding: 10px 16px;
+  background: #f3fdf9;
+  border: 1.5px solid #1faa8b;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #0f8a70;
+}
+.kpi-filter-banner i.bi-funnel-fill {
+  color: #1faa8b;
+  flex-shrink: 0;
+}
+.kpi-filter-banner span {
+  flex: 1;
+  min-width: 0;
+}
+.btn-clear-kpi {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #fff;
+  border: 1px solid #1faa8b;
+  color: #1faa8b;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.btn-clear-kpi:hover {
+  background: #e6f7f3;
 }
 
 /* ── Type / Priority Badges ──────────────────────────────────────────────── */
@@ -196,6 +296,9 @@
   .akpi-card {
     min-width: calc(50% - 6px);
     flex: 0 0 calc(50% - 6px);
+  }
+  .kpi-filter-banner {
+    flex-wrap: wrap;
   }
 }
 @media (max-width: 480px) {

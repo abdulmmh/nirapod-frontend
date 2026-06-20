@@ -15,15 +15,18 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 export class IncomeTaxReturnListComponent implements OnInit, OnDestroy {
   returns: IncomeTaxReturn[] = [];
   searchTerm = '';
-  filterStatus = '';
   isLoading = false;
   isExporting = false;
 
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
 
-  readonly statuses = [
-    '',
+  // ── Filters — matches Audit/Payment module's dropdown pattern ─────────────
+  statusFilter   = '';
+  categoryFilter = '';
+  yearFilter     = '';
+
+  readonly statusOptions: string[] = [
     'Draft',
     'Submitted',
     'Under Review',
@@ -33,6 +36,13 @@ export class IncomeTaxReturnListComponent implements OnInit, OnDestroy {
     'Amended',
     'Send Back',
   ];
+  readonly categoryOptions: string[] = ['Individual', 'Company', 'Partnership', 'NGO'];
+  yearOptions: string[] = [];   // populated from assessmentYear once data loads
+
+  // ── Pagination ──────────────────────────────────────────────────────────
+  currentPage = 1;
+  pageSize = 20;
+  readonly pageSizeOptions = [10, 20, 50, 100];
 
   private destroy$ = new Subject<void>();
 
@@ -60,30 +70,138 @@ export class IncomeTaxReturnListComponent implements OnInit, OnDestroy {
         finalize(() => (this.isLoading = false)),
       )
       .subscribe({
-        next: (data) => (this.returns = data),
+        next: (data) => {
+          this.returns = data;
+          this.buildYearOptions();
+        },
         error: () => this.toast.error('Failed to load income tax returns.'),
       });
   }
 
+  /** Extracts distinct assessment years (e.g. "2025-26"), newest first. */
+  private buildYearOptions(): void {
+    const years = new Set<string>();
+    for (const r of this.returns) {
+      if (r.assessmentYear) years.add(r.assessmentYear);
+    }
+    this.yearOptions = Array.from(years).sort((a, b) => b.localeCompare(a));
+  }
+
+  // ── KPI Summary Cards — mirrors Audit/Payment module's card row ───────────
+
+  get kpiSubmitted(): number {
+    return this.returns.filter((r) => r.status === 'Submitted').length;
+  }
+
+  get kpiUnderReview(): number {
+    return this.returns.filter((r) => r.status === 'Under Review').length;
+  }
+
+  get kpiAccepted(): number {
+    return this.returns.filter((r) => r.status === 'Accepted').length;
+  }
+
+  get kpiRejected(): number {
+    return this.returns.filter((r) => r.status === 'Rejected').length;
+  }
+
+  get kpiTotalCollected(): number {
+    return this.returns
+      .filter((r) => r.status === 'Accepted')
+      .reduce((sum, r) => sum + (r.taxPaid || 0), 0);
+  }
+
+  // ── Filtering (search term + dropdown filters together) ────────────────────
+
   get filtered(): IncomeTaxReturn[] {
-    const term = this.searchTerm.trim().toLowerCase();
-    return this.returns.filter((r) => {
-      const matchesSearch =
-        !term ||
-        (r.returnNo || '').toLowerCase().includes(term) ||
-        (r.taxpayerName || '').toLowerCase().includes(term) ||
-        (r.tinNumber || '').toLowerCase().includes(term) ||
-        (r.itrCategory || '').toLowerCase().includes(term) ||
-        (r.assessmentYear || '').toLowerCase().includes(term);
+    let result = this.returns;
 
-      const matchesStatus = !this.filterStatus || r.status === this.filterStatus;
-      return matchesSearch && matchesStatus;
-    });
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      result = result.filter(
+        (r) =>
+          (r.returnNo || '').toLowerCase().includes(term) ||
+          (r.taxpayerName || '').toLowerCase().includes(term) ||
+          (r.tinNumber || '').toLowerCase().includes(term) ||
+          (r.itrCategory || '').toLowerCase().includes(term) ||
+          (r.assessmentYear || '').toLowerCase().includes(term),
+      );
+    }
+
+    if (this.statusFilter) {
+      result = result.filter((r) => r.status === this.statusFilter);
+    }
+    if (this.categoryFilter) {
+      result = result.filter((r) => r.itrCategory === this.categoryFilter);
+    }
+    if (this.yearFilter) {
+      result = result.filter((r) => r.assessmentYear === this.yearFilter);
+    }
+
+    return result;
   }
 
-  countByStatus(status: string): number {
-    return status ? this.returns.filter((r) => r.status === status).length : this.returns.length;
+  hasActiveFilters(): boolean {
+    return !!(this.searchTerm || this.statusFilter || this.categoryFilter || this.yearFilter);
   }
+
+  clearFilters(): void {
+    this.searchTerm     = '';
+    this.statusFilter   = '';
+    this.categoryFilter = '';
+    this.yearFilter     = '';
+    this.currentPage     = 1;
+  }
+
+  /** Called when a clickable KPI status card is clicked — toggles filter. */
+  onKpiCardClick(status: string): void {
+    this.statusFilter = this.statusFilter === status ? '' : status;
+    this.currentPage  = 1;
+  }
+
+  /** Returns true when a given status card is the active filter. */
+  isKpiActive(status: string): boolean {
+    return this.statusFilter === status;
+  }
+
+  /** Any filter/search change resets back to page 1 — call from (ngModelChange). */
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
+
+  // ── Pagination ───────────────────────────────────────────────────────────
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
+  }
+
+  get paginated(): IncomeTaxReturn[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filtered.slice(start, start + this.pageSize);
+  }
+
+  get pageRangeStart(): number {
+    if (this.filtered.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageRangeEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filtered.length);
+  }
+
+  goToPrevPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+  }
+
+  // ── UI Helpers ──────────────────────────────────────────────────────────
 
   getStatusClass(status: string): string {
     const map: Record<string, string> = {

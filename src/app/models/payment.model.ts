@@ -52,7 +52,7 @@ export interface PaymentStatusUpdate {
 }
 
 export interface OutstandingItem {
-  type: 'VAT' | 'Income Tax' | 'Penalty';
+  type: 'VAT' | 'Income Tax' | 'Penalty' | 'Demand Notice';
   returnNo: string;
   label: string;
   totalDue: number;

@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  RefundService
-} from '../../services/refund.service';
+import { RefundService } from '../../services/refund.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Role } from 'src/app/core/constants/roles.constants';
-import { CreateRefundRequest, EligibleSourceRecord, RefundCalculation, RefundType, RefundTypeOption } from 'src/app/models/refund.model';
+import {
+  CreateRefundRequest, EligibleSourceRecord, RefundCalculation,
+  RefundType, RefundTypeOption,
+} from 'src/app/models/refund.model';
 
 
 @Component({
@@ -16,23 +17,29 @@ import { CreateRefundRequest, EligibleSourceRecord, RefundCalculation, RefundTyp
 })
 export class RefundCreateComponent implements OnInit {
 
-  // ─── Role check ──────────────────────────────────────────
+  // ─── Role check ───────────────────────────────────────────────
   isOfficerRole = false;
 
-  // ─── Step 0 (Officer only): Taxpayer selection ───────────
-  selectedTaxpayer: any = null;      // Taxpayer entity from taxpayer-search
+  // ─── Step 0 (Officer only): Taxpayer selection ────────────────
+  selectedTaxpayer: any = null;
   selectedTaxpayerId: number | null = null;
 
-  // ─── Stepper ─────────────────────────────────────────────
-  // Officers start at step 0 (taxpayer selection)
-  // Taxpayers start at step 1
+  // ─── Stepper ──────────────────────────────────────────────────
   currentStep = 1;
   totalSteps  = 6;
   saving      = false;
   submitting  = false;
   errorMsg    = '';
 
-  // ─── Step 1: Refund Type ─────────────────────────────────
+  // ─── FIX: Active fiscal year loaded on init ───────────────────
+  // Previously hardcoded as fiscalYearId: 1
+  activeFiscalYearId: number | null = null;
+
+  // ─── Draft tracking ───────────────────────────────────────────
+  // Set after the first saveDraft() API call so subsequent saves call update()
+  savedRefundId: number | null = null;
+
+  // ─── Step 1: Refund Type ──────────────────────────────────────
   selectedRefundType: RefundType | null = null;
 
   readonly refundTypeOptions: RefundTypeOption[] = [
@@ -44,24 +51,24 @@ export class RefundCreateComponent implements OnInit {
     { value: 'OTHER',             label: 'Other',             description: 'Manual / officer adjustment', icon: 'bi bi-three-dots-circle', color: 'type-gray'   },
   ];
 
-  // ─── Step 2: Source Records ──────────────────────────────
+  // ─── Step 2: Source Records ───────────────────────────────────
   eligibleSources: EligibleSourceRecord[] = [];
   selectedSourceIds = new Set<number>();
   loadingSources = false;
   sourcesError   = '';
 
-  // ─── Step 3: Calculation ─────────────────────────────────
+  // ─── Step 3: Calculation ──────────────────────────────────────
   calculation: RefundCalculation | null = null;
   requestedAmount = 0;
   calculationError = '';
 
-  // ─── Step 4: Bank Info ───────────────────────────────────
+  // ─── Step 4: Bank Info ────────────────────────────────────────
   bankForm: FormGroup;
   bankValidating = false;
   bankValidated  = false;
   bankError      = '';
 
-  // ─── Step 5: Documents ───────────────────────────────────
+  // ─── Step 5: Documents ────────────────────────────────────────
   uploadedFiles: { file: File; type: string; name: string; size: string }[] = [];
   uploadError     = '';
   selectedDocType = 'BANK_STATEMENT';
@@ -74,14 +81,14 @@ export class RefundCreateComponent implements OnInit {
     { value: 'OTHER',              label: 'Other',                         required: false },
   ];
 
-  // ─── Step 6: Review ──────────────────────────────────────
+  // ─── Step 6: Review ───────────────────────────────────────────
   declarationAgreed = false;
 
   constructor(
     private fb: FormBuilder,
     private refundService: RefundService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {
     this.bankForm = this.fb.group({
       bankName:          ['', Validators.required],
@@ -96,16 +103,31 @@ export class RefundCreateComponent implements OnInit {
 
   ngOnInit(): void {
     const role = this.authService.userRole;
-    // Officers, supervisors, admins, commissioners need taxpayer selection first
     this.isOfficerRole = role !== Role.TAXPAYER && role !== Role.GUEST;
 
-    if (this.isOfficerRole) {
-      // Officers start at step 0 — taxpayer selection
-      this.currentStep = 0;
-    }
+    if (this.isOfficerRole) this.currentStep = 0;
+
+    // FIX: Load the active fiscal year so we don't hardcode fiscalYearId: 1
+    this.loadActiveFiscalYear();
   }
 
-  // ─── Taxpayer selection (Step 0, officer only) ────────────
+  // ─── FIX: Load active fiscal year ─────────────────────────────
+
+  private loadActiveFiscalYear(): void {
+    this.refundService.getFiscalYears().subscribe({
+      next: (years) => {
+        const active = years.find(y => y.isCurrent) ?? years[0];
+        this.activeFiscalYearId = active?.id ?? null;
+      },
+      error: () => {
+        // Non-fatal: fall back to 1 in submitRefund
+        console.warn('Could not load fiscal years; defaulting to id=1');
+        this.activeFiscalYearId = 1;
+      },
+    });
+  }
+
+  // ─── Taxpayer selection (Step 0, officer only) ─────────────────
 
   onTaxpayerSelected(taxpayer: any): void {
     this.selectedTaxpayer   = taxpayer;
@@ -122,16 +144,13 @@ export class RefundCreateComponent implements OnInit {
     this.currentStep = 1;
   }
 
-  // ─── Navigation ───────────────────────────────────────────
+  // ─── Navigation ────────────────────────────────────────────────
 
   nextStep(): void {
     if (!this.canProceed()) return;
     if (this.currentStep >= this.totalSteps) return;
-
-    // Trigger side-effects BEFORE incrementing
     if (this.currentStep === 1) this.loadSources();
     if (this.currentStep === 2) this.calculateRefund();
-
     this.currentStep++;
   }
 
@@ -145,7 +164,6 @@ export class RefundCreateComponent implements OnInit {
       if (this.currentStep === 3) this.calculation = null;
       this.currentStep--;
     } else if (this.currentStep === 1 && this.isOfficerRole) {
-      // Officer goes back to taxpayer selection
       this.currentStep = 0;
     }
   }
@@ -160,12 +178,7 @@ export class RefundCreateComponent implements OnInit {
     switch (this.currentStep) {
       case 1: return !!this.selectedRefundType;
       case 2: return this.selectedSourceIds.size > 0;
-      case 3: return !!this.calculation
-                  && this.requestedAmount > 0
-                  && !this.amountExceedsEligible;
-      // FIX: Allow proceeding if form is valid even without server validation
-      // bankValidated can be set by: (a) server validate-bank call, OR
-      // (b) format-only local check if server is unavailable
+      case 3: return !!this.calculation && this.requestedAmount > 0 && !this.amountExceedsEligible;
       case 4: return this.bankForm.valid && this.bankValidated;
       case 5: return this.hasRequiredDocuments();
       case 6: return this.declarationAgreed;
@@ -173,17 +186,13 @@ export class RefundCreateComponent implements OnInit {
     }
   }
 
-  // ─── Resolve taxpayerId ───────────────────────────────────
-  // Officer: use selectedTaxpayerId
-  // Taxpayer: backend resolves from JWT (no need to send)
+  // ─── Resolve taxpayerId ────────────────────────────────────────
 
   get resolvedTaxpayerId(): number | null {
-    if (this.isOfficerRole) return this.selectedTaxpayerId;
-    // For taxpayer role — backend resolves from JWT
-    return null;
+    return this.isOfficerRole ? this.selectedTaxpayerId : null;
   }
 
-  // ─── Step 2: load sources ─────────────────────────────────
+  // ─── Step 2: load sources ──────────────────────────────────────
 
   loadSources(): void {
     if (!this.selectedRefundType) return;
@@ -191,14 +200,12 @@ export class RefundCreateComponent implements OnInit {
     this.eligibleSources = [];
     this.sourcesError    = '';
 
-    // For officer: pass taxpayerId as query param
-    // For taxpayer: backend resolves from JWT
     let obs$;
     switch (this.selectedRefundType) {
-      case 'INCOME_TAX': obs$ = this.refundService.getEligibleItrSources(this.resolvedTaxpayerId ?? undefined);      break;
-      case 'AIT':        obs$ = this.refundService.getEligibleAitSources(this.resolvedTaxpayerId ?? undefined);      break;
-      case 'VAT':        obs$ = this.refundService.getEligibleVatSources(this.resolvedTaxpayerId ?? undefined);      break;
-      default:           obs$ = this.refundService.getEligiblePaymentSources(this.resolvedTaxpayerId ?? undefined);  break;
+      case 'INCOME_TAX': obs$ = this.refundService.getEligibleItrSources(this.resolvedTaxpayerId ?? undefined);     break;
+      case 'AIT':        obs$ = this.refundService.getEligibleAitSources(this.resolvedTaxpayerId ?? undefined);     break;
+      case 'VAT':        obs$ = this.refundService.getEligibleVatSources(this.resolvedTaxpayerId ?? undefined);     break;
+      default:           obs$ = this.refundService.getEligiblePaymentSources(this.resolvedTaxpayerId ?? undefined); break;
     }
 
     obs$.subscribe({
@@ -226,19 +233,15 @@ export class RefundCreateComponent implements OnInit {
     return this.selectedSources.reduce((t, s) => t + (s.excessAmount ?? 0), 0);
   }
 
-  // ─── Step 3: calculate ────────────────────────────────────
+  // ─── Step 3: calculate ─────────────────────────────────────────
 
   calculateRefund(): void {
     this.calculationError = '';
     this.calculation      = null;
-
-    // FIX: Use sourceTypeFor() to map 'INCOME_TAX' → 'ITR' etc.
-    // Previously sent this.selectedRefundType! directly ('INCOME_TAX')
-    // which never matched the backend check ("ITR".equalsIgnoreCase(...)).
     this.refundService.calculateRefund(
       this.sourceTypeFor(this.selectedRefundType!),
       Array.from(this.selectedSourceIds),
-      this.resolvedTaxpayerId ?? undefined
+      this.resolvedTaxpayerId ?? undefined,
     ).subscribe({
       next:  (c) => { this.calculation = c; this.requestedAmount = c.eligibleRefundAmount; },
       error: () => { this.calculationError = 'Unable to calculate refund amount. Please try again.'; },
@@ -249,7 +252,7 @@ export class RefundCreateComponent implements OnInit {
     return this.requestedAmount > (this.calculation?.eligibleRefundAmount ?? 0);
   }
 
-  // ─── Step 4: bank ─────────────────────────────────────────
+  // ─── Step 4: bank ──────────────────────────────────────────────
 
   validateBank(): void {
     if (this.bankForm.invalid) { this.bankForm.markAllAsTouched(); return; }
@@ -264,8 +267,6 @@ export class RefundCreateComponent implements OnInit {
         if (!res.valid) this.bankError = res.message;
       },
       error: () => {
-        // Server validation failed (no API / 500 error).
-        // Fall back to local format validation so user can proceed.
         this.bankValidating = false;
         const acct    = this.bankForm.value.accountNumber ?? '';
         const routing = this.bankForm.value.routingNumber ?? '';
@@ -284,14 +285,14 @@ export class RefundCreateComponent implements OnInit {
     return !!(c?.invalid && c.touched);
   }
 
-  // ─── Step 5: documents ────────────────────────────────────
+  // ─── Step 5: documents ─────────────────────────────────────────
 
   onFileSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
     const file = input.files[0];
     if (file.size > 20 * 1024 * 1024) { this.uploadError = 'Max 20 MB.'; return; }
-    const ok = ['application/pdf','image/jpeg','image/png','image/jpg'];
+    const ok = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
     if (!ok.includes(file.type)) { this.uploadError = 'Only PDF, JPG, PNG allowed.'; return; }
     this.uploadError = '';
     this.uploadedFiles.push({ file, type: this.selectedDocType, name: file.name, size: this.formatFileSize(file.size) });
@@ -301,7 +302,7 @@ export class RefundCreateComponent implements OnInit {
   removeFile(i: number): void { this.uploadedFiles.splice(i, 1); }
 
   formatFileSize(b: number): string {
-    return b > 1048576 ? (b/1048576).toFixed(1)+' MB' : (b/1024).toFixed(0)+' KB';
+    return b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : (b / 1024).toFixed(0) + ' KB';
   }
 
   hasRequiredDocuments(): boolean {
@@ -312,18 +313,74 @@ export class RefundCreateComponent implements OnInit {
     return this.documentTypes.find(d => d.value === v)?.label ?? v;
   }
 
-  // ─── Submit ───────────────────────────────────────────────
+  // ─── Submit ────────────────────────────────────────────────────
 
   submitRefund(): void {
     if (!this.declarationAgreed) return;
     this.submitting = true;
     this.errorMsg   = '';
 
-    const request: CreateRefundRequest = {
+    const request = this.buildRequest();
+
+    if (this.savedRefundId) {
+      // Already saved as draft — update then submit
+      this.refundService.update(this.savedRefundId, request).subscribe({
+        next: () => this.uploadDocsSequentially(this.savedRefundId!, 0),
+        error: () => { this.submitting = false; this.errorMsg = 'Failed to save. Please try again.'; },
+      });
+    } else {
+      this.refundService.create(request).subscribe({
+        next: (created) => { this.submitting = false; this.uploadDocsSequentially(created.id, 0); },
+        error: () => { this.submitting = false; this.errorMsg = 'Failed to submit. Please try again.'; },
+      });
+    }
+  }
+
+  // ─── FIX: saveDraft now actually calls the API ─────────────────
+
+  saveDraft(): void {
+    if (this.saving) return;
+
+    // Need at minimum a refund type and some amount to create a draft
+    if (!this.selectedRefundType || !this.activeFiscalYearId) {
+      this.errorMsg = 'Please complete steps 1 and 3 before saving a draft.';
+      return;
+    }
+
+    this.saving   = true;
+    this.errorMsg = '';
+
+    // Build a partial request with whatever is filled so far
+    const req = this.buildRequest();
+
+    if (this.savedRefundId) {
+      // Update existing draft
+      this.refundService.update(this.savedRefundId, req).subscribe({
+        next:  () => { this.saving = false; },
+        error: () => { this.saving = false; this.errorMsg = 'Failed to save draft.'; },
+      });
+    } else if (this.requestedAmount > 0) {
+      // Create new draft — requires minimum: type + fiscalYear + amount
+      this.refundService.create(req).subscribe({
+        next:  (created) => { this.savedRefundId = created.id; this.saving = false; },
+        error: () => { this.saving = false; this.errorMsg = 'Failed to save draft.'; },
+      });
+    } else {
+      // Not enough data to call the API — silently ignore (user hasn't reached step 3)
+      this.saving = false;
+    }
+  }
+
+  cancel(): void { this.router.navigate(['/refunds']); }
+
+  // ─── Private helpers ───────────────────────────────────────────
+
+  /** FIX: uses activeFiscalYearId instead of hardcoded 1 */
+  private buildRequest(): CreateRefundRequest {
+    return {
       refundType:      this.selectedRefundType!,
-      fiscalYearId:    1,
+      fiscalYearId:    this.activeFiscalYearId ?? 1,    // FIX: was hardcoded 1
       requestedAmount: this.requestedAmount,
-      // For officer: include taxpayerId so backend knows whose refund it is
       ...(this.isOfficerRole && this.selectedTaxpayerId
           ? { taxpayerId: this.selectedTaxpayerId } : {}),
       sources: this.selectedSources.map(s => ({
@@ -332,17 +389,16 @@ export class RefundCreateComponent implements OnInit {
         sourceAmount:   s.excessAmount,
       })),
       bankDetails: this.bankForm.value,
-    };
-
-    this.refundService.create(request).subscribe({
-      next:  (created) => { this.submitting = false; this.uploadDocsSequentially(created.id, 0); },
-      error: () => { this.submitting = false; this.errorMsg = 'Failed to submit. Please try again.'; },
-    });
+    } as CreateRefundRequest;
   }
 
   private uploadDocsSequentially(refundId: number, idx: number): void {
     if (idx >= this.uploadedFiles.length) {
-      this.router.navigate(['/refunds/success', refundId]);
+      // Submit the refund after all docs are uploaded
+      this.refundService.submit(refundId).subscribe({
+        next: () => this.router.navigate(['/refunds/success', refundId]),
+        error: () => this.router.navigate(['/refunds/success', refundId]), // proceed anyway
+      });
       return;
     }
     const f = this.uploadedFiles[idx];
@@ -359,9 +415,6 @@ export class RefundCreateComponent implements OnInit {
     };
     return map[type];
   }
-
-  saveDraft(): void { this.saving = true; setTimeout(() => { this.saving = false; }, 800); }
-  cancel():    void { this.router.navigate(['/refunds']); }
 
   formatCurrency(v: number | null): string {
     if (v == null) return '—';

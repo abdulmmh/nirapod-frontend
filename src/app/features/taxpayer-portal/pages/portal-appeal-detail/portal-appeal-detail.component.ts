@@ -6,22 +6,21 @@ import { Appeal } from '../../../appeal-management/model/appeal.model';
 @Component({
   selector: 'app-portal-appeal-detail',
   templateUrl: './portal-appeal-detail.component.html',
-  styleUrls: ['./portal-appeal-detail.component.css']
+  styleUrls: ['./portal-appeal-detail.component.css'],
 })
 export class PortalAppealDetailComponent implements OnInit {
+  appeal: Appeal | null = null;
+  isLoading = false;
+  appealId = 0;
 
-  appeal:       Appeal | null = null;
-  isLoading     = false;
-  appealId      = 0;
-
-  showWithdrawModal  = false;
-  withdrawReason     = '';
+  showWithdrawModal = false;
+  withdrawReason = '';
   withdrawSubmitting = false;
 
   constructor(
-    private route:         ActivatedRoute,
-    private router:        Router,
-    private appealService: AppealService
+    private route: ActivatedRoute,
+    private router: Router,
+    private appealService: AppealService,
   ) {}
 
   ngOnInit(): void {
@@ -32,50 +31,95 @@ export class PortalAppealDetailComponent implements OnInit {
   load(): void {
     this.isLoading = true;
     this.appealService.getMyAppealById(this.appealId).subscribe({
-      next: a => { this.appeal = a; this.isLoading = false; },
-      error: () => { this.isLoading = false; this.router.navigate(['/my-portal/appeals']); }
+      next: (a) => {
+        this.appeal = a;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+        this.router.navigate(['/my-portal/appeals']);
+      },
     });
   }
 
-  onBack(): void { this.router.navigate(['/my-portal/appeals']); }
+  onBack(): void {
+    this.router.navigate(['/my-portal/appeals']);
+  }
 
   canWithdraw(): boolean {
-    return !!this.appeal && ['FILED', 'UNDER_REVIEW'].includes(this.appeal.status);
+    return (
+      !!this.appeal && ['FILED', 'UNDER_REVIEW'].includes(this.appeal.status)
+    );
   }
 
   submitWithdraw(): void {
     this.withdrawSubmitting = true;
     this.appealService.withdraw(this.appealId, this.withdrawReason).subscribe({
-      next: a => {
+      next: (a) => {
         this.appeal = a;
         this.withdrawSubmitting = false;
         this.showWithdrawModal = false;
       },
-      error: () => { this.withdrawSubmitting = false; }
+      error: () => {
+        this.withdrawSubmitting = false;
+      },
     });
   }
 
   getStatusClass(s: string): string {
-    const m: Record<string,string> = {
-      FILED:'badge-info', UNDER_REVIEW:'badge-warning',
-      HEARING_SCHEDULED:'badge-orange', DECIDED:'badge-purple',
-      CLOSED:'badge-muted', WITHDRAWN:'badge-muted',
+    const m: Record<string, string> = {
+      FILED: 'badge-info',
+      UNDER_REVIEW: 'badge-warning',
+      HEARING_SCHEDULED: 'badge-orange',
+      DECIDED: 'badge-purple',
+      CLOSED: 'badge-muted',
+      WITHDRAWN: 'badge-muted',
     };
     return m[s] ?? 'badge-secondary';
   }
 
-  getStatusLabel(s: string): string { return s?.replace(/_/g,' ') ?? s; }
+  getStatusLabel(s: string): string {
+    return s?.replace(/_/g, ' ') ?? s;
+  }
 
   getDecisionClass(d: string): string {
-    return { UPHELD:'badge-success', PARTIALLY_UPHELD:'badge-lime', DISMISSED:'badge-danger' }[d] ?? 'badge-secondary';
+    return (
+      {
+        UPHELD: 'badge-success',
+        PARTIALLY_UPHELD: 'badge-lime',
+        DISMISSED: 'badge-danger',
+      }[d] ?? 'badge-secondary'
+    );
   }
 
   getDecisionMessage(d: string): string {
-    const m: Record<string,string> = {
-      UPHELD:           'Your appeal was successful. The demand has been cancelled.',
-      PARTIALLY_UPHELD: 'Your appeal was partially successful. Partial relief has been granted.',
-      DISMISSED:        'Your appeal was dismissed. The original demand remains in effect.',
+    const m: Record<string, string> = {
+      UPHELD: 'Your appeal was successful. The demand has been cancelled.',
+      PARTIALLY_UPHELD:
+        'Your appeal was partially successful. Partial relief has been granted.',
+      DISMISSED:
+        'Your appeal was dismissed. The original demand remains in effect.',
     };
     return m[d] ?? '';
+  }
+
+  goToPay(): void {
+    if (!this.appeal) return;
+
+    let amount = this.appeal.demandedAmount; // DISMISSED — full amount
+    if (this.appeal.decision === 'PARTIALLY_UPHELD') {
+      amount = this.appeal.acceptedAmount ?? this.appeal.demandedAmount;
+    }
+
+    this.router.navigate(['/my-portal/payments/create'], {
+      queryParams: {
+        source: 'DEMAND',
+        demandNo: 'APPEAL-' + this.appeal.appealNo,
+        auditCaseId: this.appeal.auditCaseId,
+        amount: amount,
+        paymentType: 'Income Tax',
+        returnUrl: '/my-portal/appeals/' + this.appeal.id,
+      },
+    });
   }
 }

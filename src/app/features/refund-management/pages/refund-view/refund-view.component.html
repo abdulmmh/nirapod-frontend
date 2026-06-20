@@ -1,228 +1,425 @@
-<div class="container-fluid py-4 px-4">
-
-  <!-- Back + Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <button class="btn-back" (click)="onBack()" title="Back to list">
+      <i class="bi bi-arrow-left"></i>
+    </button>
     <div>
-      <button class="btn btn-link btn-sm text-muted ps-0 mb-1" (click)="back()">
-        <i class="bi bi-arrow-left me-1"></i> Back to My Refunds
-      </button>
-      <h4 class="page-title mb-0" *ngIf="refund">
-        <i class="bi bi-file-earmark-text me-2 text-primary"></i>
-        {{ refund.refundReferenceNo }}
+      <h4>
+        Refund Application
+        <span *ngIf="refund" class="code-badge ms-2">{{ refund.refundReferenceNo }}</span>
       </h4>
-    </div>
-    <div class="d-flex gap-2" *ngIf="refund">
-      <button *ngIf="canRespond" class="btn btn-warning btn-sm" (click)="respond()">
-        <i class="bi bi-reply me-1"></i> Respond to Request
-      </button>
-      <button *ngIf="canEdit" class="btn btn-outline-secondary btn-sm" (click)="edit()">
-        <i class="bi bi-pencil me-1"></i> Edit Draft
-      </button>
-      <button *ngIf="canCancel" class="btn btn-outline-danger btn-sm" (click)="cancel()">
-        <i class="bi bi-x-lg me-1"></i> Cancel
-      </button>
+      <p>Review and process refund application details</p>
     </div>
   </div>
+  <div class="header-actions" *ngIf="refund">
+    <button *ngIf="canRequestInfo" class="btn-action btn-info-req"
+            (click)="openAction('INFO_REQUEST')">
+      <i class="bi bi-question-circle me-1"></i> Request Info
+    </button>
+    <button *ngIf="canRecommend" class="btn-action btn-action-recommend"
+            (click)="openAction('RECOMMEND')">
+      <i class="bi bi-check2-circle me-1"></i> Recommend
+    </button>
+    <button *ngIf="canApprove" class="btn-action btn-action-approve"
+            (click)="openAction('APPROVE')">
+      <i class="bi bi-patch-check me-1"></i> Approve
+    </button>
+    <button *ngIf="canReject" class="btn-action btn-action-reject"
+            (click)="openAction('REJECT')">
+      <i class="bi bi-x-circle me-1"></i> Reject
+    </button>
+    <button *ngIf="refund.status === 'DRAFT'" class="btn-edit" (click)="onEdit()">
+      <i class="bi bi-pencil me-1"></i> Edit
+    </button>
+  </div>
+</div>
 
-  <!-- Loading -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary"></div>
-    <p class="text-muted mt-2 small">Loading refund details…</p>
+<!-- Loading -->
+<div class="loading-row" *ngIf="loading">
+  <div class="spinner-border text-primary"></div>
+  <span>Loading refund details…</span>
+</div>
+
+<!-- Error -->
+<div class="alert alert-danger mx-4 mt-2" *ngIf="errorMessage">
+  <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
+</div>
+
+<div *ngIf="!loading && refund">
+
+  <!-- Status banner -->
+  <div class="rv-status-banner">
+    <div class="rv-status-left">
+      <span class="rv-status-pill" [ngClass]="getStatusClass(refund.status)">
+        {{ getStatusLabel(refund.status) }}
+      </span>
+      <span *ngIf="refund.isFlaggedForAudit" class="rv-audit-flag ms-2">
+        <i class="bi bi-flag-fill me-1"></i> Audit Flagged
+      </span>
+    </div>
+    <span class="td-sub">Last updated: {{ formatDate(refund.updatedAt) }}</span>
   </div>
 
-  <!-- Error -->
-  <div *ngIf="!loading && errorMessage" class="alert alert-danger">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
-  </div>
-
-  <div *ngIf="!loading && refund" class="row g-4">
-
-    <!-- LEFT COLUMN -->
-    <div class="col-lg-8">
-
-      <!-- Status Banner -->
-      <div class="status-banner mb-3"
-        [class.status-banner--info]="refund.status === 'INFO_REQUESTED'"
-        [class.status-banner--success]="isPaid"
-        [class.status-banner--danger]="refund.status === 'REJECTED' || refund.status === 'FAILED'"
-      >
-        <div class="d-flex align-items-center gap-3">
-          <app-refund-status-badge [status]="refund.status" size="lg"></app-refund-status-badge>
-          <div *ngIf="refund.status === 'INFO_REQUESTED'" class="small text-warning-emphasis">
-            <i class="bi bi-exclamation-triangle-fill me-1"></i>
-            Action Required: Please respond to the officer's information request.
-          </div>
-          <div *ngIf="isPaid" class="small text-success">
-            <i class="bi bi-check-circle-fill me-1"></i>
-            Refund of <strong>{{ formatCurrency(refund.approvedRefundAmount) }}</strong> has been disbursed.
-          </div>
-          <div *ngIf="refund.status === 'REJECTED'" class="small text-danger">
-            <i class="bi bi-x-circle-fill me-1"></i>
-            Rejected: {{ refund.rejectionReasonText }}
-          </div>
-        </div>
+  <!-- KPI Row -->
+  <div class="rv-kpi-row">
+    <div class="rv-kpi">
+      <div class="rv-kpi-label">Claimed Amount</div>
+      <div class="rv-kpi-value">{{ formatCurrency(refund.claimedRefundAmount) }}</div>
+    </div>
+    <div class="rv-kpi">
+      <div class="rv-kpi-label">Verified Amount</div>
+      <div class="rv-kpi-value" style="color:#185fa5">
+        {{ formatCurrency(refund.verifiedRefundAmount) }}
       </div>
+    </div>
+    <div class="rv-kpi">
+      <div class="rv-kpi-label">Approved Amount</div>
+      <div class="rv-kpi-value" style="color:#166534">
+        {{ formatCurrency(refund.approvedRefundAmount) }}
+      </div>
+    </div>
+    <div class="rv-kpi" *ngIf="refund.netRefundAmount != null">
+      <div class="rv-kpi-label">Net After Offset</div>
+      <div class="rv-kpi-value" style="color:#065f46">
+        {{ formatCurrency(refund.netRefundAmount) }}
+      </div>
+    </div>
+  </div>
 
-      <!-- Application Details -->
-      <div class="detail-card mb-3">
-        <div class="detail-card-header">
-          <i class="bi bi-info-circle me-2"></i> Application Details
-        </div>
-        <div class="detail-card-body">
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="detail-label">Reference No.</span>
-              <span class="detail-value fw-semibold">{{ refund.refundReferenceNo }}</span>
+  <!-- Tab bar -->
+  <div class="rv-tab-bar">
+    <button class="rv-tab" [class.rv-tab--active]="activeTab==='details'"
+            (click)="activeTab='details'">
+      <i class="bi bi-info-circle me-1"></i> Details
+    </button>
+    <button class="rv-tab" [class.rv-tab--active]="activeTab==='history'"
+            (click)="activeTab='history'">
+      <i class="bi bi-clock-history me-1"></i> History
+      <span class="rv-tab-count">{{ statusHistory.length }}</span>
+    </button>
+    <button class="rv-tab" [class.rv-tab--active]="activeTab==='documents'"
+            (click)="activeTab='documents'">
+      <i class="bi bi-paperclip me-1"></i> Documents
+      <span class="rv-tab-count">{{ refund.documents.length}}</span>
+    </button>
+    <button *ngIf="isOfficer" class="rv-tab"
+            [class.rv-tab--active]="activeTab==='offset'"
+            (click)="activeTab='offset'">
+      <i class="bi bi-arrow-left-right me-1"></i> Liability Offset
+    </button>
+  </div>
+
+  <!-- ── TAB: DETAILS ────────────────────────────────────────────── -->
+  <div *ngIf="activeTab==='details'" class="page-wrapper">
+    <div class="row g-3">
+
+      <!-- Taxpayer -->
+      <div class="col-md-6">
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <i class="bi bi-person-badge me-2"></i> Taxpayer
+          </div>
+          <div class="detail-body">
+            <div class="detail-row">
+              <span class="detail-label">Name</span>
+              <span class="detail-value fw-semibold">{{ refund.taxpayerName }}</span>
             </div>
-            <div class="detail-item">
+            <div class="detail-row">
+              <span class="detail-label">TIN</span>
+              <span class="code-badge">{{ refund.tin }}</span>
+            </div>
+            <div class="detail-row">
               <span class="detail-label">Refund Type</span>
-              <span class="detail-value">{{ refundTypeLabels[refund.refundType] }}</span>
+              <span class="cat-badge cat-standard">{{ refund.refundType }}</span>
             </div>
-            <div class="detail-item">
+            <div class="detail-row">
               <span class="detail-label">Fiscal Year</span>
               <span class="detail-value">{{ refund.fiscalYearName }}</span>
             </div>
-            <div class="detail-item">
+            <div class="detail-row">
               <span class="detail-label">Submitted</span>
-              <span class="detail-value">{{ refund.submittedAt ? (refund.submittedAt | date:'dd MMM yyyy') : '—' }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Total Tax Paid</span>
-              <span class="detail-value">{{ formatCurrency(refund.totalTaxPaid) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Total Tax Liability</span>
-              <span class="detail-value">{{ formatCurrency(refund.totalTaxLiability) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Claimed Amount</span>
-              <span class="detail-value fw-semibold text-primary">{{ formatCurrency(refund.claimedRefundAmount) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Approved Amount</span>
-              <span class="detail-value fw-bold text-success">{{ formatCurrency(refund.approvedRefundAmount) }}</span>
-            </div>
-            <div class="detail-item" *ngIf="refund.appealReferenceNo">
-              <span class="detail-label">Appeal Reference</span>
-              <span class="detail-value">{{ refund.appealReferenceNo }}</span>
-            </div>
-            <div class="detail-item" *ngIf="refund.courtOrderNo">
-              <span class="detail-label">Court Order No.</span>
-              <span class="detail-value">{{ refund.courtOrderNo }}</span>
+              <span class="detail-value">{{ formatDate(refund.submittedAt) }}</span>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Source Records -->
-      <div class="detail-card mb-3" *ngIf="refund.sources.length">
-        <div class="detail-card-header">
-          <i class="bi bi-database me-2"></i> Source Records
-        </div>
-        <div class="table-responsive">
-          <table class="table table-sm align-middle mb-0 small">
-            <thead class="table-light">
-              <tr>
-                <th>Source Type</th>
-                <th>Reference</th>
-                <th>Period</th>
-                <th class="text-end">Amount</th>
-                <th class="text-center">Verified</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let src of refund.sources">
-                <td><span class="badge bg-light text-secondary border">{{ src.sourceType }}</span></td>
-                <td class="fw-semibold">{{ src.sourceReference }}</td>
-                <td class="text-muted">{{ src.periodStart | date:'MMM yyyy' }} – {{ src.periodEnd | date:'MMM yyyy' }}</td>
-                <td class="text-end">{{ formatCurrency(src.sourceAmount) }}</td>
-                <td class="text-center">
-                  <i *ngIf="src.isVerified" class="bi bi-check-circle-fill text-success"></i>
-                  <i *ngIf="!src.isVerified" class="bi bi-circle text-muted"></i>
-                </td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
 
       <!-- Bank Details -->
-      <div class="detail-card mb-3">
-        <div class="detail-card-header d-flex justify-content-between">
-          <span><i class="bi bi-bank me-2"></i> Bank Account</span>
-          <span *ngIf="refund.bankValidated" class="small text-success">
-            <i class="bi bi-shield-check me-1"></i>Validated
-          </span>
+      <div class="col-md-6">
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <i class="bi bi-bank2 me-2"></i> Bank Account
+          </div>
+          <div class="detail-body">
+            <ng-container *ngIf="refund.bankDetails; else noBankDetails">
+              <div class="detail-row">
+                <span class="detail-label">Bank</span>
+                <span class="detail-value">{{ refund.bankDetails.bankName }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Branch</span>
+                <span class="detail-value">{{ refund.bankDetails.bankBranch }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Holder</span>
+                <span class="detail-value">{{ refund.bankDetails.accountHolderName }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Account</span>
+                <span class="code-badge">{{ refund.bankDetails.accountNumber }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Routing</span>
+                <span class="detail-value">{{ refund.bankDetails.routingNumber }}</span>
+              </div>
+            </ng-container>
+            <ng-template #noBankDetails>
+              <div class="detail-body">
+                <p class="td-sub p-3 mb-0">Bank details not yet provided.</p>
+              </div>
+            </ng-template>
+          </div>
         </div>
-        <div class="detail-card-body">
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="detail-label">Bank</span>
-              <span class="detail-value">{{ refund.bankDetails.bankName }}</span>
+      </div>
+
+      <!-- Notes -->
+      <div class="col-12"
+           *ngIf="refund.officerNotes || refund.supervisorNotes || refund.rejectionReasonText">
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <i class="bi bi-chat-text me-2"></i> Review Notes
+          </div>
+          <div class="detail-body">
+            <div *ngIf="refund.officerNotes" class="rv-note rv-note--officer">
+              <div class="rv-note-label">Officer Notes</div>
+              <div>{{ refund.officerNotes }}</div>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Branch</span>
-              <span class="detail-value">{{ refund.bankDetails.bankBranch }}</span>
+            <div *ngIf="refund.supervisorNotes" class="rv-note rv-note--supervisor">
+              <div class="rv-note-label">Supervisor Notes</div>
+              <div>{{ refund.supervisorNotes }}</div>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Account Holder</span>
-              <span class="detail-value">{{ refund.bankDetails.accountHolderName }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Account No.</span>
-              <span class="detail-value font-monospace">{{ refund.bankDetails.accountNumber }}</span>
+            <div *ngIf="refund.rejectionReasonText" class="rv-note rv-note--rejection">
+              <div class="rv-note-label">Rejection Reason</div>
+              <div>{{ refund.rejectionReasonText }}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Documents -->
-      <div class="detail-card mb-3">
-        <div class="detail-card-header">
-          <i class="bi bi-paperclip me-2"></i> Documents ({{ refund.documents.length }} uploaded)
-        </div>
-        <div class="detail-card-body">
-          <div *ngIf="!refund.documents.length" class="text-muted small">No documents uploaded.</div>
-          <div
-            *ngFor="let doc of refund.documents"
-            class="doc-item"
-          >
-            <i class="bi bi-file-earmark-pdf text-danger fs-5 flex-shrink-0" aria-hidden="true"></i>
-            <div class="flex-grow-1">
-              <div class="small fw-semibold">{{ doc.documentName }}</div>
-              <div class="text-muted" style="font-size:.72rem">
-                {{ doc.documentType | titlecase }} ·
-                Uploaded {{ doc.uploadedAt | date:'dd MMM yyyy' }}
+    </div>
+  </div>
+
+  <!-- ── TAB: HISTORY ────────────────────────────────────────────── -->
+  <div *ngIf="activeTab==='history'" class="page-wrapper">
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-clock-history me-2"></i> Status History
+      </div>
+      <div class="detail-body">
+        <div *ngIf="!statusHistory.length" class="rv-empty">No status history yet.</div>
+        <div class="rv-timeline">
+          <div *ngFor="let h of statusHistory; let last = last" class="rv-timeline-item">
+            <div class="rv-timeline-dot"></div>
+            <div class="rv-timeline-line" *ngIf="!last"></div>
+            <div class="rv-timeline-content">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="rv-status-pill" [ngClass]="getStatusClass(h.toStatus)">
+                  {{ getStatusLabel(h.toStatus) }}
+                </span>
+                <span class="td-sub">{{ formatDate(h.changedAt) }}</span>
+              </div>
+              <div class="td-sub mt-1">
+                <i class="bi bi-person me-1"></i>
+                {{ h.changedByName }} ({{ h.changedByRole }})
+              </div>
+              <div *ngIf="h.changeReason" class="rv-timeline-reason">
+                {{ h.changeReason }}
               </div>
             </div>
-            <span
-              class="badge"
-              [class.bg-success]="doc.verificationStatus === 'VERIFIED'"
-              [class.bg-danger]="doc.verificationStatus === 'REJECTED'"
-              [class.bg-secondary]="doc.verificationStatus === 'PENDING'"
-            >{{ doc.verificationStatus | titlecase }}</span>
-            <button class="btn btn-outline-primary btn-sm py-0 px-2 ms-2"
-              (click)="downloadDocument(doc.id)" title="Download">
-              <i class="bi bi-download"></i>
-            </button>
           </div>
-        </div>
-      </div>
-
-    </div><!-- /LEFT -->
-
-    <!-- RIGHT COLUMN: Status Timeline -->
-    <div class="col-lg-4">
-      <div class="detail-card sticky-top" style="top:80px">
-        <div class="detail-card-header">
-          <i class="bi bi-clock-history me-2"></i> Status Timeline
-        </div>
-        <div class="detail-card-body">
-          <app-refund-status-timeline [history]="refund.statusHistory">
-          </app-refund-status-timeline>
         </div>
       </div>
     </div>
+  </div>
 
-  </div><!-- /row -->
+  <!-- ── TAB: DOCUMENTS ─────────────────────────────────────────── -->
+  <div *ngIf="activeTab==='documents'" class="page-wrapper">
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-paperclip me-2"></i> Supporting Documents
+      </div>
+      <div class="detail-body">
+        <div *ngIf="!refund.documents.length" class="rv-empty">No documents uploaded yet.</div>
+        <div *ngFor="let doc of refund.documents" class="rv-doc-row">
+          <i class="bi bi-file-earmark-pdf text-danger fs-5 flex-shrink-0"></i>
+          <div class="flex-grow-1">
+            <div class="fw-semibold small">{{ doc.documentName }}</div>
+            <div class="td-sub">{{ doc.originalFilename }} · {{ doc.verificationStatus }}</div>
+          </div>
+          <a [href]="'/api/refunds/' + refund.id + '/documents/' + doc.id"
+             target="_blank" class="btn-view">
+            <i class="bi bi-eye me-1"></i> View
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: LIABILITY OFFSET ──────────────────────────────────── -->
+  <div *ngIf="activeTab==='offset' && isOfficer" class="page-wrapper">
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <i class="bi bi-arrow-left-right me-2"></i> Liability Offset
+      </div>
+      <div class="detail-body">
+
+        <!-- Preview (before approval) -->
+        <div *ngIf="offsetPreview" class="rv-offset-preview">
+          <div class="rv-offset-kpis">
+            <div class="rv-offset-kpi">
+              <div class="rv-offset-kpi-label">Approved</div>
+              <div class="rv-offset-kpi-value">{{ formatCurrency(offsetPreview.approvedRefundAmount) }}</div>
+            </div>
+            <div class="rv-offset-kpi">
+              <div class="rv-offset-kpi-label">Total Liabilities</div>
+              <div class="rv-offset-kpi-value" style="color:#dc2626">{{ formatCurrency(offsetPreview.totalLiabilities) }}</div>
+            </div>
+            <div class="rv-offset-kpi">
+              <div class="rv-offset-kpi-label">Net Refund</div>
+              <div class="rv-offset-kpi-value" style="color:#166534">{{ formatCurrency(offsetPreview.netRefundAmount) }}</div>
+            </div>
+          </div>
+          <div class="alert alert-info py-2 small mt-2">
+            <i class="bi bi-info-circle me-1"></i> {{ offsetPreview.message }}
+          </div>
+          <table *ngIf="offsetPreview.offsets?.length" class="data-table mt-2">
+            <thead>
+              <tr>
+                <th>Type</th><th>Description</th>
+                <th class="text-end">Outstanding</th>
+                <th class="text-end">Will Offset</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of offsetPreview.offsets">
+                <td><span class="cat-badge cat-standard">{{ item.liabilityType }}</span></td>
+                <td class="td-sub">{{ item.description }}</td>
+                <td class="text-end td-sub">{{ formatCurrency(item.outstandingAmount) }}</td>
+                <td class="text-end fw-semibold" style="color:#dc2626">{{ formatCurrency(item.offsetAmount) }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="!offsetPreview.offsets?.length" class="alert alert-success py-2 small mt-2">
+            <i class="bi bi-check-circle me-1"></i> No outstanding liabilities. Full amount will be disbursed.
+          </div>
+        </div>
+
+        <!-- Applied history -->
+        <div *ngIf="offsetHistory.length">
+          <div class="detail-card-header mt-3">
+            <i class="bi bi-check2-all me-2"></i> Applied Offsets
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Type</th><th>Description</th>
+                <th class="text-end">Offset</th>
+                <th>By</th><th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let o of offsetHistory">
+                <td><span class="cat-badge cat-standard">{{ o.liabilityType }}</span></td>
+                <td class="td-sub">{{ o.description }}</td>
+                <td class="text-end fw-semibold" style="color:#dc2626">{{ formatCurrency(o.offsetAmount) }}</td>
+                <td class="td-sub">{{ o.performedBy }}</td>
+                <td class="td-sub">{{ formatDate(o.performedAt) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="!offsetPreview && !offsetHistory.length" class="rv-empty">
+          Offset details available after approval.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── ACTION MODAL — uses global .modal-card pattern ────────── -->
+<div class="modal-overlay" *ngIf="showActionModal" (click)="closeModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()" style="max-width:520px;margin:16px auto;">
+
+    <!-- Accent bar -->
+    <div class="modal-accent"
+         [class.error]="actionType === 'REJECT'"
+         [class.warning]="actionType === 'INFO_REQUEST'"
+         [class.success]="actionType === 'APPROVE' || actionType === 'RECOMMEND'">
+    </div>
+
+    <!-- Title -->
+    <div class="modal-title">{{ getActionLabel() }}</div>
+
+    <!-- Body -->
+    <div style="padding: 0 24px 8px;">
+
+      <!-- Verified / Approved Amount -->
+      <div *ngIf="actionType === 'RECOMMEND' || actionType === 'APPROVE'"
+           class="mb-3">
+        <label class="form-label fw-semibold small">
+          {{ actionType === 'APPROVE' ? 'Approved Amount' : 'Verified Amount' }}
+          <span class="text-danger">*</span>
+        </label>
+        <div class="input-group">
+          <span class="input-group-text">৳</span>
+          <input type="number" class="form-input"
+                 [(ngModel)]="actionVerifiedAmt"
+                 [max]="refund?.claimedRefundAmount ?? 0"
+                 min="1">
+        </div>
+        <div class="form-text">Claimed: {{ formatCurrency(refund?.claimedRefundAmount) }}</div>
+      </div>
+
+      <!-- Rejection Code -->
+      <div *ngIf="actionType === 'REJECT'" class="mb-3">
+        <label class="form-label fw-semibold small">
+          Rejection Code <span class="text-danger">*</span>
+        </label>
+        <select class="form-input" [(ngModel)]="actionRejectionCode">
+          <option value="">— Select reason —</option>
+          <option *ngFor="let c of rejectionCodes" [value]="c.value">{{ c.label }}</option>
+        </select>
+      </div>
+
+      <!-- Remarks -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold small">
+          Remarks
+          <span class="text-danger"
+                *ngIf="actionType === 'REJECT' || actionType === 'INFO_REQUEST'">*</span>
+        </label>
+        <textarea class="form-input" rows="4" [(ngModel)]="actionRemarks"
+                  [placeholder]="actionType === 'INFO_REQUEST'
+                    ? 'Describe what information is needed…'
+                    : 'Add notes or comments…'">
+        </textarea>
+      </div>
+    </div>
+
+    <!-- Actions — uses global modal-actions pattern -->
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="closeModal()">Cancel</button>
+      <button class="btn-modal-confirm"
+              [class.error]="actionType === 'REJECT'"
+              (click)="submitAction()"
+              [disabled]="submittingAction">
+        <span *ngIf="submittingAction" class="spinner-border spinner-border-sm me-1"></span>
+        {{ submittingAction ? 'Processing…' : getActionLabel() }}
+      </button>
+    </div>
+
+  </div>
 </div>

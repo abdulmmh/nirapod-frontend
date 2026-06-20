@@ -33,25 +33,26 @@
     </div>
     <div class="form-grid">
       <div class="form-group">
-        <label class="form-label required">TIN Number</label>
-        <div class="input-wrap">
+        <label class="form-label">TIN Number</label>
+        <div class="input-wrap locked">
           <i class="bi bi-upc-scan input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.tinNumber" />
+          <input type="text" class="form-input" [value]="form.tinNumber" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label required">Taxpayer Name</label>
-        <div class="input-wrap">
+        <label class="form-label">Taxpayer Name</label>
+        <div class="input-wrap locked">
           <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.taxpayerName" />
+          <input type="text" class="form-input" [value]="form.taxpayerName" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Return Reference</label>
         <div class="input-wrap">
           <i class="bi bi-file-earmark-text input-icon"></i>
-          <input type="text" class="form-input" [(ngModel)]="form.returnReference"
-            placeholder="e.g. ITR-2024-001234" />
+          <input type="text" class="form-input" [(ngModel)]="form.returnReference" placeholder="e.g. ITR-2024-001234" />
         </div>
       </div>
       <div class="form-group">
@@ -60,7 +61,7 @@
           <i class="bi bi-calendar3 input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.fiscalYear">
             <option value="">— Select —</option>
-            <option *ngFor="let y of assessmentYears" [value]="y">{{ y }}</option>
+            <option *ngFor="let y of fiscalYears" [value]="y.yearName">{{ y.yearName }}</option>
           </select>
         </div>
       </div>
@@ -86,12 +87,34 @@
         <div class="input-wrap">
           <i class="bi bi-tag-fill input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.auditType">
-            <option *ngFor="let t of auditTypes" [value]="t">{{ t }}</option>
+            <option value="">— Select —</option>
+            <option *ngFor="let t of auditTypes" [value]="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">Tax Type</label>
+        <div class="input-wrap">
+          <i class="bi bi-receipt input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.taxType">
+            <option value="">— Select —</option>
+            <option *ngFor="let t of taxTypes" [value]="t.value">{{ t.label }}</option>
           </select>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label required">Priority</label>
+        <label class="form-label required">Trigger Reason</label>
+        <div class="input-wrap">
+          <i class="bi bi-exclamation-triangle-fill input-icon"></i>
+          <select class="form-input form-select" [(ngModel)]="form.triggerReason">
+            <option value="">— Select —</option>
+            <option *ngFor="let t of triggerReasons" [value]="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
         <div class="input-wrap">
           <i class="bi bi-speedometer2 input-icon"></i>
           <select class="form-input form-select" [(ngModel)]="form.priority">
@@ -101,15 +124,15 @@
       </div>
       <div class="form-group">
         <label class="form-label">Status</label>
-        <div class="input-wrap">
+        <div class="input-wrap locked">
           <i class="bi bi-toggle-on input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.status">
-            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-          </select>
+          <input type="text" class="form-input" [value]="form.status" readonly />
+          <i class="bi bi-lock-fill lock-icon"></i>
         </div>
+        <span class="field-hint">Status changes through workflow actions on the view page.</span>
       </div>
       <div class="form-group">
-        <label class="form-label required">Scheduled Date</label>
+        <label class="form-label">Scheduled Date</label>
         <div class="input-wrap">
           <i class="bi bi-calendar3 input-icon"></i>
           <input type="date" class="form-input" [(ngModel)]="form.scheduledDate" />
@@ -150,20 +173,14 @@
         <label class="form-label">Assigned Officer</label>
         <div class="input-wrap">
           <i class="bi bi-person-fill input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.assignedOfficerName">
-            <option value="">— Select Officer —</option>
-            <option *ngFor="let a of auditors" [value]="a">{{ a }}</option>
-          </select>
+          <input type="text" class="form-input" [(ngModel)]="form.assignedOfficerName" placeholder="Officer name..." />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Supervisor</label>
         <div class="input-wrap">
           <i class="bi bi-person-check input-icon"></i>
-          <select class="form-input form-select" [(ngModel)]="form.supervisorName">
-            <option value="">— Select Supervisor —</option>
-            <option *ngFor="let s of supervisors" [value]="s">{{ s }}</option>
-          </select>
+          <input type="text" class="form-input" [(ngModel)]="form.supervisorName" placeholder="Supervisor name..." />
         </div>
       </div>
     </div>

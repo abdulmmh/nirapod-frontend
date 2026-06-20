@@ -146,6 +146,17 @@ export class PaymentListComponent implements OnInit, OnDestroy {
     this.currentPage  = 1;
   }
 
+  /** Called when a clickable KPI status card is clicked — toggles filter. */
+  onKpiCardClick(status: string): void {
+    this.statusFilter = this.statusFilter === status ? '' : status;
+    this.currentPage  = 1;
+  }
+
+  /** Returns true when a given status card is the active filter. */
+  isKpiActive(status: string): boolean {
+    return this.statusFilter === status;
+  }
+
   /** Any filter/search change should reset back to page 1 — call from (ngModelChange). */
   onFilterChange(): void {
     this.currentPage = 1;

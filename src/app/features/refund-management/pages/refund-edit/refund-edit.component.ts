@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RefundDetail, RefundType, EligibleSourceRecord, RefundCalculation } from 'src/app/models/refund.model';
 import {
-  RefundService
-} from '../../services/refund.service';
+  CreateRefundRequest, RefundDetail, RefundType, EligibleSourceRecord, RefundCalculation,
+} from 'src/app/models/refund.model';
+import { RefundService } from '../../services/refund.service';
 
 @Component({
   selector: 'app-refund-edit',
@@ -15,24 +15,27 @@ export class RefundEditComponent implements OnInit {
 
   refundId!: number;
   refund: RefundDetail | null = null;
-  loading = true;
-  saving  = false;
+  loading    = true;
+  saving     = false;
   submitting = false;
-  errorMsg = '';
+  errorMsg   = '';
 
   currentStep = 1;
   totalSteps  = 6;
+
+  // FIX: Active fiscal year loaded on init (was hardcoded 1 in buildRequest)
+  activeFiscalYearId: number | null = null;
 
   // Step 1
   selectedRefundType: RefundType | null = null;
 
   readonly refundTypeOptions = [
-    { value: 'INCOME_TAX'        as RefundType, label: 'Income Tax',        icon: 'bi bi-file-earmark-text',  color: 'type-blue'   },
-    { value: 'VAT'               as RefundType, label: 'VAT',               icon: 'bi bi-receipt-cutoff',     color: 'type-teal'   },
-    { value: 'AIT'               as RefundType, label: 'AIT',               icon: 'bi bi-building-check',     color: 'type-purple' },
-    { value: 'DUPLICATE_PAYMENT' as RefundType, label: 'Duplicate Payment', icon: 'bi bi-copy',               color: 'type-amber'  },
-    { value: 'APPEAL_DECISION'   as RefundType, label: 'Appeal Decision',   icon: 'bi bi-hammer',             color: 'type-indigo' },
-    { value: 'OTHER'             as RefundType, label: 'Other',             icon: 'bi bi-three-dots-circle',  color: 'type-gray'   },
+    { value: 'INCOME_TAX'        as RefundType, label: 'Income Tax',        icon: 'bi bi-file-earmark-text', color: 'type-blue'   },
+    { value: 'VAT'               as RefundType, label: 'VAT',               icon: 'bi bi-receipt-cutoff',    color: 'type-teal'   },
+    { value: 'AIT'               as RefundType, label: 'AIT',               icon: 'bi bi-building-check',    color: 'type-purple' },
+    { value: 'DUPLICATE_PAYMENT' as RefundType, label: 'Duplicate Payment', icon: 'bi bi-copy',              color: 'type-amber'  },
+    { value: 'APPEAL_DECISION'   as RefundType, label: 'Appeal Decision',   icon: 'bi bi-hammer',            color: 'type-indigo' },
+    { value: 'OTHER'             as RefundType, label: 'Other',             icon: 'bi bi-three-dots-circle', color: 'type-gray'   },
   ];
 
   // Step 2
@@ -57,11 +60,11 @@ export class RefundEditComponent implements OnInit {
   uploadError     = '';
 
   readonly documentTypes = [
-    { value: 'BANK_STATEMENT',     label: 'Bank Statement',              required: true  },
-    { value: 'ITR_ACKNOWLEDGMENT', label: 'ITR Acknowledgment',          required: false },
-    { value: 'CHALLAN_COPY',       label: 'Challan Copy',                required: false },
-    { value: 'COURT_ORDER',        label: 'Court Order / Appeal Decision',required: false },
-    { value: 'OTHER',              label: 'Other',                       required: false },
+    { value: 'BANK_STATEMENT',     label: 'Bank Statement',               required: true  },
+    { value: 'ITR_ACKNOWLEDGMENT', label: 'ITR Acknowledgment',           required: false },
+    { value: 'CHALLAN_COPY',       label: 'Challan Copy',                 required: false },
+    { value: 'COURT_ORDER',        label: 'Court Order / Appeal Decision', required: false },
+    { value: 'OTHER',              label: 'Other',                        required: false },
   ];
 
   // Step 6
@@ -90,6 +93,16 @@ export class RefundEditComponent implements OnInit {
 
   ngOnInit(): void {
     this.refundId = Number(this.route.snapshot.paramMap.get('id'));
+
+    // FIX: Load active fiscal year before loading the refund
+    this.refundService.getFiscalYears().subscribe({
+      next:  (years) => {
+        const active = years.find(y => y.isCurrent) ?? years[0];
+        this.activeFiscalYearId = active?.id ?? 1;
+      },
+      error: () => { this.activeFiscalYearId = 1; },
+    });
+
     this.loadRefund();
   }
 
@@ -107,25 +120,37 @@ export class RefundEditComponent implements OnInit {
       },
       error: () => {
         this.errorMsg = 'Could not load refund details.';
-        this.loading = false;
+        this.loading  = false;
       },
     });
   }
 
   populateFromDraft(r: RefundDetail): void {
     this.selectedRefundType = r.refundType;
-    r.sources?.forEach(s => this.selectedSourceIds.add(s.sourceRecordId));
+
+    // FIX: use fiscalYearId from the loaded refund (not hardcoded 1)
+    if ((r as any).fiscalYearId) {
+      this.activeFiscalYearId = (r as any).fiscalYearId;
+    }
+
+    // Populate selected source IDs from the detail response
+    if (Array.isArray(r.sources)) {
+      r.sources.forEach((s: any) => {
+        if (s?.sourceRecordId) this.selectedSourceIds.add(s.sourceRecordId);
+      });
+    }
+
     this.requestedAmount = r.claimedRefundAmount;
 
     if (r.bankDetails) {
       this.bankForm.patchValue({
-        bankName:          r.bankDetails.bankName,
-        bankBranch:        r.bankDetails.bankBranch,
-        accountHolderName: r.bankDetails.accountHolderName,
-        accountNumber:     r.bankDetails.accountNumber,
-        routingNumber:     r.bankDetails.routingNumber,
-        mfsProvider:       r.bankDetails.mfsProvider ?? '',
-        mfsNumber:         r.bankDetails.mfsNumber ?? '',
+        bankName:          r.bankDetails.bankName          ?? '',
+        bankBranch:        r.bankDetails.bankBranch        ?? '',
+        accountHolderName: r.bankDetails.accountHolderName ?? '',
+        accountNumber:     r.bankDetails.accountNumber     ?? '', // masked — user may need to re-enter
+        routingNumber:     r.bankDetails.routingNumber     ?? '',
+        mfsProvider:       r.bankDetails.mfsProvider       ?? '',
+        mfsNumber:         r.bankDetails.mfsNumber         ?? '',
       });
       this.bankValidated = r.bankValidated;
     }
@@ -134,6 +159,8 @@ export class RefundEditComponent implements OnInit {
       id: d.id, name: d.documentName, type: d.documentType,
     }));
   }
+
+  // ─── Navigation ────────────────────────────────────────────────
 
   nextStep(): void {
     if (!this.canProceed()) return;
@@ -157,25 +184,20 @@ export class RefundEditComponent implements OnInit {
     }
   }
 
+  // ─── Step 2: sources ───────────────────────────────────────────
+
   loadSources(): void {
     this.loadingSources = true;
     let obs$;
     switch (this.selectedRefundType) {
-      case 'INCOME_TAX': obs$ = this.refundService.getEligibleItrSources(); break;
-      case 'AIT':        obs$ = this.refundService.getEligibleAitSources(); break;
-      case 'VAT':        obs$ = this.refundService.getEligibleVatSources(); break;
-      default:           obs$ = this.refundService.getEligiblePaymentSources();
+      case 'INCOME_TAX': obs$ = this.refundService.getEligibleItrSources();     break;
+      case 'AIT':        obs$ = this.refundService.getEligibleAitSources();     break;
+      case 'VAT':        obs$ = this.refundService.getEligibleVatSources();     break;
+      default:           obs$ = this.refundService.getEligiblePaymentSources(); break;
     }
     obs$.subscribe({
-      next: (src) => { this.eligibleSources = src; this.loadingSources = false; },
+      next:  (src) => { this.eligibleSources = src; this.loadingSources = false; },
       error: () => { this.loadingSources = false; },
-    });
-  }
-
-  recalculate(): void {
-    const ids = Array.from(this.selectedSourceIds);
-    this.refundService.calculateRefund(this.selectedRefundType!, ids).subscribe({
-      next: (c) => { this.calculation = c; this.requestedAmount = c.eligibleRefundAmount; },
     });
   }
 
@@ -187,21 +209,44 @@ export class RefundEditComponent implements OnInit {
 
   isSourceSelected(id: number): boolean { return this.selectedSourceIds.has(id); }
 
+  get selectedSources(): EligibleSourceRecord[] {
+    return this.eligibleSources.filter(s => this.selectedSourceIds.has(s.id));
+  }
+
+  // ─── Step 3: calculation ───────────────────────────────────────
+
+  recalculate(): void {
+    const ids = Array.from(this.selectedSourceIds);
+    // FIX: use sourceTypeFor() mapping — was passing selectedRefundType directly
+    // which never matched the backend's sourceType check ('INCOME_TAX' ≠ 'ITR')
+    this.refundService.calculateRefund(
+      this.sourceTypeFor(this.selectedRefundType!),
+      ids,
+    ).subscribe({
+      next: (c) => { this.calculation = c; this.requestedAmount = c.eligibleRefundAmount; },
+    });
+  }
+
   get amountExceedsEligible(): boolean {
     return this.requestedAmount > (this.calculation?.eligibleRefundAmount ?? 0);
   }
 
+  // ─── Step 4: bank ──────────────────────────────────────────────
+
   validateBank(): void {
     if (this.bankForm.invalid) { this.bankForm.markAllAsTouched(); return; }
     this.bankValidating = true;
-    this.bankError = '';
+    this.bankError      = '';
     this.refundService.validateBankAccount(this.bankForm.value).subscribe({
       next: (res) => {
         this.bankValidating = false;
-        this.bankValidated = res.valid;
+        this.bankValidated  = res.valid;
         if (!res.valid) this.bankError = res.message;
       },
-      error: () => { this.bankValidating = false; this.bankError = 'Validation service unavailable.'; },
+      error: () => {
+        this.bankValidating = false;
+        this.bankError      = 'Validation service unavailable. Please check details manually.';
+      },
     });
   }
 
@@ -209,6 +254,8 @@ export class RefundEditComponent implements OnInit {
     const c = this.bankForm.get(f);
     return !!(c?.invalid && c.touched);
   }
+
+  // ─── Step 5: documents ─────────────────────────────────────────
 
   onFileSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -248,11 +295,13 @@ export class RefundEditComponent implements OnInit {
       : (bytes / 1024).toFixed(0) + ' KB';
   }
 
+  // ─── Save & Submit ─────────────────────────────────────────────
+
   saveAndUpdate(): void {
-    this.saving = true;
-    const req = this.buildRequest();
-    this.refundService.update(this.refundId, req).subscribe({
-      next: () => { this.saving = false; },
+    this.saving  = true;
+    this.errorMsg = '';
+    this.refundService.update(this.refundId, this.buildRequest()).subscribe({
+      next:  () => { this.saving = false; },
       error: () => { this.saving = false; this.errorMsg = 'Save failed.'; },
     });
   }
@@ -260,43 +309,65 @@ export class RefundEditComponent implements OnInit {
   submitRefund(): void {
     if (!this.declarationAgreed) return;
     this.submitting = true;
-    const req = this.buildRequest();
-    this.refundService.update(this.refundId, req).subscribe({
-      next: () => {
-        // upload new docs then submit
-        this.uploadAndSubmit(0);
-      },
-      error: () => { this.submitting = false; this.errorMsg = 'Update failed.'; },
+    this.errorMsg   = '';
+    this.refundService.update(this.refundId, this.buildRequest()).subscribe({
+      next:  () => this.uploadAndSubmit(0),
+      error: () => { this.submitting = false; this.errorMsg = 'Update failed before submit.'; },
     });
   }
 
   private uploadAndSubmit(idx: number): void {
     if (idx >= this.uploadedFiles.length) {
       this.refundService.submit(this.refundId).subscribe({
-        next: () => this.router.navigate(['/refunds/success', this.refundId]),
+        next:  () => this.router.navigate(['/refunds/success', this.refundId]),
         error: () => { this.submitting = false; this.errorMsg = 'Submit failed.'; },
       });
       return;
     }
     const f = this.uploadedFiles[idx];
     this.refundService.uploadDocument(this.refundId, f.file, f.type).subscribe({
-      next: () => this.uploadAndSubmit(idx + 1),
+      next:  () => this.uploadAndSubmit(idx + 1),
       error: () => this.uploadAndSubmit(idx + 1),
     });
   }
 
-  private buildRequest() {
+  // ─── Private helpers ───────────────────────────────────────────
+
+  /**
+   * FIX 1: fiscalYearId — uses activeFiscalYearId (loaded on init) instead of hardcoded 1.
+   *         Falls back to refund's own fiscalYearId, then to activeFiscalYearId, then 1.
+   *
+   * FIX 2: sourceType — uses sourceTypeFor() mapping instead of hardcoded 'ITR'.
+   *         'INCOME_TAX' → 'ITR', 'AIT' → 'AIT', 'VAT' → 'VAT_RETURN', etc.
+   */
+  private buildRequest(): CreateRefundRequest {
     return {
       refundType:      this.selectedRefundType!,
-      fiscalYearId:    1,
+      fiscalYearId:    this.activeFiscalYearId ?? 1,          // FIX 1
       requestedAmount: this.requestedAmount,
       sources: Array.from(this.selectedSourceIds).map(id => ({
-        sourceType:     'ITR',
+        sourceType:     this.sourceTypeFor(this.selectedRefundType!), // FIX 2
         sourceRecordId: id,
-        sourceAmount:   0,
+        sourceAmount:   this.selectedSources.find(s => s.id === id)?.excessAmount ?? 0,
       })),
       bankDetails: this.bankForm.value,
     };
+  }
+
+  /**
+   * Maps frontend RefundType to the backend source type string.
+   * Mirrors the same mapping used in refund-create.component.ts.
+   */
+  private sourceTypeFor(type: RefundType): string {
+    const map: Record<RefundType, string> = {
+      INCOME_TAX:        'ITR',
+      VAT:               'VAT_RETURN',
+      AIT:               'AIT',
+      DUPLICATE_PAYMENT: 'PAYMENT',
+      APPEAL_DECISION:   'APPEAL',
+      OTHER:             'MANUAL',
+    };
+    return map[type] ?? 'MANUAL';
   }
 
   cancel(): void { this.router.navigate(['/refunds', this.refundId, 'view']); }

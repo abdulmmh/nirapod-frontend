@@ -214,6 +214,30 @@ export class AuditDetailComponent implements OnInit {
     this.router.navigate(['/audits', this.auditCase!.id, 'propose-assessment']);
   }
 
+  canSendBack(): boolean {
+    return (
+      this.auditCase?.status === 'SUPERVISOR_REVIEW' &&
+      (this.authService.hasRole(Role.SUPERVISOR) ||
+        this.authService.hasRole(Role.TAX_COMMISSIONER) ||
+        this.authService.hasRole(Role.SUPER_ADMIN))
+    );
+  }
+
+  sendBack(): void {
+    if (!this.auditCase) return;
+    this.auditService
+      .updateStatus(
+        this.auditCase.id,
+        'FINDINGS_RECORDED',
+        'Sent back for revision by supervisor',
+      )
+      .subscribe({
+        next: (c) => {
+          this.auditCase = c;
+        },
+      });
+  }
+
   // ── Modal Openers ──────────────────────────────────────────────────────────
   openQueryModal(): void {
     this.queryForm.reset({ queryType: 'GENERAL' });

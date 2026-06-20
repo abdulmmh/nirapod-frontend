@@ -11,34 +11,43 @@
 
 <!-- KPI Summary Cards -->
 <div class="kpi-cards-row" *ngIf="!isLoading">
-  <div class="kpi-card">
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Pending')"
+       (click)="onKpiCardClick('Pending')">
     <div class="kpi-icon kpi-icon-pending"><i class="bi bi-hourglass-split"></i></div>
     <div class="kpi-info">
       <span class="kpi-label">Pending</span>
       <span class="kpi-value">{{ kpiPending }}</span>
     </div>
   </div>
-  <div class="kpi-card">
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Under Review')"
+       (click)="onKpiCardClick('Under Review')">
     <div class="kpi-icon kpi-icon-review"><i class="bi bi-search"></i></div>
     <div class="kpi-info">
       <span class="kpi-label">Under Review</span>
       <span class="kpi-value">{{ kpiUnderReview }}</span>
     </div>
   </div>
-  <div class="kpi-card">
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Completed')"
+       (click)="onKpiCardClick('Completed')">
     <div class="kpi-icon kpi-icon-completed"><i class="bi bi-check-circle-fill"></i></div>
     <div class="kpi-info">
       <span class="kpi-label">Completed</span>
       <span class="kpi-value">{{ kpiCompleted }}</span>
     </div>
   </div>
-  <div class="kpi-card">
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Failed')"
+       (click)="onKpiCardClick('Failed')">
     <div class="kpi-icon kpi-icon-failed"><i class="bi bi-x-circle-fill"></i></div>
     <div class="kpi-info">
       <span class="kpi-label">Failed</span>
       <span class="kpi-value">{{ kpiFailed }}</span>
     </div>
   </div>
+  <!-- Non-clickable summary card -->
   <div class="kpi-card">
     <div class="kpi-icon kpi-icon-collected"><i class="bi bi-cash-stack"></i></div>
     <div class="kpi-info">
@@ -69,17 +78,20 @@
     </div>
 
     <div class="filter-row">
-      <select class="filter-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+      <select class="filter-select" [class.active-filter]="!!statusFilter"
+        [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
         <option value="">All Statuses</option>
         <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
       </select>
 
-      <select class="filter-select" [(ngModel)]="typeFilter" (ngModelChange)="onFilterChange()">
+      <select class="filter-select" [class.active-filter]="!!typeFilter"
+        [(ngModel)]="typeFilter" (ngModelChange)="onFilterChange()">
         <option value="">All Types</option>
         <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
       </select>
 
-      <select class="filter-select" [(ngModel)]="yearFilter" (ngModelChange)="onFilterChange()">
+      <select class="filter-select" [class.active-filter]="!!yearFilter"
+        [(ngModel)]="yearFilter" (ngModelChange)="onFilterChange()">
         <option value="">All Years</option>
         <option *ngFor="let y of yearOptions" [value]="y">{{ y }}</option>
       </select>

@@ -17,6 +17,7 @@
 .akpi-icon.teal   { background: #e0f7fa; color: #00695c; }
 .akpi-icon.purple { background: #f3e8ff; color: #6d28d9; }
 .akpi-icon.green  { background: #e6f7ee; color: #1a7a45; }
+.akpi-icon.muted { background: #f3f4f6; color: #6b7280; }
 .akpi-text { display: flex; flex-direction: column; gap: 2px; }
 .akpi-label { font-size: 11px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
 .akpi-value { font-size: 22px; font-weight: 800; color: #1a2340; line-height: 1.2; }
@@ -25,6 +26,7 @@
   font-family: monospace; font-size: 12px; font-weight: 700;
   color: #1a3f8f; background: #e8eef9; padding: 2px 8px; border-radius: 5px;
 }
+
 
 @media (max-width: 768px) {
   .appeal-kpi-row { padding: 12px; }

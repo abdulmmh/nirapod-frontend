@@ -1,4 +1,3 @@
-
 export type RefundType =
   | 'INCOME_TAX'
   | 'VAT'
@@ -71,9 +70,10 @@ export interface RefundSummary {
   verifiedRefundAmount: number | null;
   approvedRefundAmount: number | null;
   status: RefundStatus;
-  riskLevel: string | null;       
+  riskLevel: string | null;
   isFlaggedForAudit: boolean;
   submittedAt: string | null;
+  updatedAt?: string | null;            // ← ADD: used in refund-view status banner
   approvedAt: string | null;
   paidAt: string | null;
   documentCount: number;
@@ -84,8 +84,8 @@ export interface RefundDetail extends RefundSummary {
   totalTaxLiability: number;
   sources: any[];
   bankDetails: BankDetails;
-  documents: any[];
-  statusHistory: any[];
+  documents: RefundDocument[];          // ← CHANGE: typed (was any[])
+  statusHistory: RefundStatusHistory[]; // ← CHANGE: typed (was any[])
   rejectionReasonCode: string | null;
   rejectionReasonText: string | null;
   officerNotes: string | null;
@@ -94,6 +94,8 @@ export interface RefundDetail extends RefundSummary {
   courtOrderNo: string | null;
   bankValidated: boolean;
   itrRecordId: number | null;
+  netRefundAmount?: number | null;      // ← ADD: Liability Offset Engine
+  totalOffsetAmount?: number | null;    // ← ADD: Liability Offset Engine
 }
 
 export interface RefundFilterRequest {

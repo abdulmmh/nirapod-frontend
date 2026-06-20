@@ -7,6 +7,7 @@ import { AuditCreateComponent } from '../pages/audit-create/audit-create.compone
 import { AuditDetailComponent } from '../pages/audit-view/audit-view.component';
 import { AssessmentReviewComponent } from '../pages/assessment-review/assessment-review.component';
 import { Role } from 'src/app/core/constants/roles.constants';
+import { AuditEditComponent } from '../pages/audit-edit/audit-edit.component';
 
 export const AUDIT_ROUTES: Routes = [
   // ── Officer Routes ──────────────────────────────────────────────────────────
@@ -58,7 +59,7 @@ export const AUDIT_ROUTES: Routes = [
       },
       {
         path: ':id/edit',
-        component: AuditCreateComponent,
+        component: AuditEditComponent,
         canActivate: [AuthGuard],
         data: {
           roles: [

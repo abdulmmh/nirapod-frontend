@@ -95,11 +95,15 @@ export class PaymentViewComponent implements OnInit, OnDestroy {
   }
 
   canReject(): boolean {
+    const role = this.authService.userRole;
+    const status = this.payment?.status;
+
+    if (role === 'TAX_OFFICER' || role === 'DATA_ENTRY_OPERATOR') {
+      return status === 'Pending';
+    }
     return (
-      (this.payment?.status === 'Pending' ||
-        this.payment?.status === 'Under Review') &&
-      (this.authService.hasRole(Role.TAX_OFFICER) ||
-        this.authService.hasRole(Role.SUPERVISOR) ||
+      (status === 'Pending' || status === 'Under Review') &&
+      (this.authService.hasRole(Role.SUPERVISOR) ||
         this.authService.hasRole(Role.TAX_COMMISSIONER) ||
         this.authService.hasRole(Role.SUPER_ADMIN))
     );
@@ -117,7 +121,8 @@ export class PaymentViewComponent implements OnInit, OnDestroy {
     return (
       !!this.payment &&
       this.payment.status !== 'Completed' &&
-      this.payment.status !== 'Cancelled'
+      this.payment.status !== 'Cancelled' &&
+      !this.authService.hasRole(Role.TAXPAYER)
     );
   }
 
@@ -291,9 +296,6 @@ export class PaymentViewComponent implements OnInit, OnDestroy {
       return ts;
     }
   }
-
-  // ── Navigation ──────────────────────────────────────────────────────────────
-
   // ───────────────────── Navigation ────────────────────────
 
   onEdit(): void {

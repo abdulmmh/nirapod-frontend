@@ -10,35 +10,40 @@
 
 <!-- KPI Stats Row -->
 <div class="audit-kpi-row" *ngIf="kpis">
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('openAudits')"
+       (click)="onKpiCardClick('openAudits')">
     <div class="akpi-icon blue"><i class="bi bi-folder2-open"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Open Audits</span>
       <span class="akpi-value">{{ kpis['openAudits'] }}</span>
     </div>
   </div>
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('assessmentApproved')"
+       (click)="onKpiCardClick('assessmentApproved')">
     <div class="akpi-icon green"><i class="bi bi-check-circle-fill"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Approved</span>
       <span class="akpi-value">{{ kpis['assessmentApproved']  }}</span>
     </div>
   </div>
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('demandIssued')"
+       (click)="onKpiCardClick('demandIssued')">
     <div class="akpi-icon orange"><i class="bi bi-receipt-cutoff"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Demand Issued</span>
       <span class="akpi-value">{{ kpis['demandIssued']  }}</span>
     </div>
   </div>
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('paid')"
+       (click)="onKpiCardClick('paid')">
     <div class="akpi-icon teal"><i class="bi bi-cash-coin"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Paid</span>
       <span class="akpi-value">{{ kpis['paid']  }}</span>
     </div>
   </div>
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('appealed')"
+       (click)="onKpiCardClick('appealed')">
     <div class="akpi-icon red"><i class="bi bi-shield-exclamation"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Appealed</span>
@@ -61,19 +66,23 @@
       </button>
     </div>
     <div class="filter-row">
-      <select class="filter-select" [(ngModel)]="filters.status" (change)="loadCases()">
+      <select class="filter-select" [class.active-filter]="!!filters.status"
+        [(ngModel)]="filters.status" (change)="onFilterChange()">
         <option value="">All Statuses</option>
         <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
       </select>
-      <select class="filter-select" [(ngModel)]="filters.auditType" (change)="loadCases()">
+      <select class="filter-select" [class.active-filter]="!!filters.auditType"
+        [(ngModel)]="filters.auditType" (change)="onFilterChange()">
         <option value="">All Types</option>
         <option *ngFor="let t of auditTypes" [value]="t.value">{{ t.label }}</option>
       </select>
-      <select class="filter-select" [(ngModel)]="filters.fiscalYear" (change)="loadCases()">
+      <select class="filter-select" [class.active-filter]="!!filters.fiscalYear"
+        [(ngModel)]="filters.fiscalYear" (change)="onFilterChange()">
         <option value="">All Years</option>
         <option *ngFor="let y of fiscalYears" [value]="y">{{ y }}</option>
       </select>
-      <select class="filter-select" [(ngModel)]="filters.priority" (change)="loadCases()">
+      <select class="filter-select" [class.active-filter]="!!filters.priority"
+        [(ngModel)]="filters.priority" (change)="onFilterChange()">
         <option value="">All Priorities</option>
         <option value="LOW">Low</option>
         <option value="NORMAL">Normal</option>
@@ -84,6 +93,15 @@
         <i class="bi bi-x-circle"></i> Clear
       </button>
     </div>
+  </div>
+
+  <!-- KPI quick-filter banner — shown when a KPI card narrows the current page -->
+  <div class="kpi-filter-banner" *ngIf="activeKpiGroup">
+    <i class="bi bi-funnel-fill"></i>
+    <span>Showing {{ visibleCases.length }} of {{ cases.length }} on this page matching "{{ activeKpiLabel }}"</span>
+    <button class="btn-clear-kpi" (click)="clearKpiFilter()">
+      <i class="bi bi-x-lg"></i> Clear quick filter
+    </button>
   </div>
 
   <div class="loading-row" *ngIf="isLoading">
@@ -110,7 +128,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of cases; let i = index">
+        <tr *ngFor="let c of visibleCases; let i = index">
           <td>{{ (currentPage * pageSize) + i + 1 }}</td>
           <td><span class="code-badge">{{ c.caseNo }}</span></td>
           <td>
@@ -152,11 +170,11 @@
             </div>
           </td>
         </tr>
-        <tr *ngIf="cases.length === 0">
+        <tr *ngIf="visibleCases.length === 0">
           <td colspan="11">
             <div class="empty-state">
               <i class="bi bi-folder2-open"></i>
-              <p>No audit cases found.</p>
+              <p>{{ activeKpiGroup ? 'No cases match this quick filter on the current page.' : 'No audit cases found.' }}</p>
             </div>
           </td>
         </tr>
@@ -166,7 +184,7 @@
 
   <!-- Mobile Cards -->
   <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
-    <div class="mobile-card" *ngFor="let c of cases">
+    <div class="mobile-card" *ngFor="let c of visibleCases">
       <div class="mobile-card-header">
         <div class="mobile-card-title">
           <div class="mobile-avatar">{{ c.taxpayerName.charAt(0) }}</div>
@@ -200,9 +218,9 @@
         </button>
       </div>
     </div>
-    <div class="empty-state" *ngIf="cases.length === 0">
+    <div class="empty-state" *ngIf="visibleCases.length === 0">
       <i class="bi bi-folder2-open"></i>
-      <p>No audit cases found.</p>
+      <p>{{ activeKpiGroup ? 'No cases match this quick filter on the current page.' : 'No audit cases found.' }}</p>
     </div>
   </div>
 
@@ -218,7 +236,7 @@
         [class.active]="p === currentPage" (click)="goToPage(p)">{{ p + 1 }}</span>
       <button class="btn-page" [disabled]="currentPage >= totalPages-1" (click)="nextPage()">Next →</button>
     </div>
-    <select class="page-size-select" (change)="pageSize = +$any($event.target).value; loadCases()">
+    <select class="page-size-select" (change)="pageSize = +$any($event.target).value; currentPage = 0; loadCases()">
       <option value="10">10 / page</option>
       <option value="20" selected>20 / page</option>
       <option value="50">50 / page</option>

@@ -66,3 +66,61 @@
   .tp-decision-banner,
   .tp-action-banner { margin: 0 12px 12px; }
 }
+/* Appeal Pay Section */
+.appeal-pay-section {
+  margin: 16px 0 0;
+}
+
+.aps-dismissed,
+.aps-partial,
+.aps-upheld {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+
+.aps-dismissed {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+}
+
+.aps-partial {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-left: 4px solid #f97316;
+}
+
+.aps-upheld {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-left: 4px solid #22c55e;
+}
+
+.aps-icon { font-size: 24px; flex-shrink: 0; }
+.aps-icon.partial { color: #f97316; }
+.aps-icon.success { color: #22c55e; }
+.aps-dismissed .aps-icon { color: #ef4444; }
+
+.aps-content { flex: 1; }
+.aps-content strong { font-size: 14px; font-weight: 700; color: #1a2340; display: block; margin-bottom: 4px; }
+.aps-content p { font-size: 13px; color: #374151; margin: 0; line-height: 1.5; }
+
+.btn-pay-appeal {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.btn-pay-appeal:hover { background: #dc2626; }

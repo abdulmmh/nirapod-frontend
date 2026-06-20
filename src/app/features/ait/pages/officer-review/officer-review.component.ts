@@ -1,5 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormControl,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -132,10 +137,19 @@ export class OfficerReviewComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.ait = data;
           this.isLoading = false;
+
           this.reviewForm.patchValue({
             approvedAmount: data.calculatedAitAmount,
           });
-          this.loadDocuments(id); // ✅ ait 로드 후 documents 로드
+          
+          if (data.challanNumber || data.bankName) {
+            this.challanForm.patchValue({
+              challanNumber: data.challanNumber ?? '',
+              bankName: data.bankName ?? '',
+            });
+          }
+
+          this.loadDocuments(id);
         },
         error: (err) => {
           this.toast.error(err?.error?.message ?? 'Failed to load AIT record.');

@@ -1,64 +1,167 @@
-.page-title { font-size: 1.2rem; font-weight: 600; }
+/* refund-view.component.css
+   RULE: Only rv- prefixed classes here.
+   Global classes used: page-header, page-wrapper, btn-back, btn-edit,
+   detail-card, detail-card-header, detail-body, detail-row, detail-label,
+   detail-value, code-badge, cat-badge, td-sub, data-table, loading-row,
+   empty-state, modal-overlay, modal-card, modal-accent, modal-title,
+   modal-msg, modal-actions, btn-modal-cancel, btn-modal-confirm,
+   form-input, form-label, form-text, btn-view, alert-* */
 
-/* ─── Status Banner ─────────────────────────────── */
-.status-banner {
-  padding: 12px 16px;
-  border-radius: 10px;
-  background: #f8f9fa;
-  border: 1px solid #e2e0d8;
+/* ── Officer action buttons (header) ─────────────────────────── */
+.btn-action {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 7px 16px; border-radius: var(--radius-md, 8px);
+  font-size: 0.82rem; font-weight: 500; cursor: pointer;
+  border: none; transition: opacity .15s;
 }
-.status-banner--info    { background: #fff8e1; border-color: #ffe082; }
-.status-banner--success { background: #f0f9f0; border-color: #a3c97a; }
-.status-banner--danger  { background: #fff5f5; border-color: #f09595; }
+.btn-action:hover { opacity: .85; }
 
-/* ─── Detail Card ───────────────────────────────── */
-.detail-card {
-  background: #fff;
-  border: 1px solid #e8e6e1;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
-  overflow: hidden;
+.btn-action-recommend { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+.btn-action-approve   { background: #166534; color: #fff; }
+.btn-action-reject    { background: #dc2626; color: #fff; }
+.btn-info-req         { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+
+/* ── Status banner ───────────────────────────────────────────── */
+.rv-status-banner {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--border-default, #e2e8f0);
+  background: var(--bg-subtle, #f8fafc);
+}
+.rv-status-left { display: flex; align-items: center; gap: 8px; }
+
+/* ── Status pill (local — not global status-badge) ───────────── */
+.rv-status-pill {
+  display: inline-block; padding: 3px 12px;
+  border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+}
+.status-draft              { background: #f1f5f9; color: #475569; }
+.status-submitted          { background: #dbeafe; color: #1e40af; }
+.status-under-verification { background: #fef3c7; color: #92400e; }
+.status-info-requested     { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+.status-response-received  { background: #e0f2fe; color: #075985; }
+.status-recommended        { background: #ede9fe; color: #5b21b6; }
+.status-supervisor-review  { background: #fae8ff; color: #701a75; }
+.status-approved           { background: #dcfce7; color: #166534; }
+.status-rejected           { background: #fee2e2; color: #991b1b; }
+.status-payment-pending    { background: #fef9c3; color: #713f12; }
+.status-payment-processing { background: #e0f2fe; color: #075985; }
+.status-paid               { background: #dcfce7; color: #14532d; }
+.status-failed             { background: #fee2e2; color: #7f1d1d; }
+.status-cancelled          { background: #f1f5f9; color: #64748b; }
+.status-closed             { background: #f0fdf4; color: #166534; }
+
+/* ── Audit flag badge ────────────────────────────────────────── */
+.rv-audit-flag {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 600;
+  background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;
 }
 
-.detail-card-header {
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e8e6e1;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #1a1a1a;
+/* ── KPI row ─────────────────────────────────────────────────── */
+.rv-kpi-row {
   display: flex;
-  align-items: center;
+  border-bottom: 1px solid var(--border-default, #e2e8f0);
+}
+.rv-kpi {
+  flex: 1; padding: 14px 20px; text-align: center;
+  border-right: 1px solid var(--border-default, #e2e8f0);
+}
+.rv-kpi:last-child { border-right: none; }
+.rv-kpi-label {
+  font-size: 0.69rem; color: var(--text-muted, #64748b);
+  text-transform: uppercase; letter-spacing: .3px;
+}
+.rv-kpi-value {
+  font-size: 1.05rem; font-weight: 700;
+  color: var(--text-primary, #0f172a); margin-top: 4px;
 }
 
-.detail-card-body { padding: 16px; }
-
-/* ─── Detail Grid ───────────────────────────────── */
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-@media (max-width: 576px) {
-  .detail-grid { grid-template-columns: 1fr; }
-}
-
-.detail-item { display: flex; flex-direction: column; gap: 2px; }
-.detail-label { font-size: 0.70rem; color: #6c757d; text-transform: uppercase; letter-spacing: .4px; }
-.detail-value { font-size: 0.85rem; color: #1a1a1a; }
-
-/* ─── Document item ─────────────────────────────── */
-.doc-item {
+/* ── Tab bar ─────────────────────────────────────────────────── */
+.rv-tab-bar {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid #f1efe8;
+  border-bottom: 2px solid var(--border-default, #e2e8f0);
+  padding: 0 20px;
+  background: var(--bg-card, #fff);
 }
-.doc-item:last-child { border-bottom: none; }
+.rv-tab {
+  padding: 10px 18px; border: none; background: transparent;
+  font-size: 0.83rem; font-weight: 500; color: var(--text-muted, #64748b);
+  cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: color .15s, border-color .15s;
+}
+.rv-tab:hover { color: var(--text-primary, #0f172a); }
+.rv-tab--active {
+  color: #185fa5;
+  border-bottom-color: #185fa5;
+}
+.rv-tab-count {
+  background: var(--bg-subtle, #f1f5f9);
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 999px; padding: 1px 7px;
+  font-size: 0.69rem; font-weight: 600; color: var(--text-muted, #64748b);
+}
+.rv-tab--active .rv-tab-count { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
 
-/* ─── Table tweaks ──────────────────────────────── */
-.table th { font-size: 0.72rem; font-weight: 600; color: #6c757d;
-  text-transform: uppercase; letter-spacing: .4px; }
-.table td { font-size: 0.82rem; }
+/* ── Note blocks ─────────────────────────────────────────────── */
+.rv-note {
+  padding: 10px 14px; font-size: 0.83rem; line-height: 1.6;
+  border-left: 3px solid transparent; margin-bottom: 8px;
+  border-radius: 0 4px 4px 0;
+}
+.rv-note--officer    { background: #eff6ff; border-color: #3b82f6; }
+.rv-note--supervisor { background: #f0fdf4; border-color: #22c55e; }
+.rv-note--rejection  { background: #fef2f2; border-color: #ef4444; }
+.rv-note-label {
+  font-size: 0.69rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .4px; color: var(--text-muted, #64748b); margin-bottom: 4px;
+}
+
+/* ── Timeline ────────────────────────────────────────────────── */
+.rv-timeline { padding: 8px 0; }
+.rv-timeline-item {
+  display: flex; gap: 14px; position: relative; margin-bottom: 20px;
+}
+.rv-timeline-item:last-child { margin-bottom: 0; }
+.rv-timeline-dot {
+  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
+  background: #185fa5; border: 2px solid #fff; box-shadow: 0 0 0 2px #185fa5;
+}
+.rv-timeline-line {
+  position: absolute; left: 5px; top: 18px; bottom: -20px;
+  width: 2px; background: var(--border-default, #e2e8f0);
+}
+.rv-timeline-content { flex: 1; }
+.rv-timeline-reason {
+  margin-top: 6px; padding: 6px 10px;
+  background: var(--bg-subtle, #f8fafc);
+  border-radius: 4px; font-size: 0.80rem;
+  color: var(--text-secondary, #334155);
+  border-left: 3px solid var(--border-default, #e2e8f0);
+}
+
+/* ── Document rows ───────────────────────────────────────────── */
+.rv-doc-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-default, #e2e8f0);
+}
+.rv-doc-row:last-child { border-bottom: none; }
+
+/* ── Offset preview ──────────────────────────────────────────── */
+.rv-offset-preview {
+  background: var(--bg-subtle, #f8fafc);
+  border-radius: 8px; padding: 14px;
+}
+.rv-offset-kpis { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 8px; }
+.rv-offset-kpi  { flex: 1; min-width: 110px; text-align: center; }
+.rv-offset-kpi-label { font-size: 0.69rem; text-transform: uppercase; color: var(--text-muted, #64748b); }
+.rv-offset-kpi-value { font-size: 1rem; font-weight: 700; margin-top: 4px; }
+
+/* ── Empty state (small) ─────────────────────────────────────── */
+.rv-empty {
+  padding: 24px; text-align: center;
+  font-size: 0.83rem; color: var(--text-muted, #64748b);
+}

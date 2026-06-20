@@ -28,8 +28,13 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
   showResults       = false;
   hasSearched       = false;
 
+  // ── Pre-fill from queryParams (appeal/audit Pay Now) ──
+  private prefilledDemandNo:  string | null = null;
+  private prefilledAmount:    number | null = null;
+  private prefilledReturnUrl: string | null = null;
+
   // ── Dropdown Options ──
-  paymentTypes   = ['VAT', 'Income Tax', 'Penalty', 'Other'];
+  paymentTypes   = ['VAT', 'Income Tax', 'Penalty', 'Demand Notice', 'Other'];
   paymentMethods = ['Bank Transfer', 'Online Banking', 'Cheque', 'Cash', 'Mobile Banking'];
   banks = [
     'Sonali Bank', 'Agrani Bank', 'Janata Bank', 'Rupali Bank',
@@ -39,20 +44,28 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
 
   form: PaymentCreateRequest = this.getEmptyForm();
 
-  // ── Outstanding Dues ─────────────────────────────────────────────────────────
+  // ── Outstanding Dues ──────────────────────────────────────────────────────
   outstandingItems: OutstandingItem[] = [];
   isLoadingOutstanding = false;
   selectedOutstandingItem: OutstandingItem | null = null;
 
   constructor(
-    private http: HttpClient,
-    private route: ActivatedRoute,
-    private router: Router,
-    private toast: ToastService,
-    private authService: AuthService
+    private http:         HttpClient,
+    private route:        ActivatedRoute,
+    private router:       Router,
+    private toast:        ToastService,
+    private authService:  AuthService
   ) {}
 
   ngOnInit(): void {
+    // ── Read pre-fill params from appeal/audit "Pay Now" ──────────────────
+    const params = this.route.snapshot.queryParams;
+    if (params['source'] === 'DEMAND') {
+      this.prefilledDemandNo  = params['demandNo']   ?? null;
+      this.prefilledAmount    = params['amount']     ? +params['amount'] : null;
+      this.prefilledReturnUrl = params['returnUrl']  ?? null;
+    }
+
     if (this.authService.userRole === Role.TAXPAYER) {
       this.loadOwnTaxpayerRecord();
     }
@@ -63,23 +76,7 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-
-
-
-  // Load Initial Data
-
-
-  /**
-   * TAXPAYER role এর জন্য নিজের taxpayer profile load করে।
-   *
-   * NOTE: আগে এটা `GET /api/taxpayers?search=<email>` call করত — কিন্তু
-   * সেই endpoint এ TAXPAYER role এর access নেই (officer-only search),
-   * তাই AuthorizationDeniedException → 500 হত এবং পুরো form ভেঙে যেত।
-   *
-   * এখন `GET /api/taxpayers/me` call করে — এটা backend এ JWT থেকে
-   * taxpayer resolve করে, single Taxpayer object রিটার্ন করে।
-   * (backend এ এই endpoint যোগ করতে হবে — TaxpayerController এ)
-   */
+  // ── Load taxpayer profile (TAXPAYER role) ─────────────────────────────────
   private loadOwnTaxpayerRecord(): void {
     const currentUser = this.authService.currentUser;
     if (!currentUser) return;
@@ -98,25 +95,14 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ── Getters ──
+  // ── Getters ───────────────────────────────────────────────────────────────
+  get isAutoFilled(): boolean     { return this.selectedTaxpayer !== null; }
+  get isObligationLocked(): boolean { return this.selectedOutstandingItem !== null; }
+  get isOfficerView(): boolean    { return this.authService.userRole !== Role.TAXPAYER; }
+  get showChequeField(): boolean  { return this.form.paymentMethod === 'Cheque'; }
 
-  get isAutoFilled(): boolean {
-    return this.selectedTaxpayer !== null;
-  }
-
-  /** True once an outstanding item has been picked — locks Payment Type + Return No. */
-  get isObligationLocked(): boolean {
-    return this.selectedOutstandingItem !== null;
-  }
-
-  /** Officers/admins search for a taxpayer; taxpayers only see their own profile. */
-  get isOfficerView(): boolean {
-    return this.authService.userRole !== Role.TAXPAYER;
-  }
-
-  get showChequeField(): boolean {
-    return this.form.paymentMethod === 'Cheque';
-  }
+  // Is this a pre-filled demand payment (from appeal/audit Pay Now)?
+  get isPrefilledDemand(): boolean { return !!this.prefilledDemandNo; }
 
   getDisplayName(tp: Taxpayer | null): string {
     if (!tp) return '';
@@ -126,8 +112,7 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
       : (tp.fullName || 'Unknown Individual');
   }
 
-  // ── Taxpayer Search ──
-
+  // ── Taxpayer Search ───────────────────────────────────────────────────────
   onSearchInput(): void {
     if (!this.searchQuery.trim()) {
       this.searchResults = [];
@@ -138,14 +123,8 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
 
   searchTaxpayer(): void {
     const q = this.searchQuery.trim();
-    if (!q) {
-      this.toast.warning('Enter TIN number, NID or taxpayer name to search.');
-      return;
-    }
-    if (q.length < 3) {
-      this.toast.warning('Enter at least 3 characters to search.');
-      return;
-    }
+    if (!q) { this.toast.warning('Enter TIN number, NID or taxpayer name to search.'); return; }
+    if (q.length < 3) { this.toast.warning('Enter at least 3 characters to search.'); return; }
 
     this.isSearching = true;
     this.showResults = false;
@@ -159,9 +138,7 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
           this.searchResults = data;
           this.showResults   = true;
           this.hasSearched   = true;
-          if (data.length === 0) {
-            this.toast.info('No taxpayer found. Check TIN, NID or name and try again.');
-          }
+          if (data.length === 0) this.toast.info('No taxpayer found.');
         },
         error: () => this.toast.error('Search failed. Please try again.')
       });
@@ -182,28 +159,25 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
 
     this.toast.success(`"${this.form.taxpayerName}" auto-filled.`);
 
-    // Fetch this taxpayer's outstanding VAT/ITR/Penalty dues
+    // Load outstanding items, then auto-select if coming from Pay Now
     this.loadOutstandingItems();
   }
 
   clearTaxpayer(): void {
-    this.selectedTaxpayer  = null;
-    this.searchQuery       = '';
-    this.searchResults     = [];
-    this.showResults       = false;
-    this.hasSearched       = false;
-    this.form.taxpayerId   = undefined;
-    this.form.tinNumber    = '';
-    this.form.taxpayerName = '';
-
+    this.selectedTaxpayer        = null;
+    this.searchQuery             = '';
+    this.searchResults           = [];
+    this.showResults             = false;
+    this.hasSearched             = false;
+    this.form.taxpayerId         = undefined;
+    this.form.tinNumber          = '';
+    this.form.taxpayerName       = '';
     this.outstandingItems        = [];
     this.selectedOutstandingItem = null;
-
     this.toast.info('Taxpayer cleared.');
   }
 
   // ── Outstanding Dues ──────────────────────────────────────────────────────
-
   private loadOutstandingItems(): void {
     if (!this.form.taxpayerId) return;
 
@@ -213,29 +187,53 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
     this.http.get<OutstandingItem[]>(API_ENDPOINTS.PAYMENTS.OUTSTANDING(this.form.taxpayerId))
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoadingOutstanding = false)))
       .subscribe({
-        next:  (items) => { this.outstandingItems = items ?? []; },
+        next: (items) => {
+          this.outstandingItems = items ?? [];
+
+          // ── Auto-select specific demand if coming from Pay Now ────────────
+          if (this.prefilledDemandNo) {
+            const match = this.outstandingItems.find(
+              i => i.returnNo === this.prefilledDemandNo
+                || i.returnNo?.includes(this.prefilledDemandNo!)
+            );
+
+            if (match) {
+              // Auto-select this item — but override amount if provided
+              this.selectOutstandingItem(match);
+              if (this.prefilledAmount && this.prefilledAmount > 0) {
+                this.form.amount = this.prefilledAmount;
+              }
+            } else if (this.prefilledAmount) {
+              // Demand not in list (already paid or APPEALED) — still pre-fill form
+              this.form.paymentType = 'Demand Notice';
+              this.form.returnNo    = this.prefilledDemandNo;
+              this.form.amount      = this.prefilledAmount;
+            }
+          }
+        },
         error: () => { this.outstandingItems = []; }
       });
   }
 
-  /** User picks an item from the Outstanding Dues list — auto-fills the form, list collapses. */
   selectOutstandingItem(item: OutstandingItem): void {
     this.selectedOutstandingItem = item;
-    this.form.paymentType = item.type;
-    this.form.returnNo    = item.returnNo;
-    this.form.amount      = item.outstanding;   // editable — supports partial payment
+    this.form.paymentType        = item.type;
+    this.form.returnNo           = item.returnNo;
+    this.form.amount             = item.outstanding;
   }
 
-  /** "Change" — collapses back to the full list, unlocks Payment Type + Return No. Values are kept. */
   clearOutstandingSelection(): void {
     this.selectedOutstandingItem = null;
+    // If pre-filled from Pay Now, also clear the prefill so user can change
+    this.prefilledDemandNo = null;
   }
 
   getTypeClass(type: string): string {
     const map: Record<string, string> = {
-      'VAT':        'oi-type-vat',
-      'Income Tax': 'oi-type-it',
-      'Penalty':    'oi-type-penalty'
+      'VAT':            'oi-type-vat',
+      'Income Tax':     'oi-type-it',
+      'Penalty':        'oi-type-penalty',
+      'Demand Notice':  'oi-type-demand',
     };
     return map[type] ?? 'oi-type-other';
   }
@@ -246,8 +244,7 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
     return `৳${v.toLocaleString('en-BD')}`;
   }
 
-  // ── Validation ──
-
+  // ── Validation ────────────────────────────────────────────────────────────
   isFormValid(): boolean {
     return !!(
       this.form.tinNumber     &&
@@ -260,8 +257,7 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
     );
   }
 
-  // ── Submit ──
-
+  // ── Submit ────────────────────────────────────────────────────────────────
   onSubmit(): void {
     if (!this.isFormValid()) {
       this.toast.warning('Please fill in all required fields.');
@@ -277,9 +273,14 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
           this.toast.success('Payment recorded successfully!');
           timer(1500)
             .pipe(takeUntil(this.destroy$))
-            .subscribe(() => this.router.navigate(['..'],
-              { relativeTo: this.route }
-            ));
+            .subscribe(() => {
+              // Return to appeal/audit page if came from Pay Now
+              if (this.prefilledReturnUrl) {
+                this.router.navigateByUrl(this.prefilledReturnUrl);
+              } else {
+                this.router.navigate(['..'], { relativeTo: this.route });
+              }
+            });
         },
         error: (err) => {
           const msg = err?.error?.message || 'Failed to record payment. Please try again.';
@@ -289,28 +290,26 @@ export class PaymentCreateComponent implements OnInit, OnDestroy {
   }
 
   onReset(): void {
-    this.form             = this.getEmptyForm();
-    this.selectedTaxpayer = null;
-    this.searchQuery      = '';
-    this.searchResults    = [];
-    this.showResults      = false;
-    this.hasSearched      = false;
-
+    this.form                    = this.getEmptyForm();
+    this.selectedTaxpayer        = null;
+    this.searchQuery             = '';
+    this.searchResults           = [];
+    this.showResults             = false;
+    this.hasSearched             = false;
     this.outstandingItems        = [];
     this.selectedOutstandingItem = null;
-
+    this.prefilledDemandNo       = null;
+    this.prefilledAmount         = null;
     this.toast.info('Form has been reset.');
   }
 
   onCancel(): void {
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-
+    const returnUrl = this.prefilledReturnUrl
+      || this.route.snapshot.queryParams['returnUrl'];
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
-      this.router.navigate(['..'], {
-        relativeTo: this.route
-      });
+      this.router.navigate(['..'], { relativeTo: this.route });
     }
   }
 

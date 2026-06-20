@@ -28,6 +28,31 @@ export class AuditListComponent implements OnInit {
   // Filters
   filters = { status: '', auditType: '', fiscalYear: '', priority: '' };
 
+  // ── KPI quick-filter ──────────────────────────────────────────────────────
+  //
+  // KPI cards are a client-side "quick view" layered on top of the server-
+  // paginated `cases` list — same pattern Jira/ServiceNow use for dashboard
+  // widgets. Clicking a card does NOT touch the `status` dropdown or trigger
+  // a new server page; it filters the currently-loaded page's cases by a
+  // status GROUP (since "Open Audits" maps to many individual enum values,
+  // not one). Clearing the KPI filter restores the normal paginated view.
+  //
+  // This keeps the existing server-side dropdown filter untouched and avoids
+  // the ambiguity of cramming a multi-status group into a single-value param.
+  activeKpiGroup: string | null = null;
+
+  readonly kpiStatusGroups: Record<string, string[]> = {
+    openAudits: [
+      'SELECTED', 'CASE_CREATED', 'NOTICE_ISSUED', 'UNDER_REVIEW',
+      'DOCUMENT_REQUESTED', 'RESPONSE_RECEIVED', 'FINDINGS_RECORDED',
+      'ASSESSMENT_PROPOSED', 'SUPERVISOR_REVIEW',
+    ],
+    assessmentApproved: ['ASSESSMENT_APPROVED'],
+    demandIssued: ['DEMAND_ISSUED'],
+    paid: ['PAID', 'PARTIALLY_PAID'],
+    appealed: ['APPEALED'],
+  };
+
   private searchSubject = new Subject<string>();
 
   readonly Math = Math;
@@ -120,6 +145,13 @@ export class AuditListComponent implements OnInit {
       });
   }
 
+  /** Dropdown filters changed — reset to page 0 before reloading, otherwise
+   *  a narrower result set can leave the user stranded on an empty page. */
+  onFilterChange(): void {
+    this.currentPage = 0;
+    this.loadCases();
+  }
+
   loadKpis(): void {
     this.auditService.getKpis().subscribe({
       next: (k) => (this.kpis = k),
@@ -131,10 +163,45 @@ export class AuditListComponent implements OnInit {
     this.searchSubject.next(this.searchTerm);
   }
 
+  // ── KPI quick-filter ──────────────────────────────────────────────────────
+
+  /** Toggles a KPI card's status-group filter over the currently loaded page. */
+  onKpiCardClick(kpiKey: string): void {
+    this.activeKpiGroup = this.activeKpiGroup === kpiKey ? null : kpiKey;
+  }
+
+  isKpiActive(kpiKey: string): boolean {
+    return this.activeKpiGroup === kpiKey;
+  }
+
+  /** Human-readable label for the currently active KPI quick-filter banner. */
+  get activeKpiLabel(): string {
+    const labels: Record<string, string> = {
+      openAudits: 'Open Audits',
+      assessmentApproved: 'Approved',
+      demandIssued: 'Demand Issued',
+      paid: 'Paid',
+      appealed: 'Appealed',
+    };
+    return this.activeKpiGroup ? (labels[this.activeKpiGroup] ?? this.activeKpiGroup) : '';
+  }
+
+  /** Cases shown in the table — narrowed by the active KPI group, if any. */
+  get visibleCases(): AuditCase[] {
+    if (!this.activeKpiGroup) return this.cases;
+    const group = this.kpiStatusGroups[this.activeKpiGroup] ?? [];
+    return this.cases.filter((c) => group.includes(c.status));
+  }
+
+  clearKpiFilter(): void {
+    this.activeKpiGroup = null;
+  }
+
   clearFilters(): void {
     this.filters = { status: '', auditType: '', fiscalYear: '', priority: '' };
     this.searchTerm = '';
     this.currentPage = 0;
+    this.activeKpiGroup = null;
     Object.keys(this.filters).forEach((k) => ((this.filters as any)[k] = ''));
     this.loadCases();
   }

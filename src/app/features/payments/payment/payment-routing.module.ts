@@ -13,25 +13,25 @@ const routes: Routes = [
         path: '',
         component: PaymentListComponent,
         canActivate: [AuthGuard],
-        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] }
+        data: { roles: [Role.SUPER_ADMIN, Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR,Role.SUPERVISOR, Role.DATA_ENTRY_OPERATOR, Role.TAXPAYER] }
       },
       {
         path: 'create',
         component: PaymentCreateComponent,
         canActivate: [AuthGuard],
-        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.TAXPAYER] }
+        data: { roles: [Role.SUPER_ADMIN, Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.DATA_ENTRY_OPERATOR, Role.TAXPAYER] }
       },
       {
         path: 'view/:id',
         component: PaymentViewComponent,
         canActivate: [AuthGuard],
-        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR, Role.TAXPAYER] }
+        data: { roles: [Role.SUPER_ADMIN, Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.AUDITOR,Role.SUPERVISOR, Role.DATA_ENTRY_OPERATOR, Role.TAXPAYER] }
       },
       {
         path: 'edit/:id',
         component: PaymentEditComponent,
         canActivate: [AuthGuard],
-        data: { roles: [Role.TAX_OFFICER, Role.TAX_COMMISSIONER] }
+        data: { roles: [Role.SUPER_ADMIN, Role.TAX_OFFICER, Role.TAX_COMMISSIONER, Role.SUPERVISOR] }
       }
 ];
 

@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-left">
-    <h4>{{ isEditMode ? 'Edit Audit Case' : 'New Audit Case' }}</h4>
-    <p>{{ isEditMode ? 'Update the details of this audit case.' : 'Create a new audit case for a taxpayer.' }}</p>
+    <h4>New Audit Case</h4>
+    <p>Create a new audit case for a taxpayer.</p>
   </div>
   <button class="btn-back" (click)="onCancel()">
     <i class="bi bi-arrow-left"></i> Back to List
@@ -25,12 +25,8 @@
     <div class="search-row">
       <div class="input-wrap search-input-wrap">
         <i class="bi bi-person-fill input-icon"></i>
-        <input type="text" class="form-input"
-          placeholder="Enter taxpayer name or TIN..."
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="onSearchInput()"
-          (keyup.enter)="searchTaxpayer()"
-          autocomplete="off" />
+        <input type="text" class="form-input" placeholder="Enter taxpayer name or TIN..." [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchInput()" (keyup.enter)="searchTaxpayer()" autocomplete="off" />
       </div>
       <button class="btn-search" (click)="searchTaxpayer()" [disabled]="isSearching">
         <span *ngIf="isSearching" class="spinner-border spinner-border-sm me-1"></span>
@@ -40,8 +36,7 @@
     </div>
 
     <div class="search-results" *ngIf="showResults && taxpayerResults.length > 0">
-      <div class="result-item" *ngFor="let tp of taxpayerResults"
-        (click)="selectTaxpayer(tp)">
+      <div class="result-item" *ngFor="let tp of taxpayerResults" (click)="selectTaxpayer(tp)">
         <div class="result-avatar">{{ getDisplayName(tp).charAt(0) }}</div>
         <div class="result-info">
           <span class="result-name">{{ getDisplayName(tp) }}</span>
@@ -60,7 +55,8 @@
         <div class="selected-avatar"><i class="bi bi-person-check-fill"></i></div>
         <div>
           <p class="selected-name">{{ getDisplayName(selectedTaxpayer) }}</p>
-          <p class="selected-meta">TIN: {{ selectedTaxpayer.tinNumber || 'Not issued' }} · {{ selectedTaxpayer.email }}</p>
+          <p class="selected-meta">TIN: {{ selectedTaxpayer.tinNumber || 'Not issued' }} · {{ selectedTaxpayer.email }}
+          </p>
         </div>
       </div>
       <div class="d-flex align-items-center gap-2">
@@ -105,8 +101,7 @@
             <option value="SPECIAL">Special Investigation</option>
           </select>
         </div>
-        <span class="field-error-msg"
-          *ngIf="f['auditType'].invalid && f['auditType'].touched">
+        <span class="field-error-msg" *ngIf="f['auditType'].invalid && f['auditType'].touched">
           Audit type is required.
         </span>
       </div>
@@ -122,8 +117,7 @@
             <option value="AIT">AIT</option>
           </select>
         </div>
-        <span class="field-error-msg"
-          *ngIf="f['taxType'].invalid && f['taxType'].touched">
+        <span class="field-error-msg" *ngIf="f['taxType'].invalid && f['taxType'].touched">
           Tax type is required.
         </span>
       </div>
@@ -134,7 +128,7 @@
           <i class="bi bi-calendar3 input-icon"></i>
           <select class="form-input form-select" formControlName="fiscalYear">
             <option value="">— Select Year —</option>
-            <option *ngFor="let y of fiscalYears" [value]="y">{{ y }}</option>
+            <option *ngFor="let y of fiscalYears" [value]="y.yearName">{{ y.yearName }}</option>
           </select>
         </div>
       </div>
@@ -143,8 +137,7 @@
         <label class="form-label">Return Reference</label>
         <div class="input-wrap">
           <i class="bi bi-file-earmark-text input-icon"></i>
-          <input type="text" class="form-input" formControlName="returnReference"
-            placeholder="e.g. ITR-2024-001234" />
+          <input type="text" class="form-input" formControlName="returnReference" placeholder="e.g. ITR-2024-001234" />
         </div>
       </div>
 
@@ -198,8 +191,7 @@
             <option value="CAMPAIGN">Industry Campaign</option>
           </select>
         </div>
-        <span class="field-error-msg"
-          *ngIf="f['triggerReason'].invalid && f['triggerReason'].touched">
+        <span class="field-error-msg" *ngIf="f['triggerReason'].invalid && f['triggerReason'].touched">
           Trigger reason is required.
         </span>
       </div>
@@ -221,12 +213,10 @@
         <label class="form-label">Risk Score <span class="optional">(0–100)</span></label>
         <div class="input-wrap">
           <i class="bi bi-bar-chart-fill input-icon"></i>
-          <input type="number" class="form-input" formControlName="riskScore"
-            min="0" max="100" placeholder="0" />
+          <input type="number" class="form-input" formControlName="riskScore" min="0" max="100" placeholder="0" />
         </div>
         <div class="risk-bar" *ngIf="auditForm.get('riskScore')?.value > 0">
-          <div class="risk-fill"
-            [style.width.%]="auditForm.get('riskScore')?.value"
+          <div class="risk-fill" [style.width.%]="auditForm.get('riskScore')?.value"
             [ngClass]="getRiskClass(auditForm.get('riskScore')?.value)">
           </div>
         </div>
@@ -254,8 +244,7 @@
         <label class="form-label">Assigned Officer</label>
         <div class="input-wrap">
           <i class="bi bi-person-fill input-icon"></i>
-          <input type="text" class="form-input" formControlName="assignedOfficerName"
-            placeholder="Officer name..." />
+          <input type="text" class="form-input" formControlName="assignedOfficerName" placeholder="Officer name..." />
         </div>
       </div>
 
@@ -263,8 +252,7 @@
         <label class="form-label">Supervisor</label>
         <div class="input-wrap">
           <i class="bi bi-person-check input-icon"></i>
-          <input type="text" class="form-input" formControlName="supervisorName"
-            placeholder="Supervisor name..." />
+          <input type="text" class="form-input" formControlName="supervisorName" placeholder="Supervisor name..." />
         </div>
       </div>
 
@@ -306,8 +294,7 @@
         <div class="input-wrap">
           <i class="bi bi-pencil-square input-icon textarea-icon"></i>
           <textarea class="form-input form-textarea" formControlName="remarks"
-            placeholder="Internal notes, context, or special instructions..."
-            rows="3"></textarea>
+            placeholder="Internal notes, context, or special instructions..." rows="3"></textarea>
         </div>
       </div>
     </div>
@@ -318,15 +305,13 @@
     <button class="btn-cancel" (click)="onCancel()" [disabled]="isSubmitting">
       <i class="bi bi-x-lg"></i> Cancel
     </button>
-    <button class="btn-submit" (click)="onSubmit()"
-      [disabled]="auditForm.invalid || isSubmitting">
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="auditForm.invalid || isSubmitting">
       <span *ngIf="!isSubmitting">
-        <i class="bi bi-check-lg"></i>
-        {{ isEditMode ? 'Update Case' : 'Create Case' }}
+        <i class="bi bi-check-lg"></i> Create Case
       </span>
       <span *ngIf="isSubmitting">
         <span class="spinner-border spinner-border-sm me-2"></span>
-        {{ isEditMode ? 'Updating...' : 'Creating...' }}
+        Creating...
       </span>
     </button>
   </div>

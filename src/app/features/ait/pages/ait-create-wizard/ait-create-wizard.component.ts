@@ -264,17 +264,23 @@ export class AitCreateWizardComponent implements OnInit, OnDestroy {
 
   private autoFillFromCurrentUser(): void {
     const user = this.auth.currentUser;
-    if (user && user.taxpayerId) {
-      this.step1Form.patchValue({
-        taxpayerId: user.taxpayerId,
-        taxpayerName: user.fullName,
-        taxpayerTin: user.tinNumber ?? '',
-        taxpayerType: user.taxpayerType ?? '',
-      });
-      this.isAutoFilled = true;
-      this.searchControl.disable();
+    if (!user?.taxpayerId) return;
+
+    this.step1Form.patchValue({
+      taxpayerId: user.taxpayerId,
+      taxpayerName: user.fullName,
+      taxpayerTin: user.tinNumber ?? '',
+    });
+
+    const typeGroup = this.step1Form.get('taxpayerType') as FormGroup;
+    if (typeof user.taxpayerType === 'string') {
+      typeGroup.patchValue({ typeName: user.taxpayerType });
+    } else if (user.taxpayerType) {
+      typeGroup.patchValue(user.taxpayerType); 
     }
-    console.log(user?.taxpayerType);
+
+    this.isAutoFilled = true;
+    this.searchControl.disable();
   }
 
   // ── Source type ────────────────────────────────────────────────────────────

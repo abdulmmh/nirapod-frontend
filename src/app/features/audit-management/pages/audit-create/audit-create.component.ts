@@ -1,96 +1,102 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { AuditService } from '../../service/audit.service';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { ToastService } from '../../../../shared/toast/toast.service';
+import { FiscalYear } from '../../../../models/fiscal-year.model';
 
 @Component({
   selector: 'app-audit-create',
   templateUrl: './audit-create.component.html',
-  styleUrls: ['./audit-create.component.css']
+  styleUrls: ['./audit-create.component.css'],
 })
 export class AuditCreateComponent implements OnInit, OnDestroy {
-
-  auditForm!:            FormGroup;
+  auditForm!: FormGroup;
   taxpayerSearchControl = new FormControl('');
-  isEditMode            = false;
-  isSubmitting          = false;
-  caseId: number | null = null;
+  isSubmitting = false;
 
-  // Taxpayer search 
-  searchQuery    = '';
-  isSearching    = false;
+  // Taxpayer search
+  searchQuery = '';
+  isSearching = false;
   taxpayerResults: Taxpayer[] = [];
   selectedTaxpayer: Taxpayer | null = null;
-  showResults    = false;
-  hasSearched    = false;
+  showResults = false;
+  hasSearched = false;
 
-  readonly fiscalYears = ['2024-25', '2023-24', '2022-23', '2021-22', '2020-21'];
+  fiscalYears: FiscalYear[] = [];
 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private fb:           FormBuilder,
-    private router:       Router,
-    private route:        ActivatedRoute,
-    private http:         HttpClient,
+    private fb: FormBuilder,
+    private router: Router,
+    private http: HttpClient,
     private auditService: AuditService,
-    private toast:        ToastService
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
     this.buildForm();
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) { this.isEditMode = true; this.caseId = +id; this.loadCase(+id); }
+    this.loadFiscalYears();
   }
 
-  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   buildForm(): void {
     this.auditForm = this.fb.group({
-      taxpayerId:          [null, Validators.required],
-      taxpayerName:        [''],
-      tinDisplay:          [{ value: '', disabled: true }],
-      auditType:           ['', Validators.required],
-      taxType:             ['', Validators.required],
-      triggerReason:       ['', Validators.required],
-      fiscalYear:          [''],
-      taxPeriodStart:      [''],
-      taxPeriodEnd:        [''],
-      riskScore:           [0],
-      priority:            ['NORMAL'],
-      returnReference:     [''],
-      assignedOfficerId:   [null],
+      taxpayerId: [null, Validators.required],
+      taxpayerName: [''],
+      tinDisplay: [{ value: '', disabled: true }],
+      auditType: ['', Validators.required],
+      taxType: ['', Validators.required],
+      triggerReason: ['', Validators.required],
+      fiscalYear: [''],
+      taxPeriodStart: [''],
+      taxPeriodEnd: [''],
+      riskScore: [0],
+      priority: ['NORMAL'],
+      returnReference: [''],
+      assignedOfficerId: [null],
       assignedOfficerName: [''],
-      supervisorId:        [null],
-      supervisorName:      [''],
-      scheduledDate:       [''],
-      dueDate:             [''],
-      remarks:             [''],
+      supervisorId: [null],
+      supervisorName: [''],
+      scheduledDate: [''],
+      dueDate: [''],
+      remarks: [''],
     });
   }
 
-  get f() { return this.auditForm.controls; }
+  private loadFiscalYears(): void {
+    this.http
+      .get<FiscalYear[]>(API_ENDPOINTS.FISCAL_YEARS.LIST)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (years) => {
+          this.fiscalYears = years.sort((a, b) =>
+            b.yearName.localeCompare(a.yearName),
+          );
+        },
+        error: () => {
+          this.fiscalYears = [];
+          this.toast.warning('Could not load fiscal year list.');
+        },
+      });
+  }
 
-  loadCase(id: number): void {
-    this.auditService.getCaseById(id).subscribe({
-      next: c => {
-        this.auditForm.patchValue({
-          taxpayerId: c.taxpayerId, taxpayerName: c.taxpayerName, tinDisplay: c.tinNumber,
-          auditType: c.auditType, taxType: c.taxType, triggerReason: c.triggerReason,
-          fiscalYear: c.fiscalYear, taxPeriodStart: c.taxPeriodStart, taxPeriodEnd: c.taxPeriodEnd,
-          riskScore: c.riskScore, priority: c.priority, returnReference: c.returnReference,
-          assignedOfficerName: c.assignedOfficerName, supervisorName: c.supervisorName,
-          scheduledDate: c.scheduledDate, dueDate: c.dueDate, remarks: c.remarks,
-        });
-        this.taxpayerSearchControl.setValue(c.taxpayerName);
-        this.searchQuery = c.taxpayerName;
-      }
-    });
+  get f() {
+    return this.auditForm.controls;
   }
 
   // ── Taxpayer Search — exact same pattern as tin-create ─────────────────────
@@ -98,8 +104,8 @@ export class AuditCreateComponent implements OnInit, OnDestroy {
   onSearchInput(): void {
     if (!this.searchQuery.trim()) {
       this.taxpayerResults = [];
-      this.showResults     = false;
-      this.hasSearched     = false;
+      this.showResults = false;
+      this.hasSearched = false;
     }
   }
 
@@ -115,64 +121,73 @@ export class AuditCreateComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isSearching  = true;
-    this.showResults  = false;
-    this.hasSearched  = false;
+    this.isSearching = true;
+    this.showResults = false;
+    this.hasSearched = false;
 
     const url = `${API_ENDPOINTS.TAXPAYERS.LIST}?search=${encodeURIComponent(q)}`;
-    this.http.get<Taxpayer[]>(url)
-      .pipe(takeUntil(this.destroy$), finalize(() => this.isSearching = false))
+    this.http
+      .get<Taxpayer[]>(url)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isSearching = false)),
+      )
       .subscribe({
-        next: data => {
+        next: (data) => {
           this.taxpayerResults = data;
-          this.showResults     = true;
-          this.hasSearched     = true;
+          this.showResults = true;
+          this.hasSearched = true;
           if (data.length === 0)
-            this.toast.info('No taxpayer found. Check the name or TIN and try again.');
+            this.toast.info(
+              'No taxpayer found. Check the name or TIN and try again.',
+            );
         },
-        error: () => this.toast.error('Taxpayer search failed. Please try again.')
+        error: () =>
+          this.toast.error('Taxpayer search failed. Please try again.'),
       });
   }
 
   selectTaxpayer(tp: Taxpayer): void {
     this.selectedTaxpayer = tp;
     const name = this.getDisplayName(tp);
-    const tin  = tp.tinNumber || '';
+    const tin = tp.tinNumber || '';
 
     this.auditForm.patchValue({
-      taxpayerId:   tp.id,
+      taxpayerId: tp.id,
       taxpayerName: name,
-      tinDisplay:   tin,
+      tinDisplay: tin,
     });
     this.taxpayerSearchControl.setValue(name);
-    this.searchQuery  = name;
-    this.showResults  = false;
+    this.searchQuery = name;
+    this.showResults = false;
     this.taxpayerResults = [];
   }
 
   clearSelectedTaxpayer(): void {
     this.selectedTaxpayer = null;
-    this.auditForm.patchValue({ taxpayerId: null, taxpayerName: '', tinDisplay: '' });
+    this.auditForm.patchValue({
+      taxpayerId: null,
+      taxpayerName: '',
+      tinDisplay: '',
+    });
     this.taxpayerSearchControl.setValue('');
-    this.searchQuery  = '';
+    this.searchQuery = '';
     this.taxpayerResults = [];
-    this.showResults  = false;
-    this.hasSearched  = false;
+    this.showResults = false;
+    this.hasSearched = false;
   }
 
   getDisplayName(tp: Taxpayer): string {
     const type = tp.taxpayerType?.typeName?.toLowerCase() || '';
     return type.includes('company')
       ? tp.companyName || 'Unknown Company'
-      : tp.fullName    || 'Unknown Individual';
+      : tp.fullName || 'Unknown Individual';
   }
 
   // ── Navigation ─────────────────────────────────────────────────────────────
 
   onCancel(): void {
-    this.caseId
-      ? this.router.navigate(['/audits', this.caseId])
-      : this.router.navigate(['/audits']);
+    this.router.navigate(['/audits']);
   }
 
   // ── Risk Bar ───────────────────────────────────────────────────────────────
@@ -187,38 +202,44 @@ export class AuditCreateComponent implements OnInit, OnDestroy {
   // ── Submit ─────────────────────────────────────────────────────────────────
 
   onSubmit(): void {
-    if (this.auditForm.invalid) { this.auditForm.markAllAsTouched(); return; }
+    if (this.auditForm.invalid) {
+      this.auditForm.markAllAsTouched();
+      return;
+    }
 
     this.isSubmitting = true;
     const raw = this.auditForm.getRawValue();
 
     const payload = {
-      taxpayerId:          raw.taxpayerId,
-      auditType:           raw.auditType,
-      taxType:             raw.taxType,
-      triggerReason:       raw.triggerReason,
-      fiscalYear:          raw.fiscalYear          || undefined,
-      taxPeriodStart:      raw.taxPeriodStart      || undefined,
-      taxPeriodEnd:        raw.taxPeriodEnd         || undefined,
-      riskScore:           raw.riskScore,
-      priority:            raw.priority,
-      returnReference:     raw.returnReference     || undefined,
+      taxpayerId: raw.taxpayerId,
+      auditType: raw.auditType,
+      taxType: raw.taxType,
+      triggerReason: raw.triggerReason,
+      fiscalYear: raw.fiscalYear || undefined,
+      taxPeriodStart: raw.taxPeriodStart || undefined,
+      taxPeriodEnd: raw.taxPeriodEnd || undefined,
+      riskScore: raw.riskScore,
+      priority: raw.priority,
+      returnReference: raw.returnReference || undefined,
       assignedOfficerName: raw.assignedOfficerName || undefined,
-      supervisorName:      raw.supervisorName       || undefined,
-      scheduledDate:       raw.scheduledDate        || undefined,
-      dueDate:             raw.dueDate              || undefined,
-      remarks:             raw.remarks              || undefined,
+      supervisorName: raw.supervisorName || undefined,
+      scheduledDate: raw.scheduledDate || undefined,
+      dueDate: raw.dueDate || undefined,
+      remarks: raw.remarks || undefined,
     };
 
-    this.auditService.createCase(payload)
+    this.auditService
+      .createCase(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: created => {
+        next: (created) => {
           this.isSubmitting = false;
           this.toast.success('Audit case created successfully.');
           this.router.navigate(['/audits', created.id]);
         },
-        error: () => { this.isSubmitting = false; }
+        error: () => {
+          this.isSubmitting = false;
+        },
       });
   }
 }

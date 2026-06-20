@@ -1,31 +1,3 @@
-/* ============================================================
-   NVTMS — National VAT & Tax Management System
-   Global Stylesheet
-   
-   Structure:
-   01. Design Tokens (CSS Custom Properties)
-   02. Base & Reset
-   03. Layout Shells
-   04. Section Anatomy (form-section, section-header, section-icon)
-   05. Form Grid & Groups
-   06. Form Labels & Hints
-   07. Form Controls (input-wrap, form-input, select, textarea)
-   08. Form Actions Bar
-   09. Buttons
-   10. Status Badges
-   11. VAT Category Badges
-   12. Code / BIN / Pill Display
-   13. Data Table (Desktop)
-   14. Mobile Cards
-   15. List Page Search Bar
-   16. View Page Anatomy (view-header-card, details-grid)
-   17. Edit Banner
-   18. Loading & Empty States
-   19. Modal
-   20. FAB Button
-   21. Responsive Breakpoints
-   ============================================================ */
-
 
 /* ── 01. Design Tokens ───────────────────────────────────────── */
 

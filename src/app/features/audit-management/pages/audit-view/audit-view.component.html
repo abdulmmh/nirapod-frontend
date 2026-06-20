@@ -61,33 +61,29 @@
 
   <!-- Action Buttons Row -->
   <div class="audit-action-row">
-    <button class="audit-action-btn" *ngIf="auditCase.status === 'CASE_CREATED'"
-      (click)="issueNotice()">
+    <button class="audit-action-btn" *ngIf="auditCase.status === 'CASE_CREATED'" (click)="issueNotice()">
       <i class="bi bi-bell-fill"></i> Issue Notice
     </button>
-    <button class="audit-action-btn" *ngIf="canRequestDocuments()"
-      (click)="openDocRequestModal()">
+    <button class="audit-action-btn" *ngIf="canRequestDocuments()" (click)="openDocRequestModal()">
       <i class="bi bi-folder2-open"></i> Request Documents
     </button>
-    <button class="audit-action-btn" *ngIf="canRaiseQuery()"
-      (click)="openQueryModal()">
+    <button class="audit-action-btn" *ngIf="canRaiseQuery()" (click)="openQueryModal()">
       <i class="bi bi-chat-dots-fill"></i> Raise Query
     </button>
-    <button class="audit-action-btn" *ngIf="canAddFinding()"
-      (click)="openFindingModal()">
+    <button class="audit-action-btn" *ngIf="canAddFinding()" (click)="openFindingModal()">
       <i class="bi bi-search"></i> Add Finding
     </button>
-    <button class="audit-action-btn success" *ngIf="canProposeAssessment()"
-      (click)="goToAssessment()">
+    <button class="audit-action-btn success" *ngIf="canProposeAssessment()" (click)="goToAssessment()">
       <i class="bi bi-calculator-fill"></i> Propose Assessment
     </button>
-    <button class="audit-action-btn warning" *ngIf="canApproveAssessment()"
-      (click)="openApprovalModal()">
+    <button class="audit-action-btn warning" *ngIf="canApproveAssessment()" (click)="openApprovalModal()">
       <i class="bi bi-shield-check"></i> Approve Assessment
     </button>
-    <button class="audit-action-btn danger" *ngIf="auditCase.status === 'ASSESSMENT_APPROVED'"
-      (click)="issueDemand()">
+    <button class="audit-action-btn danger" *ngIf="auditCase.status === 'ASSESSMENT_APPROVED'" (click)="issueDemand()">
       <i class="bi bi-receipt-cutoff"></i> Issue Demand Notice
+    </button>
+    <button class="audit-action-btn danger" *ngIf="canSendBack()" (click)="sendBack()">
+      <i class="bi bi-arrow-counterclockwise"></i> Send Back
     </button>
   </div>
 
@@ -127,29 +123,40 @@
         <div class="detail-card">
           <div class="detail-card-header"><i class="bi bi-person-fill"></i><span>Taxpayer</span></div>
           <div class="detail-body">
-            <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value fw-bold">{{ auditCase.taxpayerName }}</span></div>
-            <div class="detail-row"><span class="detail-label">TIN</span><span class="detail-value"><span class="code-badge">{{ auditCase.tinNumber }}</span></span></div>
-            <div class="detail-row"><span class="detail-label">Tax Type</span><span class="detail-value">{{ getTaxTypeLabel(auditCase.taxType) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value fw-bold">{{
+                auditCase.taxpayerName }}</span></div>
+            <div class="detail-row"><span class="detail-label">TIN</span><span class="detail-value"><span
+                  class="code-badge">{{ auditCase.tinNumber }}</span></span></div>
+            <div class="detail-row"><span class="detail-label">Tax Type</span><span class="detail-value">{{
+                getTaxTypeLabel(auditCase.taxType) }}</span></div>
           </div>
         </div>
 
         <div class="detail-card">
           <div class="detail-card-header"><i class="bi bi-folder-fill"></i><span>Case Details</span></div>
           <div class="detail-body">
-            <div class="detail-row"><span class="detail-label">Case No</span><span class="detail-value"><span class="code-badge">{{ auditCase.caseNo }}</span></span></div>
-            <div class="detail-row"><span class="detail-label">Audit Type</span><span class="detail-value">{{ getTypeLabel(auditCase.auditType) }}</span></div>
-            <div class="detail-row"><span class="detail-label">Fiscal Year</span><span class="detail-value">{{ auditCase.fiscalYear || '—' }}</span></div>
-            <div class="detail-row"><span class="detail-label">Period</span><span class="detail-value">{{ auditCase.taxPeriodStart || '—' }} → {{ auditCase.taxPeriodEnd || '—' }}</span></div>
-            <div class="detail-row" *ngIf="auditCase.returnReference"><span class="detail-label">Return Ref</span><span class="detail-value"><span class="code-badge">{{ auditCase.returnReference }}</span></span></div>
+            <div class="detail-row"><span class="detail-label">Case No</span><span class="detail-value"><span
+                  class="code-badge">{{ auditCase.caseNo }}</span></span></div>
+            <div class="detail-row"><span class="detail-label">Audit Type</span><span class="detail-value">{{
+                getTypeLabel(auditCase.auditType) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Fiscal Year</span><span class="detail-value">{{
+                auditCase.fiscalYear || '—' }}</span></div>
+            <div class="detail-row"><span class="detail-label">Period</span><span class="detail-value">{{
+                auditCase.taxPeriodStart || '—' }} → {{ auditCase.taxPeriodEnd || '—' }}</span></div>
+            <div class="detail-row" *ngIf="auditCase.returnReference"><span class="detail-label">Return Ref</span><span
+                class="detail-value"><span class="code-badge">{{ auditCase.returnReference }}</span></span></div>
           </div>
         </div>
 
         <div class="detail-card">
-          <div class="detail-card-header"><i class="bi bi-lightning-charge-fill"></i><span>Trigger &amp; Risk</span></div>
+          <div class="detail-card-header"><i class="bi bi-lightning-charge-fill"></i><span>Trigger &amp; Risk</span>
+          </div>
           <div class="detail-body">
-            <div class="detail-row"><span class="detail-label">Trigger</span><span class="detail-value">{{ getTriggerLabel(auditCase.triggerReason) }}</span></div>
+            <div class="detail-row"><span class="detail-label">Trigger</span><span class="detail-value">{{
+                getTriggerLabel(auditCase.triggerReason) }}</span></div>
             <div class="detail-row"><span class="detail-label">Priority</span>
-              <span class="detail-value"><span class="priority-pill" [ngClass]="getPriorityClass(auditCase.priority)">{{ auditCase.priority }}</span></span>
+              <span class="detail-value"><span class="priority-pill" [ngClass]="getPriorityClass(auditCase.priority)">{{
+                  auditCase.priority }}</span></span>
             </div>
             <div class="detail-row"><span class="detail-label">Risk Score</span>
               <span class="detail-value">
@@ -162,14 +169,20 @@
         <div class="detail-card">
           <div class="detail-card-header"><i class="bi bi-person-check-fill"></i><span>Assignment</span></div>
           <div class="detail-body">
-            <div class="detail-row"><span class="detail-label">Officer</span><span class="detail-value">{{ auditCase.assignedOfficerName || '—' }}</span></div>
-            <div class="detail-row"><span class="detail-label">Supervisor</span><span class="detail-value">{{ auditCase.supervisorName || '—' }}</span></div>
-            <div class="detail-row"><span class="detail-label">Scheduled</span><span class="detail-value">{{ auditCase.scheduledDate || '—' }}</span></div>
+            <div class="detail-row"><span class="detail-label">Officer</span><span class="detail-value">{{
+                auditCase.assignedOfficerName || '—' }}</span></div>
+            <div class="detail-row"><span class="detail-label">Supervisor</span><span class="detail-value">{{
+                auditCase.supervisorName || '—' }}</span></div>
+            <div class="detail-row"><span class="detail-label">Scheduled</span><span class="detail-value">{{
+                auditCase.scheduledDate || '—' }}</span></div>
             <div class="detail-row"><span class="detail-label">Due Date</span>
-              <span class="detail-value" [class.due-overdue]="isDue(auditCase.dueDate)">{{ auditCase.dueDate || '—' }}</span>
+              <span class="detail-value" [class.due-overdue]="isDue(auditCase.dueDate)">{{ auditCase.dueDate || '—'
+                }}</span>
             </div>
-            <div class="detail-row"><span class="detail-label">Created By</span><span class="detail-value">{{ auditCase.createdBy }}</span></div>
-            <div class="detail-row"><span class="detail-label">Created At</span><span class="detail-value">{{ auditCase.createdAt | date:'mediumDate' }}</span></div>
+            <div class="detail-row"><span class="detail-label">Created By</span><span class="detail-value">{{
+                auditCase.createdBy }}</span></div>
+            <div class="detail-row"><span class="detail-label">Created At</span><span class="detail-value">{{
+                auditCase.createdAt | date:'mediumDate' }}</span></div>
           </div>
         </div>
 
@@ -178,7 +191,8 @@
       <div class="detail-card mt-3" *ngIf="auditCase.remarks">
         <div class="detail-card-header"><i class="bi bi-chat-text"></i><span>Remarks</span></div>
         <div class="detail-body">
-          <div class="detail-row"><span class="detail-value" style="text-align:left;">{{ auditCase.remarks }}</span></div>
+          <div class="detail-row"><span class="detail-value" style="text-align:left;">{{ auditCase.remarks }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -187,7 +201,8 @@
     <div class="atab-content" *ngIf="activeTab==='queries'">
       <div class="tab-action-bar">
         <span class="tab-section-title">Audit Queries</span>
-        <button class="btn-search" style="padding:7px 14px;font-size:12px;" *ngIf="canRaiseQuery()" (click)="openQueryModal()">
+        <button class="btn-search" style="padding:7px 14px;font-size:12px;" *ngIf="canRaiseQuery()"
+          (click)="openQueryModal()">
           <i class="bi bi-plus-lg"></i> Raise Query
         </button>
       </div>
@@ -199,7 +214,8 @@
           <div class="aic-header">
             <span class="code-badge">{{ q.queryNo }}</span>
             <span class="cat-badge">{{ q.queryType }}</span>
-            <span class="status-badge" [ngClass]="q.status==='OPEN' ? 'badge-warning' : 'badge-success'">{{ q.status }}</span>
+            <span class="status-badge" [ngClass]="q.status==='OPEN' ? 'badge-warning' : 'badge-success'">{{ q.status
+              }}</span>
             <span class="due-overdue" *ngIf="q.deadline && isDue(q.deadline)">Overdue</span>
           </div>
           <div class="aic-title">{{ q.subject }}</div>
@@ -216,7 +232,8 @@
           </div>
         </div>
         <div class="empty-state" *ngIf="queries.length === 0">
-          <i class="bi bi-chat-dots"></i><p>No queries raised yet.</p>
+          <i class="bi bi-chat-dots"></i>
+          <p>No queries raised yet.</p>
         </div>
       </div>
     </div>
@@ -225,7 +242,8 @@
     <div class="atab-content" *ngIf="activeTab==='documents'">
       <div class="tab-action-bar">
         <span class="tab-section-title">Document Requests</span>
-        <button class="btn-search" style="padding:7px 14px;font-size:12px;" *ngIf="canRequestDocuments()" (click)="openDocRequestModal()">
+        <button class="btn-search" style="padding:7px 14px;font-size:12px;" *ngIf="canRequestDocuments()"
+          (click)="openDocRequestModal()">
           <i class="bi bi-plus-lg"></i> Request Documents
         </button>
       </div>
@@ -244,7 +262,8 @@
           <div class="aic-meta">
             <span><i class="bi bi-person-fill"></i> {{ dr.requestedBy }}</span>
             <span><i class="bi bi-clock"></i> {{ dr.requestedAt | date:'mediumDate' }}</span>
-            <span *ngIf="dr.deadline" [class.due-overdue]="isDue(dr.deadline)">Due: {{ dr.deadline | date:'mediumDate' }}</span>
+            <span *ngIf="dr.deadline" [class.due-overdue]="isDue(dr.deadline)">Due: {{ dr.deadline | date:'mediumDate'
+              }}</span>
           </div>
           <div class="aic-response" *ngIf="dr.fulfillmentNotes">
             <span class="air-label"><i class="bi bi-check-circle-fill text-success"></i> Fulfilled</span>
@@ -252,7 +271,8 @@
           </div>
         </div>
         <div class="empty-state" *ngIf="docRequests.length === 0">
-          <i class="bi bi-folder2-open"></i><p>No document requests yet.</p>
+          <i class="bi bi-folder2-open"></i>
+          <p>No document requests yet.</p>
         </div>
       </div>
     </div>
@@ -265,7 +285,8 @@
             Total Additional Tax: <strong>{{ findingsTotalTax | number:'1.2-2' }} BDT</strong>
           </span>
         </span>
-        <button class="btn-search" style="padding:7px 14px;font-size:12px;" *ngIf="canAddFinding()" (click)="openFindingModal()">
+        <button class="btn-search" style="padding:7px 14px;font-size:12px;" *ngIf="canAddFinding()"
+          (click)="openFindingModal()">
           <i class="bi bi-plus-lg"></i> Add Finding
         </button>
       </div>
@@ -285,9 +306,12 @@
             <div class="finding-basis" *ngIf="f.legalBasis"><i class="bi bi-book-fill"></i> {{ f.legalBasis }}</div>
             <div class="finding-amounts">
               <div class="fa-item"><label>Declared</label><span>{{ f.declaredAmount | number:'1.2-2' }}</span></div>
-              <div class="fa-item"><label>Assessed</label><span class="text-primary">{{ f.assessedAmount | number:'1.2-2' }}</span></div>
-              <div class="fa-item"><label>Variance</label><span [class.text-danger]="f.varianceAmount > 0">{{ f.varianceAmount | number:'1.2-2' }}</span></div>
-              <div class="fa-item"><label>Addl. Tax</label><span class="text-danger fw-bold">{{ f.additionalTax | number:'1.2-2' }}</span></div>
+              <div class="fa-item"><label>Assessed</label><span class="text-primary">{{ f.assessedAmount |
+                  number:'1.2-2' }}</span></div>
+              <div class="fa-item"><label>Variance</label><span [class.text-danger]="f.varianceAmount > 0">{{
+                  f.varianceAmount | number:'1.2-2' }}</span></div>
+              <div class="fa-item"><label>Addl. Tax</label><span class="text-danger fw-bold">{{ f.additionalTax |
+                  number:'1.2-2' }}</span></div>
             </div>
             <div class="aic-meta">
               <span><i class="bi bi-person-fill"></i> {{ f.recordedBy }}</span>
@@ -296,7 +320,8 @@
           </div>
         </div>
         <div class="empty-state" *ngIf="findings.length === 0">
-          <i class="bi bi-search"></i><p>No findings recorded yet.</p>
+          <i class="bi bi-search"></i>
+          <p>No findings recorded yet.</p>
         </div>
       </div>
     </div>
@@ -306,10 +331,12 @@
       <div class="tab-action-bar">
         <span class="tab-section-title">Assessment Order</span>
         <div class="d-flex gap-2">
-          <button class="btn-search" style="padding:7px 14px;font-size:12px;background:#1a7a45;" *ngIf="canProposeAssessment()" (click)="goToAssessment()">
+          <button class="btn-search" style="padding:7px 14px;font-size:12px;background:#1a7a45;"
+            *ngIf="canProposeAssessment()" (click)="goToAssessment()">
             <i class="bi bi-calculator-fill"></i> Propose Assessment
           </button>
-          <button class="btn-search" style="padding:7px 14px;font-size:12px;background:#e65100;" *ngIf="canApproveAssessment()" (click)="openApprovalModal()">
+          <button class="btn-search" style="padding:7px 14px;font-size:12px;background:#e65100;"
+            *ngIf="canApproveAssessment()" (click)="openApprovalModal()">
             <i class="bi bi-shield-check"></i> Approve
           </button>
         </div>
@@ -318,19 +345,30 @@
         <div class="detail-card">
           <div class="detail-card-header"><i class="bi bi-calculator-fill"></i><span>Assessment Summary</span></div>
           <div class="detail-body">
-            <div class="detail-row"><span class="detail-label">Assessment No</span><span class="detail-value"><span class="code-badge">{{ assessment.assessmentNo }}</span></span></div>
-            <div class="detail-row"><span class="detail-label">Additional Tax</span><span class="detail-value">{{ assessment.additionalTax | number:'1.2-2' }} BDT</span></div>
-            <div class="detail-row"><span class="detail-label">Penalty</span><span class="detail-value">{{ assessment.penaltyAmount | number:'1.2-2' }} BDT</span></div>
-            <div class="detail-row"><span class="detail-label">Interest</span><span class="detail-value">{{ assessment.interestAmount | number:'1.2-2' }} BDT</span></div>
-            <div class="detail-row"><span class="detail-label">Total Demand</span><span class="detail-value fw-bold text-danger">{{ assessment.totalDemand | number:'1.2-2' }} BDT</span></div>
-            <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge" [ngClass]="getStatusClass(assessment.status)">{{ assessment.status }}</span></span></div>
-            <div class="detail-row" *ngIf="assessment.paymentDeadline"><span class="detail-label">Pay By</span><span class="detail-value due-overdue">{{ assessment.paymentDeadline | date:'mediumDate' }}</span></div>
-            <div class="detail-row" *ngIf="assessment.approvedBy"><span class="detail-label">Approved By</span><span class="detail-value">{{ assessment.approvedBy }}</span></div>
+            <div class="detail-row"><span class="detail-label">Assessment No</span><span class="detail-value"><span
+                  class="code-badge">{{ assessment.assessmentNo }}</span></span></div>
+            <div class="detail-row"><span class="detail-label">Additional Tax</span><span class="detail-value">{{
+                assessment.additionalTax | number:'1.2-2' }} BDT</span></div>
+            <div class="detail-row"><span class="detail-label">Penalty</span><span class="detail-value">{{
+                assessment.penaltyAmount | number:'1.2-2' }} BDT</span></div>
+            <div class="detail-row"><span class="detail-label">Interest</span><span class="detail-value">{{
+                assessment.interestAmount | number:'1.2-2' }} BDT</span></div>
+            <div class="detail-row"><span class="detail-label">Total Demand</span><span
+                class="detail-value fw-bold text-danger">{{ assessment.totalDemand | number:'1.2-2' }} BDT</span></div>
+            <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span
+                  class="status-badge" [ngClass]="getStatusClass(assessment.status)">{{ assessment.status
+                  }}</span></span></div>
+            <div class="detail-row" *ngIf="assessment.paymentDeadline"><span class="detail-label">Pay By</span><span
+                class="detail-value due-overdue">{{ assessment.paymentDeadline | date:'mediumDate' }}</span></div>
+            <div class="detail-row" *ngIf="assessment.approvedBy"><span class="detail-label">Approved By</span><span
+                class="detail-value">{{ assessment.approvedBy }}</span></div>
           </div>
         </div>
       </ng-container>
       <ng-template #noAssessment>
-        <div class="empty-state"><i class="bi bi-calculator"></i><p>No assessment proposed yet.</p></div>
+        <div class="empty-state"><i class="bi bi-calculator"></i>
+          <p>No assessment proposed yet.</p>
+        </div>
       </ng-template>
     </div>
 
@@ -354,12 +392,15 @@
         <div class="detail-card mt-3">
           <div class="detail-card-header"><i class="bi bi-bank"></i><span>Payment Instructions</span></div>
           <div class="detail-body">
-            <div class="detail-row"><span class="detail-value" style="text-align:left;">{{ demandNotice.paymentInstructions }}</span></div>
+            <div class="detail-row"><span class="detail-value" style="text-align:left;">{{
+                demandNotice.paymentInstructions }}</span></div>
           </div>
         </div>
       </ng-container>
       <ng-template #noDemand>
-        <div class="empty-state"><i class="bi bi-receipt"></i><p>Demand notice not issued yet.</p></div>
+        <div class="empty-state"><i class="bi bi-receipt"></i>
+          <p>Demand notice not issued yet.</p>
+        </div>
       </ng-template>
     </div>
 
@@ -383,7 +424,8 @@
           </div>
         </div>
         <div class="empty-state" *ngIf="!auditCase.statusHistory.length">
-          <i class="bi bi-clock-history"></i><p>No status history yet.</p>
+          <i class="bi bi-clock-history"></i>
+          <p>No status history yet.</p>
         </div>
       </div>
     </div>
@@ -425,7 +467,8 @@
         <label class="form-label required">Query Details</label>
         <div class="input-wrap">
           <i class="bi bi-chat-text input-icon textarea-icon"></i>
-          <textarea class="form-input form-textarea" rows="4" formControlName="queryText" placeholder="Describe the query..."></textarea>
+          <textarea class="form-input form-textarea" rows="4" formControlName="queryText"
+            placeholder="Describe the query..."></textarea>
         </div>
       </div>
       <div class="form-group mb-3">

@@ -60,10 +60,10 @@ export class AuditService {
     status: string,
     reason: string,
   ): Observable<AuditCase> {
-    return this.http.patch<AuditCase>(API_ENDPOINTS.AUDITS.STATUS(id), {
-      status,
-      reason,
-    });
+    return this.http.patch<AuditCase>(
+      `${API_ENDPOINTS.AUDITS.STATUS(id)}`,
+      { status, reason },
+    );
   }
 
   issueNotice(id: number, remarks?: string): Observable<AuditCase> {
