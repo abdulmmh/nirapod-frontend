@@ -9,21 +9,42 @@
   </a>
 </div>
 
-<!-- Tabs -->
-<div class="approval-tabs">
-  <button [class.active]="activeTab === 'ALL'" (click)="setTab('ALL')">
-    All
-  </button>
-  <button [class.active]="activeTab === 'PENDING'" (click)="setTab('PENDING')">
-    Pending Review
-    <span class="tab-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
-  </button>
-  <button [class.active]="activeTab === 'APPROVED'" (click)="setTab('APPROVED')">
-    Approved
-  </button>
-  <button [class.active]="activeTab === 'REJECTED'" (click)="setTab('REJECTED')">
-    Rejected
-  </button>
+<!-- KPI Summary Cards -->
+<div class="kpi-cards-row" *ngIf="!isLoading">
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('PENDING_REVIEW')"
+       (click)="onKpiCardClick('PENDING_REVIEW')">
+    <div class="kpi-icon kpi-icon-pending"><i class="bi bi-hourglass-split"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Pending Review</span>
+      <span class="kpi-value">{{ kpiPending }}</span>
+    </div>
+  </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('APPROVED')"
+       (click)="onKpiCardClick('APPROVED')">
+    <div class="kpi-icon kpi-icon-approved"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Approved</span>
+      <span class="kpi-value">{{ kpiApproved }}</span>
+    </div>
+  </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('REJECTED')"
+       (click)="onKpiCardClick('REJECTED')">
+    <div class="kpi-icon kpi-icon-rejected"><i class="bi bi-x-circle-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Rejected</span>
+      <span class="kpi-value">{{ kpiRejected }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-icon-total"><i class="bi bi-people-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Active Taxpayers</span>
+      <span class="kpi-value">{{ kpiActive }}</span>
+    </div>
+  </div>
 </div>
 
 <div class="page-wrapper">
@@ -36,11 +57,24 @@
           type="text"
           placeholder="Search by name, TIN, email, phone..."
           [(ngModel)]="searchTerm"
+          (ngModelChange)="onFilterChange()"
         />
       </div>
       <button *canDo="'export'" class="btn btn-export" (click)="onExport()" [disabled]="isExporting">
         <i class="bi" [ngClass]="isExporting ? 'bi-hourglass-split spin' : 'bi-file-earmark-excel'"></i> 
         {{ isExporting ? 'Exporting...' : 'Export to CSV' }}
+      </button>
+    </div>
+
+    <div class="filter-row">
+      <select class="filter-select" [class.active-filter]="!!typeFilter"
+        [(ngModel)]="typeFilter" (ngModelChange)="onFilterChange()">
+        <option value="">All Types</option>
+        <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
+      </select>
+
+      <button class="btn-clear-filters" *ngIf="hasActiveFilters()" (click)="clearFilters()">
+        <i class="bi bi-x-circle"></i> Clear
       </button>
     </div>
   </div>
@@ -61,8 +95,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let tp of filteredTaxpayers; let i = index">
-          <td>{{ i + 1 }}</td>
+        <tr *ngFor="let tp of paginatedTaxpayers; let i = index">
+          <td>{{ pageRangeStart + i }}</td>
           <td>
             <span class="tin-code" [ngStyle]="{'background': !tp.tinNumber ? '#f5f7fb' : '', 'color': !tp.tinNumber ? '#888' : ''}">
               {{ tp.tinNumber || 'Not Assigned' }}
@@ -133,8 +167,27 @@
     </table>
   </div>
 
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && filteredTaxpayers.length > 0">
+    <span class="pagination-info">
+      Showing {{ pageRangeStart }}–{{ pageRangeEnd }} of {{ filteredTaxpayers.length }}
+    </span>
+    <div class="pagination-controls">
+      <button class="btn-page-nav" (click)="goToPrevPage()" [disabled]="currentPage === 1">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span class="pagination-page-tag">{{ currentPage }}</span>
+      <button class="btn-page-nav" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <select class="page-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+      <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }} / page</option>
+    </select>
+  </div>
+
   <div class="mobile-cards">
-    <div class="mobile-card" *ngFor="let tp of filteredTaxpayers">
+    <div class="mobile-card" *ngFor="let tp of paginatedTaxpayers">
       
       <div class="mobile-card-header">
         <div class="mobile-card-title">

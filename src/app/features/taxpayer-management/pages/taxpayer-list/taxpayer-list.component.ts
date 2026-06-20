@@ -54,8 +54,16 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   isSendingNotice   = false;
   isFromAddressWarn = false;
 
-  // Tab filter
-  activeTab: 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED' = 'ALL';
+  // ── Filters — replaces the old tab pattern with KPI cards + dropdown ──────
+  approvalFilter: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | '' = '';
+  typeFilter = '';
+
+  typeOptions: string[] = [];   // populated from taxpayerType.typeName once data loads
+
+  // ── Pagination ──────────────────────────────────────────────────────────
+  currentPage = 1;
+  pageSize = 20;
+  readonly pageSizeOptions = [10, 20, 50, 100];
 
   // ──────────────Constructor  ───────────────────
 
@@ -96,6 +104,7 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
   private handleFetchSuccess(data: Taxpayer[]): void {
     this.taxpayers = data;
     this.taxpayers = data.filter(tp => tp.status !== 'Inactive');
+    this.buildTypeOptions();
     this.notifyIfEmpty(data);
   }
 
@@ -112,6 +121,15 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Extracts distinct taxpayer type names for the Type filter dropdown. */
+  private buildTypeOptions(): void {
+    const types = new Set<string>();
+    for (const tp of this.taxpayers) {
+      if (tp.taxpayerType?.typeName) types.add(tp.taxpayerType.typeName);
+    }
+    this.typeOptions = Array.from(types).sort();
+  }
+
   // ─────────────────── Helper Methods ────────────────────────
 
   getDisplayName(taxpayer: any): string {
@@ -124,24 +142,74 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ── KPI Summary Cards — mirrors Payment/ITR/Business module's card row ────
+
+  get kpiPending(): number {
+    return this.taxpayers.filter((tp) => tp.approvalStatus === 'PENDING_REVIEW').length;
+  }
+
+  get kpiApproved(): number {
+    return this.taxpayers.filter((tp) => tp.approvalStatus === 'APPROVED').length;
+  }
+
+  get kpiRejected(): number {
+    return this.taxpayers.filter((tp) => tp.approvalStatus === 'REJECTED').length;
+  }
+
+  get kpiActive(): number {
+    return this.taxpayers.filter((tp) => tp.status === 'Active').length;
+  }
+
+  /** Kept for compatibility with anything still referencing the old name. */
+  get pendingCount(): number {
+    return this.kpiPending;
+  }
+
+  /** Called when a clickable KPI status card is clicked — toggles filter. */
+  onKpiCardClick(status: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED'): void {
+    this.approvalFilter = this.approvalFilter === status ? '' : status;
+    this.currentPage = 1;
+  }
+
+  isKpiActive(status: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED'): boolean {
+    return this.approvalFilter === status;
+  }
+
+  /** Any filter/search change resets back to page 1 — call from (ngModelChange). */
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchTerm || this.approvalFilter || this.typeFilter);
+  }
+
+  clearFilters(): void {
+    this.searchTerm     = '';
+    this.approvalFilter = '';
+    this.typeFilter     = '';
+    this.currentPage    = 1;
+  }
+
   // ─────────────────── Filtering ────────────────────────
 
   get filteredTaxpayers(): Taxpayer[] {
     let result = this.taxpayers;
 
-    // Tab filter
-    if (this.activeTab === 'PENDING') {
-      result = result.filter(tp => tp.approvalStatus === 'PENDING_REVIEW');
-    } else if (this.activeTab === 'APPROVED') {
-      result = result.filter(tp => tp.approvalStatus === 'APPROVED');
-    } else if (this.activeTab === 'REJECTED') {
-      result = result.filter(tp => tp.approvalStatus === 'REJECTED');
+    if (this.approvalFilter) {
+      result = result.filter(tp => tp.approvalStatus === this.approvalFilter);
     }
 
-    // Search filter
-    if (!this.searchTerm.trim()) return result;
-    const term = this.searchTerm.toLowerCase();
-    return result.filter(tp => this.matchesSearchTerm(tp, term));
+    if (this.typeFilter) {
+      result = result.filter(tp => tp.taxpayerType?.typeName === this.typeFilter);
+    }
+
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      result = result.filter(tp => this.matchesSearchTerm(tp, term));
+    }
+
+    return result;
   }
 
   private matchesSearchTerm(tp: Taxpayer, term: string): boolean {
@@ -156,6 +224,38 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
       email.includes(term) ||
       phone.includes(term)
     );
+  }
+
+  // ── Pagination ───────────────────────────────────────────────────────────
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredTaxpayers.length / this.pageSize));
+  }
+
+  get paginatedTaxpayers(): Taxpayer[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredTaxpayers.slice(start, start + this.pageSize);
+  }
+
+  get pageRangeStart(): number {
+    if (this.filteredTaxpayers.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageRangeEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredTaxpayers.length);
+  }
+
+  goToPrevPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
   }
 
   // ─────────────────── Delete Flow ────────────────────────
@@ -213,16 +313,6 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
 
   editTaxpayers(id: number | undefined): void {
     if (id) this.router.navigate(['/taxpayers/edit', id]);
-  }
-
-
-    // Tab
-  setTab(tab: 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'): void {
-    this.activeTab = tab;
-  }
-
-  get pendingCount(): number {
-    return this.taxpayers.filter(tp => tp.approvalStatus === 'PENDING_REVIEW').length;
   }
 
   // Approve flow

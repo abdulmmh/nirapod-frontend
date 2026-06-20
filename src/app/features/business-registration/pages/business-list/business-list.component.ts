@@ -25,6 +25,25 @@ export class BusinessListComponent implements OnInit, OnDestroy {
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
 
+  // ── Filters — matches Payment/ITR module's dropdown pattern ────────────────
+  statusFilter   = '';
+  typeFilter     = '';
+  categoryFilter = '';
+
+  readonly statusOptions: string[] = ['Active', 'Inactive', 'Pending', 'Suspended', 'Dissolved'];
+  readonly typeOptions: string[] = [
+    'Sole Proprietorship', 'Partnership', 'Private Limited', 'Public Limited', 'NGO', 'Other',
+  ];
+  readonly categoryOptions: string[] = [
+    'Manufacturing', 'Trading', 'Service', 'Agriculture',
+    'Construction', 'IT', 'Healthcare', 'Education', 'Other',
+  ];
+
+  // ── Pagination ──────────────────────────────────────────────────────────
+  currentPage = 1;
+  pageSize = 20;
+  readonly pageSizeOptions = [10, 20, 50, 100];
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -88,12 +107,51 @@ export class BusinessListComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ── KPI Summary Cards — mirrors Payment/ITR module's card row ──────────────
+
+  get kpiActive(): number {
+    return this.businesses.filter((b) => b.status === 'Active').length;
+  }
+
+  get kpiPending(): number {
+    return this.businesses.filter((b) => b.status === 'Pending').length;
+  }
+
+  get kpiSuspended(): number {
+    return this.businesses.filter((b) => b.status === 'Suspended').length;
+  }
+
+  get kpiExpiringSoon(): number {
+    return this.businesses.filter((b) => this.isExpiringSoon(b.expiryDate!)).length;
+  }
+
+  get kpiTotalTurnover(): number {
+    return this.businesses
+      .filter((b) => b.status === 'Active')
+      .reduce((sum, b) => sum + (b.annualTurnover || 0), 0);
+  }
+
   // ────────────────── Filtering ──────────────────────
 
   get filteredBusinesses(): Business[] {
-    if (!this.searchTerm.trim()) return this.businesses;
-    const term = this.searchTerm.toLowerCase();
-    return this.businesses.filter((b) => this.matchesSearch(b, term));
+    let result = this.businesses;
+
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      result = result.filter((b) => this.matchesSearch(b, term));
+    }
+
+    if (this.statusFilter) {
+      result = result.filter((b) => b.status === this.statusFilter);
+    }
+    if (this.typeFilter) {
+      result = result.filter((b) => this.getTypeName(b.businessType) === this.typeFilter);
+    }
+    if (this.categoryFilter) {
+      result = result.filter((b) => this.getCategoryName(b.businessCategory) === this.categoryFilter);
+    }
+
+    return result;
   }
 
   private matchesSearch(b: Business, term: string): boolean {
@@ -107,6 +165,66 @@ export class BusinessListComponent implements OnInit, OnDestroy {
       (b.district?.name?.toLowerCase().includes(term) ?? false) ||
       (b.division?.name?.toLowerCase().includes(term) ?? false)
     );
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchTerm || this.statusFilter || this.typeFilter || this.categoryFilter);
+  }
+
+  clearFilters(): void {
+    this.searchTerm     = '';
+    this.statusFilter   = '';
+    this.typeFilter     = '';
+    this.categoryFilter = '';
+    this.currentPage    = 1;
+  }
+
+  /** Called when a clickable KPI status card is clicked — toggles filter. */
+  onKpiCardClick(status: string): void {
+    this.statusFilter = this.statusFilter === status ? '' : status;
+    this.currentPage  = 1;
+  }
+
+  /** Returns true when a given status card is the active filter. */
+  isKpiActive(status: string): boolean {
+    return this.statusFilter === status;
+  }
+
+  /** Any filter/search change resets back to page 1 — call from (ngModelChange). */
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
+
+  // ── Pagination ───────────────────────────────────────────────────────────
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredBusinesses.length / this.pageSize));
+  }
+
+  get paginatedBusinesses(): Business[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredBusinesses.slice(start, start + this.pageSize);
+  }
+
+  get pageRangeStart(): number {
+    if (this.filteredBusinesses.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageRangeEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredBusinesses.length);
+  }
+
+  goToPrevPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
   }
 
   // ──────────────── Delete Flow  ─────────────────
