@@ -1,32 +1,71 @@
-/* Uses global styles-form.css — only additions here */
-
-.appeal-context-banner {
-  display: flex; align-items: flex-start; gap: 12px;
-  background: #ebf3ff; border-left: 4px solid #1a3f8f;
-  border-radius: 0; padding: 14px 24px;
-  font-size: 13px; color: #1a2340;
-}
-.appeal-context-banner i { font-size: 16px; color: #1a3f8f; flex-shrink: 0; margin-top: 2px; }
-.appeal-context-banner span { margin-left: 4px; }
-
-.appeal-rights-notice {
-  display: flex; align-items: flex-start; gap: 12px;
-  margin: 0 28px 20px;
-  background: #f0fdf4; border: 1px solid #86efac;
-  border-radius: 10px; padding: 14px 16px;
-  font-size: 13px; color: #1a2340; line-height: 1.6;
-}
-.appeal-rights-notice i { font-size: 16px; color: #1a7a45; flex-shrink: 0; margin-top: 2px; }
-
-
+/* Error Banner */
 .appeal-submit-error {
-  display: flex; align-items: flex-start; gap: 12px;
-  background: #fef2f2; border: 1px solid #fecaca;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   border-left: 4px solid #ef4444;
-  border-radius: 10px; padding: 14px 16px;
-  margin: 0 28px 20px;
-  font-size: 13px; color: #7f1d1d;
+  border-radius: 0;
+  padding: 14px 24px;
+  font-size: 13px;
+  color: #7f1d1d;
+  margin-bottom: 0;
 }
-.appeal-submit-error i { font-size: 18px; color: #ef4444; flex-shrink: 0; margin-top: 2px; }
-.appeal-submit-error strong { display: block; margin-bottom: 4px; font-weight: 700; }
-.appeal-submit-error p { margin: 0; }
+.appeal-submit-error i {
+  font-size: 18px;
+  color: #ef4444;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.appeal-submit-error strong {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+.appeal-submit-error p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Context Banner */
+.appeal-context-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #ebf3ff;
+  border-left: 4px solid #1a3f8f;
+  padding: 14px 24px;
+  font-size: 13px;
+  color: #1a2340;
+}
+.appeal-context-banner i {
+  font-size: 16px;
+  color: #1a3f8f;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.appeal-context-banner span {
+  margin-left: 4px;
+}
+
+/* Appeal Rights */
+.appeal-rights-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 28px 20px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #1a2340;
+  line-height: 1.6;
+}
+.appeal-rights-notice i {
+  font-size: 16px;
+  color: #1a7a45;
+  flex-shrink: 0;
+  margin-top: 2px;
+}

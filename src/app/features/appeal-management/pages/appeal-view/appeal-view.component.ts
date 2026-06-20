@@ -18,29 +18,29 @@ export class AppealViewComponent implements OnInit {
   isLoading = false;
   appealId = 0;
 
-  showHearingModal = false;
+  showHearingModal  = false;
   showDecisionModal = false;
   showWithdrawModal = false;
 
-  hearingSubmitting = false;
+  hearingSubmitting  = false;
   decisionSubmitting = false;
   withdrawSubmitting = false;
 
-  hearingForm!: FormGroup;
+  hearingForm!:  FormGroup;
   decisionForm!: FormGroup;
   withdrawReason = '';
 
-  // ── Officer dropdown ──────────────────────────────────────────────────────
+  // ── Officer dropdown ────────────────────────────────────────────────────
   officers: { fullName: string; email: string; role: string }[] = [];
   officersLoading = false;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private fb: FormBuilder,
-    private http: HttpClient,
+    private route:         ActivatedRoute,
+    private router:        Router,
+    private fb:            FormBuilder,
+    private http:          HttpClient,
     private appealService: AppealService,
-    private authService: AuthService,
+    private authService:   AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -51,15 +51,15 @@ export class AppealViewComponent implements OnInit {
 
   buildForms(): void {
     this.hearingForm = this.fb.group({
-      hearingDate: ['', Validators.required],
+      hearingDate:  ['', Validators.required],
       hearingVenue: ['', Validators.required],
       hearingNotes: [''],
-      assignedTo: [''],
+      assignedTo:   [''],
     });
     this.decisionForm = this.fb.group({
-      decision: ['', Validators.required],
-      decisionNotes: [''],
-      reliefGranted: [0],
+      decision:       ['', Validators.required],
+      decisionNotes:  [''],
+      reliefGranted:  [0],
       acceptedAmount: [0],
     });
   }
@@ -67,102 +67,79 @@ export class AppealViewComponent implements OnInit {
   load(): void {
     this.isLoading = true;
     this.appealService.getById(this.appealId).subscribe({
-      next: (a) => {
-        this.appeal = a;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-        this.router.navigate(['/appeals']);
-      },
+      next: (a) => { this.appeal = a; this.isLoading = false; },
+      error: ()  => { this.isLoading = false; this.router.navigate(['/appeals']); },
     });
   }
 
-  onBack(): void {
-    this.router.navigate(['/appeals']);
-  }
+  onBack(): void { this.router.navigate(['/appeals']); }
 
-  // ── Officer list ──────────────────────────────────────────────────────────
+  // ── Officer list ────────────────────────────────────────────────────────
   loadOfficers(): void {
     if (this.officers.length > 0) return;
     this.officersLoading = true;
-    this.http
-      .get<{ fullName: string; email: string; role: string }[]>(
-        '/api/users?roles=TAX_OFFICER,SUPERVISOR,TAX_COMMISSIONER',
-      )
+
+    // Try with roles filter first — if endpoint doesn't support it,
+    // fallback to all users and filter on frontend
+    this.http.get<any[]>('/api/users')
       .pipe(finalize(() => (this.officersLoading = false)))
       .subscribe({
-        next: (u) => {
-          this.officers = u ?? [];
+        next: (users) => {
+          // Frontend filter — only officer roles
+          this.officers = (users ?? []).filter(u =>
+            ['TAX_OFFICER', 'SUPERVISOR', 'TAX_COMMISSIONER',
+             'SUPER_ADMIN', 'AUDITOR'].includes(u.role)
+          );
         },
-        error: () => {
-          this.officers = [];
-        },
+        error: () => { this.officers = []; },
       });
   }
 
   openHearingModal(): void {
     this.hearingForm.reset({
-      hearingDate: '',
-      hearingVenue: '',
-      hearingNotes: '',
-      assignedTo: '',
+      hearingDate: '', hearingVenue: '', hearingNotes: '', assignedTo: ''
     });
     this.loadOfficers();
     this.showHearingModal = true;
   }
 
-  // ── Workflow actions ───────────────────────────────────────────────────────
+  // ── Workflow actions ────────────────────────────────────────────────────
   takeUnderReview(): void {
     this.appealService.takeUnderReview(this.appealId).subscribe({
-      next: (a) => {
-        this.appeal = a;
-      },
+      next: (a) => { this.appeal = a; },
     });
   }
 
   submitHearing(): void {
     if (this.hearingForm.invalid) return;
     this.hearingSubmitting = true;
-    this.appealService
-      .scheduleHearing(this.appealId, this.hearingForm.value)
-      .subscribe({
-        next: (a) => {
-          this.appeal = a;
-          this.hearingSubmitting = false;
-          this.showHearingModal = false;
-        },
-        error: () => {
-          this.hearingSubmitting = false;
-        },
-      });
+    this.appealService.scheduleHearing(this.appealId, this.hearingForm.value).subscribe({
+      next: (a) => {
+        this.appeal = a;
+        this.hearingSubmitting = false;
+        this.showHearingModal  = false;
+      },
+      error: () => { this.hearingSubmitting = false; },
+    });
   }
 
   submitDecision(): void {
     if (this.decisionForm.invalid) return;
     this.decisionSubmitting = true;
-    this.appealService
-      .decide(this.appealId, this.decisionForm.value)
-      .subscribe({
-        next: (a) => {
-          this.appeal = a;
-          this.decisionSubmitting = false;
-          this.showDecisionModal = false;
-        },
-        error: () => {
-          this.decisionSubmitting = false;
-        },
-      });
+    this.appealService.decide(this.appealId, this.decisionForm.value).subscribe({
+      next: (a) => {
+        this.appeal = a;
+        this.decisionSubmitting = false;
+        this.showDecisionModal  = false;
+      },
+      error: () => { this.decisionSubmitting = false; },
+    });
   }
 
   closeAppeal(): void {
-    this.appealService
-      .close(this.appealId, 'Appeal process completed')
-      .subscribe({
-        next: (a) => {
-          this.appeal = a;
-        },
-      });
+    this.appealService.close(this.appealId, 'Appeal process completed').subscribe({
+      next: (a) => { this.appeal = a; },
+    });
   }
 
   submitWithdraw(): void {
@@ -171,58 +148,38 @@ export class AppealViewComponent implements OnInit {
       next: (a) => {
         this.appeal = a;
         this.withdrawSubmitting = false;
-        this.showWithdrawModal = false;
+        this.showWithdrawModal  = false;
       },
-      error: () => {
-        this.withdrawSubmitting = false;
-      },
+      error: () => { this.withdrawSubmitting = false; },
     });
   }
 
-  // ── Permissions ────────────────────────────────────────────────────────────
-  canReview(): boolean {
-    return this.appeal?.status === 'FILED';
-  }
+  // ── Permissions ─────────────────────────────────────────────────────────
+  canReview():          boolean { return this.appeal?.status === 'FILED'; }
   canScheduleHearing(): boolean {
-    return (
-      !!this.appeal && ['FILED', 'UNDER_REVIEW'].includes(this.appeal.status)
-    );
+    return !!this.appeal && ['FILED','UNDER_REVIEW'].includes(this.appeal.status);
   }
   canDecide(): boolean {
-    return (
-      !!this.appeal &&
-      ['UNDER_REVIEW', 'HEARING_SCHEDULED'].includes(this.appeal.status) &&
-      (this.authService.hasRole(Role.TAX_COMMISSIONER) ||
-        this.authService.hasRole(Role.SUPER_ADMIN) ||
-        this.authService.hasRole(Role.SUPERVISOR))
-    );
+    return !!this.appeal
+      && ['UNDER_REVIEW','HEARING_SCHEDULED'].includes(this.appeal.status)
+      && (this.authService.hasRole(Role.TAX_COMMISSIONER)
+       || this.authService.hasRole(Role.SUPER_ADMIN)
+       || this.authService.hasRole(Role.SUPERVISOR));
   }
-  canClose(): boolean {
-    return this.appeal?.status === 'DECIDED';
-  }
+  canClose(): boolean { return this.appeal?.status === 'DECIDED'; }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // ── Helpers ─────────────────────────────────────────────────────────────
   getStatusClass(s: string): string {
-    const m: Record<string, string> = {
-      FILED: 'badge-info',
-      UNDER_REVIEW: 'badge-warning',
-      HEARING_SCHEDULED: 'badge-orange',
-      DECIDED: 'badge-purple',
-      CLOSED: 'badge-muted',
-      WITHDRAWN: 'badge-muted',
+    const m: Record<string,string> = {
+      FILED:'badge-info', UNDER_REVIEW:'badge-warning',
+      HEARING_SCHEDULED:'badge-orange', DECIDED:'badge-purple',
+      CLOSED:'badge-muted', WITHDRAWN:'badge-muted',
     };
     return m[s] ?? 'badge-secondary';
   }
-  getStatusLabel(s: string): string {
-    return s?.replace(/_/g, ' ') ?? s;
-  }
+  getStatusLabel(s: string): string { return s?.replace(/_/g,' ') ?? s; }
   getDecisionClass(d: string): string {
-    return (
-      {
-        UPHELD: 'badge-success',
-        PARTIALLY_UPHELD: 'badge-lime',
-        DISMISSED: 'badge-danger',
-      }[d] ?? 'badge-secondary'
-    );
+    return ({ UPHELD:'badge-success', PARTIALLY_UPHELD:'badge-lime',
+              DISMISSED:'badge-danger' }[d]) ?? 'badge-secondary';
   }
 }

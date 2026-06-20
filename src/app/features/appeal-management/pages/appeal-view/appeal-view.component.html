@@ -27,19 +27,30 @@
           <span class="status-badge" [ngClass]="getStatusClass(appeal.status)">
             {{ getStatusLabel(appeal.status) }}
           </span>
-          <span *ngIf="appeal.decision" class="status-badge" [ngClass]="getDecisionClass(appeal.decision)">
+          <span *ngIf="appeal.decision" class="status-badge"
+            [ngClass]="getDecisionClass(appeal.decision)">
             {{ appeal.decision?.replace('_',' ') }}
           </span>
         </div>
       </div>
     </div>
     <div class="ahc-right">
-      <div class="ahc-stat"><span class="ahcs-label">Demanded</span><span class="ahcs-value">{{ appeal.demandedAmount |
-          number:'1.0-0' }} BDT</span></div>
-      <div class="ahc-stat"><span class="ahcs-label">Disputed</span><span class="ahcs-value">{{ appeal.disputedAmount |
-          number:'1.0-0' }} BDT</span></div>
-      <div class="ahc-stat" *ngIf="appeal.reliefGranted"><span class="ahcs-label">Relief Granted</span><span
-          class="ahcs-value">{{ appeal.reliefGranted | number:'1.0-0' }} BDT</span></div>
+      <div class="ahc-stat">
+        <span class="ahcs-label">Demanded</span>
+        <span class="ahcs-value">
+          {{ appeal.demandedAmount != null ? (appeal.demandedAmount | number:'1.0-0') + ' BDT' : '—' }}
+        </span>
+      </div>
+      <div class="ahc-stat">
+        <span class="ahcs-label">Disputed</span>
+        <span class="ahcs-value">
+          {{ appeal.disputedAmount != null ? (appeal.disputedAmount | number:'1.0-0') + ' BDT' : '—' }}
+        </span>
+      </div>
+      <div class="ahc-stat" *ngIf="appeal.reliefGranted">
+        <span class="ahcs-label">Relief Granted</span>
+        <span class="ahcs-value">{{ appeal.reliefGranted | number:'1.0-0' }} BDT</span>
+      </div>
     </div>
   </div>
 
@@ -48,10 +59,12 @@
     <button class="audit-action-btn" *ngIf="canReview()" (click)="takeUnderReview()">
       <i class="bi bi-search"></i> Take Under Review
     </button>
-    <button class="audit-action-btn warning" *ngIf="canScheduleHearing()" (click)="openHearingModal()">
+    <button class="audit-action-btn warning" *ngIf="canScheduleHearing()"
+      (click)="openHearingModal()">
       <i class="bi bi-calendar-event-fill"></i> Schedule Hearing
     </button>
-    <button class="audit-action-btn success" *ngIf="canDecide()" (click)="showDecisionModal = true">
+    <button class="audit-action-btn success" *ngIf="canDecide()"
+      (click)="showDecisionModal = true">
       <i class="bi bi-gavel"></i> Decide Appeal
     </button>
     <button class="audit-action-btn" *ngIf="canClose()" (click)="closeAppeal()">
@@ -64,38 +77,75 @@
     <div class="details-grid">
 
       <div class="detail-card">
-        <div class="detail-card-header"><i class="bi bi-person-fill"></i><span>Taxpayer & Case</span></div>
+        <div class="detail-card-header">
+          <i class="bi bi-person-fill"></i><span>Taxpayer & Case</span>
+        </div>
         <div class="detail-body">
-          <div class="detail-row"><span class="detail-label">Taxpayer</span><span class="detail-value fw-bold">{{
-              appeal.taxpayerName }}</span></div>
-          <div class="detail-row"><span class="detail-label">TIN</span><span class="detail-value"><span
-                class="code-badge">{{ appeal.tinNumber }}</span></span></div>
-          <div class="detail-row"><span class="detail-label">Audit Case</span><span class="detail-value">Case #{{
-              appeal.auditCaseId }}</span></div>
-          <div class="detail-row" *ngIf="appeal.demandNoticeId"><span class="detail-label">Demand Notice</span><span
-              class="detail-value">Notice #{{ appeal.demandNoticeId }}</span></div>
-          <div class="detail-row"><span class="detail-label">Filed By</span><span class="detail-value">{{ appeal.filedBy
-              }}</span></div>
-          <div class="detail-row"><span class="detail-label">Filed On</span><span class="detail-value">{{ appeal.filedAt
-              | date:'mediumDate' }}</span></div>
-          <div class="detail-row" *ngIf="appeal.deadline"><span class="detail-label">Deadline</span><span
-              class="detail-value">{{ appeal.deadline | date:'mediumDate' }}</span></div>
+          <div class="detail-row">
+            <span class="detail-label">Taxpayer</span>
+            <span class="detail-value fw-bold">{{ appeal.taxpayerName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">TIN</span>
+            <span class="detail-value"><span class="code-badge">{{ appeal.tinNumber }}</span></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Audit Case</span>
+            <span class="detail-value">Case #{{ appeal.auditCaseId }}</span>
+          </div>
+          <div class="detail-row" *ngIf="appeal.demandNoticeId">
+            <span class="detail-label">Demand Notice</span>
+            <span class="detail-value">Notice #{{ appeal.demandNoticeId }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Filed By</span>
+            <!-- filedByName থাকলে নাম, না থাকলে email -->
+            <span class="detail-value">
+              {{ $any(appeal).filedByName || appeal.filedBy }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Filed On</span>
+            <span class="detail-value">{{ appeal.filedAt | date:'mediumDate' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="appeal.deadline">
+            <span class="detail-label">Deadline</span>
+            <span class="detail-value">{{ appeal.deadline | date:'mediumDate' }}</span>
+          </div>
         </div>
       </div>
 
       <div class="detail-card">
-        <div class="detail-card-header"><i class="bi bi-cash-stack"></i><span>Financial Summary</span></div>
+        <div class="detail-card-header">
+          <i class="bi bi-cash-stack"></i><span>Financial Summary</span>
+        </div>
         <div class="detail-body">
-          <div class="detail-row"><span class="detail-label">Demanded</span><span
-              class="detail-value fw-bold text-danger">{{ appeal.demandedAmount | number:'1.2-2' }} BDT</span></div>
-          <div class="detail-row"><span class="detail-label">Disputed</span><span class="detail-value">{{
-              appeal.disputedAmount | number:'1.2-2' }} BDT</span></div>
-          <div class="detail-row" *ngIf="appeal.acceptedAmount"><span class="detail-label">Accepted</span><span
-              class="detail-value">{{ appeal.acceptedAmount | number:'1.2-2' }} BDT</span></div>
-          <div class="detail-row" *ngIf="appeal.reliefGranted"><span class="detail-label">Relief Granted</span><span
-              class="detail-value text-success fw-bold">{{ appeal.reliefGranted | number:'1.2-2' }} BDT</span></div>
-          <div class="detail-row"><span class="detail-label">Assigned To</span><span class="detail-value">{{
-              appeal.assignedTo || '—' }}</span></div>
+          <div class="detail-row">
+            <span class="detail-label">Demanded</span>
+            <span class="detail-value fw-bold text-danger">
+              {{ appeal.demandedAmount != null ? (appeal.demandedAmount | number:'1.2-2') + ' BDT' : '—' }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Disputed</span>
+            <span class="detail-value">
+              {{ appeal.disputedAmount != null ? (appeal.disputedAmount | number:'1.2-2') + ' BDT' : '—' }}
+            </span>
+          </div>
+          <div class="detail-row" *ngIf="appeal.acceptedAmount">
+            <span class="detail-label">Accepted</span>
+            <span class="detail-value">{{ appeal.acceptedAmount | number:'1.2-2' }} BDT</span>
+          </div>
+          <div class="detail-row" *ngIf="appeal.reliefGranted">
+            <span class="detail-label">Relief Granted</span>
+            <span class="detail-value text-success fw-bold">
+              {{ appeal.reliefGranted | number:'1.2-2' }} BDT
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Assigned To</span>
+            <span class="detail-value">{{ appeal.assignedTo || '—' }}</span>
+          </div>
         </div>
       </div>
 
@@ -103,49 +153,79 @@
 
     <!-- Grounds -->
     <div class="detail-card mt-3">
-      <div class="detail-card-header"><i class="bi bi-file-text-fill"></i><span>Grounds for Appeal</span></div>
+      <div class="detail-card-header">
+        <i class="bi bi-file-text-fill"></i><span>Grounds for Appeal</span>
+      </div>
       <div class="detail-body">
-        <div class="detail-row"><span class="detail-value" style="text-align:left;line-height:1.7">{{ appeal.groundsText
-            }}</span></div>
+        <div class="detail-row">
+          <span class="detail-value" style="text-align:left;line-height:1.7">
+            {{ appeal.groundsText }}
+          </span>
+        </div>
       </div>
     </div>
 
     <div class="detail-card mt-3" *ngIf="appeal.reliefSought">
-      <div class="detail-card-header"><i class="bi bi-hand-index-fill"></i><span>Relief Sought</span></div>
+      <div class="detail-card-header">
+        <i class="bi bi-hand-index-fill"></i><span>Relief Sought</span>
+      </div>
       <div class="detail-body">
-        <div class="detail-row"><span class="detail-value" style="text-align:left">{{ appeal.reliefSought }}</span>
+        <div class="detail-row">
+          <span class="detail-value" style="text-align:left">{{ appeal.reliefSought }}</span>
         </div>
       </div>
     </div>
 
     <!-- Hearing -->
     <div class="detail-card mt-3" *ngIf="appeal.hearingDate">
-      <div class="detail-card-header"><i class="bi bi-calendar-event-fill"></i><span>Hearing Details</span></div>
+      <div class="detail-card-header">
+        <i class="bi bi-calendar-event-fill"></i><span>Hearing Details</span>
+      </div>
       <div class="detail-body">
-        <div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">{{ appeal.hearingDate |
-            date:'mediumDate' }}</span></div>
-        <div class="detail-row" *ngIf="appeal.hearingVenue"><span class="detail-label">Venue</span><span
-            class="detail-value">{{ appeal.hearingVenue }}</span></div>
-        <div class="detail-row" *ngIf="appeal.hearingNotes"><span class="detail-label">Notes</span><span
-            class="detail-value">{{ appeal.hearingNotes }}</span></div>
+        <div class="detail-row">
+          <span class="detail-label">Date</span>
+          <span class="detail-value">{{ appeal.hearingDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="detail-row" *ngIf="appeal.hearingVenue">
+          <span class="detail-label">Venue</span>
+          <span class="detail-value">{{ appeal.hearingVenue }}</span>
+        </div>
+        <div class="detail-row" *ngIf="appeal.hearingNotes">
+          <span class="detail-label">Notes</span>
+          <span class="detail-value">{{ appeal.hearingNotes }}</span>
+        </div>
       </div>
     </div>
 
     <!-- Decision -->
     <div class="detail-card mt-3" *ngIf="appeal.decision">
-      <div class="detail-card-header"><i class="bi bi-gavel"></i><span>Decision</span></div>
+      <div class="detail-card-header">
+        <i class="bi bi-gavel"></i><span>Decision</span>
+      </div>
       <div class="detail-body">
         <div class="detail-row">
           <span class="detail-label">Outcome</span>
-          <span class="detail-value"><span class="status-badge" [ngClass]="getDecisionClass(appeal.decision)">{{
-              appeal.decision?.replace('_',' ') }}</span></span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getDecisionClass(appeal.decision)">
+              {{ appeal.decision?.replace('_',' ') }}
+            </span>
+          </span>
         </div>
-        <div class="detail-row"><span class="detail-label">Decided By</span><span class="detail-value">{{
-            appeal.decidedBy }}</span></div>
-        <div class="detail-row"><span class="detail-label">Decided On</span><span class="detail-value">{{
-            appeal.decidedAt | date:'mediumDate' }}</span></div>
-        <div class="detail-row" *ngIf="appeal.decisionNotes"><span class="detail-label">Notes</span><span
-            class="detail-value" style="text-align:left">{{ appeal.decisionNotes }}</span></div>
+        <div class="detail-row">
+          <span class="detail-label">Decided By</span>
+          <!-- decidedByName থাকলে নাম, না থাকলে email -->
+          <span class="detail-value">
+            {{ $any(appeal).decidedByName || appeal.decidedBy || '—' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Decided On</span>
+          <span class="detail-value">{{ appeal.decidedAt | date:'mediumDate' }}</span>
+        </div>
+        <div class="detail-row" *ngIf="appeal.decisionNotes">
+          <span class="detail-label">Notes</span>
+          <span class="detail-value" style="text-align:left">{{ appeal.decisionNotes }}</span>
+        </div>
       </div>
     </div>
 
@@ -153,13 +233,15 @@
 
 </ng-container>
 
-<!-- ── MODAL: Schedule Hearing ───────────────────────────────────────────── -->
+<!-- ── MODAL: Schedule Hearing ──────────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="showHearingModal">
   <div class="modal-card wide">
     <div class="modal-accent warning"></div>
     <div class="modal-header-row">
       <h5><i class="bi bi-calendar-event-fill me-2 text-warning"></i>Schedule Hearing</h5>
-      <button class="modal-close" (click)="showHearingModal = false"><i class="bi bi-x-lg"></i></button>
+      <button class="modal-close" (click)="showHearingModal = false">
+        <i class="bi bi-x-lg"></i>
+      </button>
     </div>
     <form [formGroup]="hearingForm" (ngSubmit)="submitHearing()">
       <div class="form-grid">
@@ -174,7 +256,8 @@
           <label class="form-label required">Venue</label>
           <div class="input-wrap">
             <i class="bi bi-geo-alt-fill input-icon"></i>
-            <input type="text" class="form-input" formControlName="hearingVenue" placeholder="NBR HQ, Room 301..." />
+            <input type="text" class="form-input" formControlName="hearingVenue"
+              placeholder="NBR HQ, Room 301..." />
           </div>
         </div>
         <div class="form-group">
@@ -184,11 +267,17 @@
             <select class="form-input form-select" formControlName="assignedTo">
               <option value="">— Select Officer —</option>
               <option *ngFor="let o of officers" [value]="o.email">
-                {{ o.fullName }} ({{ o.role }})
+                {{ o.fullName || o.email }}
+                <span *ngIf="o.role"> ({{ o.role?.replace('_',' ') }})</span>
               </option>
             </select>
           </div>
-          <span class="field-hint" *ngIf="officersLoading">Loading officers...</span>
+          <span class="field-hint" *ngIf="officersLoading">
+            <span class="spinner-border spinner-border-sm me-1"></span> Loading officers...
+          </span>
+          <span class="field-hint" *ngIf="!officersLoading && officers.length === 0">
+            No officers found. You can type a name manually below.
+          </span>
         </div>
         <div class="form-group full-width">
           <label class="form-label">Hearing Notes</label>
@@ -201,7 +290,8 @@
       </div>
       <div class="form-actions">
         <button type="button" class="btn-cancel" (click)="showHearingModal = false">Cancel</button>
-        <button type="submit" class="btn-submit" [disabled]="hearingForm.invalid || hearingSubmitting">
+        <button type="submit" class="btn-submit"
+          [disabled]="hearingForm.invalid || hearingSubmitting">
           <span *ngIf="hearingSubmitting" class="spinner-border spinner-border-sm me-1"></span>
           <i class="bi bi-calendar-check" *ngIf="!hearingSubmitting"></i>
           Schedule
@@ -211,13 +301,15 @@
   </div>
 </div>
 
-<!-- ── MODAL: Decide Appeal ──────────────────────────────────────────────── -->
+<!-- ── MODAL: Decide Appeal ─────────────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="showDecisionModal">
   <div class="modal-card wide">
     <div class="modal-accent"></div>
     <div class="modal-header-row">
       <h5><i class="bi bi-gavel me-2"></i>Decide Appeal</h5>
-      <button class="modal-close" (click)="showDecisionModal = false"><i class="bi bi-x-lg"></i></button>
+      <button class="modal-close" (click)="showDecisionModal = false">
+        <i class="bi bi-x-lg"></i>
+      </button>
     </div>
     <form [formGroup]="decisionForm" (ngSubmit)="submitDecision()">
       <div class="form-grid">
@@ -258,7 +350,8 @@
       </div>
       <div class="form-actions">
         <button type="button" class="btn-cancel" (click)="showDecisionModal = false">Cancel</button>
-        <button type="submit" class="btn-submit" [disabled]="decisionForm.invalid || decisionSubmitting">
+        <button type="submit" class="btn-submit"
+          [disabled]="decisionForm.invalid || decisionSubmitting">
           <span *ngIf="decisionSubmitting" class="spinner-border spinner-border-sm me-1"></span>
           <i class="bi bi-gavel" *ngIf="!decisionSubmitting"></i>
           Issue Decision
