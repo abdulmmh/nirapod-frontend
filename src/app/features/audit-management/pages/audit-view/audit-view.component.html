@@ -658,3 +658,16 @@
     </div>
   </div>
 </div>
+<!-- <div class="form-group">
+  <label class="form-label">Assigned Officer</label>
+  <div class="input-wrap">
+    <i class="bi bi-person-fill input-icon"></i>
+    <select class="form-input form-select" formControlName="assignedTo">
+      <option value="">— Select Officer —</option>
+      <option *ngFor="let o of officers" [value]="o.email">
+        {{ o.fullName }} ({{ o.role }})
+      </option>
+    </select>
+  </div>
+  <span class="field-hint" *ngIf="officersLoading">Loading officers...</span>
+</div> -->
