@@ -27,6 +27,12 @@ export class RefundService {
     return this.http.get<PagedResponse<RefundSummary>>(API_ENDPOINTS.REFUNDS.MY, { params });
   }
 
+  // FIX: Officers/admins call this — returns all refunds, not filtered by taxpayer.
+  // SUPER_ADMIN has no taxpayer record so getMyRefunds() always returns empty for them.
+  getAllRefunds(): Observable<RefundSummary[]> {
+    return this.http.get<RefundSummary[]>('/api/refunds');
+  }
+
   getById(id: number): Observable<RefundDetail> {
     return this.http.get<RefundDetail>(API_ENDPOINTS.REFUNDS.GET(id));
   }
