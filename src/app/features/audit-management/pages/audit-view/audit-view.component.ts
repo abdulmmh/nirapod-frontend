@@ -26,6 +26,15 @@ export class AuditDetailComponent implements OnInit {
   assessment: Assessment | null = null;
   demandNotice: DemandNotice | null = null;
 
+  private readonly LOCKED_STATUSES = [
+    'ASSESSMENT_APPROVED',
+    'DEMAND_ISSUED',
+    'PARTIALLY_PAID',
+    'PAID',
+    'CLOSED',
+    'CANCELLED',
+  ];
+
   isLoading = false;
   queriesLoading = false;
   docsLoading = false;
@@ -345,15 +354,13 @@ export class AuditDetailComponent implements OnInit {
   // ── Permission Guards ──────────────────────────────────────────────────────
   canRequestDocuments(): boolean {
     return (
-      !!this.auditCase &&
-      !['CLOSED', 'CANCELLED', 'PAID'].includes(this.auditCase.status)
+      !!this.auditCase && !this.LOCKED_STATUSES.includes(this.auditCase.status)
     );
   }
-
+  
   canRaiseQuery(): boolean {
     return (
-      !!this.auditCase &&
-      !['CLOSED', 'CANCELLED', 'PAID'].includes(this.auditCase.status)
+      !!this.auditCase && !this.LOCKED_STATUSES.includes(this.auditCase.status)
     );
   }
 
@@ -370,16 +377,22 @@ export class AuditDetailComponent implements OnInit {
   }
 
   canProposeAssessment(): boolean {
-    return (
-      !!this.auditCase &&
-      ['FINDINGS_RECORDED', 'RESPONSE_RECEIVED', 'UNDER_REVIEW'].includes(
+    if (!this.auditCase) return false;
+    if (
+      !['FINDINGS_RECORDED', 'RESPONSE_RECEIVED', 'UNDER_REVIEW'].includes(
         this.auditCase.status,
-      ) &&
-      !this.auditCase.hasAssessment
+      )
+    )
+      return false;
+    if (this.auditCase.hasAssessment) return false;
+    return (
+      this.authService.hasRole(Role.SUPERVISOR) ||
+      this.authService.hasRole(Role.TAX_COMMISSIONER) ||
+      this.authService.hasRole(Role.SUPER_ADMIN) ||
+      this.authService.hasRole(Role.AUDITOR)
     );
   }
 
-  // ── PRODUCTION GRADE: only SUPERVISOR, TAX_COMMISSIONER, SUPER_ADMIN ──────
   canApproveAssessment(): boolean {
     if (!this.auditCase) return false;
     if (
