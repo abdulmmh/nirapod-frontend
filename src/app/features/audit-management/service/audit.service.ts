@@ -60,16 +60,20 @@ export class AuditService {
     status: string,
     reason: string,
   ): Observable<AuditCase> {
-    return this.http.patch<AuditCase>(
-      `${API_ENDPOINTS.AUDITS.STATUS(id)}`,
-      { status, reason },
-    );
+    return this.http.patch<AuditCase>(`${API_ENDPOINTS.AUDITS.STATUS(id)}`, {
+      status,
+      reason,
+    });
   }
 
   issueNotice(id: number, remarks?: string): Observable<AuditCase> {
     return this.http.post<AuditCase>(API_ENDPOINTS.AUDITS.ISSUE_NOTICE(id), {
       remarks,
     });
+  }
+
+  updateCase(id: number, req: AuditCaseCreateRequest): Observable<AuditCase> {
+    return this.http.put<AuditCase>(API_ENDPOINTS.AUDITS.UPDATE(id), req);
   }
 
   deleteCase(id: number): Observable<void> {

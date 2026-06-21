@@ -62,7 +62,7 @@
       </span>
     </div>
     <div class="ath-meta">
-      <span><i class="bi bi-tag-fill"></i> {{ appeal.appealType?.replace('_',' ') }}</span>
+      <span><i class="bi bi-tag-fill"></i> {{ appeal.appealType.replace('_',' ') }}</span>
       <span><i class="bi bi-clock"></i> Filed {{ appeal.filedAt | date:'mediumDate' }}</span>
       <span *ngIf="appeal.deadline">
         <i class="bi bi-alarm"></i> Deadline: {{ appeal.deadline | date:'mediumDate' }}
@@ -91,7 +91,6 @@
         </div>
         <div class="form-group">
           <label class="form-label">Amount Disputed</label>
-          <!-- Amount Disputed -->
           <div class="amount-display orange">
             {{ appeal.disputedAmount != null ? (appeal.disputedAmount | number:'1.2-2') + ' BDT' : '—' }}
           </div>
@@ -117,8 +116,8 @@
         <div class="aps-content">
           <strong>Full Payment Required</strong>
           <p>Your appeal was dismissed. The full demanded amount of
-            <strong>{{ appeal.demandedAmount != null ? (appeal.demandedAmount | number:'1.2-2') + ' BDT' : 'the full
-              amount' }}</strong>
+            <strong>{{ appeal.demandedAmount != null ? (appeal.demandedAmount | number:'1.2-2') + ' BDT' : 'the fullamount' }}</strong>
+
             must be paid by the original due date.
           </p>
         </div>
@@ -131,8 +130,8 @@
         <div class="aps-content">
           <strong>Partial Payment Required</strong>
           <p>Accepted amount of
-            <strong>{{ appeal.acceptedAmount != null ? (appeal.acceptedAmount | number:'1.2-2') + ' BDT' : 'the accepted amount' }}</strong> must be paid.
-            <span *ngIf="appeal.reliefGranted">
+            <strong>{{ appeal.acceptedAmount != null ? (appeal.acceptedAmount | number:'1.2-2') + ' BDT' : 'the accepted
+              amount' }}</strong> <span *ngIf="appeal.reliefGranted">
               Relief granted: {{ appeal.reliefGranted | number:'1.2-2' }} BDT.
             </span>
           </p>
@@ -182,12 +181,11 @@
         <div class="form-group">
           <label class="form-label">Outcome</label>
           <span class="status-badge" [ngClass]="getDecisionClass(appeal.decision)">
-            {{ appeal.decision?.replace('_',' ') }}
+            {{ appeal.decision.replace('_',' ') }}
           </span>
         </div>
         <div class="form-group">
           <label class="form-label">Decided By</label>
-          <!-- decidedByName থাকলে name, না থাকলে email -->
           <div class="form-input auto-field">{{ decidedByDisplay }}</div>
         </div>
         <div class="form-group">

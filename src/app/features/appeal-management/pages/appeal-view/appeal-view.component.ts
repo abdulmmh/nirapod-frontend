@@ -78,19 +78,10 @@ export class AppealViewComponent implements OnInit {
   loadOfficers(): void {
     if (this.officers.length > 0) return;
     this.officersLoading = true;
-
-    // Try with roles filter first — if endpoint doesn't support it,
-    // fallback to all users and filter on frontend
-    this.http.get<any[]>('/api/users')
+    this.http.get<any[]>('/api/users/officers')
       .pipe(finalize(() => (this.officersLoading = false)))
       .subscribe({
-        next: (users) => {
-          // Frontend filter — only officer roles
-          this.officers = (users ?? []).filter(u =>
-            ['TAX_OFFICER', 'SUPERVISOR', 'TAX_COMMISSIONER',
-             'SUPER_ADMIN', 'AUDITOR'].includes(u.role)
-          );
-        },
+        next: (u) => { this.officers = u ?? []; },
         error: () => { this.officers = []; },
       });
   }
