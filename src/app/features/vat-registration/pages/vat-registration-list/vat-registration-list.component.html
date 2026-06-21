@@ -9,6 +9,44 @@
   </a>
 </div>
 
+<!-- KPI Summary Cards -->
+<div class="kpi-cards-row" *ngIf="!isLoading">
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Active')"
+       (click)="onKpiCardClick('Active')">
+    <div class="kpi-icon kpi-icon-active"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Active</span>
+      <span class="kpi-value">{{ kpiActive }}</span>
+    </div>
+  </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Pending')"
+       (click)="onKpiCardClick('Pending')">
+    <div class="kpi-icon kpi-icon-pending"><i class="bi bi-hourglass-split"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Pending</span>
+      <span class="kpi-value">{{ kpiPending }}</span>
+    </div>
+  </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Suspended')"
+       (click)="onKpiCardClick('Suspended')">
+    <div class="kpi-icon kpi-icon-suspended"><i class="bi bi-slash-circle-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Suspended</span>
+      <span class="kpi-value">{{ kpiSuspended }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-icon-turnover"><i class="bi bi-cash-stack"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Active Turnover</span>
+      <span class="kpi-value">{{ formatCurrency(kpiTotalTurnover) }}</span>
+    </div>
+  </div>
+</div>
+
 <div class="page-wrapper">
 
   <div class="list-search-bar">
@@ -17,10 +55,28 @@
         <i class="bi bi-search"></i>
         <input type="text"
           placeholder="Search by BIN, business name, TIN, owner, category..."
-          [(ngModel)]="searchTerm" />
+          [(ngModel)]="searchTerm" (ngModelChange)="onFilterChange()" />
       </div>
       <button *canDo="'export'" class="btn-export">
         <i class="bi bi-download"></i><span>Export</span>
+      </button>
+    </div>
+
+    <div class="filter-row">
+      <select class="filter-select" [class.active-filter]="!!filterStatus"
+        [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
+        <option value="">All Statuses</option>
+        <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+      </select>
+
+      <select class="filter-select" [class.active-filter]="!!categoryFilter"
+        [(ngModel)]="categoryFilter" (ngModelChange)="onFilterChange()">
+        <option value="">All Categories</option>
+        <option *ngFor="let c of categoryOptions" [value]="c">{{ c }}</option>
+      </select>
+
+      <button class="btn-clear-filters" *ngIf="hasActiveFilters()" (click)="clearFilters()">
+        <i class="bi bi-x-circle"></i> Clear
       </button>
     </div>
   </div>
@@ -50,8 +106,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let v of filtered; let i = index">
-          <td>{{ i + 1 }}</td>
+        <tr *ngFor="let v of paginated; let i = index">
+          <td>{{ pageRangeStart + i }}</td>
 
           <td><span class="bin-code">{{ v.binNo }}</span></td>
 
@@ -122,9 +178,28 @@
     </table>
   </div>
 
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && filtered.length > 0">
+    <span class="pagination-info">
+      Showing {{ pageRangeStart }}–{{ pageRangeEnd }} of {{ filtered.length }}
+    </span>
+    <div class="pagination-controls">
+      <button class="btn-page-nav" (click)="goToPrevPage()" [disabled]="currentPage === 1">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span class="pagination-page-tag">{{ currentPage }}</span>
+      <button class="btn-page-nav" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <select class="page-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+      <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }} / page</option>
+    </select>
+  </div>
+
   <!-- Mobile Cards -->
   <div class="mobile-cards" style="padding:12px;" *ngIf="!isLoading">
-    <div class="mobile-card" *ngFor="let v of filtered">
+    <div class="mobile-card" *ngFor="let v of paginated">
       <div class="mobile-card-header">
         <div class="mobile-card-title">
           <div class="mobile-avatar vat-avatar">

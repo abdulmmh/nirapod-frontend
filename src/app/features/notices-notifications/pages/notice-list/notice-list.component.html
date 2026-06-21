@@ -17,22 +17,47 @@
   </a>
 </div>
 
-<div class="page-wrapper">
-
-  <!-- Filter Tabs -->
-  <div class="filter-tabs">
-    <button
-      *ngFor="let f of filters"
-      class="filter-tab"
-      [class.active]="activeFilter === f"
-      (click)="activeFilter = f"
-    >
-      {{ f }}
-      <span class="tab-count" *ngIf="f === 'Unread' && unreadCount > 0">
-        {{ unreadCount }}
-      </span>
-    </button>
+<!-- KPI Summary Cards -->
+<div class="kpi-cards-row" *ngIf="!isLoading">
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Unread')"
+       (click)="onKpiCardClick('Unread')">
+    <div class="kpi-icon kpi-icon-unread"><i class="bi bi-envelope-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Unread</span>
+      <span class="kpi-value">{{ kpiUnread }}</span>
+    </div>
   </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Responded')"
+       (click)="onKpiCardClick('Responded')">
+    <div class="kpi-icon kpi-icon-responded"><i class="bi bi-reply-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Responded</span>
+      <span class="kpi-value">{{ kpiResponded }}</span>
+    </div>
+  </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Urgent')"
+       (click)="onKpiCardClick('Urgent')">
+    <div class="kpi-icon kpi-icon-urgent"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Urgent</span>
+      <span class="kpi-value">{{ kpiUrgent }}</span>
+    </div>
+  </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('Expired')"
+       (click)="onKpiCardClick('Expired')">
+    <div class="kpi-icon kpi-icon-expired"><i class="bi bi-calendar-x-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Expired</span>
+      <span class="kpi-value">{{ kpiExpired }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrapper">
 
   <!-- Search -->
   <div class="list-search-bar">
@@ -43,6 +68,7 @@
           type="text"
           placeholder="Search by notice no, subject, taxpayer, type..."
           [(ngModel)]="searchTerm"
+          (ngModelChange)="onFilterChange()"
         />
       </div>
       <button
@@ -51,6 +77,15 @@
       >
         <i class="bi bi-download"></i>
         <span>Export</span>
+      </button>
+    </div>
+
+    <div class="filter-row" *ngIf="activeFilter !== 'All'">
+      <span class="active-filter-tag">
+        Filtered by: <strong>{{ activeFilter }}</strong>
+      </span>
+      <button class="btn-clear-filters" (click)="onKpiCardClick(activeFilter)">
+        <i class="bi bi-x-circle"></i> Clear
       </button>
     </div>
   </div>
@@ -66,7 +101,7 @@
 
     <div
       class="notice-card"
-      *ngFor="let n of filteredNotices"
+      *ngFor="let n of paginatedNotices"
       [class.unread]="n.status === 'Unread'"
       (click)="viewNotice(n.id)"
     >
@@ -141,6 +176,25 @@
       <p>No notices found.</p>
     </div>
 
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && filteredNotices.length > 0">
+    <span class="pagination-info">
+      Showing {{ pageRangeStart }}–{{ pageRangeEnd }} of {{ filteredNotices.length }}
+    </span>
+    <div class="pagination-controls">
+      <button class="btn-page-nav" (click)="goToPrevPage()" [disabled]="currentPage === 1">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span class="pagination-page-tag">{{ currentPage }}</span>
+      <button class="btn-page-nav" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <select class="page-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+      <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }} / page</option>
+    </select>
   </div>
 
 </div>

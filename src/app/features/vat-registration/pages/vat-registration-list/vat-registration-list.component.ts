@@ -15,7 +15,19 @@ import { ToastService } from '../../../../shared/toast/toast.service';
 export class VatRegistrationListComponent implements OnInit, OnDestroy {
   vatRegistrations: VatRegistration[] = [];
   searchTerm = '';
+
+  // ── Filters — "filterStatus" existed before but had no UI; wired up now ────
   filterStatus = '';
+  categoryFilter = '';
+
+  readonly statusOptions: string[] = ['Active', 'Inactive', 'Pending', 'Suspended', 'Cancelled'];
+  readonly categoryOptions: string[] = ['Standard', 'Zero Rated', 'Exempt', 'Special'];
+
+  // ── Pagination ──────────────────────────────────────────────────────────
+  currentPage = 1;
+  pageSize = 20;
+  readonly pageSizeOptions = [10, 20, 50, 100];
+
   isLoading = false;
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
@@ -53,6 +65,52 @@ export class VatRegistrationListComponent implements OnInit, OnDestroy {
       });
   }
 
+  // ── KPI Summary Cards ────────────────────────────────────────────────────
+
+  get kpiActive(): number {
+    return this.vatRegistrations.filter((v) => v.status === 'Active').length;
+  }
+
+  get kpiPending(): number {
+    return this.vatRegistrations.filter((v) => v.status === 'Pending').length;
+  }
+
+  get kpiSuspended(): number {
+    return this.vatRegistrations.filter((v) => v.status === 'Suspended').length;
+  }
+
+  get kpiTotalTurnover(): number {
+    return this.vatRegistrations
+      .filter((v) => v.status === 'Active')
+      .reduce((sum, v) => sum + (v.annualTurnover || 0), 0);
+  }
+
+  /** Called when a clickable KPI status card is clicked — toggles filter. */
+  onKpiCardClick(status: string): void {
+    this.filterStatus = this.filterStatus === status ? '' : status;
+    this.currentPage = 1;
+  }
+
+  isKpiActive(status: string): boolean {
+    return this.filterStatus === status;
+  }
+
+  /** Any filter/search change resets back to page 1 — call from (ngModelChange). */
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchTerm || this.filterStatus || this.categoryFilter);
+  }
+
+  clearFilters(): void {
+    this.searchTerm     = '';
+    this.filterStatus   = '';
+    this.categoryFilter = '';
+    this.currentPage    = 1;
+  }
+
   get filtered(): VatRegistration[] {
     const q = this.searchTerm.toLowerCase();
     return this.vatRegistrations.filter((v) => {
@@ -65,8 +123,41 @@ export class VatRegistrationListComponent implements OnInit, OnDestroy {
         (v.vatCategory?.toLowerCase().includes(q) ?? false) ||
         (v.district?.toLowerCase().includes(q) ?? false);
       const matchStatus = !this.filterStatus || v.status === this.filterStatus;
-      return matchSearch && matchStatus;
+      const matchCategory = !this.categoryFilter || v.vatCategory === this.categoryFilter;
+      return matchSearch && matchStatus && matchCategory;
     });
+  }
+
+  // ── Pagination ───────────────────────────────────────────────────────────
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
+  }
+
+  get paginated(): VatRegistration[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filtered.slice(start, start + this.pageSize);
+  }
+
+  get pageRangeStart(): number {
+    if (this.filtered.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageRangeEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filtered.length);
+  }
+
+  goToPrevPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
   }
 
   getStatusClass(s: string): string {

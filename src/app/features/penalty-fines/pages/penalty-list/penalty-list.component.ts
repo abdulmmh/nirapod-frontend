@@ -31,6 +31,11 @@ export class PenaltyListComponent implements OnInit {
     { label: 'Cancelled', value: 'CANCELLED' },
   ];
 
+  // ── Pagination — client-side, since backend returns the full filtered set ──
+  currentPage = 1;
+  pageSize = 20;
+  readonly pageSizeOptions = [10, 20, 50, 100];
+
   constructor(
     private router: Router,
     private toast: ToastService,
@@ -41,7 +46,10 @@ export class PenaltyListComponent implements OnInit {
     this.load();
     this.search$
       .pipe(debounceTime(400), distinctUntilChanged())
-      .subscribe((term) => this.load(term, this.activeStatus));
+      .subscribe((term) => {
+        this.currentPage = 1;
+        this.load(term, this.activeStatus);
+      });
   }
 
   load(search = '', status = ''): void {
@@ -64,9 +72,53 @@ export class PenaltyListComponent implements OnInit {
     this.search$.next(this.searchTerm);
   }
 
+  // ── KPI Summary Cards — replaces the old filter-pill row ───────────────────
+  //
+  // Counts are computed from the currently-loaded `penalties` array (already
+  // filtered server-side by activeStatus/search). Clicking a card re-triggers
+  // load() with that status, same as the old pills did.
+
+  get kpiPendingApproval(): number {
+    return this.penalties.filter((p) => p.status === 'PENDING_APPROVAL').length;
+  }
+
+  get kpiIssued(): number {
+    return this.penalties.filter((p) => p.status === 'ISSUED').length;
+  }
+
+  get kpiPaid(): number {
+    return this.penalties.filter((p) => p.status === 'PAID').length;
+  }
+
+  get kpiAppealed(): number {
+    return this.penalties.filter((p) => p.status === 'APPEALED').length;
+  }
+
+  get kpiTotalCollected(): number {
+    return this.penalties
+      .filter((p) => p.status === 'PAID')
+      .reduce((sum, p) => sum + (p.totalAmount || 0), 0);
+  }
+
   filterByStatus(status: string): void {
-    this.activeStatus = status;
-    this.load(this.searchTerm, status);
+    this.activeStatus = this.activeStatus === status ? '' : status;
+    this.currentPage = 1;
+    this.load(this.searchTerm, this.activeStatus);
+  }
+
+  isKpiActive(status: string): boolean {
+    return this.activeStatus === status;
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchTerm || this.activeStatus);
+  }
+
+  clearAllFilters(): void {
+    this.searchTerm = '';
+    this.activeStatus = '';
+    this.currentPage = 1;
+    this.load();
   }
 
   get filteredPenalties(): Penalty[] {
@@ -80,6 +132,38 @@ export class PenaltyListComponent implements OnInit {
         p.penaltyType.toLowerCase().includes(term) ||
         p.assessmentYear.toLowerCase().includes(term),
     );
+  }
+
+  // ── Pagination ───────────────────────────────────────────────────────────
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredPenalties.length / this.pageSize));
+  }
+
+  get paginatedPenalties(): Penalty[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredPenalties.slice(start, start + this.pageSize);
+  }
+
+  get pageRangeStart(): number {
+    if (this.filteredPenalties.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageRangeEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredPenalties.length);
+  }
+
+  goToPrevPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
   }
 
   getStatusClass(status: string): string {

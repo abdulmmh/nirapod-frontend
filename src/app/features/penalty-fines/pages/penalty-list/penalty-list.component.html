@@ -8,6 +8,53 @@
   </a>
 </div>
 
+<!-- KPI Summary Cards -->
+<div class="kpi-cards-row" *ngIf="!isLoading">
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('PENDING_APPROVAL')"
+       (click)="filterByStatus('PENDING_APPROVAL')">
+    <div class="kpi-icon kpi-icon-pending"><i class="bi bi-hourglass-split"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Pending Approval</span>
+      <span class="kpi-value">{{ kpiPendingApproval }}</span>
+    </div>
+  </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('ISSUED')"
+       (click)="filterByStatus('ISSUED')">
+    <div class="kpi-icon kpi-icon-issued"><i class="bi bi-send-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Issued</span>
+      <span class="kpi-value">{{ kpiIssued }}</span>
+    </div>
+  </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('PAID')"
+       (click)="filterByStatus('PAID')">
+    <div class="kpi-icon kpi-icon-paid"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Paid</span>
+      <span class="kpi-value">{{ kpiPaid }}</span>
+    </div>
+  </div>
+  <div class="kpi-card clickable"
+       [class.active]="isKpiActive('APPEALED')"
+       (click)="filterByStatus('APPEALED')">
+    <div class="kpi-icon kpi-icon-appealed"><i class="bi bi-shield-exclamation"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Appealed</span>
+      <span class="kpi-value">{{ kpiAppealed }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon kpi-icon-collected"><i class="bi bi-cash-stack"></i></div>
+    <div class="kpi-info">
+      <span class="kpi-label">Total Collected</span>
+      <span class="kpi-value">{{ formatCurrency(kpiTotalCollected) }}</span>
+    </div>
+  </div>
+</div>
+
 <div class="page-wrapper">
 
   <!-- Search -->
@@ -15,19 +62,20 @@
     <div class="search-field-row">
       <div class="search-field">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Search by penalty no, TIN, taxpayer, type..." [(ngModel)]="searchTerm" />
+        <input type="text" placeholder="Search by penalty no, TIN, taxpayer, type..."
+          [(ngModel)]="searchTerm" (ngModelChange)="onSearchInput()" />
       </div>
       <button *canDo="'export'" class="btn-export">
         <i class="bi bi-download"></i>
         <span>Export</span>
       </button>
     </div>
-  </div>
-  <div class="status-filter-row">
-    <button *ngFor="let f of statusFilters" class="filter-pill" [class.active]="activeStatus === f.value"
-      (click)="filterByStatus(f.value)">
-      {{ f.label }}
-    </button>
+
+    <div class="filter-row" *ngIf="hasActiveFilters()">
+      <button class="btn-clear-filters" (click)="clearAllFilters()">
+        <i class="bi bi-x-circle"></i> Clear filters
+      </button>
+    </div>
   </div>
 
   <!-- Loading -->
@@ -56,8 +104,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of filteredPenalties; let i = index">
-          <td>{{ i + 1 }}</td>
+        <tr *ngFor="let p of paginatedPenalties; let i = index">
+          <td>{{ pageRangeStart + i }}</td>
 
           <td><span class="penalty-code">{{ p.penaltyNo }}</span></td>
 
@@ -139,9 +187,28 @@
     </table>
   </div>
 
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && filteredPenalties.length > 0">
+    <span class="pagination-info">
+      Showing {{ pageRangeStart }}–{{ pageRangeEnd }} of {{ filteredPenalties.length }}
+    </span>
+    <div class="pagination-controls">
+      <button class="btn-page-nav" (click)="goToPrevPage()" [disabled]="currentPage === 1">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span class="pagination-page-tag">{{ currentPage }}</span>
+      <button class="btn-page-nav" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <select class="page-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+      <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }} / page</option>
+    </select>
+  </div>
+
   <!-- Mobile Cards -->
   <div class="mobile-cards" style="padding: 12px;" *ngIf="!isLoading">
-    <div class="mobile-card" *ngFor="let p of filteredPenalties">
+    <div class="mobile-card" *ngFor="let p of paginatedPenalties">
 
       <div class="mobile-card-header">
         <div class="mobile-card-title">

@@ -7,42 +7,42 @@
 
 <!-- KPI Row — -->
 <div class="appeal-kpi-row" *ngIf="kpis">
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('filed')" (click)="onKpiCardClick('filed')">
     <div class="akpi-icon blue"><i class="bi bi-file-earmark-text-fill"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Filed</span>
       <span class="akpi-value">{{ kpis['filed'] }}</span>
     </div>
   </div>
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('underReview')" (click)="onKpiCardClick('underReview')">
     <div class="akpi-icon orange"><i class="bi bi-search"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Under Review</span>
       <span class="akpi-value">{{ kpis['underReview'] }}</span>
     </div>
   </div>
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('hearingScheduled')" (click)="onKpiCardClick('hearingScheduled')">
     <div class="akpi-icon teal"><i class="bi bi-calendar-event-fill"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Hearing Scheduled</span>
       <span class="akpi-value">{{ kpis['hearingScheduled']}}</span>
     </div>
   </div>
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('decided')" (click)="onKpiCardClick('decided')">
     <div class="akpi-icon purple"><i class="bi bi-gavel"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Decided</span>
       <span class="akpi-value">{{ kpis['decided']}}</span>
     </div>
   </div>
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('closed')" (click)="onKpiCardClick('closed')">
     <div class="akpi-icon green"><i class="bi bi-check-circle-fill"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Closed</span>
       <span class="akpi-value">{{ kpis['closed'] }}</span>
     </div>
   </div>
-  <div class="akpi-card">
+  <div class="akpi-card clickable" [class.active]="isKpiActive('withdrawn')" (click)="onKpiCardClick('withdrawn')">
     <div class="akpi-icon muted"><i class="bi bi-x-circle-fill"></i></div>
     <div class="akpi-text">
       <span class="akpi-label">Withdrawn</span>
@@ -57,15 +57,16 @@
       <div class="search-field">
         <i class="bi bi-search"></i>
         <input type="text" placeholder="Search appeal no, TIN, taxpayer..."
-          [(ngModel)]="searchTerm" />
+          [(ngModel)]="searchTerm" (ngModelChange)="onFilterChange()" />
       </div>
     </div>
     <div class="filter-row">
-      <select class="filter-select" [(ngModel)]="filterStatus">
+      <select class="filter-select" [class.active-filter]="!!filterStatus"
+        [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
         <option value="">All Statuses</option>
         <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
       </select>
-      <button class="btn-clear-filter" (click)="clearFilters()">
+      <button class="btn-clear-filter" *ngIf="hasActiveFilters()" (click)="clearFilters()">
         <i class="bi bi-x-circle"></i> Clear
       </button>
     </div>
@@ -94,8 +95,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let a of filtered; let i = index">
-          <td>{{ i + 1 }}</td>
+        <tr *ngFor="let a of paginated; let i = index">
+          <td>{{ pageRangeStart + i }}</td>
           <td><span class="code-badge">{{ a.appealNo }}</span></td>
           <td>
             <div class="td-name">
@@ -138,5 +139,24 @@
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-row" *ngIf="!isLoading && filtered.length > 0">
+    <span class="pagination-info">
+      Showing {{ pageRangeStart }}–{{ pageRangeEnd }} of {{ filtered.length }}
+    </span>
+    <div class="pagination-controls">
+      <button class="btn-page-nav" (click)="goToPrevPage()" [disabled]="currentPage === 1">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span class="pagination-page-tag">{{ currentPage }}</span>
+      <button class="btn-page-nav" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <select class="page-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+      <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }} / page</option>
+    </select>
   </div>
 </div>

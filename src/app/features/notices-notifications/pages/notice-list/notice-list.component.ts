@@ -23,6 +23,11 @@ export class NoticeListComponent implements OnInit {
 
   filters = ['All', 'Unread', 'Read', 'Responded', 'Urgent', 'Expired'];
 
+  // ── Pagination ──────────────────────────────────────────────────────────
+  currentPage = 1;
+  pageSize = 20;
+  readonly pageSizeOptions = [10, 20, 50, 100];
+
   Role = Role;
 
   private fallback: Notice[] = [
@@ -221,6 +226,70 @@ export class NoticeListComponent implements OnInit {
 
   get unreadCount(): number {
     return this.notices.filter((n) => n.status === 'Unread').length;
+  }
+
+  // ── KPI Summary Cards — replaces the old filter-tabs row ────────────────────
+
+  get kpiUnread(): number {
+    return this.notices.filter((n) => n.status === 'Unread').length;
+  }
+
+  get kpiResponded(): number {
+    return this.notices.filter((n) => n.status === 'Responded').length;
+  }
+
+  get kpiUrgent(): number {
+    return this.notices.filter((n) => n.priority === 'Urgent').length;
+  }
+
+  get kpiExpired(): number {
+    return this.notices.filter((n) => n.status === 'Expired').length;
+  }
+
+  /** Called when a clickable KPI card is clicked — toggles filter, same semantics as the old tabs. */
+  onKpiCardClick(filter: string): void {
+    this.activeFilter = this.activeFilter === filter ? 'All' : filter;
+    this.currentPage = 1;
+  }
+
+  isKpiActive(filter: string): boolean {
+    return this.activeFilter === filter;
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
+
+  // ── Pagination ───────────────────────────────────────────────────────────
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredNotices.length / this.pageSize));
+  }
+
+  get paginatedNotices(): Notice[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredNotices.slice(start, start + this.pageSize);
+  }
+
+  get pageRangeStart(): number {
+    if (this.filteredNotices.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageRangeEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredNotices.length);
+  }
+
+  goToPrevPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
   }
 
   getStatusClass(status: string): string {

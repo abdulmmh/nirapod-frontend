@@ -24,6 +24,20 @@ export class TinListComponent implements OnInit, OnDestroy {
   showDeleteModal = false;
   pendingDeleteId: number | null = null;
 
+  // ── Filters — matches Payment/ITR module's dropdown pattern ────────────────
+  statusFilter   = '';
+  categoryFilter = '';
+  zoneFilter     = '';
+
+  readonly statusOptions: string[] = ['Active', 'Inactive', 'Pending', 'Suspended', 'Cancelled'];
+  readonly categoryOptions: string[] = ['Individual', 'Company', 'Partnership', 'NGO', 'Government'];
+  zoneOptions: string[] = [];   // populated from taxZone once data loads
+
+  // ── Pagination ──────────────────────────────────────────────────────────
+  currentPage = 1;
+  pageSize = 20;
+  readonly pageSizeOptions = [10, 20, 50, 100];
+
   // ────────────── Constructor ───────────────────
 
   constructor(
@@ -63,6 +77,7 @@ export class TinListComponent implements OnInit, OnDestroy {
 
   private handleFetchSuccess(data: Tin[]): void {
     this.tins = data || [];
+    this.buildZoneOptions();
     this.notifyIfEmpty(this.tins);
   }
 
@@ -77,12 +92,54 @@ export class TinListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Extracts distinct tax zones for the Zone filter dropdown. */
+  private buildZoneOptions(): void {
+    const zones = new Set<string>();
+    for (const t of this.tins) {
+      if (t.taxZone) zones.add(t.taxZone);
+    }
+    this.zoneOptions = Array.from(zones).sort();
+  }
+
+  // ── KPI Summary Cards — mirrors Payment/ITR module's card row ──────────────
+
+  get kpiActive(): number {
+    return this.tins.filter((t) => t.status === 'Active').length;
+  }
+
+  get kpiPending(): number {
+    return this.tins.filter((t) => t.status === 'Pending').length;
+  }
+
+  get kpiSuspended(): number {
+    return this.tins.filter((t) => t.status === 'Suspended').length;
+  }
+
+  get kpiCompanies(): number {
+    return this.tins.filter((t) => t.tinCategory === 'Company').length;
+  }
+
   // ────────────────── Filtering ──────────────────────
 
   get filteredTins(): Tin[] {
-    if (!this.searchTerm.trim()) return this.tins;
-    const term = this.searchTerm.toLowerCase();
-    return this.tins.filter((t) => this.matchesSearch(t, term));
+    let result = this.tins;
+
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      result = result.filter((t) => this.matchesSearch(t, term));
+    }
+
+    if (this.statusFilter) {
+      result = result.filter((t) => t.status === this.statusFilter);
+    }
+    if (this.categoryFilter) {
+      result = result.filter((t) => t.tinCategory === this.categoryFilter);
+    }
+    if (this.zoneFilter) {
+      result = result.filter((t) => t.taxZone === this.zoneFilter);
+    }
+
+    return result;
   }
 
   private matchesSearch(t: Tin, term: string): boolean {
@@ -99,6 +156,65 @@ export class TinListComponent implements OnInit, OnDestroy {
       zone.includes(term) ||
       district.includes(term)
     );
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchTerm || this.statusFilter || this.categoryFilter || this.zoneFilter);
+  }
+
+  clearFilters(): void {
+    this.searchTerm     = '';
+    this.statusFilter   = '';
+    this.categoryFilter = '';
+    this.zoneFilter      = '';
+    this.currentPage     = 1;
+  }
+
+  /** Called when a clickable KPI status card is clicked — toggles filter. */
+  onKpiCardClick(status: string): void {
+    this.statusFilter = this.statusFilter === status ? '' : status;
+    this.currentPage  = 1;
+  }
+
+  isKpiActive(status: string): boolean {
+    return this.statusFilter === status;
+  }
+
+  /** Any filter/search change resets back to page 1 — call from (ngModelChange). */
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
+
+  // ── Pagination ───────────────────────────────────────────────────────────
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredTins.length / this.pageSize));
+  }
+
+  get paginatedTins(): Tin[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredTins.slice(start, start + this.pageSize);
+  }
+
+  get pageRangeStart(): number {
+    if (this.filteredTins.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageRangeEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredTins.length);
+  }
+
+  goToPrevPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
   }
 
   // ──────────────── Delete Flow ─────────────────

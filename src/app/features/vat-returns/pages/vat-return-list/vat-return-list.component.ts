@@ -16,7 +16,6 @@ export class VatReturnListComponent implements OnInit, OnDestroy {
 
   returns: VatReturn[] = [];
   searchTerm   = '';
-  filterStatus = '';
   isLoading    = false;
 
   showDeleteModal = false;
@@ -24,10 +23,20 @@ export class VatReturnListComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  statuses = [
-    '', 'Draft', 'Submitted', 'Under Review',
+  // ── Filters — replaces the old status-tabs with KPI cards + dropdown ──────
+  statusFilter = '';
+  yearFilter   = '';
+
+  readonly statusOptions: string[] = [
+    'Draft', 'Submitted', 'Under Review',
     'Accepted', 'Rejected', 'Overdue', 'Amended', 'Send Back'
   ];
+  yearOptions: string[] = [];   // populated from periodYear once data loads
+
+  // ── Pagination ──────────────────────────────────────────────────────────
+  currentPage = 1;
+  pageSize = 20;
+  readonly pageSizeOptions = [10, 20, 50, 100];
 
   constructor(
     private http: HttpClient,
@@ -48,9 +57,71 @@ export class VatReturnListComponent implements OnInit, OnDestroy {
     this.http.get<VatReturn[]>(API_ENDPOINTS.VAT_RETURNS.LIST)
       .pipe(takeUntil(this.destroy$), finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (data) => { this.returns = data; },
+        next: (data) => {
+          this.returns = data;
+          this.buildYearOptions();
+        },
         error: () => { this.toast.error('Failed to load VAT returns.'); }
       });
+  }
+
+  /** Extracts distinct period years for the Year filter dropdown. */
+  private buildYearOptions(): void {
+    const years = new Set<string>();
+    for (const r of this.returns) {
+      if (r.periodYear) years.add(r.periodYear);
+    }
+    this.yearOptions = Array.from(years).sort((a, b) => b.localeCompare(a));
+  }
+
+  // ── KPI Summary Cards — mirrors Payment/ITR module's card row ──────────────
+
+  get kpiSubmitted(): number {
+    return this.returns.filter((r) => r.status === 'Submitted').length;
+  }
+
+  get kpiUnderReview(): number {
+    return this.returns.filter((r) => r.status === 'Under Review').length;
+  }
+
+  get kpiAccepted(): number {
+    return this.returns.filter((r) => r.status === 'Accepted').length;
+  }
+
+  get kpiRejected(): number {
+    return this.returns.filter((r) => r.status === 'Rejected').length;
+  }
+
+  get kpiTotalCollected(): number {
+    return this.returns
+      .filter((r) => r.status === 'Accepted')
+      .reduce((sum, r) => sum + (r.netTaxPayable || 0), 0);
+  }
+
+  /** Called when a clickable KPI status card is clicked — toggles filter. */
+  onKpiCardClick(status: string): void {
+    this.statusFilter = this.statusFilter === status ? '' : status;
+    this.currentPage = 1;
+  }
+
+  isKpiActive(status: string): boolean {
+    return this.statusFilter === status;
+  }
+
+  /** Any filter/search change resets back to page 1 — call from (ngModelChange). */
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchTerm || this.statusFilter || this.yearFilter);
+  }
+
+  clearFilters(): void {
+    this.searchTerm   = '';
+    this.statusFilter = '';
+    this.yearFilter   = '';
+    this.currentPage  = 1;
   }
 
   get filtered(): VatReturn[] {
@@ -63,14 +134,42 @@ export class VatReturnListComponent implements OnInit, OnDestroy {
         (r.binNo        ?? '').toLowerCase().includes(q) ||
         (r.periodMonth  ?? '').toLowerCase().includes(q) ||
         (r.periodYear   ?? '').toLowerCase().includes(q);
-      const matchStatus = !this.filterStatus || r.status === this.filterStatus;
-      return matchSearch && matchStatus;
+      const matchStatus = !this.statusFilter || r.status === this.statusFilter;
+      const matchYear   = !this.yearFilter   || r.periodYear === this.yearFilter;
+      return matchSearch && matchStatus && matchYear;
     });
   }
 
-  countByStatus(status: string): number {
-    if (!status) return this.returns.length;
-    return this.returns.filter(r => r.status === status).length;
+  // ── Pagination ───────────────────────────────────────────────────────────
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
+  }
+
+  get paginated(): VatReturn[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filtered.slice(start, start + this.pageSize);
+  }
+
+  get pageRangeStart(): number {
+    if (this.filtered.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageRangeEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filtered.length);
+  }
+
+  goToPrevPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
   }
 
   getStatusClass(s: string): string {
