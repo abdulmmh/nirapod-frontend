@@ -14,7 +14,7 @@ export const API_ENDPOINTS = {
   // Taxpayer
   TAXPAYERS: {
     LIST: `${API_BASE_URL}/taxpayers`,
-    ME:   `${API_BASE_URL}/taxpayers/me`,
+    ME: `${API_BASE_URL}/taxpayers/me`,
     CREATE: `${API_BASE_URL}/taxpayers`,
     UPDATE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/taxpayers/${id}`,
@@ -30,13 +30,14 @@ export const API_ENDPOINTS = {
 
   // Business
   BUSINESSES: {
-    LIST:   `${API_BASE_URL}/businesses`,
+    LIST: `${API_BASE_URL}/businesses`,
     CREATE: `${API_BASE_URL}/businesses`,
-    GET:    (id: number) => `${API_BASE_URL}/businesses/${id}`,
+    GET: (id: number) => `${API_BASE_URL}/businesses/${id}`,
     UPDATE: (id: number) => `${API_BASE_URL}/businesses/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/businesses/${id}`,
-    BY_TAXPAYER_VAT_STATUS: (taxpayerId: number) =>   // ← এটা add করো যদি না থাকে
-      `${API_BASE_URL}/businesses/by-taxpayer/${taxpayerId}/vat-status`,
+    BY_TAXPAYER_VAT_STATUS: (
+      taxpayerId: number, // ← এটা add করো যদি না থাকে
+    ) => `${API_BASE_URL}/businesses/by-taxpayer/${taxpayerId}/vat-status`,
   },
 
   // TIN Management
@@ -59,8 +60,10 @@ export const API_ENDPOINTS = {
     CREATE: `${API_BASE_URL}/vat-registrations`,
     UPDATE: (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
-    UPDATE_STATUS: (id: number) => `${API_BASE_URL}/vat-registrations/${id}/status`,
-    UPLOAD_DOCUMENTS: (id: number) => `${API_BASE_URL}/vat-registrations/${id}/documents`,
+    UPDATE_STATUS: (id: number) =>
+      `${API_BASE_URL}/vat-registrations/${id}/status`,
+    UPLOAD_DOCUMENTS: (id: number) =>
+      `${API_BASE_URL}/vat-registrations/${id}/documents`,
     GET: (id: number) => `${API_BASE_URL}/vat-registrations/${id}`,
   },
 
@@ -192,22 +195,21 @@ export const API_ENDPOINTS = {
     GET: (id: number) => `${API_BASE_URL}/payments/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/payments/${id}`,
     UPDATE_STATUS: (id: number) => `${API_BASE_URL}/payments/${id}/status`,
-    
+
     OUTSTANDING: (taxpayerId: number) =>
-    `${API_BASE_URL}/payments/outstanding?taxpayerId=${taxpayerId}`,
+      `${API_BASE_URL}/payments/outstanding?taxpayerId=${taxpayerId}`,
   },
-  
 
   // Notices & Notifications
   NOTICES: {
     LIST: `${API_BASE_URL}/notices`,
-    MY: `${API_BASE_URL}/notices/my`, 
+    MY: `${API_BASE_URL}/notices/my`,
     CREATE: `${API_BASE_URL}/notices`,
     GET: (id: number) => `${API_BASE_URL}/notices/${id}`,
     UPDATE: (id: number) => `${API_BASE_URL}/notices/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/notices/${id}`,
     READ: (id: number) => `${API_BASE_URL}/notices/${id}/read`,
-    RESPOND:      (id: number) => `${API_BASE_URL}/notices/${id}/respond`, 
+    RESPOND: (id: number) => `${API_BASE_URL}/notices/${id}/respond`,
     UNREAD_COUNT: `${API_BASE_URL}/notices/my/unread-count`,
   },
 
@@ -272,18 +274,29 @@ export const API_ENDPOINTS = {
 
   APPEALS: {
     LIST: `${API_BASE_URL}/appeals`,
-    GET:              (id: number) => `${API_BASE_URL}/appeals/${id}`,
-    SEARCH:           `${API_BASE_URL}/appeals/search`,
-    KPIS:             `${API_BASE_URL}/appeals/kpis`,
-    BY_CASE:          (caseId: number) => `${API_BASE_URL}/appeals/by-case/${caseId}`,
-    REVIEW:           (id: number) => `${API_BASE_URL}/appeals/${id}/review`,
-    SCHEDULE_HEARING: (id: number) => `${API_BASE_URL}/appeals/${id}/schedule-hearing`,
-    DECIDE:           (id: number) => `${API_BASE_URL}/appeals/${id}/decide`,
-    CLOSE:            (id: number) => `${API_BASE_URL}/appeals/${id}/close`,
-    MY_LIST:          `${API_BASE_URL}/my-portal/appeals`,
-    MY_GET:           (id: number) => `${API_BASE_URL}/my-portal/appeals/${id}`,
-    MY_FILE:          `${API_BASE_URL}/my-portal/appeals`,
-    MY_WITHDRAW:      (id: number) => `${API_BASE_URL}/my-portal/appeals/${id}/withdraw`,
+    GET: (id: number) => `${API_BASE_URL}/appeals/${id}`,
+    SEARCH: `${API_BASE_URL}/appeals/search`,
+    KPIS: `${API_BASE_URL}/appeals/kpis`,
+    BY_CASE: (caseId: number) => `${API_BASE_URL}/appeals/by-case/${caseId}`,
+    REVIEW: (id: number) => `${API_BASE_URL}/appeals/${id}/review`,
+    SCHEDULE_HEARING: (id: number) =>
+      `${API_BASE_URL}/appeals/${id}/schedule-hearing`,
+    DECIDE: (id: number) => `${API_BASE_URL}/appeals/${id}/decide`,
+    CLOSE: (id: number) => `${API_BASE_URL}/appeals/${id}/close`,
+    MY_LIST: `${API_BASE_URL}/my-portal/appeals`,
+    MY_GET: (id: number) => `${API_BASE_URL}/my-portal/appeals/${id}`,
+    MY_FILE: `${API_BASE_URL}/my-portal/appeals`,
+    MY_WITHDRAW: (id: number) =>
+      `${API_BASE_URL}/my-portal/appeals/${id}/withdraw`,
+
+    // ── NEW: Document upload endpoints ──────────────────────────────────
+    MY_DOCS_LIST: (id: number) =>
+      `${API_BASE_URL}/my-portal/appeals/${id}/documents`,
+    MY_DOCS_UPLOAD: (id: number) =>
+      `${API_BASE_URL}/my-portal/appeals/${id}/documents`,
+    MY_DOCS_DELETE: (id: number, docId: number) =>
+      `${API_BASE_URL}/my-portal/appeals/${id}/documents/${docId}`,
+    DOCS_LIST: (id: number) => `${API_BASE_URL}/appeals/${id}/documents`,
   },
 
   // Users

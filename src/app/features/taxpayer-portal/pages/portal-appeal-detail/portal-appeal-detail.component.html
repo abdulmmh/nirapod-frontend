@@ -116,7 +116,8 @@
         <div class="aps-content">
           <strong>Full Payment Required</strong>
           <p>Your appeal was dismissed. The full demanded amount of
-            <strong>{{ appeal.demandedAmount != null ? (appeal.demandedAmount | number:'1.2-2') + ' BDT' : 'the fullamount' }}</strong>
+            <strong>{{ appeal.demandedAmount != null ? (appeal.demandedAmount | number:'1.2-2') + ' BDT' : 'the
+              fullamount' }}</strong>
 
             must be paid by the original due date.
           </p>
@@ -151,7 +152,7 @@
 
     <div class="section-divider"></div>
 
-    <!-- Grounds -->
+    <!-- Your Grounds -->
     <div class="form-section">
       <div class="section-header">
         <div class="section-icon amber"><i class="bi bi-file-text-fill"></i></div>
@@ -163,6 +164,80 @@
       <div class="grounds-text">{{ appeal.groundsText }}</div>
       <div class="grounds-text relief" *ngIf="appeal.reliefSought">
         <strong>Relief Sought:</strong> {{ appeal.reliefSought }}
+      </div>
+    </div>
+
+    <div class="section-divider">
+    </div>
+
+    <!-- Documents Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon cyan"><i class="bi bi-paperclip"></i></div>
+        <div>
+          <h6 class="section-title">Supporting Documents</h6>
+          <span class="section-sub">Documents submitted in support of this appeal</span>
+        </div>
+      </div>
+
+      <!-- Upload Zone — only if appeal is active -->
+      <div class="doc-upload-zone" *ngIf="canUpload()">
+        <div class="doc-upload-error" *ngIf="uploadError">
+          <i class="bi bi-exclamation-triangle-fill"></i> {{ uploadError }}
+        </div>
+        <div class="doc-upload-row">
+          <div class="doc-file-pick">
+            <label class="doc-file-label" for="docFileInput">
+              <i class="bi bi-upload"></i>
+              <span>{{ uploadFile ? uploadFile.name : 'Choose File' }}</span>
+            </label>
+            <input type="file" id="docFileInput" class="doc-file-input" hidden
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" (change)="onFileSelected($event)" />
+            <span class="doc-file-hint">PDF, JPG, PNG, Word, Excel — max 10MB</span>
+          </div>
+          <input type="text" class="form-input doc-desc-input" [(ngModel)]="uploadDesc"
+            placeholder="Description (optional)" />
+          <button class="btn-upload" (click)="uploadDocument()" [disabled]="!uploadFile || isUploading">
+            <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-1"></span>
+            <i class="bi bi-cloud-upload-fill" *ngIf="!isUploading"></i>
+            Upload
+          </button>
+        </div>
+      </div>
+
+      <!-- Documents List -->
+      <div class="loading-row" *ngIf="docsLoading">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+        <span>Loading documents...</span>
+      </div>
+
+      <div class="doc-list" *ngIf="!docsLoading">
+        <div class="doc-item" *ngFor="let doc of documents">
+          <div class="doc-icon">
+            <i class="bi" [ngClass]="getFileIcon(doc.fileType)"></i>
+          </div>
+          <div class="doc-info">
+            <div class="doc-name">{{ doc.originalFileName }}</div>
+            <div class="doc-meta">
+              <span>{{ formatFileSize(doc.fileSize) }}</span>
+              <span *ngIf="doc.description"> · {{ doc.description }}</span>
+              <span> · {{ doc.uploadedByName || doc.uploadedBy }}</span>
+              <span> · {{ doc.uploadedAt | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <div class="doc-actions">
+            <a class="btn-doc-action" [href]="doc.downloadUrl" target="_blank" title="Download">
+              <i class="bi bi-download"></i>
+            </a>
+            <button class="btn-doc-action danger" *ngIf="canUpload()" (click)="deleteDocument(doc.id)" title="Delete">
+              <i class="bi bi-trash-fill"></i>
+            </button>
+          </div>
+        </div>
+        <div class="doc-empty" *ngIf="documents.length === 0">
+          <i class="bi bi-folder2-open"></i>
+          <p>No documents uploaded yet.</p>
+        </div>
       </div>
     </div>
 
@@ -207,7 +282,6 @@
     </div>
 
   </div>
-
 </ng-container>
 
 <!-- Withdraw Modal -->

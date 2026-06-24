@@ -23,7 +23,6 @@ export class RefundEditComponent implements OnInit {
   currentStep = 1;
   totalSteps  = 6;
 
-  // FIX: Active fiscal year loaded on init (was hardcoded 1 in buildRequest)
   activeFiscalYearId: number | null = null;
 
   // Step 1
@@ -94,7 +93,6 @@ export class RefundEditComponent implements OnInit {
   ngOnInit(): void {
     this.refundId = Number(this.route.snapshot.paramMap.get('id'));
 
-    // FIX: Load active fiscal year before loading the refund
     this.refundService.getFiscalYears().subscribe({
       next:  (years) => {
         const active = years.find(y => y.isCurrent) ?? years[0];
@@ -128,12 +126,10 @@ export class RefundEditComponent implements OnInit {
   populateFromDraft(r: RefundDetail): void {
     this.selectedRefundType = r.refundType;
 
-    // FIX: use fiscalYearId from the loaded refund (not hardcoded 1)
     if ((r as any).fiscalYearId) {
       this.activeFiscalYearId = (r as any).fiscalYearId;
     }
 
-    // Populate selected source IDs from the detail response
     if (Array.isArray(r.sources)) {
       r.sources.forEach((s: any) => {
         if (s?.sourceRecordId) this.selectedSourceIds.add(s.sourceRecordId);
@@ -187,19 +183,20 @@ export class RefundEditComponent implements OnInit {
   // ─── Step 2: sources ───────────────────────────────────────────
 
   loadSources(): void {
-    this.loadingSources = true;
-    let obs$;
-    switch (this.selectedRefundType) {
-      case 'INCOME_TAX': obs$ = this.refundService.getEligibleItrSources();     break;
-      case 'AIT':        obs$ = this.refundService.getEligibleAitSources();     break;
-      case 'VAT':        obs$ = this.refundService.getEligibleVatSources();     break;
-      default:           obs$ = this.refundService.getEligiblePaymentSources(); break;
-    }
-    obs$.subscribe({
-      next:  (src) => { this.eligibleSources = src; this.loadingSources = false; },
-      error: () => { this.loadingSources = false; },
-    });
+  this.loadingSources = true;
+  const tpId = this.refund?.taxpayerId ?? undefined;  
+  let obs$;
+  switch (this.selectedRefundType) {
+    case 'INCOME_TAX': obs$ = this.refundService.getEligibleItrSources(tpId);     break;
+    case 'AIT':        obs$ = this.refundService.getEligibleAitSources(tpId);     break;
+    case 'VAT':        obs$ = this.refundService.getEligibleVatSources(tpId);     break;
+    default:           obs$ = this.refundService.getEligiblePaymentSources(tpId); break;
   }
+  obs$.subscribe({
+    next:  (src) => { this.eligibleSources = src; this.loadingSources = false; },
+    error: () => { this.loadingSources = false; },
+  });
+}
 
   toggleSource(id: number): void {
     this.selectedSourceIds.has(id)
@@ -217,8 +214,6 @@ export class RefundEditComponent implements OnInit {
 
   recalculate(): void {
     const ids = Array.from(this.selectedSourceIds);
-    // FIX: use sourceTypeFor() mapping — was passing selectedRefundType directly
-    // which never matched the backend's sourceType check ('INCOME_TAX' ≠ 'ITR')
     this.refundService.calculateRefund(
       this.sourceTypeFor(this.selectedRefundType!),
       ids,
@@ -333,13 +328,7 @@ export class RefundEditComponent implements OnInit {
 
   // ─── Private helpers ───────────────────────────────────────────
 
-  /**
-   * FIX 1: fiscalYearId — uses activeFiscalYearId (loaded on init) instead of hardcoded 1.
-   *         Falls back to refund's own fiscalYearId, then to activeFiscalYearId, then 1.
-   *
-   * FIX 2: sourceType — uses sourceTypeFor() mapping instead of hardcoded 'ITR'.
-   *         'INCOME_TAX' → 'ITR', 'AIT' → 'AIT', 'VAT' → 'VAT_RETURN', etc.
-   */
+
   private buildRequest(): CreateRefundRequest {
     return {
       refundType:      this.selectedRefundType!,
@@ -354,10 +343,6 @@ export class RefundEditComponent implements OnInit {
     };
   }
 
-  /**
-   * Maps frontend RefundType to the backend source type string.
-   * Mirrors the same mapping used in refund-create.component.ts.
-   */
   private sourceTypeFor(type: RefundType): string {
     const map: Record<RefundType, string> = {
       INCOME_TAX:        'ITR',

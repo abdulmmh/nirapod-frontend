@@ -60,21 +60,21 @@
       </div>
       <div class="search-field">
         <i class="bi bi-funnel"></i>
-        <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+        <select [(ngModel)]="selectedStatus" [class.active-filter]="!!selectedStatus" (change)="applyFilters()">
           <option value="">All Statuses</option>
           <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
         </select>
       </div>
       <div class="search-field">
         <i class="bi bi-tag"></i>
-        <select [(ngModel)]="selectedType" (change)="applyFilters()">
+        <select [(ngModel)]="selectedType" [class.active-filter]="!!selectedType" (change)="applyFilters()">
           <option value="">All Types</option>
           <option *ngFor="let t of refundTypes" [value]="t.value">{{ t.label }}</option>
         </select>
       </div>
       <div class="search-field">
         <i class="bi bi-calendar3"></i>
-        <select [(ngModel)]="selectedFiscalYear" (change)="applyFilters()">
+        <select [(ngModel)]="selectedFiscalYear" [class.active-filter]="!!selectedFiscalYear" (change)="applyFilters()">
           <option value="">All Years</option>
           <option *ngFor="let fy of fiscalYears" [value]="getFyId(fy)">{{ getFyName(fy) }}</option>
         </select>

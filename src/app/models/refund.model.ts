@@ -73,19 +73,20 @@ export interface RefundSummary {
   riskLevel: string | null;
   isFlaggedForAudit: boolean;
   submittedAt: string | null;
-  updatedAt?: string | null;            // ← ADD: used in refund-view status banner
+  updatedAt?: string | null;            
   approvedAt: string | null;
   paidAt: string | null;
   documentCount: number;
 }
 
 export interface RefundDetail extends RefundSummary {
+  taxpayerId: number | null; 
   totalTaxPaid: number;
   totalTaxLiability: number;
   sources: any[];
   bankDetails: BankDetails;
-  documents: RefundDocument[];          // ← CHANGE: typed (was any[])
-  statusHistory: RefundStatusHistory[]; // ← CHANGE: typed (was any[])
+  documents: RefundDocument[];          
+  statusHistory: RefundStatusHistory[]; 
   rejectionReasonCode: string | null;
   rejectionReasonText: string | null;
   officerNotes: string | null;
@@ -94,8 +95,8 @@ export interface RefundDetail extends RefundSummary {
   courtOrderNo: string | null;
   bankValidated: boolean;
   itrRecordId: number | null;
-  netRefundAmount?: number | null;      // ← ADD: Liability Offset Engine
-  totalOffsetAmount?: number | null;    // ← ADD: Liability Offset Engine
+  netRefundAmount?: number | null;      
+  totalOffsetAmount?: number | null;    
 }
 
 export interface RefundFilterRequest {

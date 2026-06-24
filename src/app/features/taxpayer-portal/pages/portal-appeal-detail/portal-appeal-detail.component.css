@@ -214,3 +214,73 @@
   border-left: 4px solid #6b7280; color: #374151;
 }
 .tp-deadline-banner.deadline-expired i { color: #6b7280; }
+
+/* Document Upload Zone */
+.doc-upload-zone {
+  background: #f8fafc; border: 1.5px dashed #cbd5e1;
+  border-radius: 10px; padding: 16px;
+  margin: 0 0 16px;
+}
+.doc-upload-error {
+  background: #fef2f2; border: 1px solid #fecaca;
+  color: #7f1d1d; border-radius: 6px;
+  padding: 8px 12px; font-size: 12px;
+  margin-bottom: 10px;
+}
+.doc-upload-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.doc-file-pick { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+.doc-file-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fff; border: 1.5px solid #cbd5e1;
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  color: #374151; white-space: nowrap;
+  max-width: 220px; overflow: hidden; text-overflow: ellipsis;
+}
+.doc-file-label:hover { border-color: #1a3f8f; color: #1a3f8f; }
+.doc-file-label i { font-size: 15px; color: #1a3f8f; flex-shrink: 0; }
+.doc-file-hint { font-size: 11px; color: #94a3b8; }
+.doc-desc-input { flex: 1; min-width: 160px; }
+.btn-upload {
+  background: #1a3f8f; color: #fff; border: none;
+  border-radius: 8px; padding: 9px 18px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.btn-upload:disabled { background: #94a3b8; cursor: not-allowed; }
+.btn-upload:hover:not(:disabled) { background: #152f6b; }
+
+/* Document List */
+.doc-list { display: flex; flex-direction: column; gap: 8px; }
+.doc-item {
+  display: flex; align-items: center; gap: 12px;
+  background: #fff; border: 1px solid #eef2f8;
+  border-radius: 10px; padding: 12px 14px;
+}
+.doc-item:hover { border-color: #d0daf5; }
+.doc-icon { font-size: 22px; flex-shrink: 0; color: #1a3f8f; }
+.doc-info { flex: 1; min-width: 0; }
+.doc-name { font-size: 13px; font-weight: 600; color: #1a2340; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-meta { font-size: 12px; color: #888; margin-top: 2px; }
+.doc-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn-doc-action {
+  width: 32px; height: 32px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  background: #e8eef9; color: #1a3f8f; border: none;
+  cursor: pointer; font-size: 14px; text-decoration: none;
+}
+.btn-doc-action:hover { background: #d0daf5; }
+.btn-doc-action.danger { background: #fee2e2; color: #dc2626; }
+.btn-doc-action.danger:hover { background: #fecaca; }
+.doc-empty {
+  text-align: center; padding: 24px; color: #94a3b8;
+}
+.doc-empty i { font-size: 28px; display: block; margin-bottom: 8px; }
+.doc-empty p { font-size: 13px; margin: 0; }
+
+@media (max-width: 768px) {
+  .doc-upload-row { flex-direction: column; align-items: stretch; }
+  .btn-upload { justify-content: center; }
+}
