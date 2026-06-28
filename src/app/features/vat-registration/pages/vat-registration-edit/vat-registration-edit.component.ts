@@ -125,6 +125,10 @@ export class VatRegistrationEditComponent implements OnInit, OnDestroy {
     this.masterData.getBusinessCategories()
       .pipe(takeUntil(this.destroy$))
       .subscribe(data => (this.businessCategories = data));
+
+    this.masterData.getTaxZones()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => (this.vatZones = data));
   }
 
   // ── Cascade: Division → District (reactive) ────────────────────────────────
