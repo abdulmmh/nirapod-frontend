@@ -8,7 +8,7 @@
 <div class="no-result-note" *ngIf="!loading && businesses.length === 0">
   <i class="bi bi-exclamation-triangle"></i>
   This taxpayer has no registered businesses.
-  <a routerLink="/businesses/create" class="ms-1 fw-bold">Register a business first →</a>
+  <a [routerLink]="registerBusinessLink" [queryParams]="{ returnUrl: '/my-portal/vat-registration/create' }" class="ms-1 fw-bold">Register a business first →</a>
 </div>
 
 <!-- ── Business list ──────────────────────────────────────────────────── -->

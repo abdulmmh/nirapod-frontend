@@ -25,6 +25,7 @@ import { API_ENDPOINTS } from '../../core/constants/api.constants';
 })
 export class TaxpayerSearchComponent implements OnInit, OnDestroy {
   @Input() selectedTaxpayer: Taxpayer | null = null;
+  @Input() hideSearch = false;
 
   @Output() taxpayerSelected = new EventEmitter<Taxpayer>();
 

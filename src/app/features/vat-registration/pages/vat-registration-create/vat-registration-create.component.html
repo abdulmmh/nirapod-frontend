@@ -65,16 +65,18 @@
         <i class="bi bi-person-check-fill" *ngIf="stepOneComplete"></i>
       </div>
       <div>
-        <h6 class="section-title">Step 1 — Find Taxpayer</h6>
-        <span class="section-sub">Search by TIN, NID, or name</span>
+        <h6 class="section-title">{{ isTaxpayerUser ? 'Taxpayer Profile' : 'Step 1 — Find Taxpayer' }}</h6>
+        <span class="section-sub" *ngIf="!isTaxpayerUser">Search by TIN, NID, or name</span>
+        <span class="section-sub" *ngIf="isTaxpayerUser">Taxpayer profile information</span>
       </div>
-      <button *ngIf="stepOneComplete && currentStep > 1" type="button"
+      <button *ngIf="stepOneComplete && currentStep > 1 && !isTaxpayerUser" type="button"
         class="btn-edit-step" (click)="onTaxpayerCleared()">
         <i class="bi bi-pencil-fill"></i> Change
       </button>
     </div>
     <app-taxpayer-search
       [selectedTaxpayer]="selectedTaxpayer"
+      [hideSearch]="isTaxpayerUser"
       (taxpayerSelected)="onTaxpayerSelected($event)"
       (taxpayerCleared)="onTaxpayerCleared()">
     </app-taxpayer-search>

@@ -40,6 +40,7 @@ export class PortalLayoutComponent {
 
   private getPageTitle(url: string): string {
     if (url === '/my-portal') return '';
+    if (url.includes('/businesses')) return 'Business Registration';
     if (url.includes('/tin')) return 'TIN Management';
     if (url.includes('/itr')) return 'Income Tax Returns';
     if (url.includes('/payments')) return 'Payments';
@@ -51,7 +52,7 @@ export class PortalLayoutComponent {
     if (url.includes('/refunds')) return 'Refund Tracker';
     if (url.includes('/audit')) return 'Audit Status';
     if (url.includes('/challan')) return 'Challan';
-    return '';
+    if (url.includes('/appeals')) return 'Appeals';
     return '';
   }
 

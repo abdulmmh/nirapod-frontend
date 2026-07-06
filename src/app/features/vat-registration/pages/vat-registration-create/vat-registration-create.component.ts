@@ -15,6 +15,7 @@ import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { Taxpayer } from '../../../../models/taxpayer.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
 import { MasterDataService } from '../../../../core/services/master-data.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { Division, District, TaxCircle, TaxZone } from '../../../../models/master-data.model';
 import { BusinessVatStatus } from '../../../../models/business.model';
 import {
@@ -114,6 +115,7 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     private toast:      ToastService,
     private masterData: MasterDataService,
     private vatService: VatRegistrationService,
+    private authService: AuthService,
   ) {}
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -123,7 +125,38 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
     this.loadStaticDropdowns();
     this.setupCascadeListeners();
     this.setupDraftAutoSave();
-    this.restoreDraft();
+
+    const user = this.authService.currentUser;
+    if (user?.role === 'TAXPAYER' && user.taxpayerId) {
+      this.isLoading = true;
+      this.http.get<Taxpayer>(API_ENDPOINTS.TAXPAYERS.GET(Number(user.taxpayerId)))
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.isLoading = false)
+        )
+        .subscribe({
+          next: tp => {
+            this.selectedTaxpayer = tp;
+            this.form.patchValue({ taxpayerId: tp.id });
+            if (this.isCompany) {
+              this.currentStep = 3;
+            } else {
+              this.currentStep = 2;
+              this.loadBusinesses(tp.id!);
+            }
+            this.restoreDraft();
+          },
+          error: () => {
+            this.toast.error('Failed to load your taxpayer profile.');
+          }
+        });
+    } else {
+      this.restoreDraft();
+    }
+  }
+
+  get isTaxpayerUser(): boolean {
+    return this.authService.currentUser?.role === 'TAXPAYER';
   }
 
   ngOnDestroy(): void {
@@ -327,7 +360,13 @@ export class VatRegistrationCreateComponent implements OnInit, OnDestroy {
       const raw = localStorage.getItem(this.DRAFT_KEY);
       if (!raw) return;
       const draft: VatRegDraft = JSON.parse(raw);
-      if (!draft?.selectedTaxpayer) { this.clearDraft(); return; }
+      if (this.isTaxpayerUser) {
+        if (draft?.selectedTaxpayer?.id !== this.authService.currentUser?.taxpayerId) {
+          return;
+        }
+      } else {
+        if (!draft?.selectedTaxpayer) { this.clearDraft(); return; }
+      }
       this._pendingDraft   = draft;
       this.showDraftBanner = true;
     } catch { this.clearDraft(); }

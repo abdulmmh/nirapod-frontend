@@ -12,6 +12,7 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 import { VatRegistration } from '../../../../models/vat-registration.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-vat-registration-picker',
@@ -40,6 +41,7 @@ export class VatRegistrationPickerComponent implements OnInit, OnDestroy {
 
   // Selection state: stores the registration currently shown as selected.
   selectedReg: VatRegistration | null = null;
+  activeCount = 0;
 
   // Stops active HTTP subscriptions when this component is destroyed.
   private destroy$ = new Subject<void>();
@@ -47,9 +49,36 @@ export class VatRegistrationPickerComponent implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private toast: ToastService,
+    private authService: AuthService,
   ) {}
 
-  ngOnInit(): void {}
+  get isTaxpayerUser(): boolean {
+    return this.authService.currentUser?.role === 'TAXPAYER';
+  }
+
+  ngOnInit(): void {
+    if (this.isTaxpayerUser) {
+      this.isSearching = true;
+      this.http.get<VatRegistration[]>(API_ENDPOINTS.VAT_REGISTRATIONS.LIST)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.isSearching = false)
+        )
+        .subscribe({
+          next: (data) => {
+            const activeRegs = data.filter(r => r.status === 'Active');
+            this.activeCount = activeRegs.length;
+            if (activeRegs.length === 1) {
+              this.select(activeRegs[0]);
+            } else {
+              this.searchResults = activeRegs;
+              this.hasSearched = true;
+            }
+          },
+          error: () => {}
+        });
+    }
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { BusinessVatStatus } from '../../../../models/business.model';
 import { ToastService } from '../../../../shared/toast/toast.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-business-picker',
@@ -16,7 +17,15 @@ export class BusinessPickerComponent {
 
   @Output() businessSelected = new EventEmitter<BusinessVatStatus>();
 
-  constructor(private toast: ToastService) {}
+  constructor(
+    private toast: ToastService,
+    private authService: AuthService
+  ) {}
+
+  get registerBusinessLink(): string {
+    const role = this.authService.currentUser?.role;
+    return role === 'TAXPAYER' ? '/my-portal/businesses/create' : '/businesses/create';
+  }
 
   onSelect(b: BusinessVatStatus): void {
     if (b.vatRegistered) {

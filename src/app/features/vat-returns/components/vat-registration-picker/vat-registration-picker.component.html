@@ -5,14 +5,14 @@
 
 <div class="picker-section">
 
-  <div class="section-header">
+  <div class="section-header" *ngIf="!isTaxpayerUser || (isTaxpayerUser && !isSelected && searchResults.length > 1)">
     <div class="section-icon search-icon">
       <i class="bi bi-search"></i>
     </div>
     <div>
-      <h6 class="section-title">Find VAT Registration</h6>
+      <h6 class="section-title">{{ isTaxpayerUser ? 'Select VAT Registration' : 'Find VAT Registration' }}</h6>
       <span class="section-sub">
-        Search by BIN number, TIN or business name — only Active registrations shown
+        {{ isTaxpayerUser ? 'Choose one of your active VAT registrations' : 'Search by BIN number, TIN or business name — only Active registrations shown' }}
       </span>
     </div>
   </div>
@@ -20,7 +20,7 @@
   <!-- ── STATE A: Search UI ── -->
   <ng-container *ngIf="!isSelected">
 
-    <div class="search-row">
+    <div class="search-row" *ngIf="!isTaxpayerUser">
       <div class="input-wrap search-input-wrap">
         <i class="bi bi-hash input-icon"></i>
         <input
@@ -88,7 +88,7 @@
         <div class="autofill-tag">
           <i class="bi bi-lightning-charge-fill"></i> Selected
         </div>
-        <button type="button" class="btn-change" (click)="clear()">
+        <button type="button" class="btn-change" (click)="clear()" *ngIf="!isTaxpayerUser || activeCount > 1">
           <i class="bi bi-arrow-repeat"></i> Change
         </button>
       </div>

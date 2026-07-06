@@ -11,7 +11,7 @@
 <div class="form-card">
 
   <!-- Section 0: Taxpayer Search (TIN-style) -->
-  <div class="form-section">
+  <div class="form-section" *ngIf="!isTaxpayerUser">
     <div class="section-header">
       <div class="section-icon search-icon">
         <i class="bi bi-search"></i>
@@ -70,7 +70,7 @@
     </div>
   </div>
 
-  <div class="section-divider"></div>
+  <div class="section-divider" *ngIf="!isTaxpayerUser"></div>
 
   <!-- Section 1: Business Identity -->
   <div class="form-section">

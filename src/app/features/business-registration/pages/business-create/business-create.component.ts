@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject, timer, finalize, takeUntil } from 'rxjs';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -32,6 +32,10 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
 
   get isAutoFilled(): boolean { return this.selectedTaxpayer !== null; }
 
+  get isTaxpayerUser(): boolean {
+    return this.authService.currentUser?.role === Role.TAXPAYER;
+  }
+
   divisions:          Division[]         = [];
   districts:          District[]         = [];
   businessTypes:      BusinessType[]     = [];
@@ -40,6 +44,7 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
 
   constructor(
     private router:      Router,
+    private route:       ActivatedRoute,
     private toast:       ToastService,
     private masterData:  MasterDataService,
     private http:        HttpClient,
@@ -222,7 +227,14 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
   private handleSuccess(): void {
     this.toast.success('Business registered successfully!');
     timer(1500).pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.router.navigate(['..']));
+      .subscribe(() => {
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+          this.router.navigateByUrl(returnUrl);
+        } else {
+          this.router.navigate(['..']);
+        }
+      });
   }
 
   private handleError(error: unknown): void {
@@ -243,7 +255,14 @@ export class BusinessCreateComponent implements OnInit, OnDestroy {
     this.toast.info('Form has been reset.');
   }
 
-  onCancel(): void { this.router.navigate(['..']); }
+  onCancel(): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['..']);
+    }
+  }
 
   private getEmptyForm(): BusinessCreateRequest {
     return {
