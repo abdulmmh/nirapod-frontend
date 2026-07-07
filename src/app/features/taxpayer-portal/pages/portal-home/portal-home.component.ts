@@ -151,6 +151,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
     } else if (category === 'Business') {
       this.menuItems = [
         { label: 'My TIN', route: '/my-portal/tin', icon: '🪪' },
+        { label: 'My Businesses', route: '/my-portal/businesses', icon: '🏪' },
         {
           label: 'VAT Registration',
           route: '/my-portal/vat-registration',
