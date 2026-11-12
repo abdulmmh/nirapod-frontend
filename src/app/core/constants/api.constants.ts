@@ -1,4 +1,7 @@
-export const API_BASE_URL = 'http://localhost:8080/api';
+import { environment } from '../../../environments/environment';
+declare global { interface Window { nirapodConfig?: { apiUrl?: string; demoPassword?: string; demoMode?: boolean }; } }
+export const API_BASE_URL = (window.nirapodConfig?.apiUrl || environment.apiUrl).replace(/\/$/, '');
+export const API_SERVER_URL = API_BASE_URL.replace(/\/api$/, '');
 
 export const API_ENDPOINTS = {
   // Dashboard
@@ -167,12 +170,12 @@ export const API_ENDPOINTS = {
 
   // Import Duty
   IMPORT_DUTIES: {
-    LIST: `${API_BASE_URL}/import-duty`,
-    CREATE: `${API_BASE_URL}/import-duty`,
-    GET: (id: number) => `${API_BASE_URL}/import-duty/${id}`,
-    UPDATE: (id: number) => `${API_BASE_URL}/import-duty/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/import-duty/${id}`,
-    PREVIEW: `${API_BASE_URL}/import-duty/preview-tax`,
+    LIST: `${API_BASE_URL}/import-duties`,
+    CREATE: `${API_BASE_URL}/import-duties`,
+    GET: (id: number) => `${API_BASE_URL}/import-duties/${id}`,
+    UPDATE: (id: number) => `${API_BASE_URL}/import-duties/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/import-duties/${id}`,
+    PREVIEW: `${API_BASE_URL}/import-duties/preview`,
   },
 
   // Certificate

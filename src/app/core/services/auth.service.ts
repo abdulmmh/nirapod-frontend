@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import {
   Role,
@@ -29,7 +29,8 @@ export class AuthService {
   private loadUser(): AuthUser | null {
     try {
       const data = localStorage.getItem('current_user');
-      return data ? JSON.parse(data) : null;
+      const user = data ? JSON.parse(data) : null;
+      return user?.token && !user.token.startsWith('mock-token') ? user : null;
     } catch {
       return null;
     }
@@ -37,17 +38,9 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<any> {
     return this.http.post<any>(API_ENDPOINTS.AUTH.LOGIN, credentials).pipe(
-      tap((response) => this.handleLoginSuccess(response)),
-      catchError((err) => {
-        if (!environment.useMockAuth) {
-          return throwError(() => err);
-        }
-        const mockUser = this.getMockUser(credentials.email);
-        if (mockUser) {
-          this.handleLoginSuccess(mockUser);
-          return of(mockUser);
-        }
-        return throwError(() => new Error('Invalid credentials'));
+      tap((response) => {
+        if (!response.token) throw new Error('Server did not return a login token.');
+        this.handleLoginSuccess(response);
       }),
     );
   }
@@ -69,68 +62,6 @@ export class AuthService {
     localStorage.setItem('current_user', JSON.stringify(user));
     if (user.token) localStorage.setItem('auth_token', user.token);
     this.currentUserSubject.next(user);
-  }
-
-  private getMockUser(email: string): AuthUser | null {
-    const mockUsers: Record<string, AuthUser> = {
-      'admin@vattax.gov.bd': {
-        id: 1,
-        fullName: 'System Admin',
-        email: 'admin@vattax.gov.bd',
-        role: Role.SUPER_ADMIN,
-        token: 'mock-token-admin',
-      },
-      'commissioner@vattax.gov.bd': {
-        id: 2,
-        fullName: 'Tax Commissioner',
-        email: 'commissioner@vattax.gov.bd',
-        role: Role.TAX_COMMISSIONER,
-        token: 'mock-token-commissioner',
-      },
-      'officer@vattax.gov.bd': {
-        id: 3,
-        fullName: 'Tax Officer',
-        email: 'officer@vattax.gov.bd',
-        role: Role.TAX_OFFICER,
-        token: 'mock-token-officer',
-      },
-      'auditor@vattax.gov.bd': {
-        id: 4,
-        fullName: 'Auditor',
-        email: 'auditor@vattax.gov.bd',
-        role: Role.AUDITOR,
-        token: 'mock-token-auditor',
-      },
-      'supervisor@vattax.gov.bd': {
-        id: 8,
-        fullName: 'Abdul Karim Supervisor',
-        email: 'supervisor@vattax.gov.bd',
-        role: Role.SUPERVISOR,
-        token: 'mock-token-supervisor',
-      },
-      'operator@vattax.gov.bd': {
-        id: 5,
-        fullName: 'Data Entry Operator',
-        email: 'operator@vattax.gov.bd',
-        role: Role.DATA_ENTRY_OPERATOR,
-        token: 'mock-token-operator',
-      },
-      'taxpayer@example.com': {
-        id: 6,
-        fullName: 'Abdul Karim',
-        email: 'taxpayer@example.com',
-        role: Role.TAXPAYER,
-        token: 'mock-token-taxpayer',
-      },
-      'guest@example.com': {
-        id: 7,
-        fullName: 'Guest User',
-        email: 'guest@example.com',
-        role: Role.GUEST,
-        token: 'mock-token-guest',
-      },
-    };
-    return mockUsers[email] ?? null;
   }
 
   logout(): void {

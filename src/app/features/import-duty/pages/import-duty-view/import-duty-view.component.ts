@@ -1,3 +1,5 @@
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from 'src/app/core/constants/api.constants';
 import { Component, OnInit, inject } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,90 +14,21 @@ export class ImportDutyViewComponent implements OnInit {
   record: ImportDuty | null = null;
   isLoading = true;
 
-  private fallback: ImportDuty[] = [
-    {
-      id: 1,
-      dutyRef: 'IMP-2024-00001',
-      tinNumber: 'TIN-1001',
-      taxpayerName: 'Abdul Rahman',
-      businessName: 'Rahman Textile Ltd.',
-      productId: 6,
-      productName: 'Industrial Machinery',
-      hsCode: '8428.90.00',
-      goodsDescription: '2x CNC Textile Machinery',
-      originCountry: 'China',
-      cifValue: 5000000,
-      cdRate: 5,
-      sdRate: 0,
-      vatRate: 15,
-      aitRate: 5,
-      atRate: 5,
-      customsDuty: 250000,
-      supplementaryDuty: 0,
-      vat: 787500,
-      advanceIncomeTax: 250000,
-      advanceTax: 250000,
-      totalPayable: 1537500,
-      paidAmount: 1537500,
-      portOfEntry: 'Chittagong Port',
-      boeNumber: 'BOE-2024-00001',
-      boeDate: '2024-03-18',
-      billOfLading: 'BL-2024-44821',
-      importDate: '2024-03-15',
-      assessmentDate: '2024-03-18',
-      status: 'Cleared',
-      remarks: '',
-    },
-    {
-      id: 2,
-      dutyRef: 'IMP-2024-00002',
-      tinNumber: 'TIN-1003',
-      taxpayerName: 'Dr. Nasrin Islam',
-      businessName: 'Dhaka Pharma Co.',
-      productId: 4,
-      productName: 'Pharmaceutical Drug',
-      hsCode: '3004.90.99',
-      goodsDescription: 'API Raw Materials',
-      originCountry: 'India',
-      cifValue: 2000000,
-      cdRate: 0,
-      sdRate: 0,
-      vatRate: 0,
-      aitRate: 0,
-      atRate: 0,
-      customsDuty: 0,
-      supplementaryDuty: 0,
-      vat: 0,
-      advanceIncomeTax: 0,
-      advanceTax: 0,
-      totalPayable: 0,
-      paidAmount: 0,
-      portOfEntry: 'Benapole Land Port',
-      boeNumber: 'BOE-2024-00002',
-      boeDate: '2024-03-22',
-      billOfLading: 'BL-2024-55932',
-      importDate: '2024-03-20',
-      assessmentDate: '2024-03-22',
-      status: 'Cleared',
-      remarks: 'Zero duty - essential medicine',
-    },
-  ];
+
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private toast: ToastService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.record = this.fallback.find((r) => r.id === id) || this.fallback[0];
-    if (this.record.id !== id) {
-      this.toast.warning(
-        'Import duty record not found. Showing the first available record.',
-      );
-    }
-    this.isLoading = false;
+    this.http.get<ImportDuty>(API_ENDPOINTS.IMPORT_DUTIES.GET(id)).subscribe({
+      next: record => { this.record = record; this.isLoading = false; },
+      error: () => { this.record = null; this.isLoading = false; this.toast.error('Could not load this record.'); },
+    });
   }
 
   getStatusClass(s: string): string {

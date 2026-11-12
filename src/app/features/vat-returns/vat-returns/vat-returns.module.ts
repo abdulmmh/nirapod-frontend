@@ -8,7 +8,7 @@ import { VatReturnListComponent }   from '../pages/vat-return-list/vat-return-li
 import { VatReturnCreateComponent } from '../pages/vat-return-create/vat-return-create.component';
 import { VatReturnEditComponent }   from '../pages/vat-return-edit/vat-return-edit.component';
 import { VatReturnViewComponent }   from '../pages/vat-return-view/vat-return-view.component';
-import { VatRegistrationPickerComponent } from '../Components/vat-registration-picker/vat-registration-picker.component';
+import { VatRegistrationPickerComponent } from '../components/vat-registration-picker/vat-registration-picker.component';
 
 
 @NgModule({

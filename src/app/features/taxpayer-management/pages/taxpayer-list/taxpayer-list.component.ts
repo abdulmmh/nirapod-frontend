@@ -1,3 +1,4 @@
+import { API_SERVER_URL } from 'src/app/core/constants/api.constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -612,7 +613,7 @@ export class TaxpayerListComponent implements OnInit, OnDestroy {
     return map[status] ?? '';
   }
    getPhotoUrl(photoPath: string): string {
-    return 'http://localhost:8080' + photoPath;
+    return API_SERVER_URL + photoPath;
   }
 
   

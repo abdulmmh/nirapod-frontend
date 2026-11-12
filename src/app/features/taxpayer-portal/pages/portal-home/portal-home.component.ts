@@ -1,3 +1,4 @@
+import { API_SERVER_URL } from 'src/app/core/constants/api.constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of, Subject, takeUntil } from 'rxjs';
@@ -196,7 +197,7 @@ export class PortalHomeComponent implements OnInit, OnDestroy {
 
   get photoUrl(): string | null {
     return this.taxpayer?.photoPath
-      ? 'http://localhost:8080' + this.taxpayer.photoPath
+      ? API_SERVER_URL + this.taxpayer.photoPath
       : null;
   }
 

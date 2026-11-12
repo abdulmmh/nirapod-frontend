@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AuditViewComponent } from './audit-view.component';
+import { AuditDetailComponent } from './audit-view.component';
 
-describe('AuditViewComponent', () => {
-  let component: AuditViewComponent;
-  let fixture: ComponentFixture<AuditViewComponent>;
+describe('AuditDetailComponent', () => {
+  let component: AuditDetailComponent;
+  let fixture: ComponentFixture<AuditDetailComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AuditViewComponent ]
+      declarations: [ AuditDetailComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AuditViewComponent);
+    fixture = TestBed.createComponent(AuditDetailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -51,7 +51,7 @@ export class DashboardHomeComponent
   isLoading = true;
   hasError = false;
 
-  years = ['2024-25', '2023-24', '2022-23'];
+  years: string[] = [];
 
   // ── Fiscal Years ──
   fiscalYears: FiscalYear[] = [];
@@ -116,18 +116,18 @@ export class DashboardHomeComponent
   ];
 
   // ── VAT Collection Trend ──
-  vatMonths: string[] = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
-  vatData: number[] = [32, 41, 38, 52, 47, 61];
-  vatTarget: number[] = [40, 40, 45, 50, 50, 58];
+  vatMonths: string[] = [];
+  vatData: number[] = [];
+  vatTarget: number[] = [];
   vatMax = 70;
 
   // ── Payment Collection ──
-  payMonths: string[] = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
-  payData: number[] = [28, 35, 31, 44, 39, 53];
+  payMonths: string[] = [];
+  payData: number[] = [];
   payMax = 60;
 
   // ── Compliance Gauge ──
-  complianceRate = 74;
+  complianceRate = 0;
   complianceFiled = 0;
   compliancePending = 0;
 
@@ -156,11 +156,11 @@ export class DashboardHomeComponent
 
   // ── Tax Type Breakdown (static) ──
   taxBreakdown = [
-    { label: 'VAT', value: 28.2, percentage: 61, color: '#1faa8b' },
-    { label: 'Income Tax', value: 12.4, percentage: 27, color: '#1a3f8f' },
-    { label: 'Import Duty', value: 3.8, percentage: 8, color: '#7c3aed' },
-    { label: 'AIT', value: 0.9, percentage: 2, color: '#f59e0b' },
-    { label: 'Others', value: 0.6, percentage: 2, color: '#0891b2' },
+    { label: 'VAT', value: 0, percentage: 0, color: '#1faa8b' },
+    { label: 'Income Tax', value: 0, percentage: 0, color: '#1a3f8f' },
+    { label: 'Import Duty', value: 0, percentage: 0, color: '#7c3aed' },
+    { label: 'AIT', value: 0, percentage: 0, color: '#f59e0b' },
+    { label: 'Others', value: 0, percentage: 0, color: '#0891b2' },
   ];
 
   // ── Quick Actions ──

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import {
   HttpRequest,
   HttpHandler,
@@ -8,14 +8,15 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { API_BASE_URL } from '../constants/api.constants';
+import { AuthService } from '../services/auth.service';
 import { ToastService } from '../../shared/toast/toast.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
   constructor(
-    private router: Router,
+    private injector: Injector,
     private toast : ToastService,
   ) {}
 
@@ -26,7 +27,12 @@ export class AuthInterceptor implements HttpInterceptor {
 
     const token = localStorage.getItem('auth_token');
 
-    if (token) {
+    const api = new URL(API_BASE_URL, window.location.origin);
+    const target = new URL(request.url, window.location.origin);
+    const isApi = target.origin === api.origin &&
+      (target.pathname === api.pathname || target.pathname.startsWith(api.pathname + '/'));
+    if (!isApi) return next.handle(request);
+    if (token && isApi) {
       const headers: any = {
         Authorization: `Bearer ${token}`
       };
@@ -44,8 +50,7 @@ export class AuthInterceptor implements HttpInterceptor {
         switch (error.status) {
 
           case 401:
-            localStorage.removeItem('auth_token');
-            this.router.navigate(['/auth/login']);
+            this.injector.get(AuthService).logout();
             break;
 
           case 403:

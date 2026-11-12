@@ -1,3 +1,4 @@
+import { environment } from '../../../../../environments/environment';
 import { Component } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Router } from '@angular/router';
@@ -16,25 +17,12 @@ export class LoginComponent {
   errorMsg = '';
   showPassword = false;
 
+  demoMode = window.nirapodConfig?.demoMode ?? environment.production;
+  demoPassword = window.nirapodConfig?.demoPassword || '';
   demoAccounts = [
-    { label: 'Super Admin', email: 'admin@vattax.gov.bd', role: 'SUPER_ADMIN' },
-    {
-      label: 'Tax Commissioner',
-      email: 'commissioner@vattax.gov.bd',
-      role: 'TAX_COMMISSIONER',
-    },
-    {
-      label: 'Tax Officer',
-      email: 'officer@vattax.gov.bd',
-      role: 'TAX_OFFICER',
-    },
-    { label: 'Auditor', email: 'auditor@vattax.gov.bd', role: 'AUDITOR' },
-    {
-      label: 'Data Entry Operator',
-      email: 'operator@vattax.gov.bd',
-      role: 'DATA_ENTRY_OPERATOR',
-    },
-    { label: 'Taxpayer', email: 'taxpayer@example.com', role: 'TAXPAYER' },
+    { label: 'Officer', email: 'officer@nirapod.example' },
+    { label: 'Taxpayer One', email: 'taxpayer@nirapod.example' },
+    { label: 'Taxpayer Two', email: 'taxpayer2@nirapod.example' },
   ];
 
   constructor(
@@ -54,7 +42,7 @@ export class LoginComponent {
 
   fillDemo(email: string): void {
     this.email = email;
-    this.password = 'demo1234';
+    this.password = this.demoPassword;
     this.errorMsg = '';
   }
 

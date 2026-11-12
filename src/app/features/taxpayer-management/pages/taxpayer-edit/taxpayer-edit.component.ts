@@ -1,3 +1,4 @@
+import { API_SERVER_URL } from 'src/app/core/constants/api.constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -313,7 +314,7 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
       }
     }
     if (data.photoPath) {
-      this.currentPhotoUrl = 'http://localhost:8080' + data.photoPath;
+      this.currentPhotoUrl = API_SERVER_URL + data.photoPath;
     }
   }
 
@@ -424,11 +425,11 @@ export class TaxpayerEditComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (res) => {
         this.toast.success('Photo uploaded successfully!');
-        this.currentPhotoUrl = 'http://localhost:8080' + res.photoUrl;
+        this.currentPhotoUrl = API_SERVER_URL + res.photoUrl;
 
         const currentUser = this.authService.currentUser;
           if (currentUser) {
-            currentUser.photoUrl = 'http://localhost:8080' + res.photoUrl;
+            currentUser.photoUrl = API_SERVER_URL + res.photoUrl;
             this.authService.updateCurrentUser(currentUser); 
           }
         this.selectedFile = null;
