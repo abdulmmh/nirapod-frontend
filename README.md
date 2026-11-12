@@ -21,9 +21,11 @@ Install the dependencies with `npm ci`, then run `npm start`. The development AP
 
 `ng test --watch=false --browsers=ChromeHeadless --include=src/app/core/services/auth.service.spec.ts` runs the focused release regressions for failed login, token handling and API failures.
 
-## Free deployment with Render and Aiven
+## Deployment with Render and Aiven
 
-The backend repository supplies its own Dockerfile and Render Free service blueprint, and uses your Aiven MySQL database. This repository supplies a Render Static Site blueprint.
+Aiven stopped new Free MySQL service creation on 6 November 2026 and will retire existing Free MySQL services on 21 December 2026. See https://aiven.io/changelog/507f8b1b-dd8f-4841-ac4a-940ac492b688. A fully free deployment needs a suitable database choice and any required backend migration first.
+
+The backend repository supplies its own Dockerfile and Render Free service blueprint, and currently targets MySQL. This repository supplies a Render Static Site blueprint.
 
 1. Deploy the backend and obtain its HTTPS URL.
 2. Connect this frontend repository to Render through its `render.yaml`.
