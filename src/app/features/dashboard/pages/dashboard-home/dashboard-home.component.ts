@@ -390,6 +390,11 @@ export class DashboardHomeComponent
 
   // ── DashboardChartData → chart arrays ────────────────────────────────────
   private applyChartData(data: DashboardChartData): void {
+    this.vatMonths = [];
+    this.vatData = [];
+    this.vatTarget = [];
+    this.payMonths = [];
+    this.payData = [];
     if (data?.vatChart?.length) {
       this.vatMonths = data.vatChart.map((d) => d.label);
       this.vatData = data.vatChart.map((d) => +(d.value / 100_000).toFixed(1));
@@ -546,8 +551,9 @@ export class DashboardHomeComponent
     ctx.clearRect(0, 0, w, h);
 
     const drawLine = (data: number[], color: string, fill: boolean) => {
+      if (!data.length) return;
       const pts = data.map((v, i) => ({
-        x: pad.left + (i / (data.length - 1)) * cw,
+        x: pad.left + (data.length === 1 ? 0.5 : i / (data.length - 1)) * cw,
         y: pad.top + ch - (v / this.vatMax) * ch,
       }));
       if (fill) {
@@ -606,7 +612,7 @@ export class DashboardHomeComponent
       );
     }
     this.vatMonths.forEach((m, i) => {
-      const x = pad.left + (i / (this.vatMonths.length - 1)) * cw;
+      const x = pad.left + (this.vatMonths.length === 1 ? 0.5 : i / (this.vatMonths.length - 1)) * cw;
       ctx.fillStyle = '#aaa';
       ctx.font = '10px Inter, sans-serif';
       ctx.textAlign = 'center';
@@ -627,7 +633,7 @@ export class DashboardHomeComponent
     const cw = w - pad.left - pad.right,
       ch = h - pad.top - pad.bottom;
     ctx.clearRect(0, 0, w, h);
-    const barW = cw / (this.payData.length * 2);
+    const barW = cw / (Math.max(1, this.payData.length) * 2);
     for (let i = 0; i <= 4; i++) {
       const y = pad.top + (ch / 4) * i;
       ctx.beginPath();
@@ -646,7 +652,7 @@ export class DashboardHomeComponent
       );
     }
     this.payData.forEach((v, i) => {
-      const x = pad.left + (i / (this.payData.length - 1)) * cw - barW / 2;
+      const x = pad.left + (this.payData.length === 1 ? 0.5 : i / (this.payData.length - 1)) * cw - barW / 2;
       const bh = (v / this.payMax) * ch,
         y = pad.top + ch - bh;
       const g = ctx.createLinearGradient(0, y, 0, pad.top + ch);
