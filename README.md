@@ -40,6 +40,7 @@ Render Free backend services sleep on idle, so the first request can take about 
 
 ## Implementation and scope
 
+- The dashboard renders its layout and navigation without waiting for API responses. Sections update in the background; missing values appear as dashes. Recent snapshots are kept in session storage for up to 15 minutes, isolated by account, role, API and fiscal year, with an update timestamp. Logout clears them.
 - Angular 13 web frontend, Spring Boot 3.4 API and MySQL.
 - Server-side taxpayer ownership checks and officer role checks.
 - JWT-backed login with explicit failure states.

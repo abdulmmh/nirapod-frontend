@@ -12,6 +12,7 @@ import {
 import { API_ENDPOINTS } from '../constants/api.constants';
 import { environment } from '../../../environments/environment';
 import { AuthUser, LoginRequest } from 'src/app/models/auth-user.model';
+import { clearDashboardSnapshots } from '../../features/dashboard/services/dashboard-snapshot.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -65,6 +66,7 @@ export class AuthService {
   }
 
   logout(): void {
+    clearDashboardSnapshots();
     localStorage.removeItem('current_user');
     localStorage.removeItem('auth_token');
     this.currentUserSubject.next(null);

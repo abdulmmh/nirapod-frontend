@@ -11,6 +11,7 @@ import { LoginComponent } from '../../features/auth/pages/login/login.component'
 import { NoticeListComponent } from '../../features/notices-notifications/pages/notice-list/notice-list.component';
 import { NoticeService } from '../../features/notices-notifications/services/notice.service';
 import { ActivatedRoute } from '@angular/router';
+import { DashboardSnapshotService } from '../../features/dashboard/services/dashboard-snapshot.service';
 
 describe('API authentication and failure handling', () => {
   let requests: HttpTestingController;
@@ -74,10 +75,15 @@ describe('API authentication and failure handling', () => {
     auth.login({ email: 'taxpayer@nirapod.example', password: 'test' }).subscribe();
     requests.expectOne(API_ENDPOINTS.AUTH.LOGIN).flush({ id: 1, role: 'TAXPAYER', token: 'test-only-token' });
     expect(auth.isLoggedIn).toBeTrue();
+    const signedInUser = auth.currentUser!;
+    const snapshots = new DashboardSnapshotService();
+    snapshots.write(signedInUser, '', 'zones', []);
+    expect(snapshots.read(signedInUser).zones).toBeDefined();
     TestBed.inject(HttpClient).get(API_ENDPOINTS.AUTH.PROFILE).subscribe({ error: () => {} });
     requests.expectOne(API_ENDPOINTS.AUTH.PROFILE).flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(auth.isLoggedIn).toBeFalse();
     expect(auth.currentUser).toBeNull();
+    expect(snapshots.read(signedInUser)).toEqual({});
   });
 
   it('fills a seeded account using only the configured public demo password', () => {

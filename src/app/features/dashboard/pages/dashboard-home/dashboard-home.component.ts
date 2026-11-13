@@ -3,7 +3,6 @@ import {
   OnInit,
   AfterViewInit,
   OnDestroy,
-  inject,
 } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { Subject, timer, merge, of } from 'rxjs';
@@ -17,6 +16,7 @@ import {
   DashboardChartData,
 } from 'src/app/models/dashboard.model';
 import { FiscalYear } from 'src/app/models/fiscal-year.model';
+import { DashboardSnapshotService, DashboardSection } from '../../services/dashboard-snapshot.service';
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -41,6 +41,10 @@ export class DashboardHomeComponent
   private destroy$ = new Subject<void>();
   private reload$ = new Subject<void>();
   loadingSections = 0;
+  sectionReady: Record<DashboardSection, boolean> = this.emptySections();
+  sectionErrors: Partial<Record<DashboardSection, boolean>> = {};
+  sectionUpdatedAt: Partial<Record<DashboardSection, number>> = {};
+  private dataYear: string | null = null;
 
   // FIX: track whether user has manually changed the year
   // applyFiscalYears() will only set selectedYear on first load
@@ -48,7 +52,7 @@ export class DashboardHomeComponent
 
   currentUser: any;
   currentDate = new Date();
-  selectedYear = '2024-25';
+  selectedYear = '';
   isRefreshing = false;
   isLoading = true;
   hasError = false;
@@ -209,6 +213,7 @@ export class DashboardHomeComponent
     public authService: AuthService,
     private dashboardService: DashboardService,
     private toast: ToastService,
+    private snapshots: DashboardSnapshotService,
   ) {}
 
   // ─────────────────────────────────────────────
@@ -217,13 +222,17 @@ export class DashboardHomeComponent
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUser;
-    this.loadDashboard();
+    this.restoreSnapshot('');
   }
 
   ngAfterViewInit(): void {
-    timer(100)
+    // Paint the dashboard and any saved values before starting HTTP requests.
+    timer(0)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.redrawAllCharts());
+      .subscribe(() => {
+        this.redrawAllCharts();
+        this.loadDashboard();
+      });
   }
 
   ngOnDestroy(): void {
@@ -236,11 +245,12 @@ export class DashboardHomeComponent
   // ─────────────────────────────────────────────
 
   private loadDashboard(year: string = ''): void {
-    this.isLoading = true;
-    this.hasError = false;
-
     this.reload$.next();
+    if (this.dataYear !== year) this.restoreSnapshot(year);
     this.isLoading = true;
+    this.isRefreshing = true;
+    this.hasError = false;
+    this.sectionErrors = {};
     this.loadingSections = 6;
     const section = (name: string, request: any) => request.pipe(
       timeout(30000),
@@ -259,18 +269,64 @@ export class DashboardHomeComponent
       this.isRefreshing = false;
     })).subscribe((result: any) => {
       this.loadingSections--;
-      if (result.failed) { this.hasError = true; return; }
-      switch (result.name) {
-        case 'stats': this.applyStats(result.data); break;
-        case 'taxpayers': this.applyTaxpayers(result.data); break;
-        case 'payments': this.applyPayments(result.data); break;
-        case 'charts': this.applyChartData(result.data); break;
-        case 'years': this.applyFiscalYears(result.data); break;
-        case 'zones': this.zones = result.data || []; break;
+      const user = this.authService.currentUser;
+      if (!user || user.id !== this.currentUser?.id || user.email !== this.currentUser?.email || user.role !== this.currentUser?.role) return;
+      const name = result.name as DashboardSection;
+      if (result.failed) {
+        this.hasError = true;
+        this.sectionErrors[name] = true;
+        return;
       }
+      this.applySection(name, result.data);
+      this.sectionUpdatedAt[name] = Date.now();
+      this.snapshots.write(this.currentUser, year, name, result.data);
       timer(0).pipe(takeUntil(this.reload$), takeUntil(this.destroy$))
         .subscribe(() => this.redrawAllCharts());
     });
+  }
+
+  private applySection(name: DashboardSection, data: any): void {
+      switch (name) {
+        case 'stats': this.applyStats(data); break;
+        case 'taxpayers': this.applyTaxpayers(data); break;
+        case 'payments': this.applyPayments(data); break;
+        case 'charts': this.applyChartData(data); break;
+        case 'years': this.applyFiscalYears(data); break;
+        case 'zones': this.zones = data || []; break;
+      }
+      this.sectionReady[name] = true;
+  }
+
+  private emptySections(): Record<DashboardSection, boolean> {
+    return {stats: false, taxpayers: false, payments: false, charts: false, years: false, zones: false};
+  }
+
+  private restoreSnapshot(year: string): void {
+    this.dataYear = year;
+    this.sectionReady = this.emptySections();
+    this.sectionUpdatedAt = {};
+    this.sectionErrors = {};
+    this.recentTaxpayers = [];
+    this.recentPayments = [];
+    this.zones = [];
+    this.applyChartData({vatChart: [], paymentChart: [], auditChart: [], myPaymentChart: []});
+    const saved = this.snapshots.read(this.currentUser, year);
+    (Object.keys(saved) as DashboardSection[]).forEach(name => {
+      const section = saved[name];
+      if (section) {
+        this.applySection(name, section.data);
+        this.sectionUpdatedAt[name] = section.savedAt;
+      }
+    });
+  }
+
+  get lastUpdated(): number | null {
+    const times = Object.values(this.sectionUpdatedAt) as number[];
+    return times.length ? Math.min(...times) : null;
+  }
+
+  sectionMessage(name: DashboardSection): string {
+    return this.sectionErrors[name] ? 'Could not update. Try Refresh.' : 'Data will appear here.';
   }
 
   // ── FiscalYear[] → dropdown + current year card ──────────────────────────
@@ -293,7 +349,7 @@ export class DashboardHomeComponent
       this.fiscalYears.find((y) => y.isCurrentYear) ?? this.fiscalYears[0];
 
     // FIX: শুধু প্রথম load এ selectedYear set করো
-    if (!this.yearInitialised && this.currentFiscalYear) {
+    if ((!this.yearInitialised || this.dataYear === '') && this.currentFiscalYear) {
       this.selectedYear = this.currentFiscalYear.yearName;
       this.yearInitialised = true;
     }
@@ -410,12 +466,11 @@ export class DashboardHomeComponent
   // ─────────────────────────────────────────────
 
   onRefresh(): void {
-    this.isRefreshing = true;
-    this.loadDashboard(this.selectedYear); // FIX: refresh এও selectedYear পাঠাও
-
+    this.loadDashboard(this.dataYear ?? '');
   }
 
   onYearChange(year: string): void {
+    this.yearInitialised = true;
     this.selectedYear = year;
     this.loadDashboard(year);
   }
@@ -465,10 +520,8 @@ export class DashboardHomeComponent
   // ─────────────────────────────────────────────
 
   private redrawAllCharts(): void {
-    this.drawGauge();
-    this.drawVatChart();
-    this.drawPayChart();
-    this.drawDonut();
+    if (this.sectionReady.stats) { this.drawGauge(); this.drawDonut(); }
+    if (this.sectionReady.charts) { this.drawVatChart(); this.drawPayChart(); }
   }
 
   private setupCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D {

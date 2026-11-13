@@ -1,12 +1,5 @@
 <div class="dashboard-wrap">
 
-  <p *ngIf="isLoading" role="status">Loading dashboard sections ({{ loadingSections }} remaining)…</p>
-  <div *ngIf="hasError" class="dash-error-banner" role="alert">
-    Some sections could not load. Previously loaded values may be out of date.
-    <button class="btn-refresh" (click)="onRefresh()">Retry</button>
-  </div>
-  <p>Summary figures may take up to 30 seconds to reflect new records.</p>
-
   <div class="dash-header">
     <div class="dash-header-left">
       <div class="greeting-avatar">
@@ -24,14 +17,21 @@
     </div>
     <div class="dash-header-right">
       <select class="year-select" [(ngModel)]="selectedYear" (change)="onYearChange(selectedYear)">
+        <option *ngIf="!fiscalYears.length" value="">Current fiscal year</option>
         <option *ngFor="let fy of fiscalYears" [value]="fy.yearName">
           FY {{ fy.yearName }}{{ fy.isCurrentYear ? ' ★' : '' }}
         </option>
       </select>
-      <button class="btn-refresh" (click)="onRefresh()" [class.spinning]="isRefreshing">
+      <button class="btn-refresh" (click)="onRefresh()" [class.spinning]="isRefreshing" [disabled]="isRefreshing">
         <i class="bi bi-arrow-clockwise"></i> Refresh
       </button>
     </div>
+  </div>
+
+  <div class="dashboard-update-status" role="status" aria-live="polite">
+    <span *ngIf="isLoading">Updating in background</span>
+    <span *ngIf="lastUpdated">Last updated {{ lastUpdated | date:'short' }}</span>
+    <span *ngIf="hasError">Some sections could not update. Use Refresh to retry.</span>
   </div>
 
   <!-- ── Current Fiscal Year Info Bar ── -->
@@ -77,6 +77,7 @@
     </a>
   </div>
 
+  <p *ngIf="sectionErrors.stats" class="section-meta">Summary could not update. Use Refresh to retry.</p>
   <div class="stat-cards-grid">
     <div class="stat-card" *ngFor="let s of statCards" [ngClass]="'sc-' + s.color">
       <div class="sc-body">
@@ -86,16 +87,16 @@
         <div class="sc-info">
           <span class="sc-label">{{ s.label }}</span>
           <span class="sc-value">
-            {{ s.label === 'Total Revenue' ? '৳' : '' }}{{ formatValue(s.value, s.suffix) }}{{ s.suffix }}
+            {{ sectionReady.stats ? (s.label === 'Total Revenue' ? '৳' : '') + formatValue(s.value, s.suffix) + s.suffix : '—' }}
           </span>
-          <span class="sc-change" [class.negative]="s.change < 0">
+          <span *ngIf="sectionReady.stats" class="sc-change" [class.negative]="s.change < 0">
             <i [class]="s.change >= 0 ? 'bi bi-trend-up' : 'bi bi-trend-down'"></i>
             {{ s.change | number:'1.1-1' }}% vs last month
           </span>
         </div>
       </div>
 
-      <div class="sc-circle-wrap">
+      <div *ngIf="sectionReady.stats" class="sc-circle-wrap">
         <svg class="sc-circle" viewBox="0 0 64 64">
           <circle cx="32" cy="32" r="28" fill="none" stroke-width="5" class="circle-bg" />
           <circle cx="32" cy="32" r="28" fill="none" stroke-width="5" class="circle-val"
@@ -133,7 +134,7 @@
           <span class="leg-dot blue"></span><span>Target</span>
         </div>
       </div>
-      <canvas id="vatChart" class="chart-canvas"></canvas>
+      <div class="chart-stage"><canvas id="vatChart" class="chart-canvas" [style.visibility]="sectionReady.charts ? 'visible' : 'hidden'"></canvas><p *ngIf="!sectionReady.charts" class="chart-placeholder">{{ sectionMessage('charts') }}</p></div>
     </div>
 
     <div class="chart-card chart-gauge">
@@ -146,15 +147,15 @@
           </div>
         </div>
       </div>
-      <canvas id="gaugeCanvas" class="gauge-canvas"></canvas>
+      <div class="chart-stage"><canvas id="gaugeCanvas" class="gauge-canvas" [style.visibility]="sectionReady.stats ? 'visible' : 'hidden'"></canvas><p *ngIf="!sectionReady.stats" class="chart-placeholder">{{ sectionMessage('stats') }}</p></div>
       <div class="gauge-stats">
         <div class="gs-item">
-          <span class="gs-val green">{{ complianceFiled | number }}</span>
+          <span class="gs-val green">{{ sectionReady.stats ? (complianceFiled | number) : '—' }}</span>
           <span class="gs-label">Filed</span>
         </div>
         <div class="gs-divider"></div>
         <div class="gs-item">
-          <span class="gs-val red">{{ compliancePending | number }}</span>
+          <span class="gs-val red">{{ sectionReady.stats ? (compliancePending | number) : '—' }}</span>
           <span class="gs-label">Pending</span>
         </div>
       </div>
@@ -172,7 +173,7 @@
           </div>
         </div>
       </div>
-      <canvas id="payChart" class="chart-canvas"></canvas>
+      <div class="chart-stage"><canvas id="payChart" class="chart-canvas" [style.visibility]="sectionReady.charts ? 'visible' : 'hidden'"></canvas><p *ngIf="!sectionReady.charts" class="chart-placeholder">{{ sectionMessage('charts') }}</p></div>
     </div>
 
     <div class="chart-card chart-donut">
@@ -186,13 +187,13 @@
         </div>
       </div>
       <div class="donut-wrap">
-        <canvas id="donutChart" class="donut-canvas"></canvas>
+        <div class="chart-stage"><canvas id="donutChart" class="donut-canvas" [style.visibility]="sectionReady.stats ? 'visible' : 'hidden'"></canvas><p *ngIf="!sectionReady.stats" class="chart-placeholder">{{ sectionMessage('stats') }}</p></div>
         <div class="donut-legend">
           <div class="dl-item" *ngFor="let t of taxBreakdown">
             <span class="dl-dot" [style.background]="t.color"></span>
             <span class="dl-label">{{ t.label }}</span>
-            <span class="dl-val">৳{{ t.value }}Cr</span>
-            <span class="dl-pct">{{ t.percentage }}%</span>
+            <span class="dl-val">{{ sectionReady.stats ? '৳' + t.value + 'Cr' : '—' }}</span>
+            <span class="dl-pct">{{ sectionReady.stats ? t.percentage + '%' : '—' }}</span>
           </div>
         </div>
       </div>
@@ -209,6 +210,8 @@
         </div>
       </div>
     </div>
+    <p *ngIf="!sectionReady.zones" class="section-placeholder">{{ sectionMessage('zones') }}</p>
+    <p *ngIf="sectionReady.zones && !zones.length" class="section-placeholder">No zone collections yet.</p>
     <div class="zone-list">
       <div class="zone-item" *ngFor="let z of zones">
         <div class="zone-info">
@@ -237,6 +240,7 @@
         </div>
         <a routerLink="/taxpayers" class="view-all-link">View All <i class="bi bi-arrow-right-short"></i></a>
       </div>
+      <p *ngIf="!sectionReady.taxpayers" class="section-placeholder">{{ sectionMessage('taxpayers') }}</p><p *ngIf="sectionReady.taxpayers && !recentTaxpayers.length" class="section-placeholder">No taxpayer records yet.</p>
       <div class="mini-table">
         <div class="mt-row" *ngFor="let t of recentTaxpayers">
           <div class="mt-avatar">{{ t.name.charAt(0) }}</div>
@@ -263,6 +267,7 @@
         </div>
         <a routerLink="/payments" class="view-all-link">View All <i class="bi bi-arrow-right-short"></i></a>
       </div>
+      <p *ngIf="!sectionReady.payments" class="section-placeholder">{{ sectionMessage('payments') }}</p><p *ngIf="sectionReady.payments && !recentPayments.length" class="section-placeholder">No payments yet.</p>
       <div class="mini-table">
         <div class="mt-row" *ngFor="let p of recentPayments">
           <div class="mt-avatar pay">৳</div>

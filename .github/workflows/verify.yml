@@ -11,4 +11,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/core/services/auth.service.spec.ts
+      - run: >-
+          npx ng test --watch=false --browsers=ChromeHeadless
+          --include='src/app/core/services/auth.service.spec.ts'
+          --include='src/app/features/dashboard/**/*.spec.ts'

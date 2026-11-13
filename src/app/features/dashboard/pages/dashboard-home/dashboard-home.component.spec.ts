@@ -1,3 +1,4 @@
+import { DashboardSnapshotService } from '../../services/dashboard-snapshot.service';
 import { Subject, of, throwError } from 'rxjs';
 import { DashboardHomeComponent } from './dashboard-home.component';
 
@@ -6,7 +7,8 @@ describe('Dashboard chart rendering', () => {
   let container: HTMLDivElement;
 
   beforeEach(() => {
-    component = new DashboardHomeComponent({} as any, {} as any, {} as any);
+    sessionStorage.clear();
+    component = new DashboardHomeComponent({} as any, {} as any, {} as any, new DashboardSnapshotService());
     container = document.createElement('div');
     container.innerHTML = '<canvas id="vatChart" style="width:400px;height:200px"></canvas><canvas id="payChart" style="width:400px;height:200px"></canvas>';
     document.body.appendChild(container);
@@ -47,8 +49,9 @@ describe('Dashboard chart rendering', () => {
       getRecentPayments: () => throwError(() => new Error('unavailable')),
       getChartData: () => waiting, getFiscalYears: () => waiting, getZones: () => waiting,
     };
-    component = new DashboardHomeComponent({currentUser: {fullName:'Demo'}} as any, service, {} as any);
+    component = new DashboardHomeComponent({currentUser: {fullName:'Demo'}} as any, service, {} as any, new DashboardSnapshotService());
     component.ngOnInit();
+    (component as any).loadDashboard();
     expect(component.recentTaxpayers[0].name).toBe('Loaded taxpayer');
     expect(component.hasError).toBeTrue();
     expect(component.isLoading).toBeTrue();
