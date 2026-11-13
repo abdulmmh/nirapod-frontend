@@ -32,6 +32,9 @@ export class DashboardService extends BaseApiService {
       vatChart, paymentChart, auditChart: [], myPaymentChart: [],
     })));
   }
+  getZones(year?: string): Observable<any[]> {
+    return this.get<any[]>(API_ENDPOINTS.DASHBOARD.ZONE_VAT, year ? { year } : undefined);
+  }
   loadAll(year?: string): Observable<any[]> {
     return forkJoin([
       this.getStats(year),

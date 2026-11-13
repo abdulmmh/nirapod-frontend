@@ -6,8 +6,8 @@ import {
   inject,
 } from '@angular/core';
 import { ToastService } from 'src/app/shared/toast/toast.service';
-import { Subject, timer } from 'rxjs';
-import { takeUntil, finalize } from 'rxjs/operators';
+import { Subject, timer, merge, of } from 'rxjs';
+import { takeUntil, finalize, map, catchError, timeout } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -39,6 +39,8 @@ export class DashboardHomeComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   private destroy$ = new Subject<void>();
+  private reload$ = new Subject<void>();
+  loadingSections = 0;
 
   // FIX: track whether user has manually changed the year
   // applyFiscalYears() will only set selectedYear on first load
@@ -237,44 +239,38 @@ export class DashboardHomeComponent
     this.isLoading = true;
     this.hasError = false;
 
-    this.dashboardService
-      .loadAll(year)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isLoading = false;
-        }),
-      )
-      .subscribe({
-        next: ([
-          stats,
-          taxpayers,
-          payments,
-          chartData,
-          ,
-          ,
-          ,
-          ,
-          fiscalYears,
-          zones,
-        ]) => {
-          this.applyStats(stats as DashboardStats);
-          this.applyTaxpayers(taxpayers as RecentTaxpayer[]);
-          this.applyPayments(payments as RecentPayment[]);
-          this.applyChartData(chartData as DashboardChartData);
-          this.applyFiscalYears(fiscalYears as FiscalYear[]);
-          if (Array.isArray(zones) && zones.length) this.zones = zones;
-          timer(50)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(() => this.redrawAllCharts());
-        },
-        error: () => {
-          this.hasError = true;
-          this.toast.error(
-            'Failed to load dashboard data. Please try refreshing.',
-          );
-        },
-      });
+    this.reload$.next();
+    this.isLoading = true;
+    this.loadingSections = 6;
+    const section = (name: string, request: any) => request.pipe(
+      timeout(30000),
+      map((data: any) => ({name, data, failed: false})),
+      catchError(() => of({name, data: null, failed: true})),
+    );
+    merge(
+      section('stats', this.dashboardService.getStats(year)),
+      section('taxpayers', this.dashboardService.getRecentTaxpayers()),
+      section('payments', this.dashboardService.getRecentPayments()),
+      section('charts', this.dashboardService.getChartData(year)),
+      section('years', this.dashboardService.getFiscalYears()),
+      section('zones', this.dashboardService.getZones(year)),
+    ).pipe(takeUntil(this.reload$), takeUntil(this.destroy$), finalize(() => {
+      this.isLoading = false;
+      this.isRefreshing = false;
+    })).subscribe((result: any) => {
+      this.loadingSections--;
+      if (result.failed) { this.hasError = true; return; }
+      switch (result.name) {
+        case 'stats': this.applyStats(result.data); break;
+        case 'taxpayers': this.applyTaxpayers(result.data); break;
+        case 'payments': this.applyPayments(result.data); break;
+        case 'charts': this.applyChartData(result.data); break;
+        case 'years': this.applyFiscalYears(result.data); break;
+        case 'zones': this.zones = result.data || []; break;
+      }
+      timer(0).pipe(takeUntil(this.reload$), takeUntil(this.destroy$))
+        .subscribe(() => this.redrawAllCharts());
+    });
   }
 
   // ── FiscalYear[] → dropdown + current year card ──────────────────────────
@@ -325,16 +321,16 @@ export class DashboardHomeComponent
     this.statCards[3].change = stats.paymentGrowth;
 
     this.statCards[4].value = stats.pendingAudits;
-    this.statCards[4].change = stats.auditGrowth ?? -3.1;
+    this.statCards[4].change = stats.auditGrowth ?? 0;
 
     this.statCards[5].value = stats.pendingRefunds;
-    this.statCards[5].change = stats.refundGrowth ?? -5.2; // FIX: hardcoded -5.2 সরানো
+    this.statCards[5].change = stats.refundGrowth ?? 0; // FIX: hardcoded -5.2 সরানো
 
     // Compliance gauge
     const totalFiled = stats.completedAudits ?? stats.totalVatReturns;
     const totalAll = totalFiled + (stats.pendingAudits ?? 0);
     this.complianceRate =
-      totalAll > 0 ? Math.round((totalFiled / totalAll) * 100) : 74;
+      totalAll > 0 ? Math.round((totalFiled / totalAll) * 100) : 0;
     this.complianceFiled = totalFiled;
     this.compliancePending = stats.pendingAudits ?? 0;
 
@@ -416,12 +412,7 @@ export class DashboardHomeComponent
   onRefresh(): void {
     this.isRefreshing = true;
     this.loadDashboard(this.selectedYear); // FIX: refresh এও selectedYear পাঠাও
-    timer(1200)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.isRefreshing = false;
-        if (!this.hasError) this.toast.success('Dashboard refreshed.');
-      });
+
   }
 
   onYearChange(year: string): void {

@@ -1,3 +1,4 @@
+import { Subject, of, throwError } from 'rxjs';
 import { DashboardHomeComponent } from './dashboard-home.component';
 
 describe('Dashboard chart rendering', () => {
@@ -36,5 +37,22 @@ describe('Dashboard chart rendering', () => {
     expect(component.payData).toEqual([]);
     expect(component.vatMonths).toEqual([]);
     expect(() => component.drawVatChart()).not.toThrow();
+  });
+  it('shows completed sections while other requests are pending and isolates errors', () => {
+    const stats = new Subject<any>();
+    const waiting = new Subject<any>();
+    const service: any = {
+      getStats: () => stats,
+      getRecentTaxpayers: () => of([{fullName:'Loaded taxpayer',tin:'DEMO',status:'Active'}]),
+      getRecentPayments: () => throwError(() => new Error('unavailable')),
+      getChartData: () => waiting, getFiscalYears: () => waiting, getZones: () => waiting,
+    };
+    component = new DashboardHomeComponent({currentUser: {fullName:'Demo'}} as any, service, {} as any);
+    component.ngOnInit();
+    expect(component.recentTaxpayers[0].name).toBe('Loaded taxpayer');
+    expect(component.hasError).toBeTrue();
+    expect(component.isLoading).toBeTrue();
+    expect(component.loadingSections).toBe(4);
+    component.ngOnDestroy();
   });
 });

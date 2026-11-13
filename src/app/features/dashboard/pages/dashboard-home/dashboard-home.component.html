@@ -1,17 +1,11 @@
 <div class="dashboard-wrap">
 
-  <!-- Loading overlay -->
-  <div *ngIf="isLoading" class="dash-loading-overlay">
-    <div class="dash-spinner"></div>
-    <p>Loading dashboard…</p>
-  </div>
-
-  <!-- Error banner -->
-  <div *ngIf="hasError && !isLoading" class="dash-error-banner">
-    <i class="bi bi-exclamation-triangle-fill"></i>
-    Could not reach the server — showing cached data. &nbsp;
+  <p *ngIf="isLoading" role="status">Loading dashboard sections ({{ loadingSections }} remaining)…</p>
+  <div *ngIf="hasError" class="dash-error-banner" role="alert">
+    Some sections could not load. Previously loaded values may be out of date.
     <button class="btn-refresh" (click)="onRefresh()">Retry</button>
   </div>
+  <p>Summary figures may take up to 30 seconds to reflect new records.</p>
 
   <div class="dash-header">
     <div class="dash-header-left">
